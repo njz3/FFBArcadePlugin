@@ -19,6 +19,9 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Common Files\CRCCheck.h" />
+    <ClInclude Include="Common Files\SignatureScanning.h" />
+    <ClInclude Include="Config\PersistentValues.h" />
     <ClInclude Include="Game Files\AliensExtermination.h" />
     <ClInclude Include="Game Files\Batman.h" />
     <ClInclude Include="Game Files\DirtyDrivin.h" />
@@ -29,21 +32,22 @@
     <ClInclude Include="Game Files\HOTD4.h" />
     <ClInclude Include="Game Files\InitialD0.h" />
     <ClInclude Include="Game Files\KODrive.h" />
-    <ClInclude Include="Game Files\OutputReading.h" />
+    <ClInclude Include="Game Files\MAMESupermodel.h" />
     <ClInclude Include="Game Files\OutRun2Real.h" />
     <ClInclude Include="Game Files\ButtonRumble.h" />
     <ClInclude Include="Game Files\Demul.h" />
     <ClInclude Include="dinput8.def">
     </ClInclude>
-    <ClInclude Include="Game Files\OldMame.h" />
     <ClInclude Include="Game Files\MarioKartGPDX1.10.h" />
     <ClInclude Include="Game Files\InitialD5.h" />
     <ClInclude Include="Game Files\InitialD4Japan.h" />
     <ClInclude Include="Game Files\M2Emulator.h" />
+    <ClInclude Include="Game Files\R-Tuned.h" />
     <ClInclude Include="Game Files\Rambo.h" />
     <ClInclude Include="Game Files\RoadFighters3D.h" />
     <ClInclude Include="Game Files\LGI.h" />
     <ClInclude Include="Game Files\LGI3D.h" />
+    <ClInclude Include="resource.h" />
     <None Include="Config\FFBPlugin.ini">
       <FileType>Document</FileType>
     </None>
@@ -54,6 +58,11 @@
   <ItemGroup>
     <ClCompile Include="Game Files\AliensExtermination.cpp" />
     <ClCompile Include="Game Files\Batman.cpp" />
+    <ClCompile Include="Game Files\DemulATVTrackInputs.cpp" />
+    <ClCompile Include="Game Files\DemulFasterThanSpeedInputs.cpp" />
+    <ClCompile Include="Game Files\DemulMaximumSpeedInputs.cpp" />
+    <ClCompile Include="Game Files\DemulNascarInputs.cpp" />
+    <ClCompile Include="Game Files\DemulSmashingDriveInputs.cpp" />
     <ClCompile Include="Game Files\DirtyDrivin.cpp" />
     <ClCompile Include="Game Files\FordRacingOther.cpp" />
     <ClCompile Include="Game Files\GoldenGun.cpp" />
@@ -61,8 +70,9 @@
     <ClCompile Include="Game Files\H2Overdrive.cpp" />
     <ClCompile Include="Game Files\HOTD4.cpp" />
     <ClCompile Include="Game Files\InitialD0.cpp" />
+    <ClCompile Include="Game Files\DemulInitialDInputs.cpp" />
     <ClCompile Include="Game Files\KODrive.cpp" />
-    <ClCompile Include="Game Files\OutputReading.cpp" />
+    <ClCompile Include="Game Files\MAMESupermodel.cpp" />
     <ClCompile Include="Game Files\OutRun2Real.cpp" />
     <ClCompile Include="Game Files\ButtonRumble.cpp" />
     <ClCompile Include="Common Files\TeknoParrotGame.cpp" />
@@ -78,14 +88,15 @@
     <ClCompile Include="Game Files\InitialD7.cpp" />
     <ClCompile Include="Game Files\InitialD8.cpp" />
     <ClCompile Include="Game Files\Machstorm.cpp" />
-    <ClCompile Include="Game Files\OldMame.cpp" />
     <ClCompile Include="Game Files\OutRun2Fake.cpp" />
     <ClCompile Include="Game Files\PokkenTournament.cpp" />
+    <ClCompile Include="Game Files\R-Tuned.cpp" />
     <ClCompile Include="Game Files\Rambo.cpp" />
     <ClCompile Include="Game Files\SegaRally3.cpp" />
     <ClCompile Include="Game Files\SegaRacingClassic.cpp" />
     <ClCompile Include="Game Files\FordRacing.cpp" />
     <ClCompile Include="Game Files\MarioKartGPDX.cpp" />
+    <ClCompile Include="Game Files\SegaRally3Other.cpp" />
     <ClCompile Include="Game Files\SnoCross.cpp" />
     <ClCompile Include="Game Files\SonicSegaAllStarsRacing.cpp" />
     <ClCompile Include="Game Files\TestGame.cpp" />
@@ -120,6 +131,7 @@
     <ClInclude Include="Game Files\SegaRacingClassic.h" />
     <ClInclude Include="Game Files\FordRacing.h" />
     <ClInclude Include="Game Files\MarioKartGPDX.h" />
+    <ClInclude Include="Game Files\SegaRally3Other.h" />
     <ClInclude Include="Game Files\SnoCross.h" />
     <ClInclude Include="Game Files\SonicSegaAllStarsRacing.h" />
     <ClInclude Include="Game Files\TestGame.h" />
@@ -134,6 +146,9 @@
   </ItemGroup>
   <ItemGroup>
     <MASM Include="DLLWrapper.asm" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="DInput8Wrapper.rc" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{023441F6-2554-440F-9FFB-7E185AB7CF41}</ProjectGuid>

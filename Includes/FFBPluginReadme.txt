@@ -1,8 +1,6 @@
 ***FFB Arcade Plugin***
 
-Version 1.7b
-
-Brought to you by Boomslangnz, Ducon2016, Spazzy & pinkimo.
+Brought to you by Boomslangnz, Ducon2016, Spazzy , Adam_ & pinkimo.
 
 This is a plugin to provide Force Feedback and Rumble to various arcade games.
 
@@ -66,7 +64,7 @@ output                    windows
 - Reaver from Teknoparrot . Huge thanks to Reaver for supplying code necessary for some games & general force feedback,
 extremely generous.
 
-- Jackchen for his Daytona Championship USA FFB work at beginning of year.
+- Jackchen for his Daytona Championship USA FFB work.
 
 - seam for always testing and helping
 
@@ -91,6 +89,7 @@ extremely generous.
 -Alien Extermination
 -Afterburner II
 -Afterburner Climax
+-ATV Track
 -Batman (2013)
 -Beast Busters
 -Battle Gear 4 Tuned (Japan version v2.07)
@@ -100,13 +99,14 @@ extremely generous.
 -Cisco Heat
 -Crusn'USA
 -Crusn' World
--Daytona USA
+-Daytona USA (M2 Emulator & MAME)
 -Daytona USA 2 - Power Edition
 -Daytona USA 2 - Battle on the Edge
 -Daytona Championship USA 
 -Dirt Devils
 -Dirty Drivin
 -Emergency Call Ambulance
+-Faster Than Speed
 -F-1 Grand Prix Star
 -F-1 Grand Prix Star II
 -Ford Racing
@@ -118,13 +118,16 @@ extremely generous.
 -House of the dead 4
 -Hyperdrive
 -Indy 500
--Initial D Zero
--Initial D 4
--Initial D 4 Japan
--Initial D 5
--Initial D 6
--Initial D 7
--Initial D 8
+-Initial D Arcade Stage
+-Initial D Arcade Stage 2
+-Initial D Arcade Stage 3
+-Initial D Arcade Stage 4
+-Initial D Arcade Stage 4 Japan
+-Initial D Arcade Stage 5
+-Initial D Arcade Stage 6
+-Initial D Arcade Stage 7
+-Initial D Arcade Stage 8
+-Initial D Arcade Stage Zero
 -KO Drive
 -Laser Ghost
 -LeMans 24
@@ -132,6 +135,7 @@ extremely generous.
 -Let's Go Island 3D
 -Machstorm
 -Mario Kart GP DX
+-Maximum Speed
 -Mechanized Attack
 -Nascar Racing
 -OffRoad Challenge
@@ -146,21 +150,23 @@ extremely generous.
 -Power Drift
 -Rail Chase
 -Rambo
--Rave Racer TURN ON FEEDBACK STEERING IN GAME SETTINGS OR YOU WILL NOT RECIEVE FORCE FEEDBACK!
-(will ONLY work on either Mame Binary 32 or 64 bit or MameUI64 for Mame version 0.199 or 0.206 on OLDMame Plugin)
+-Rave Racer (TURN ON FEEDBACK STEERING IN GAME SETTINGS OR YOU WILL NOT RECIEVE FORCE FEEDBACK)
 -Revolution X
 -Road Fighters 3D
+-R-Tuned : Ultimate Street Racing
 -San Francisco Rush
 -San Francisco Rush The Rock
 -San Francisco Rush 2049
 -Scud Race
 -Scud Race Plus
--Sega Touring Car Championship
+-Sega Touring Car Championship (M2 Emulator & MAME)
 -Sega Racing Classic
--Sega Rally Championship
+-Sega Rally Championship (M2 Emulator & MAME)
 -Sega Rally 2
 -Sega Rally 3
--Super GT 24h
+-Super Chase - Criminal Termination
+-Super GT 24h (M2 Emulator & MAME)
+-Smashing Drive
 -SnoCross
 -Sonic & Sega All Stars Racing
 -Space gun
@@ -170,7 +176,6 @@ extremely generous.
 -Turkey Shoot
 -Under Fire
 -Vapor TRX
--Virtua Racing
+-Virtua Racing (CHANGE TO UPRIGHT CABINET)
 -Wacky Races
 -Wangan Midnight Maximum Tune 5
--Le Mans 24

@@ -25,6 +25,9 @@ along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
 #include <thread>
 #include "IDirectInputDevice.h"
 #include <d3d11.h>
+#include <sapi.h>
+#include <atlcomcli.h>
+#include "Config/PersistentValues.h"
 
 // include all game header files here.
 #include "Game Files/TestGame.h"
@@ -46,13 +49,13 @@ along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
 #include "Game Files/InitialD7.h"
 #include "Game Files/InitialD8.h"
 #include "Game Files/MarioKartGPDX.h"
-#include "Game Files/OutputReading.h"
+#include "Game Files/MAMESupermodel.h"
 #include "Game Files/OutRun2Fake.h"
 #include "Game Files/OutRun2Real.h"
 #include "Game Files/SegaRacingClassic.h"
 #include "Game Files/SegaRally3.h"
+#include "Game Files/SegaRally3Other.h"
 #include "Game Files/SnoCross.h"
-#include "Game Files/OldMame.h"
 #include "Game Files/WackyRaces.h"
 #include "Game Files/WMMT5.h"
 #include "Game Files/Machstorm.h"
@@ -70,6 +73,7 @@ along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
 #include "Game Files/KODrive.h"
 #include "Game Files/HOTD4.h"
 #include "Game Files/Rambo.h"
+#include "Game Files/R-Tuned.h"
 #include "Game Files/Transformers.h"
 #include "Game Files/H2Overdrive.h"
 
@@ -832,6 +836,14 @@ LPCDIDATAFORMAT WINAPI DirectInputGetdfDIJoystick()
 	return originalGetdfDIJoystick();
 }
 
+void MEMwrite(void* adr, void* ptr, int size)
+{
+	DWORD OldProtection;
+	VirtualProtect(adr, size, PAGE_EXECUTE_READWRITE, &OldProtection);
+	memcpy(adr, ptr, size);
+	VirtualProtect(adr, size, OldProtection, &OldProtection);
+}
+
 // global variables 
 SDL_Haptic* haptic;
 SDL_Haptic* haptic2 = NULL;
@@ -839,7 +851,10 @@ SDL_Haptic* haptic3 = NULL;
 EffectCollection effects;
 EffectConstants effectConst;
 Helpers hlp;
+EffectTriggers t;
 
+bool CustomStrength = false;
+bool WaitForGame = false;
 bool keepRunning = true;
 float wheel = 0.0f;
 
@@ -858,6 +873,10 @@ int joystick_index1;
 int joystick1Index = -1;
 int joystick_index2 = -1;
 int joystick_index3 = -1;
+
+LPCSTR CustomAlternativeMaxForceLeft;
+LPCSTR CustomAlternativeMaxForceRight;
+LPCSTR CustomMaxForce;
 
 // settings
 wchar_t* settingsFilename = TEXT(".\\FFBPlugin.ini");
@@ -905,8 +924,26 @@ int RumbleStrengthLeftMotor = GetPrivateProfileInt(TEXT("Settings"), TEXT("Rumbl
 int RumbleStrengthRightMotor = GetPrivateProfileInt(TEXT("Settings"), TEXT("RumbleStrengthRightMotor"), 0, settingsFilename);
 int EnableForceSpringEffect = GetPrivateProfileInt(TEXT("Settings"), TEXT("EnableForceSpringEffect"), 0, settingsFilename);
 int ForceSpringStrength = GetPrivateProfileInt(TEXT("Settings"), TEXT("ForceSpringStrength"), 0, settingsFilename);
+int AutoCloseWindowError = GetPrivateProfileInt(TEXT("Settings"), TEXT("AutoCloseWindowError"), 0, settingsFilename);
+int EnableFFBStrengthDynamicAdjustment = GetPrivateProfileInt(TEXT("Settings"), TEXT("EnableFFBStrengthDynamicAdjustment"), 0, settingsFilename);
+int IncreaseFFBStrength = GetPrivateProfileInt(TEXT("Settings"), TEXT("IncreaseFFBStrength"), NULL, settingsFilename);
+int DecreaseFFBStrength = GetPrivateProfileInt(TEXT("Settings"), TEXT("DecreaseFFBStrength"), NULL, settingsFilename);
+int ResetFFBStrength = GetPrivateProfileInt(TEXT("Settings"), TEXT("ResetFFBStrength"), NULL, settingsFilename);
+int StepFFBStrength = GetPrivateProfileInt(TEXT("Settings"), TEXT("StepFFBStrength"), 5, settingsFilename);
+int EnableFFBStrengthPersistence = GetPrivateProfileInt(TEXT("Settings"), TEXT("EnableFFBStrengthPersistence"), 0, settingsFilename);
+int EnableFFBStrengthTextToSpeech = GetPrivateProfileInt(TEXT("Settings"), TEXT("EnableFFBStrengthTextToSpeech"), 0, settingsFilename);
+int InputDeviceWheelEnable = GetPrivateProfileInt(TEXT("Settings"), TEXT("InputDeviceWheelEnable"), 0, settingsFilename);
+
+extern void DefaultConfigValues();
+extern void CustomFFBStrengthSetup();
 
 char chainedDLL[256];
+static char FFBStrength1[256];
+static wchar_t FFBStrength2[256];
+
+SDL_Event e;
+HRESULT hr;
+CComPtr<ISpVoice> cpVoice;
 
 const int TEST_GAME_CONST = -1;
 const int TEST_GAME_SINE = -2;
@@ -937,7 +974,7 @@ const int INITIAL_D_8 = 18;
 const int POKKEN_TOURNAMENT = 19;
 const int MARIO_KART_GPDX_110 = 20;
 const int Sonic_Sega_AllStars_Racing = 21;
-const int OUTPUT_READING = 22;
+const int MAME_ = 22;
 const int INITIAL_D_5 = 23;
 const int INITIAL_D_4_Japan = 24;
 const int M2_Emulator = 25;
@@ -948,8 +985,7 @@ const int Road_Fighters_3D = 29;
 const int LGI_3D = 30;
 const int LGI_ = 31;
 const int INITIAL_D_0 = 32;
-const int OLDMAME_ = 33;
-const int SUPERMODEL_READING = 34;
+const int SUPERMODEL_ = 34;
 const int OUTRUN_2Real = 35;
 const int ALIENS_EXTERMINATION = 36;
 const int RAMBO_ = 37;
@@ -961,6 +997,8 @@ const int Dirty_Drivin = 42;
 const int H2_Overdrive = 43;
 const int Sno_Cross = 44;
 const int Bat_man = 45;
+const int R_Tuned = 46;
+const int SEGA_RALLY_3_Other = 47;
 
 HINSTANCE Get_hInstance()
 {
@@ -971,8 +1009,8 @@ HINSTANCE Get_hInstance()
 
 void Initialize(int device_index)
 {
+	SDL_Init(SDL_INIT_JOYSTICK | SDL_INIT_GAMECONTROLLER | SDL_INIT_HAPTIC);
 	hlp.log("in initialize");
-	SDL_Init(SDL_INIT_JOYSTICK | SDL_INIT_GAMECONTROLLER | SDL_INIT_HAPTIC | SDL_INIT_TIMER);
 	SDL_JoystickEventState(SDL_ENABLE);
 	SDL_JoystickUpdate();
 	char joystick_guid[256];
@@ -1043,7 +1081,6 @@ void Initialize(int device_index)
 	SDL_HapticSetGain(haptic, 100); // HapticSetGain should be between 0 and 100 as per https://wiki.libsdl.org/SDL_HapticSetGain
 	hlp.log("setting haptic auto center to 0");
 	SDL_HapticSetAutocenter(haptic, 0); // 0 disables autocenter https://wiki.libsdl.org/SDL_HapticSetAutocenter
-
 
 	SDL_HapticEffect tempEffect;
 	hlp.log("creating base effects...");
@@ -1138,7 +1175,6 @@ void Initialize(int device_index)
 		effects.effect_sine_id_device3 = SDL_HapticNewEffect(haptic3, &tempEffect3);
 	}
 	
-
 	// TODO: why don't we just define this as hackFix = true in the other file?
 	// Was there a reason to put it here?
 //	extern bool hackFix;
@@ -1897,28 +1933,295 @@ void TriggerSpringEffect(double strength)
 
 int WorkaroundToFixRumble(void* ptr)
 {
-	SDL_Event e;
 	while (SDL_WaitEvent(&e) != 0)
 	{
 	}
 	return 0;
 }
 
+void WritePersistentMaxForce()
+{
+	if (EnableFFBStrengthPersistence == 1)
+	{
+		if (AlternativeFFB == 1)
+		{
+			WritePrivateProfileStringA("Settings", CustomAlternativeMaxForceLeft, (char*)(std::to_string(configAlternativeMaxForceLeft)).c_str(), ".\\FFBPlugin.ini");
+			WritePrivateProfileStringA("Settings", CustomAlternativeMaxForceRight, (char*)(std::to_string(configAlternativeMaxForceRight)).c_str(), ".\\FFBPlugin.ini");
+		}
+		else
+		{
+			WritePrivateProfileStringA("Settings", CustomMaxForce, (char*)(std::to_string(configMaxForce)).c_str(), ".\\FFBPlugin.ini");
+		}
+	}
+}
+
+static int StrengthLoopWaitEvent()
+{
+	if (!WaitForGame)
+	{
+		if (configGameId != 26)
+		{
+			Sleep(4000);
+			WaitForGame = true;
+		}
+	}
+	else
+	{
+		if (!CustomStrength)
+		{
+			CustomFFBStrengthSetup();
+			CustomStrength = true;
+		}
+
+		while (SDL_WaitEvent(&e) != 0)
+		{
+			if (e.type == SDL_JOYBUTTONDOWN)
+			{
+				if (e.jbutton.which == joystick_index1)
+				{
+					if (e.jbutton.button == IncreaseFFBStrength)
+					{
+						if (AlternativeFFB == 1)
+						{
+							if ((configAlternativeMaxForceRight >= 0) && (configAlternativeMaxForceRight < 100))
+							{
+								configAlternativeMaxForceRight += StepFFBStrength;
+								configAlternativeMaxForceRight = max(0, min(100, configAlternativeMaxForceRight));
+							}
+							if ((configAlternativeMaxForceLeft <= 0) && (configAlternativeMaxForceLeft > -100))
+							{
+								configAlternativeMaxForceLeft -= StepFFBStrength;
+								configAlternativeMaxForceLeft = max(-100, min(0, configAlternativeMaxForceLeft));
+							}
+						}
+						else
+						{
+							if ((configMaxForce >= 0) && (configMaxForce < 100))
+							{
+								configMaxForce += StepFFBStrength;
+								configMaxForce = max(0, min(100, configMaxForce));
+							}
+						}
+						WritePersistentMaxForce();
+					}
+
+					if (e.jbutton.button == DecreaseFFBStrength)
+					{
+						if (AlternativeFFB == 1)
+						{
+							if ((configAlternativeMaxForceRight > 0) && (configAlternativeMaxForceRight <= 100))
+							{
+								configAlternativeMaxForceRight -= StepFFBStrength;
+								configAlternativeMaxForceRight = max(0, min(100, configAlternativeMaxForceRight));
+							}
+							if ((configAlternativeMaxForceLeft < 0) && (configAlternativeMaxForceLeft >= -100))
+							{
+								configAlternativeMaxForceLeft += StepFFBStrength;
+								configAlternativeMaxForceLeft = max(-100, min(0, configAlternativeMaxForceLeft));
+							}
+						}
+						else
+						{
+							if ((configMaxForce > 0) && (configMaxForce <= 100))
+							{
+								configMaxForce -= StepFFBStrength;
+								configMaxForce = max(0, min(100, configMaxForce));
+							}
+						}
+						WritePersistentMaxForce();
+					}
+
+					if (e.jbutton.button == ResetFFBStrength)
+					{
+						DefaultConfigValues();
+						WritePersistentMaxForce();
+					}
+
+					if (EnableFFBStrengthTextToSpeech == 1)
+					{
+						if ((e.jbutton.button == IncreaseFFBStrength) || (e.jbutton.button == DecreaseFFBStrength) || (e.jbutton.button == ResetFFBStrength))
+						{
+							if (AlternativeFFB == 1)
+							{
+								sprintf(FFBStrength1, "Max Force: %d", configAlternativeMaxForceRight);
+							}
+							else
+							{
+								sprintf(FFBStrength1, "Max Force: %d", configMaxForce);
+							}
+
+							hr = ::CoInitialize(nullptr);
+							hr = cpVoice.CoCreateInstance(CLSID_SpVoice);
+							mbstowcs(FFBStrength2, FFBStrength1, strlen(FFBStrength1) + 1);
+							LPWSTR ptr = FFBStrength2;
+
+							if (SUCCEEDED(hr))
+							{
+								hr = cpVoice->SetRate(3);
+								hr = cpVoice->SetOutput(NULL, TRUE);
+								hr = cpVoice->Speak(ptr, SPF_PURGEBEFORESPEAK, NULL);
+								::CoUninitialize();
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	return 0;
+}
+
+static int StrengthLoopNoWaitEvent()
+{
+	if (!WaitForGame)
+	{
+		if (configGameId != 26)
+		{
+			Sleep(4000);
+			WaitForGame = true;
+		}
+	}
+	else
+	{
+		if (!CustomStrength)
+		{
+			CustomFFBStrengthSetup();
+			CustomStrength = true;
+		}
+
+		if (e.type == SDL_JOYBUTTONDOWN)
+		{
+			if (e.jbutton.which == joystick_index1)
+			{
+				if (e.jbutton.button == IncreaseFFBStrength)
+				{
+					if (AlternativeFFB == 1)
+					{
+						if ((configAlternativeMaxForceRight >= 0) && (configAlternativeMaxForceRight < 100))
+						{
+							configAlternativeMaxForceRight += StepFFBStrength;
+							configAlternativeMaxForceRight = max(0, min(100, configAlternativeMaxForceRight));
+						}
+						if ((configAlternativeMaxForceLeft <= 0) && (configAlternativeMaxForceLeft > -100))
+						{
+							configAlternativeMaxForceLeft -= StepFFBStrength;
+							configAlternativeMaxForceLeft = max(-100, min(0, configAlternativeMaxForceLeft));
+						}
+					}
+					else
+					{
+						if ((configMaxForce >= 0) && (configMaxForce < 100))
+						{
+							configMaxForce += StepFFBStrength;
+							configMaxForce = max(0, min(100, configMaxForce));
+						}
+					}
+					WritePersistentMaxForce();
+				}
+
+				if (e.jbutton.button == DecreaseFFBStrength)
+				{
+					if (AlternativeFFB == 1)
+					{
+						if ((configAlternativeMaxForceRight > 0) && (configAlternativeMaxForceRight <= 100))
+						{
+							configAlternativeMaxForceRight -= StepFFBStrength;
+							configAlternativeMaxForceRight = max(0, min(100, configAlternativeMaxForceRight));
+						}
+						if ((configAlternativeMaxForceLeft < 0) && (configAlternativeMaxForceLeft >= -100))
+						{
+							configAlternativeMaxForceLeft += StepFFBStrength;
+							configAlternativeMaxForceLeft = max(-100, min(0, configAlternativeMaxForceLeft));
+						}
+					}
+					else
+					{
+						if ((configMaxForce > 0) && (configMaxForce <= 100))
+						{
+							configMaxForce -= StepFFBStrength;
+							configMaxForce = max(0, min(100, configMaxForce));
+						}
+					}
+					WritePersistentMaxForce();
+				}
+
+				if (e.jbutton.button == ResetFFBStrength)
+				{
+					DefaultConfigValues();
+					WritePersistentMaxForce();
+				}
+
+				if (EnableFFBStrengthTextToSpeech == 1)
+				{
+					if ((e.jbutton.button == IncreaseFFBStrength) || (e.jbutton.button == DecreaseFFBStrength) || (e.jbutton.button == ResetFFBStrength))
+					{
+						if (AlternativeFFB == 1)
+						{
+							sprintf(FFBStrength1, "Max Force: %d", configAlternativeMaxForceRight);
+						}
+						else
+						{
+							sprintf(FFBStrength1, "Max Force: %d", configMaxForce);
+						}
+
+						hr = ::CoInitialize(nullptr);
+						hr = cpVoice.CoCreateInstance(CLSID_SpVoice);
+						mbstowcs(FFBStrength2, FFBStrength1, strlen(FFBStrength1) + 1);
+						LPWSTR ptr = FFBStrength2;
+
+						if (SUCCEEDED(hr))
+						{
+							hr = cpVoice->SetRate(3);
+							hr = cpVoice->SetOutput(NULL, TRUE);
+							hr = cpVoice->Speak(ptr, SPF_PURGEBEFORESPEAK, NULL);
+							::CoUninitialize();
+						}
+					}
+				}
+			}
+		}
+	}	
+	return 0;
+}
+
+DWORD WINAPI AdjustFFBStrengthLoopWaitEvent(LPVOID lpParam)
+{
+	while (true)
+	{
+		StrengthLoopWaitEvent();
+		Sleep(16);
+	}
+}
+
+DWORD WINAPI AdjustFFBStrengthLoopNoWaitEvent(LPVOID lpParam)
+{
+	while (true)
+	{
+		StrengthLoopNoWaitEvent();
+		Sleep(16);
+	}
+}
+
 DWORD WINAPI FFBLoop(LPVOID lpParam)
 {
 	hlp.log("In FFBLoop");
 
-	if ((configGameId != 29) && (configGameId != 34)) //For games which need code to run quicker etc. Some games will crash if no sleep added
+	SDL_HapticStopAll(haptic);
+	if ((configGameId != 22) && (configGameId != 29) && (configGameId != 34)) //For games which need code to run quicker etc. Some games will crash if no sleep added
 	{
 		Sleep(2500);
 	}
-
+	Initialize(0);
+	hlp.log("Initialize() complete");
 	if (EnableRumble == 1)
 	{
-		if ((configGameId != 1) && (configGameId != 9) && (configGameId != 12) && (configGameId != 28) && (configGameId != 29) && (configGameId != 30) && (configGameId != 31) && (configGameId != 35))
+		if ((EnableFFBStrengthDynamicAdjustment != 1) && (InputDeviceWheelEnable != 1))
 		{
-			// Workaround for SDL_JoystickRumble rumble not stopping issue
-			SDL_CreateThread(WorkaroundToFixRumble, "WorkaroundToFixRumble", (void*)NULL);
+			if ((configGameId != 1) && (configGameId != 9) && (configGameId != 12) && (configGameId != 28) && (configGameId != 29) && (configGameId != 35))
+			{
+				// Workaround for SDL_JoystickRumble rumble not stopping issue
+				SDL_CreateThread(WorkaroundToFixRumble, "WorkaroundToFixRumble", (void*)NULL);
+			}
 		}
 
 		//SPECIAL K DISABLES RUMBLE BY DEFAULT. WRITE IT TO FALSE
@@ -1935,12 +2238,7 @@ DWORD WINAPI FFBLoop(LPVOID lpParam)
 		}
 	}
 
-	SDL_HapticStopAll(haptic);
-	Initialize(0);
-	hlp.log("Initialize() complete");
-
 	// assign FFB effects here
-	EffectTriggers t;
 	t.Constant = &TriggerConstantEffect;
 	t.Spring = &TriggerSpringEffect;
 	t.Friction = &TriggerFrictionEffect;
@@ -1971,11 +2269,11 @@ DWORD WINAPI FFBLoop(LPVOID lpParam)
 	case DAYTONA_3:
 		game = new Daytona3;
 		break;
-	case SUPERMODEL_READING:
-		game = new OutputReading;
+	case SUPERMODEL_:
+		game = new MAMESupermodel;
 		break;
-	case OUTPUT_READING:
-		game = new OutputReading;
+	case MAME_:
+		game = new MAMESupermodel;
 		break;
 	case FORD_RACING:
 		game = new FordRacing;
@@ -2018,6 +2316,9 @@ DWORD WINAPI FFBLoop(LPVOID lpParam)
 		break;
 	case SEGA_RALLY_3:
 		game = new SegaRally3;
+		break;
+	case SEGA_RALLY_3_Other:
+		game = new SegaRally3Other;
 		break;
 	case WACKY_RACES:
 		game = new WackyRaces;
@@ -2076,9 +2377,6 @@ DWORD WINAPI FFBLoop(LPVOID lpParam)
 	case LGI_:
 		game = new LGI;
 		break;
-	case OLDMAME_:
-		game = new OldMame;
-		break;
 	case KO_Drive:
 		game = new KODrive;
 		break;
@@ -2096,6 +2394,9 @@ DWORD WINAPI FFBLoop(LPVOID lpParam)
 		break;
 	case Bat_man:
 		game = new Batman;
+		break;
+	case R_Tuned:
+		game = new RTuned;
 		break;
 	case TEST_GAME_CONST:
 	case TEST_GAME_FRICTION:
@@ -2115,6 +2416,25 @@ DWORD WINAPI FFBLoop(LPVOID lpParam)
 	}
 	if (configDefaultFriction >= 0 && configDefaultFriction <= 100) {
 		TriggerFrictionEffectWithDefaultOption(configDefaultFriction / 100.0, true);
+	}
+
+	if (EnableFFBStrengthDynamicAdjustment == 1)
+	{
+		if ((configGameId != 1) && (configGameId != 9) && (configGameId != 12) && (configGameId != 28) && (configGameId != 29) && (configGameId != 35))
+		{
+			if ((configGameId == 26) && (InputDeviceWheelEnable == 1))
+			{
+				CreateThread(NULL, 0, AdjustFFBStrengthLoopNoWaitEvent, NULL, 0, NULL);
+			}
+			else
+			{
+				CreateThread(NULL, 0, AdjustFFBStrengthLoopWaitEvent, NULL, 0, NULL);
+			}	
+		}
+		else
+		{
+			CreateThread(NULL, 0, AdjustFFBStrengthLoopNoWaitEvent, NULL, 0, NULL);
+		}
 	}
 
 	hlp.log("Entering Game's FFBLoop loop");
@@ -2210,6 +2530,10 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ulReasonForCall, LPVOID lpReserved)
 			}
 			hlp.log(buffer);
 			gl_hOriginalDll = LoadLibraryA(buffer);
+			if (configGameId == 47)
+			{
+				MEMwrite((void*)(0x57B2F0), (void*)"\x33\xC0\x40\xC3", 4);
+			}
 			if (configGameId == 29)
 			{
 				gl_hjgtDll = LoadLibraryA("jgt.dll");
@@ -2944,49 +3268,6 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ulReasonForCall, LPVOID lpReserved)
 		hlp.log((char*)processName.c_str());
 		keepRunning = false;
 
-		if (haptic > 0)
-		{
-			SDL_HapticStopAll(haptic);
-			SDL_HapticClose(haptic); // release the haptic device / clean-up.
-		}
-
-		if (haptic2 > 0)
-		{
-			SDL_HapticStopAll(haptic2);
-			SDL_HapticClose(haptic2);
-		}
-
-		if (haptic3 > 0)
-		{
-			SDL_HapticStopAll(haptic3);
-			SDL_HapticClose(haptic3);
-		}
-
-		if (gl_hOriginalDll)
-		{
-			FreeLibrary(gl_hOriginalDll);
-		}
-
-		if (gl_hjgtDll)
-		{
-			FreeLibrary(gl_hjgtDll);
-		}
-
-		if (gl_hlibavs)
-		{
-			FreeLibrary(gl_hlibavs);
-		}
-
-		if (gl_cgGLDll)
-		{
-			FreeLibrary(gl_cgGLDll);
-		}
-
-		if (ProcDLL)
-		{
-			FreeLibrary(ProcDLL);
-		}
-
 		if (GameController)
 		{
 			if (EnableRumble == 1)
@@ -3002,6 +3283,30 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ulReasonForCall, LPVOID lpReserved)
 				SDL_JoystickRumble(GameController2, 0, 0, 0);
 			}
 		}
+
+		if (GameController3)
+		{
+			if (EnableRumbleDevice3 == 1)
+			{
+				SDL_JoystickRumble(GameController3, 0, 0, 0);
+			}
+		}
+
+		if (haptic)
+		{
+			SDL_HapticClose(haptic);
+		}
+
+		if (haptic2)
+		{
+			SDL_HapticClose(haptic2);
+		}
+
+		if (haptic3)
+		{
+			SDL_HapticClose(haptic3);
+		}
+
 		break;
 	}
 
