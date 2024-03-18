@@ -2644,6 +2644,15 @@ void CreateFFBLoopThread()
 	hlp.log("After CreateThread");
 }
 
+void LeaveFFBLoopThread()
+{
+	hlp.log("Before LeaveFFBLoopThread");
+	keepRunning = false;
+	// Leave some time for thread to exit
+	Sleep(32);
+	hlp.log("After LeaveFFBLoopThread");
+}
+
 BOOL APIENTRY DllMain(HMODULE hModule, DWORD ulReasonForCall, LPVOID lpReserved)
 {
 	BOOL result = TRUE;
@@ -3473,7 +3482,10 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ulReasonForCall, LPVOID lpReserved)
 	case DLL_PROCESS_DETACH:
 		hlp.log("detaching from process:");
 		hlp.log((char*)processName.c_str());
-		keepRunning = false;
+
+		LeaveFFBLoopThread();
+		SetErrorMode(SEM_FAILCRITICALERRORS | SEM_NOGPFAULTERRORBOX);
+
 
 		if (configGameId == 60)
 			WritePrivateProfileStringA("Settings", "ProcessID", 0, ".\\FFBPlugin.ini");
