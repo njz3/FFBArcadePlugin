@@ -20,33 +20,59 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Common Files\CRCCheck.h" />
+    <ClInclude Include="Common Files\MinHook.h" />
     <ClInclude Include="Common Files\SignatureScanning.h" />
     <ClInclude Include="Config\PersistentValues.h" />
     <ClInclude Include="Game Files\AliensExtermination.h" />
     <ClInclude Include="Game Files\Batman.h" />
+    <ClInclude Include="Game Files\CrazyTaxi.h" />
+    <ClInclude Include="Game Files\D1GP.h" />
+    <ClInclude Include="Game Files\Daytona3NSE.h" />
+    <ClInclude Include="Game Files\DeadHeat.h" />
+    <ClInclude Include="Game Files\DeadHeatRiders.h" />
     <ClInclude Include="Game Files\DirtyDrivin.h" />
     <ClInclude Include="Game Files\FordRacingOther.h" />
+    <ClInclude Include="Game Files\GaelcoTuningRace.h" />
     <ClInclude Include="Game Files\GoldenGun.h" />
-    <ClInclude Include="Game Files\GRID.h" />
+    <ClInclude Include="Game Files\GRIDCustom.h" />
+    <ClInclude Include="Game Files\GRIDReal.h" />
     <ClInclude Include="Game Files\H2Overdrive.h" />
     <ClInclude Include="Game Files\HOTD4.h" />
-    <ClInclude Include="Game Files\InitialD0.h" />
+    <ClInclude Include="Game Files\InitialD0v131.h" />
+    <ClInclude Include="Game Files\InitialD0v211.h" />
+    <ClInclude Include="Game Files\InitialD0v230.h" />
     <ClInclude Include="Game Files\KODrive.h" />
     <ClInclude Include="Game Files\MAMESupermodel.h" />
+    <ClInclude Include="Game Files\MarioKartGPDX1.10Real.h" />
+    <ClInclude Include="Game Files\MarioKartGPDX1.18Custom.h" />
+    <ClInclude Include="Game Files\MarioKartGPDX1.18Real.h" />
+    <ClInclude Include="Game Files\MarioKartGPDXUSACustom.h" />
+    <ClInclude Include="Game Files\MarioKartGPDXUSAReal.h" />
     <ClInclude Include="Game Files\OutRun2Real.h" />
     <ClInclude Include="Game Files\ButtonRumble.h" />
     <ClInclude Include="Game Files\Demul.h" />
     <ClInclude Include="dinput8.def">
     </ClInclude>
-    <ClInclude Include="Game Files\MarioKartGPDX1.10.h" />
+    <ClInclude Include="Game Files\MarioKartGPDX1.10Custom.h" />
     <ClInclude Include="Game Files\InitialD5.h" />
     <ClInclude Include="Game Files\InitialD4Japan.h" />
     <ClInclude Include="Game Files\M2Emulator.h" />
     <ClInclude Include="Game Files\R-Tuned.h" />
     <ClInclude Include="Game Files\Rambo.h" />
+    <ClInclude Include="Game Files\RingRiders.h" />
     <ClInclude Include="Game Files\RoadFighters3D.h" />
     <ClInclude Include="Game Files\LGI.h" />
     <ClInclude Include="Game Files\LGI3D.h" />
+    <ClInclude Include="Game Files\Showdown.h" />
+    <ClInclude Include="Game Files\SpringEffect.h" />
+    <ClInclude Include="Game Files\StormRacerG.h" />
+    <ClInclude Include="Game Files\SWDC2018.h" />
+    <ClInclude Include="Game Files\TokyoCop.h" />
+    <ClInclude Include="Game Files\WMMT3.h" />
+    <ClInclude Include="Game Files\WMMT5DX+.h" />
+    <ClInclude Include="Game Files\WMMT5DX.h" />
+    <ClInclude Include="Game Files\WMMT6.h" />
+    <ClInclude Include="Game Files\WMMT6R.h" />
     <ClInclude Include="resource.h" />
     <None Include="Config\FFBPlugin.ini">
       <FileType>Document</FileType>
@@ -58,6 +84,11 @@
   <ItemGroup>
     <ClCompile Include="Game Files\AliensExtermination.cpp" />
     <ClCompile Include="Game Files\Batman.cpp" />
+    <ClCompile Include="Game Files\CrazyTaxi.cpp" />
+    <ClCompile Include="Game Files\D1GP.cpp" />
+    <ClCompile Include="Game Files\Daytona3NSE.cpp" />
+    <ClCompile Include="Game Files\DeadHeat.cpp" />
+    <ClCompile Include="Game Files\DeadHeatRiders.cpp" />
     <ClCompile Include="Game Files\DemulATVTrackInputs.cpp" />
     <ClCompile Include="Game Files\DemulFasterThanSpeedInputs.cpp" />
     <ClCompile Include="Game Files\DemulMaximumSpeedInputs.cpp" />
@@ -65,14 +96,26 @@
     <ClCompile Include="Game Files\DemulSmashingDriveInputs.cpp" />
     <ClCompile Include="Game Files\DirtyDrivin.cpp" />
     <ClCompile Include="Game Files\FordRacingOther.cpp" />
+    <ClCompile Include="Game Files\GaelcoTuningRace.cpp" />
     <ClCompile Include="Game Files\GoldenGun.cpp" />
-    <ClCompile Include="Game Files\GRID.cpp" />
+    <ClCompile Include="Game Files\GRIDCustom.cpp" />
+    <ClCompile Include="Game Files\GRIDReal.cpp" />
     <ClCompile Include="Game Files\H2Overdrive.cpp" />
     <ClCompile Include="Game Files\HOTD4.cpp" />
-    <ClCompile Include="Game Files\InitialD0.cpp" />
+    <ClCompile Include="Game Files\InitialD0v131.cpp" />
     <ClCompile Include="Game Files\DemulInitialDInputs.cpp" />
+    <ClCompile Include="Game Files\InitialD0v211.cpp" />
+    <ClCompile Include="Game Files\InitialD0v230.cpp" />
     <ClCompile Include="Game Files\KODrive.cpp" />
+    <ClCompile Include="Game Files\M2EmulatorDaytonaInputs.cpp" />
+    <ClCompile Include="Game Files\M2EmulatorIndy500Inputs.cpp" />
+    <ClCompile Include="Game Files\M2EmulatorSegaRallyInputs.cpp" />
     <ClCompile Include="Game Files\MAMESupermodel.cpp" />
+    <ClCompile Include="Game Files\MarioKartGPDX1.10Real.cpp" />
+    <ClCompile Include="Game Files\MarioKartGPDX1.18Custom.cpp" />
+    <ClCompile Include="Game Files\MarioKartGPDX1.18Real.cpp" />
+    <ClCompile Include="Game Files\MarioKartGPDXUSACustom.cpp" />
+    <ClCompile Include="Game Files\MarioKartGPDXUSAReal.cpp" />
     <ClCompile Include="Game Files\OutRun2Real.cpp" />
     <ClCompile Include="Game Files\ButtonRumble.cpp" />
     <ClCompile Include="Common Files\TeknoParrotGame.cpp" />
@@ -92,21 +135,32 @@
     <ClCompile Include="Game Files\PokkenTournament.cpp" />
     <ClCompile Include="Game Files\R-Tuned.cpp" />
     <ClCompile Include="Game Files\Rambo.cpp" />
+    <ClCompile Include="Game Files\RingRiders.cpp" />
     <ClCompile Include="Game Files\SegaRally3.cpp" />
     <ClCompile Include="Game Files\SegaRacingClassic.cpp" />
     <ClCompile Include="Game Files\FordRacing.cpp" />
-    <ClCompile Include="Game Files\MarioKartGPDX.cpp" />
+    <ClCompile Include="Game Files\MarioKartGPDXCustom.cpp" />
     <ClCompile Include="Game Files\SegaRally3Other.cpp" />
+    <ClCompile Include="Game Files\Showdown.cpp" />
     <ClCompile Include="Game Files\SnoCross.cpp" />
     <ClCompile Include="Game Files\SonicSegaAllStarsRacing.cpp" />
+    <ClCompile Include="Game Files\SpringEffect.cpp" />
+    <ClCompile Include="Game Files\StormRacerG.cpp" />
+    <ClCompile Include="Game Files\SWDC2018.cpp" />
     <ClCompile Include="Game Files\TestGame.cpp" />
+    <ClCompile Include="Game Files\TokyoCop.cpp" />
     <ClCompile Include="Game Files\Transformers.cpp" />
     <ClCompile Include="Game Files\WackyRaces.cpp" />
+    <ClCompile Include="Game Files\WMMT3.cpp" />
     <ClCompile Include="Game Files\WMMT5.cpp" />
     <ClCompile Include="Game Files\InitialD4Japan.cpp" />
     <ClCompile Include="Game Files\GTIClub3.cpp" />
+    <ClCompile Include="Game Files\WMMT5DX+.cpp" />
+    <ClCompile Include="Game Files\WMMT5DX.cpp" />
+    <ClCompile Include="Game Files\WMMT6.cpp" />
+    <ClCompile Include="Game Files\WMMT6R.cpp" />
     <ClCompile Include="IDirectInputDevice.cpp" />
-    <ClCompile Include="Game Files\MarioKartGPDX1.10.cpp" />
+    <ClCompile Include="Game Files\MarioKartGPDX1.10Custom.cpp" />
     <ClCompile Include="Game Files\InitialD5.cpp" />
     <ClCompile Include="Game Files\M2Emulator.cpp" />
     <ClCompile Include="Game Files\RoadFighters3D.cpp" />
@@ -130,7 +184,7 @@
     <ClInclude Include="Game Files\SegaRally3.h" />
     <ClInclude Include="Game Files\SegaRacingClassic.h" />
     <ClInclude Include="Game Files\FordRacing.h" />
-    <ClInclude Include="Game Files\MarioKartGPDX.h" />
+    <ClInclude Include="Game Files\MarioKartGPDXCustom.h" />
     <ClInclude Include="Game Files\SegaRally3Other.h" />
     <ClInclude Include="Game Files\SnoCross.h" />
     <ClInclude Include="Game Files\SonicSegaAllStarsRacing.h" />
@@ -161,26 +215,26 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <WholeProgramOptimization>false</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <WholeProgramOptimization>false</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
@@ -254,7 +308,8 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>Debug</GenerateDebugInformation>
       <ModuleDefinitionFile>dinput8.def</ModuleDefinitionFile>
-      <AdditionalDependencies>dinput8.lib;dxguid.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;xinput.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>dinput8.lib;dxguid.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;xinput.lib;Common Files/MinHook/x86/Debug/MinHook.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <IgnoreSpecificDefaultLibraries>libcmt.lib</IgnoreSpecificDefaultLibraries>
     </Link>
     <ResourceCompile>
       <AdditionalIncludeDirectories>Resources</AdditionalIncludeDirectories>
@@ -287,7 +342,8 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>Debug</GenerateDebugInformation>
       <ModuleDefinitionFile>dinput8.def</ModuleDefinitionFile>
-      <AdditionalDependencies>dinput8.lib;dxguid.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;xinput.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>dinput8.lib;dxguid.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;xinput.lib;Common Files/MinHook/x64/Debug/MinHook.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <IgnoreSpecificDefaultLibraries>libcmtd.lib</IgnoreSpecificDefaultLibraries>
     </Link>
     <ResourceCompile>
       <AdditionalIncludeDirectories>Resources</AdditionalIncludeDirectories>
@@ -321,9 +377,10 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>No</GenerateDebugInformation>
       <ModuleDefinitionFile>dinput8.def</ModuleDefinitionFile>
-      <AdditionalDependencies>dinput8.lib;dxguid.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>dinput8.lib;dxguid.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;Common Files/MinHook/x86/Release/MinHook.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ImageHasSafeExceptionHandlers />
       <ImportLibrary>$(OutDir)$(TargetName).lib</ImportLibrary>
+      <IgnoreSpecificDefaultLibraries>libcmt.lib</IgnoreSpecificDefaultLibraries>
     </Link>
     <ResourceCompile>
       <AdditionalIncludeDirectories>Resources</AdditionalIncludeDirectories>
@@ -373,7 +430,10 @@ cd $(OutDir) &amp;amp;&amp;amp; for /D /r %d in (.\Deploy\*) do @xcopy *.dll %d\
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>No</GenerateDebugInformation>
       <ModuleDefinitionFile>dinput8.def</ModuleDefinitionFile>
-      <AdditionalDependencies>dinput8.lib;dxguid.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>dinput8.lib;dxguid.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;Common Files/MinHook/x64/Release/MinHook.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <IgnoreAllDefaultLibraries>
+      </IgnoreAllDefaultLibraries>
+      <IgnoreSpecificDefaultLibraries>libcmt.lib</IgnoreSpecificDefaultLibraries>
     </Link>
     <ResourceCompile>
       <AdditionalIncludeDirectories>Resources</AdditionalIncludeDirectories>
@@ -395,14 +455,14 @@ cd $(OutDir) &amp;amp;&amp;amp; for /D /r %d in (.\Deploy\*) do @xcopy *.dll %d\
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
     <Import Project="$(VCTargetsPath)\BuildCustomizations\masm.targets" />
-    <Import Project="packages\sdl2.nuget.redist.2.0.9\build\native\sdl2.nuget.redist.targets" Condition="Exists('packages\sdl2.nuget.redist.2.0.9\build\native\sdl2.nuget.redist.targets')" />
-    <Import Project="packages\sdl2.nuget.2.0.9\build\native\sdl2.nuget.targets" Condition="Exists('packages\sdl2.nuget.2.0.9\build\native\sdl2.nuget.targets')" />
+    <Import Project="packages\sdl2.nuget.redist.2.28.5\build\native\sdl2.nuget.redist.targets" Condition="Exists('packages\sdl2.nuget.redist.2.28.5\build\native\sdl2.nuget.redist.targets')" />
+    <Import Project="packages\sdl2.nuget.2.28.5\build\native\sdl2.nuget.targets" Condition="Exists('packages\sdl2.nuget.2.28.5\build\native\sdl2.nuget.targets')" />
   </ImportGroup>
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
     </PropertyGroup>
-    <Error Condition="!Exists('packages\sdl2.nuget.redist.2.0.9\build\native\sdl2.nuget.redist.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\sdl2.nuget.redist.2.0.9\build\native\sdl2.nuget.redist.targets'))" />
-    <Error Condition="!Exists('packages\sdl2.nuget.2.0.9\build\native\sdl2.nuget.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\sdl2.nuget.2.0.9\build\native\sdl2.nuget.targets'))" />
+    <Error Condition="!Exists('packages\sdl2.nuget.redist.2.28.5\build\native\sdl2.nuget.redist.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\sdl2.nuget.redist.2.28.5\build\native\sdl2.nuget.redist.targets'))" />
+    <Error Condition="!Exists('packages\sdl2.nuget.2.28.5\build\native\sdl2.nuget.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\sdl2.nuget.2.28.5\build\native\sdl2.nuget.targets'))" />
   </Target>
 </Project>

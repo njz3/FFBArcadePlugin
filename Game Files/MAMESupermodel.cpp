@@ -14,14 +14,23 @@ along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
 #include "MAMESupermodel.h"
 #include <string>
 #include <tchar.h>
+#include <atlstr.h>
 #include "SDL.h"
 #include "../Common Files/SignatureScanning.h"
+
+static char GameName[256];
+
+static EffectConstants* myconstants;
+static Helpers* myhelpers;
+static EffectTriggers* mytriggers;
 
 //Supermodel Emulator Games
 std::string dayto2pe("dayto2pe");
 std::string daytona2("daytona2");
 std::string dirtdvlsa("dirtdvlsa");
+std::string dirtdvlsau("dirtdvlsau");
 std::string dirtdvls("dirtdvls");
+std::string dirtdvlsu("dirtdvlsu");
 std::string dirtdvlsj("dirtdvlsj");
 std::string dirtdvlsg("dirtdvlsg");
 std::string ecau("ecau");
@@ -31,17 +40,21 @@ std::string ecaj("ecaj");
 std::string lemans24("lemans24");
 std::string scud("scud");
 std::string scuda("scuda");
+std::string scuddx("scuddx");
+std::string scudau("scudau");
 std::string scudj("scudj");
 std::string scudplus("scudplus");
 std::string scudplusa("scudplusa");
 std::string srally2("srally2");
 std::string srally2x("srally2x");
+std::string srally2dx("srally2dx");
 std::string srally2p("srally2p");
 std::string srally2pa("srally2pa");
 
 //MAME Games
 std::string aburner2("aburner2");
 std::string aburner2g("aburner2g");
+std::string acedrive("acedrive");
 std::string acedrvrw("acedrvrw");
 std::string vformula("vformula");
 std::string vr("vr");
@@ -60,6 +73,8 @@ std::string daytona("daytona");
 std::string daytonas("daytonas");
 std::string daytonase("daytonase");
 std::string dirtdash("dirtdash");
+std::string dirtdasha("dirtdasha");
+std::string dirtdashj("dirtdashj");
 std::string offroadc("offroadc");
 std::string offroadc4("offroadc4");
 std::string offroadc3("offroadc3");
@@ -126,6 +141,7 @@ std::string racedrivc2("racedrivc2");
 std::string racedrivc4("racedrivc4");
 std::string racedrivc("racedrivc");
 std::string racedrivpan("racedrivpan");
+std::string raverace("raverace");
 std::string raveracw("raveracw");
 std::string raveracj("raveracj");
 std::string raveracja("raveracja");
@@ -205,8 +221,21 @@ std::string hyprdriv("hyprdriv");
 std::string vaportrx("vaportrx");
 std::string vaportrp("vaportrp");
 std::string victlapw("victlapw");
+std::string victlap("victlap");
 std::string dblaxle("dblaxle");
 std::string dblaxleu("dblaxleu");
+
+//Flycast Below
+std::string InitialDVer1("INITIAL D\n");
+std::string InitialDVer2("INITIAL D Ver.2\n");
+std::string InitialDVer3("INITIAL D Ver.3\n");
+std::string EighteenWheeler("18WHEELER\n");
+std::string MaximumSPEED("MAXIMUM SPEED\n");
+std::string FasterThanSPEED("FASTER THAN SPEED\n");
+std::string F355ChallengeJapan("F355 CHALLENGE JAPAN\n");
+std::string ClubKartInJapan("CLUB KART IN JAPAN\n");
+std::string TheKingOfRoute66("THE KING OF ROUTE66\n");
+std::string SegaDrivingSimulator("SEGA DRIVING SIMULATOR\n");
 
 //Our string to load game from
 std::string M2Active("M2Active");
@@ -228,12 +257,16 @@ std::string AfterburnerActive("AfterburnerActive");
 std::string OutrunActive("OutrunActive");
 std::string PDriftActive("PDriftActive");
 std::string SuperChaseActive("SuperChaseActive");
+std::string MaximumSpeedActive("MaximumSpeedActive");
+std::string InitialDActive("InitialDActive");
+std::string NaomiFFBActive("NaomiFFBActive");
 
 //Names of FFB Outputs
 std::string RawDrive("RawDrive");
 std::string digit0("digit0");
 std::string digit1("digit1");
 std::string wheel("wheel");
+std::string wheel_motor("wheel_motor");
 std::string lamp1("lamp1");
 std::string led2("led2");
 std::string cpuled6("cpuled6");
@@ -261,9 +294,10 @@ std::string Bank_Motor_Speed("Bank_Motor_Speed");
 std::string Bank_Motor_Direction("Bank_Motor_Direction");
 std::string bank_motor_position("bank_motor_position");
 
-//Emulator Name
-std::string MAME("MAME");
-std::string Supermodel("Supermodel");
+//Flycast
+std::string awffb("awffb");
+std::string midiffb("midiffb");
+std::string m3ffb("m3ffb");
 
 HINSTANCE ProcDLL = NULL;
 extern int joystick_index1;
@@ -275,7 +309,6 @@ extern SDL_Haptic* haptic2;
 extern SDL_Joystick* GameController3;
 extern SDL_Haptic* ControllerHaptic3;
 extern SDL_Haptic* haptic3;
-
 
 //Config Settings
 extern wchar_t* settingsFilename;
@@ -317,6 +350,10 @@ extern int RumbleStrengthLeftMotor;
 extern int RumbleStrengthRightMotor;
 extern int EnableForceSpringEffect;
 extern int ForceSpringStrength;
+extern int EnableDamper;
+extern int DamperStrength;
+extern int DoubleConstant;
+extern int DoubleSine;
 
 static int configMinForceDaytona2 = GetPrivateProfileInt(TEXT("Settings"), TEXT("MinForceDaytona2"), 0, settingsFilename);
 static int configMaxForceDaytona2 = GetPrivateProfileInt(TEXT("Settings"), TEXT("MaxForceDaytona2"), 100, settingsFilename);
@@ -326,6 +363,10 @@ static int configAlternativeMinForceRightDaytona2 = GetPrivateProfileInt(TEXT("S
 static int configAlternativeMaxForceRightDaytona2 = GetPrivateProfileInt(TEXT("Settings"), TEXT("AlternativeMaxForceRightDaytona2"), 100, settingsFilename);
 static int configFeedbackLengthDaytona2 = GetPrivateProfileInt(TEXT("Settings"), TEXT("FeedbackLengthDaytona2"), 120, settingsFilename);
 static int PowerModeDaytona2 = GetPrivateProfileInt(TEXT("Settings"), TEXT("PowerModeDaytona2"), 0, settingsFilename);
+static int EnableForceSpringEffectDaytona2 = GetPrivateProfileInt(TEXT("Settings"), TEXT("EnableForceSpringEffectDaytona2"), 0, settingsFilename);
+static int ForceSpringStrengthDaytona2 = GetPrivateProfileInt(TEXT("Settings"), TEXT("ForceSpringStrengthDaytona2"), 0, settingsFilename);
+static int EnableDamperDaytona2 = GetPrivateProfileInt(TEXT("Settings"), TEXT("EnableDamperDaytona2"), 0, settingsFilename);
+static int DamperStrengthDaytona2 = GetPrivateProfileInt(TEXT("Settings"), TEXT("DamperStrengthDaytona2"), 100, settingsFilename);
 
 static int configMinForceScud = GetPrivateProfileInt(TEXT("Settings"), TEXT("MinForceScud"), 0, settingsFilename);
 static int configMaxForceScud = GetPrivateProfileInt(TEXT("Settings"), TEXT("MaxForceScud"), 100, settingsFilename);
@@ -335,6 +376,10 @@ static int configAlternativeMinForceRightScud = GetPrivateProfileInt(TEXT("Setti
 static int configAlternativeMaxForceRightScud = GetPrivateProfileInt(TEXT("Settings"), TEXT("AlternativeMaxForceRightScud"), 100, settingsFilename);
 static int configFeedbackLengthScud = GetPrivateProfileInt(TEXT("Settings"), TEXT("FeedbackLengthScud"), 120, settingsFilename);
 static int PowerModeScud = GetPrivateProfileInt(TEXT("Settings"), TEXT("PowerModeScud"), 0, settingsFilename);
+static int EnableForceSpringEffectScud = GetPrivateProfileInt(TEXT("Settings"), TEXT("EnableForceSpringEffectScud"), 0, settingsFilename);
+static int ForceSpringStrengthScud = GetPrivateProfileInt(TEXT("Settings"), TEXT("ForceSpringStrengthScud"), 0, settingsFilename);
+static int EnableDamperScud = GetPrivateProfileInt(TEXT("Settings"), TEXT("EnableDamperScud"), 0, settingsFilename);
+static int DamperStrengthScud = GetPrivateProfileInt(TEXT("Settings"), TEXT("DamperStrengthScud"), 100, settingsFilename);
 
 static int configMinForceLeMans = GetPrivateProfileInt(TEXT("Settings"), TEXT("MinForceLeMans"), 0, settingsFilename);
 static int configMaxForceLeMans = GetPrivateProfileInt(TEXT("Settings"), TEXT("MaxForceLeMans"), 100, settingsFilename);
@@ -344,6 +389,10 @@ static int configAlternativeMinForceRightLeMans = GetPrivateProfileInt(TEXT("Set
 static int configAlternativeMaxForceRightLeMans = GetPrivateProfileInt(TEXT("Settings"), TEXT("AlternativeMaxForceRightLeMans"), 100, settingsFilename);
 static int configFeedbackLengthLeMans = GetPrivateProfileInt(TEXT("Settings"), TEXT("FeedbackLengthLeMans"), 120, settingsFilename);
 static int PowerModeLeMans = GetPrivateProfileInt(TEXT("Settings"), TEXT("PowerModeLeMans"), 0, settingsFilename);
+static int EnableForceSpringEffectLeMans = GetPrivateProfileInt(TEXT("Settings"), TEXT("EnableForceSpringEffectLeMans"), 0, settingsFilename);
+static int ForceSpringStrengthLeMans = GetPrivateProfileInt(TEXT("Settings"), TEXT("ForceSpringStrengthLeMans"), 0, settingsFilename);
+static int EnableDamperLeMans = GetPrivateProfileInt(TEXT("Settings"), TEXT("EnableDamperLeMans"), 0, settingsFilename);
+static int DamperStrengthLeMans = GetPrivateProfileInt(TEXT("Settings"), TEXT("DamperStrengthLeMans"), 100, settingsFilename);
 
 static int configMinForceDirtDevils = GetPrivateProfileInt(TEXT("Settings"), TEXT("MinForceDirtDevils"), 0, settingsFilename);
 static int configMaxForceDirtDevils = GetPrivateProfileInt(TEXT("Settings"), TEXT("MaxForceDirtDevils"), 100, settingsFilename);
@@ -355,6 +404,8 @@ static int configFeedbackLengthDirtDevils = GetPrivateProfileInt(TEXT("Settings"
 static int PowerModeDirtDevils = GetPrivateProfileInt(TEXT("Settings"), TEXT("PowerModeDirtDevils"), 0, settingsFilename);
 static int EnableForceSpringEffectDirtDevils = GetPrivateProfileInt(TEXT("Settings"), TEXT("EnableForceSpringEffectDirtDevils"), 0, settingsFilename);
 static int ForceSpringStrengthDirtDevils = GetPrivateProfileInt(TEXT("Settings"), TEXT("ForceSpringStrengthDirtDevils"), 0, settingsFilename);
+static int EnableDamperDirtDevils = GetPrivateProfileInt(TEXT("Settings"), TEXT("EnableDamperDirtDevils"), 0, settingsFilename);
+static int DamperStrengthDirtDevils = GetPrivateProfileInt(TEXT("Settings"), TEXT("DamperStrengthDirtDevils"), 100, settingsFilename);
 
 static int configMinForceSRally2 = GetPrivateProfileInt(TEXT("Settings"), TEXT("MinForceSRally2"), 0, settingsFilename);
 static int configMaxForceSRally2 = GetPrivateProfileInt(TEXT("Settings"), TEXT("MaxForceSRally2"), 100, settingsFilename);
@@ -366,6 +417,8 @@ static int configFeedbackLengthSRally2 = GetPrivateProfileInt(TEXT("Settings"), 
 static int PowerModeSRally2 = GetPrivateProfileInt(TEXT("Settings"), TEXT("PowerModeSRally2"), 0, settingsFilename);
 static int EnableForceSpringEffectSRally2 = GetPrivateProfileInt(TEXT("Settings"), TEXT("EnableForceSpringEffectSRally2"), 0, settingsFilename);
 static int ForceSpringStrengthSRally2 = GetPrivateProfileInt(TEXT("Settings"), TEXT("ForceSpringStrengthSRally2"), 0, settingsFilename);
+static int EnableDamperSRally2 = GetPrivateProfileInt(TEXT("Settings"), TEXT("EnableDamperSRally2"), 0, settingsFilename);
+static int DamperStrengthSRally2 = GetPrivateProfileInt(TEXT("Settings"), TEXT("DamperStrengthSRally2"), 100, settingsFilename);
 
 static int configMinForceECA = GetPrivateProfileInt(TEXT("Settings"), TEXT("MinForceECA"), 0, settingsFilename);
 static int configMaxForceECA = GetPrivateProfileInt(TEXT("Settings"), TEXT("MaxForceECA"), 100, settingsFilename);
@@ -377,6 +430,8 @@ static int configFeedbackLengthECA = GetPrivateProfileInt(TEXT("Settings"), TEXT
 static int PowerModeECA = GetPrivateProfileInt(TEXT("Settings"), TEXT("PowerModeECA"), 0, settingsFilename);
 static int EnableForceSpringEffectECA = GetPrivateProfileInt(TEXT("Settings"), TEXT("EnableForceSpringEffectECA"), 0, settingsFilename);
 static int ForceSpringStrengthECA = GetPrivateProfileInt(TEXT("Settings"), TEXT("ForceSpringStrengthECA"), 0, settingsFilename);
+static int EnableDamperECA = GetPrivateProfileInt(TEXT("Settings"), TEXT("EnableDamperECA"), 0, settingsFilename);
+static int DamperStrengthECA = GetPrivateProfileInt(TEXT("Settings"), TEXT("DamperStrengthECA"), 100, settingsFilename);
 
 static int configMinForceVirtuaRacing = GetPrivateProfileInt(TEXT("Settings"), TEXT("MinForceVirtuaRacing"), 0, settingsFilename);
 static int configMaxForceVirtuaRacing = GetPrivateProfileInt(TEXT("Settings"), TEXT("MaxForceVirtuaRacing"), 100, settingsFilename);
@@ -387,6 +442,8 @@ static int configAlternativeMaxForceRightVirtuaRacing = GetPrivateProfileInt(TEX
 static int configFeedbackLengthVirtuaRacing = GetPrivateProfileInt(TEXT("Settings"), TEXT("FeedbackLengthVirtuaRacing"), 120, settingsFilename);
 static int EnableForceSpringEffectVirtuaRacing = GetPrivateProfileInt(TEXT("Settings"), TEXT("EnableForceSpringEffectVirtuaRacing"), 0, settingsFilename);
 static int ForceSpringStrengthVirtuaRacing = GetPrivateProfileInt(TEXT("Settings"), TEXT("ForceSpringStrengthVirtuaRacing"), 0, settingsFilename);
+static int EnableDamperVirtuaRacing = GetPrivateProfileInt(TEXT("Settings"), TEXT("EnableDamperVirtuaRacing"), 0, settingsFilename);
+static int DamperStrengthVirtuaRacing = GetPrivateProfileInt(TEXT("Settings"), TEXT("DamperStrengthVirtuaRacing"), 100, settingsFilename);
 
 static int configMinForceSFRush = GetPrivateProfileInt(TEXT("Settings"), TEXT("MinForceSFRush"), 0, settingsFilename);
 static int configMaxForceSFRush = GetPrivateProfileInt(TEXT("Settings"), TEXT("MaxForceSFRush"), 100, settingsFilename);
@@ -398,6 +455,8 @@ static int configFeedbackLengthSFRush = GetPrivateProfileInt(TEXT("Settings"), T
 static int PowerModeSFRush = GetPrivateProfileInt(TEXT("Settings"), TEXT("PowerModeSFRush"), 0, settingsFilename);
 static int EnableForceSpringEffectSFRush = GetPrivateProfileInt(TEXT("Settings"), TEXT("EnableForceSpringEffectSFRush"), 0, settingsFilename);
 static int ForceSpringStrengthSFRush = GetPrivateProfileInt(TEXT("Settings"), TEXT("ForceSpringStrengthSFRush"), 0, settingsFilename);
+static int EnableDamperSFRush = GetPrivateProfileInt(TEXT("Settings"), TEXT("EnableDamperSFRush"), 0, settingsFilename);
+static int DamperStrengthSFRush = GetPrivateProfileInt(TEXT("Settings"), TEXT("DamperStrengthSFRush"), 100, settingsFilename);
 
 static int configMinForceSFRushRock = GetPrivateProfileInt(TEXT("Settings"), TEXT("MinForceSFRushRock"), 0, settingsFilename);
 static int configMaxForceSFRushRock = GetPrivateProfileInt(TEXT("Settings"), TEXT("MaxForceSFRushRock"), 100, settingsFilename);
@@ -409,6 +468,8 @@ static int configFeedbackLengthSFRushRock = GetPrivateProfileInt(TEXT("Settings"
 static int PowerModeSFRushRock = GetPrivateProfileInt(TEXT("Settings"), TEXT("PowerModeSFRushRock"), 0, settingsFilename);
 static int EnableForceSpringEffectSFRushRock = GetPrivateProfileInt(TEXT("Settings"), TEXT("EnableForceSpringEffectSFRushRock"), 0, settingsFilename);
 static int ForceSpringStrengthSFRushRock = GetPrivateProfileInt(TEXT("Settings"), TEXT("ForceSpringStrengthSFRushRock"), 0, settingsFilename);
+static int EnableDamperSFRushRock = GetPrivateProfileInt(TEXT("Settings"), TEXT("EnableDamperSFRushRock"), 0, settingsFilename);
+static int DamperStrengthSFRushRock = GetPrivateProfileInt(TEXT("Settings"), TEXT("DamperStrengthSFRushRock"), 100, settingsFilename);
 
 static int configMinForceCrusnWld = GetPrivateProfileInt(TEXT("Settings"), TEXT("MinForceCrusnWld"), 0, settingsFilename);
 static int configMaxForceCrusnWld = GetPrivateProfileInt(TEXT("Settings"), TEXT("MaxForceCrusnWld"), 100, settingsFilename);
@@ -420,6 +481,8 @@ static int configFeedbackLengthCrusnWld = GetPrivateProfileInt(TEXT("Settings"),
 static int PowerModeCrusnWld = GetPrivateProfileInt(TEXT("Settings"), TEXT("PowerModeCrusnWld"), 0, settingsFilename);
 static int EnableForceSpringEffectCrusnWld = GetPrivateProfileInt(TEXT("Settings"), TEXT("EnableForceSpringEffectCrusnWld"), 0, settingsFilename);
 static int ForceSpringStrengthCrusnWld = GetPrivateProfileInt(TEXT("Settings"), TEXT("ForceSpringStrengthCrusnWld"), 0, settingsFilename);
+static int EnableDamperCrusnWld = GetPrivateProfileInt(TEXT("Settings"), TEXT("EnableDamperCrusnWld"), 0, settingsFilename);
+static int DamperStrengthCrusnWld = GetPrivateProfileInt(TEXT("Settings"), TEXT("DamperStrengthCrusnWld"), 100, settingsFilename);
 
 static int configMinForceOffRoadC = GetPrivateProfileInt(TEXT("Settings"), TEXT("MinForceOffRoadC"), 0, settingsFilename);
 static int configMaxForceOffRoadC = GetPrivateProfileInt(TEXT("Settings"), TEXT("MaxForceOffRoadC"), 100, settingsFilename);
@@ -431,6 +494,8 @@ static int configFeedbackLengthOffRoadC = GetPrivateProfileInt(TEXT("Settings"),
 static int PowerModeOffRoadC = GetPrivateProfileInt(TEXT("Settings"), TEXT("PowerModeOffRoadC"), 0, settingsFilename);
 static int EnableForceSpringEffectOffRoadC = GetPrivateProfileInt(TEXT("Settings"), TEXT("EnableForceSpringEffectOffRoadC"), 0, settingsFilename);
 static int ForceSpringStrengthOffRoadC = GetPrivateProfileInt(TEXT("Settings"), TEXT("ForceSpringStrengthOffRoadC"), 0, settingsFilename);
+static int EnableDamperOffRoadC = GetPrivateProfileInt(TEXT("Settings"), TEXT("EnableDamperOffRoadC"), 0, settingsFilename);
+static int DamperStrengthOffRoadC = GetPrivateProfileInt(TEXT("Settings"), TEXT("DamperStrengthOffRoadC"), 100, settingsFilename);
 
 static int configMinForceCrusnUSA = GetPrivateProfileInt(TEXT("Settings"), TEXT("MinForceCrusnUSA"), 0, settingsFilename);
 static int configMaxForceCrusnUSA = GetPrivateProfileInt(TEXT("Settings"), TEXT("MaxForceCrusnUSA"), 100, settingsFilename);
@@ -442,6 +507,8 @@ static int configFeedbackLengthCrusnUSA = GetPrivateProfileInt(TEXT("Settings"),
 static int PowerModeCrusnUSA = GetPrivateProfileInt(TEXT("Settings"), TEXT("PowerModeCrusnUSA"), 0, settingsFilename);
 static int EnableForceSpringEffectCrusnUSA = GetPrivateProfileInt(TEXT("Settings"), TEXT("EnableForceSpringEffectCrusnUSA"), 0, settingsFilename);
 static int ForceSpringStrengthCrusnUSA = GetPrivateProfileInt(TEXT("Settings"), TEXT("ForceSpringStrengthCrusnUSA"), 0, settingsFilename);
+static int EnableDamperCrusnUSA = GetPrivateProfileInt(TEXT("Settings"), TEXT("EnableDamperCrusnUSA"), 0, settingsFilename);
+static int DamperStrengthCrusnUSA = GetPrivateProfileInt(TEXT("Settings"), TEXT("DamperStrengthCrusnUSA"), 100, settingsFilename);
 
 static int configMinForceCalSpeed = GetPrivateProfileInt(TEXT("Settings"), TEXT("MinForceCalSpeed"), 0, settingsFilename);
 static int configMaxForceCalSpeed = GetPrivateProfileInt(TEXT("Settings"), TEXT("MaxForceCalSpeed"), 100, settingsFilename);
@@ -453,6 +520,8 @@ static int configFeedbackLengthCalSpeed = GetPrivateProfileInt(TEXT("Settings"),
 static int PowerModeCalSpeed = GetPrivateProfileInt(TEXT("Settings"), TEXT("PowerModeCalSpeed"), 0, settingsFilename);
 static int EnableForceSpringEffectCalSpeed = GetPrivateProfileInt(TEXT("Settings"), TEXT("EnableForceSpringEffectCalSpeed"), 0, settingsFilename);
 static int ForceSpringStrengthCalSpeed = GetPrivateProfileInt(TEXT("Settings"), TEXT("ForceSpringStrengthCalSpeed"), 0, settingsFilename);
+static int EnableDamperCalSpeed = GetPrivateProfileInt(TEXT("Settings"), TEXT("EnableDamperCalSpeed"), 0, settingsFilename);
+static int DamperStrengthCalSpeed = GetPrivateProfileInt(TEXT("Settings"), TEXT("DamperStrengthCalSpeed"), 100, settingsFilename);
 
 static int configMinForceSFRush2049 = GetPrivateProfileInt(TEXT("Settings"), TEXT("MinForceSFRush2049"), 0, settingsFilename);
 static int configMaxForceSFRush2049 = GetPrivateProfileInt(TEXT("Settings"), TEXT("MaxForceSFRush2049"), 100, settingsFilename);
@@ -464,6 +533,8 @@ static int configFeedbackLengthSFRush2049 = GetPrivateProfileInt(TEXT("Settings"
 static int PowerModeSFRush2049 = GetPrivateProfileInt(TEXT("Settings"), TEXT("PowerModeSFRush2049"), 0, settingsFilename);
 static int EnableForceSpringEffectSFRush2049 = GetPrivateProfileInt(TEXT("Settings"), TEXT("EnableForceSpringEffectSFRush2049"), 0, settingsFilename);
 static int ForceSpringStrengthSFRush2049 = GetPrivateProfileInt(TEXT("Settings"), TEXT("ForceSpringStrengthSFRush2049"), 0, settingsFilename);
+static int EnableDamperSFRush2049 = GetPrivateProfileInt(TEXT("Settings"), TEXT("EnableDamperSFRush2049"), 0, settingsFilename);
+static int DamperStrengthSFRush2049 = GetPrivateProfileInt(TEXT("Settings"), TEXT("DamperStrengthSFRush2049"), 100, settingsFilename);
 
 static int configMinForceHardD = GetPrivateProfileInt(TEXT("Settings"), TEXT("MinForceHardD"), 0, settingsFilename);
 static int configMaxForceHardD = GetPrivateProfileInt(TEXT("Settings"), TEXT("MaxForceHardD"), 100, settingsFilename);
@@ -475,6 +546,8 @@ static int configFeedbackLengthHardD = GetPrivateProfileInt(TEXT("Settings"), TE
 static int PowerModeHardD = GetPrivateProfileInt(TEXT("Settings"), TEXT("PowerModeHardD"), 0, settingsFilename);
 static int EnableForceSpringEffectHardD = GetPrivateProfileInt(TEXT("Settings"), TEXT("EnableForceSpringEffectHardD"), 0, settingsFilename);
 static int ForceSpringStrengthHardD = GetPrivateProfileInt(TEXT("Settings"), TEXT("ForceSpringStrengthHardD"), 0, settingsFilename);
+static int EnableDamperHardD = GetPrivateProfileInt(TEXT("Settings"), TEXT("EnableDamperHardD"), 0, settingsFilename);
+static int DamperStrengthHardD = GetPrivateProfileInt(TEXT("Settings"), TEXT("DamperStrengthHardD"), 100, settingsFilename);
 
 static int configMinForceRevX = GetPrivateProfileInt(TEXT("Settings"), TEXT("MinForceRevX"), 0, settingsFilename);
 static int configMaxForceRevX = GetPrivateProfileInt(TEXT("Settings"), TEXT("MaxForceRevX"), 100, settingsFilename);
@@ -754,6 +827,8 @@ static int configAlternativeMaxForceRightHyperDrive = GetPrivateProfileInt(TEXT(
 static int configFeedbackLengthHyperDrive = GetPrivateProfileInt(TEXT("Settings"), TEXT("FeedbackLengthHyperDrive"), 120, settingsFilename);
 static int EnableForceSpringEffectHyperDrive = GetPrivateProfileInt(TEXT("Settings"), TEXT("EnableForceSpringEffectHyperDrive"), 0, settingsFilename);
 static int ForceSpringStrengthHyperDrive = GetPrivateProfileInt(TEXT("Settings"), TEXT("ForceSpringStrengthHyperDrive"), 0, settingsFilename);
+static int EnableDamperHyperDrive = GetPrivateProfileInt(TEXT("Settings"), TEXT("EnableDamperHyperDrive"), 0, settingsFilename);
+static int DamperStrengthHyperDrive = GetPrivateProfileInt(TEXT("Settings"), TEXT("DamperStrengthHyperDrive"), 100, settingsFilename);
 
 static int configMinForceVaporTrx = GetPrivateProfileInt(TEXT("Settings"), TEXT("MinForceVaporTrx"), 0, settingsFilename);
 static int configMaxForceVaporTrx = GetPrivateProfileInt(TEXT("Settings"), TEXT("MaxForceVaporTrx"), 100, settingsFilename);
@@ -764,6 +839,8 @@ static int configAlternativeMaxForceRightVaporTrx = GetPrivateProfileInt(TEXT("S
 static int configFeedbackLengthVaporTrx = GetPrivateProfileInt(TEXT("Settings"), TEXT("FeedbackLengthVaporTrx"), 120, settingsFilename);
 static int EnableForceSpringEffectVaporTrx = GetPrivateProfileInt(TEXT("Settings"), TEXT("EnableForceSpringEffectVaporTrx"), 0, settingsFilename);
 static int ForceSpringStrengthVaporTrx = GetPrivateProfileInt(TEXT("Settings"), TEXT("ForceSpringStrengthVaporTrx"), 0, settingsFilename);
+static int EnableDamperVaporTrx = GetPrivateProfileInt(TEXT("Settings"), TEXT("EnableDamperVaporTrx"), 0, settingsFilename);
+static int DamperStrengthVaporTrx = GetPrivateProfileInt(TEXT("Settings"), TEXT("DamperStrengthVaporTrx"), 100, settingsFilename);
 
 static int configMinForceRaveRacer = GetPrivateProfileInt(TEXT("Settings"), TEXT("MinForceRaveRacer"), 0, settingsFilename);
 static int configMaxForceRaveRacer = GetPrivateProfileInt(TEXT("Settings"), TEXT("MaxForceRaveRacer"), 100, settingsFilename);
@@ -775,6 +852,8 @@ static int PowerModeRaveRacer = GetPrivateProfileInt(TEXT("Settings"), TEXT("Pow
 static int configFeedbackLengthRaveRacer = GetPrivateProfileInt(TEXT("Settings"), TEXT("FeedbackLengthRaveRacer"), 120, settingsFilename);
 static int EnableForceSpringEffectRaveRacer = GetPrivateProfileInt(TEXT("Settings"), TEXT("EnableForceSpringEffectRaveRacer"), 0, settingsFilename);
 static int ForceSpringStrengthRaveRacer = GetPrivateProfileInt(TEXT("Settings"), TEXT("ForceSpringStrengthRaveRacer"), 0, settingsFilename);
+static int EnableDamperRaveRacer= GetPrivateProfileInt(TEXT("Settings"), TEXT("EnableDamperRaveRacer"), 0, settingsFilename);
+static int DamperStrengthRaveRacer = GetPrivateProfileInt(TEXT("Settings"), TEXT("DamperStrengthRaveRacer"), 100, settingsFilename);
 
 static int configMinForceDaytonaMAME = GetPrivateProfileInt(TEXT("Settings"), TEXT("MinForceDaytona"), 0, settingsFilename);
 static int configMaxForceDaytonaMAME = GetPrivateProfileInt(TEXT("Settings"), TEXT("MaxForceDaytona"), 100, settingsFilename);
@@ -786,6 +865,8 @@ static int PowerModeDaytonaMAME = GetPrivateProfileInt(TEXT("Settings"), TEXT("P
 static int configFeedbackLengthDaytonaMAME = GetPrivateProfileInt(TEXT("Settings"), TEXT("FeedbackLengthDaytona"), 120, settingsFilename);
 static int EnableForceSpringEffectDaytonaMAME = GetPrivateProfileInt(TEXT("Settings"), TEXT("EnableForceSpringEffectDaytona"), 0, settingsFilename);
 static int ForceSpringStrengthDaytonaMAME = GetPrivateProfileInt(TEXT("Settings"), TEXT("ForceSpringStrengthDaytona"), 0, settingsFilename);
+static int EnableDamperDaytonaMAME = GetPrivateProfileInt(TEXT("Settings"), TEXT("EnableDamperDaytona"), 0, settingsFilename);
+static int DamperStrengthDaytonaMAME = GetPrivateProfileInt(TEXT("Settings"), TEXT("DamperStrengthDaytona"), 100, settingsFilename);
 
 static int configMinForceSRallyMAME = GetPrivateProfileInt(TEXT("Settings"), TEXT("MinForceSRally"), 0, settingsFilename);
 static int configMaxForceSRallyMAME = GetPrivateProfileInt(TEXT("Settings"), TEXT("MaxForceSRally"), 100, settingsFilename);
@@ -797,6 +878,8 @@ static int PowerModeSRallyMAME = GetPrivateProfileInt(TEXT("Settings"), TEXT("Po
 static int configFeedbackLengthSRallyMAME = GetPrivateProfileInt(TEXT("Settings"), TEXT("FeedbackLengthSRally"), 120, settingsFilename);
 static int EnableForceSpringEffectSRallyMAME = GetPrivateProfileInt(TEXT("Settings"), TEXT("EnableForceSpringEffectSRally"), 0, settingsFilename);
 static int ForceSpringStrengthSRallyMAME = GetPrivateProfileInt(TEXT("Settings"), TEXT("ForceSpringStrengthSRally"), 0, settingsFilename);
+static int EnableDamperSRallyMAME = GetPrivateProfileInt(TEXT("Settings"), TEXT("EnableDamperSRally"), 0, settingsFilename);
+static int DamperStrengthSRallyMAME = GetPrivateProfileInt(TEXT("Settings"), TEXT("DamperStrengthSRally"), 100, settingsFilename);
 
 static int configMinForceIndy500MAME = GetPrivateProfileInt(TEXT("Settings"), TEXT("MinForceIndy500"), 0, settingsFilename);
 static int configMaxForceIndy500MAME = GetPrivateProfileInt(TEXT("Settings"), TEXT("MaxForceIndy500"), 100, settingsFilename);
@@ -808,6 +891,8 @@ static int PowerModeIndy500MAME = GetPrivateProfileInt(TEXT("Settings"), TEXT("P
 static int configFeedbackLengthIndy500MAME = GetPrivateProfileInt(TEXT("Settings"), TEXT("FeedbackLengthIndy500"), 120, settingsFilename);
 static int EnableForceSpringEffectIndy500MAME = GetPrivateProfileInt(TEXT("Settings"), TEXT("EnableForceSpringEffectIndy500"), 0, settingsFilename);
 static int ForceSpringStrengthIndy500MAME = GetPrivateProfileInt(TEXT("Settings"), TEXT("ForceSpringStrengthIndy500"), 0, settingsFilename);
+static int EnableDamperIndy500MAME = GetPrivateProfileInt(TEXT("Settings"), TEXT("EnableDamperIndy500"), 0, settingsFilename);
+static int DamperStrengthIndy500MAME = GetPrivateProfileInt(TEXT("Settings"), TEXT("DamperStrengthIndy500"), 100, settingsFilename);
 
 static int configMinForceSuperGTMAME = GetPrivateProfileInt(TEXT("Settings"), TEXT("MinForceSuperGT"), 0, settingsFilename);
 static int configMaxForceSuperGTMAME = GetPrivateProfileInt(TEXT("Settings"), TEXT("MaxForceSuperGT"), 100, settingsFilename);
@@ -819,6 +904,8 @@ static int PowerModeSuperGTMAME = GetPrivateProfileInt(TEXT("Settings"), TEXT("P
 static int configFeedbackLengthSuperGTMAME = GetPrivateProfileInt(TEXT("Settings"), TEXT("FeedbackLengthSuperGT"), 120, settingsFilename);
 static int EnableForceSpringEffectSuperGTMAME = GetPrivateProfileInt(TEXT("Settings"), TEXT("EnableForceSpringEffectSuperGT"), 0, settingsFilename);
 static int ForceSpringStrengthSuperGTMAME = GetPrivateProfileInt(TEXT("Settings"), TEXT("ForceSpringStrengthSuperGT"), 0, settingsFilename);
+static int EnableDamperSuperGTMAME = GetPrivateProfileInt(TEXT("Settings"), TEXT("EnableDamperSuperGT"), 0, settingsFilename);
+static int DamperStrengthSuperGTMAME = GetPrivateProfileInt(TEXT("Settings"), TEXT("DamperStrengthSuperGT"), 100, settingsFilename);
 
 static int configMinForceSuperChase = GetPrivateProfileInt(TEXT("Settings"), TEXT("MinForceSuperChase"), 0, settingsFilename);
 static int configMaxForceSuperChase = GetPrivateProfileInt(TEXT("Settings"), TEXT("MaxForceSuperChase"), 100, settingsFilename);
@@ -830,6 +917,8 @@ static int PowerModeSuperChase = GetPrivateProfileInt(TEXT("Settings"), TEXT("Po
 static int configFeedbackLengthSuperChase = GetPrivateProfileInt(TEXT("Settings"), TEXT("FeedbackLengthSuperChase"), 120, settingsFilename);
 static int EnableForceSpringEffectSuperChase = GetPrivateProfileInt(TEXT("Settings"), TEXT("EnableForceSpringEffectSuperChase"), 0, settingsFilename);
 static int ForceSpringStrengthSuperChase = GetPrivateProfileInt(TEXT("Settings"), TEXT("ForceSpringStrengthSuperChase"), 0, settingsFilename);
+static int EnableDamperSuperChase = GetPrivateProfileInt(TEXT("Settings"), TEXT("EnableDamperSuperChase"), 0, settingsFilename);
+static int DamperStrengthSuperChase = GetPrivateProfileInt(TEXT("Settings"), TEXT("DamperStrengthSuperChase"), 100, settingsFilename);
 
 static int configMinForceDirtDash = GetPrivateProfileInt(TEXT("Settings"), TEXT("MinForceDirtDash"), 0, settingsFilename);
 static int configMaxForceDirtDash = GetPrivateProfileInt(TEXT("Settings"), TEXT("MaxForceDirtDash"), 100, settingsFilename);
@@ -842,6 +931,8 @@ static int configFeedbackLengthDirtDash = GetPrivateProfileInt(TEXT("Settings"),
 static int EnableForceSpringEffectDirtDash = GetPrivateProfileInt(TEXT("Settings"), TEXT("EnableForceSpringEffectDirtDash"), 0, settingsFilename);
 static int ForceSpringStrengthDirtDash = GetPrivateProfileInt(TEXT("Settings"), TEXT("ForceSpringStrengthDirtDash"), 0, settingsFilename);
 static int FFBDivideDirtDash = GetPrivateProfileInt(TEXT("Settings"), TEXT("FFBDivideDirtDash"), 0, settingsFilename);
+static int EnableDamperDirtDash = GetPrivateProfileInt(TEXT("Settings"), TEXT("EnableDamperDirtDash"), 0, settingsFilename);
+static int DamperStrengthDirtDash = GetPrivateProfileInt(TEXT("Settings"), TEXT("DamperStrengthDirtDash"), 100, settingsFilename);
 
 static int configMinForceAceDriverVictory= GetPrivateProfileInt(TEXT("Settings"), TEXT("MinForceAceDriverVictory"), 0, settingsFilename);
 static int configMaxForceAceDriverVictory = GetPrivateProfileInt(TEXT("Settings"), TEXT("MaxForceAceDriverVictory"), 100, settingsFilename);
@@ -854,6 +945,8 @@ static int configFeedbackLengthAceDriverVictory = GetPrivateProfileInt(TEXT("Set
 static int EnableForceSpringEffectAceDriverVictory = GetPrivateProfileInt(TEXT("Settings"), TEXT("EnableForceSpringEffectAceDriverVictory"), 0, settingsFilename);
 static int ForceSpringStrengthAceDriverVictory = GetPrivateProfileInt(TEXT("Settings"), TEXT("ForceSpringStrengthAceDriverVictory"), 0, settingsFilename);
 static int FFBDivideAceDriverVictory = GetPrivateProfileInt(TEXT("Settings"), TEXT("FFBDivideAceDriverVictory"), 0, settingsFilename);
+static int EnableDamperAceDriverVictory = GetPrivateProfileInt(TEXT("Settings"), TEXT("EnableDamperAceDriverVictory"), 0, settingsFilename);
+static int DamperStrengthAceDriverVictory = GetPrivateProfileInt(TEXT("Settings"), TEXT("DamperStrengthAceDriverVictory"), 100, settingsFilename);
 
 static int configMinForceAceDriver = GetPrivateProfileInt(TEXT("Settings"), TEXT("MinForceAceDriver"), 0, settingsFilename);
 static int configMaxForceAceDriver = GetPrivateProfileInt(TEXT("Settings"), TEXT("MaxForceAceDriver"), 100, settingsFilename);
@@ -866,6 +959,120 @@ static int configFeedbackLengthAceDriver = GetPrivateProfileInt(TEXT("Settings")
 static int EnableForceSpringEffectAceDriver = GetPrivateProfileInt(TEXT("Settings"), TEXT("EnableForceSpringEffectAceDriver"), 0, settingsFilename);
 static int ForceSpringStrengthAceDriver = GetPrivateProfileInt(TEXT("Settings"), TEXT("ForceSpringStrengthAceDriver"), 0, settingsFilename);
 static int FFBDivideAceDriver = GetPrivateProfileInt(TEXT("Settings"), TEXT("FFBDivideAceDriver"), 0, settingsFilename);
+static int EnableDamperAceDriver = GetPrivateProfileInt(TEXT("Settings"), TEXT("EnableDamperAceDriver"), 0, settingsFilename);
+static int DamperStrengthAceDriver = GetPrivateProfileInt(TEXT("Settings"), TEXT("DamperStrengthAceDriver"), 100, settingsFilename);
+
+static int configMinForceInitialD = GetPrivateProfileInt(TEXT("Settings"), TEXT("MinForceInitialD"), 0, settingsFilename);
+static int configMaxForceInitialD = GetPrivateProfileInt(TEXT("Settings"), TEXT("MaxForceInitialD"), 100, settingsFilename);
+static int configAlternativeMinForceLeftInitialD = GetPrivateProfileInt(TEXT("Settings"), TEXT("AlternativeMinForceLeftInitialD"), 0, settingsFilename);
+static int configAlternativeMaxForceLeftInitialD = GetPrivateProfileInt(TEXT("Settings"), TEXT("AlternativeMaxForceLeftInitialD"), 100, settingsFilename);
+static int configAlternativeMinForceRightInitialD = GetPrivateProfileInt(TEXT("Settings"), TEXT("AlternativeMinForceRightInitialD"), 0, settingsFilename);
+static int configAlternativeMaxForceRightInitialD = GetPrivateProfileInt(TEXT("Settings"), TEXT("AlternativeMaxForceRightInitialD"), 100, settingsFilename);
+static int configFeedbackLengthInitialD = GetPrivateProfileInt(TEXT("Settings"), TEXT("FeedbackLengthInitialD"), 120, settingsFilename);
+static int PowerModeInitialD = GetPrivateProfileInt(TEXT("Settings"), TEXT("PowerModeInitialD"), 0, settingsFilename);
+static int EnableForceSpringEffectInitialD = GetPrivateProfileInt(TEXT("Settings"), TEXT("EnableForceSpringEffectInitialD"), 0, settingsFilename);
+static int ForceSpringStrengthInitialD = GetPrivateProfileInt(TEXT("Settings"), TEXT("ForceSpringStrengthInitialD"), 0, settingsFilename);
+static int EnableDamperInitialD = GetPrivateProfileInt(TEXT("Settings"), TEXT("EnableDamperInitialD"), 0, settingsFilename);
+static int DamperStrengthInitialD = GetPrivateProfileInt(TEXT("Settings"), TEXT("DamperStrengthInitialD"), 100, settingsFilename);
+static int DoubleSineInitialD = GetPrivateProfileInt(TEXT("Settings"), TEXT("DoubleSineInitialD"), 0, settingsFilename);
+static int DoubleConstantInitialD = GetPrivateProfileInt(TEXT("Settings"), TEXT("DoubleConstantInitialD"), 0, settingsFilename);
+
+static int configMinForceF355 = GetPrivateProfileInt(TEXT("Settings"), TEXT("MinForceF355"), 0, settingsFilename);
+static int configMaxForceF355 = GetPrivateProfileInt(TEXT("Settings"), TEXT("MaxForceF355"), 100, settingsFilename);
+static int configAlternativeMinForceLeftF355 = GetPrivateProfileInt(TEXT("Settings"), TEXT("AlternativeMinForceLeftF355"), 0, settingsFilename);
+static int configAlternativeMaxForceLeftF355 = GetPrivateProfileInt(TEXT("Settings"), TEXT("AlternativeMaxForceLeftF355"), 100, settingsFilename);
+static int configAlternativeMinForceRightF355 = GetPrivateProfileInt(TEXT("Settings"), TEXT("AlternativeMinForceRightF355"), 0, settingsFilename);
+static int configAlternativeMaxForceRightF355 = GetPrivateProfileInt(TEXT("Settings"), TEXT("AlternativeMaxForceRightF355"), 100, settingsFilename);
+static int configFeedbackLengthF355 = GetPrivateProfileInt(TEXT("Settings"), TEXT("FeedbackLengthF355"), 120, settingsFilename);
+static int PowerModeF355 = GetPrivateProfileInt(TEXT("Settings"), TEXT("PowerModeF355"), 0, settingsFilename);
+static int EnableForceSpringEffectF355 = GetPrivateProfileInt(TEXT("Settings"), TEXT("EnableForceSpringEffectF355"), 0, settingsFilename);
+static int ForceSpringStrengthF355 = GetPrivateProfileInt(TEXT("Settings"), TEXT("ForceSpringStrengthF355"), 0, settingsFilename);
+static int EnableDamperF355 = GetPrivateProfileInt(TEXT("Settings"), TEXT("EnableDamperF355"), 0, settingsFilename);
+static int DamperStrengthF355 = GetPrivateProfileInt(TEXT("Settings"), TEXT("DamperStrengthF355"), 100, settingsFilename);
+
+static int configMinForce18Wheeler = GetPrivateProfileInt(TEXT("Settings"), TEXT("MinForce18Wheeler"), 0, settingsFilename);
+static int configMaxForce18Wheeler = GetPrivateProfileInt(TEXT("Settings"), TEXT("MaxForce18Wheeler"), 100, settingsFilename);
+static int configAlternativeMinForceLeft18Wheeler = GetPrivateProfileInt(TEXT("Settings"), TEXT("AlternativeMinForceLeft18Wheeler"), 0, settingsFilename);
+static int configAlternativeMaxForceLeft18Wheeler = GetPrivateProfileInt(TEXT("Settings"), TEXT("AlternativeMaxForceLeft18Wheeler"), 100, settingsFilename);
+static int configAlternativeMinForceRight18Wheeler = GetPrivateProfileInt(TEXT("Settings"), TEXT("AlternativeMinForceRight18Wheeler"), 0, settingsFilename);
+static int configAlternativeMaxForceRight18Wheeler = GetPrivateProfileInt(TEXT("Settings"), TEXT("AlternativeMaxForceRight18Wheeler"), 100, settingsFilename);
+static int configFeedbackLength18Wheeler = GetPrivateProfileInt(TEXT("Settings"), TEXT("FeedbackLength18Wheeler"), 120, settingsFilename);
+static int PowerMode18Wheeler = GetPrivateProfileInt(TEXT("Settings"), TEXT("PowerMode18Wheeler"), 0, settingsFilename);
+static int EnableForceSpringEffect18Wheeler = GetPrivateProfileInt(TEXT("Settings"), TEXT("EnableForceSpringEffect18Wheeler"), 0, settingsFilename);
+static int ForceSpringStrength18Wheeler = GetPrivateProfileInt(TEXT("Settings"), TEXT("ForceSpringStrength18Wheeler"), 0, settingsFilename);
+static int EnableDamper18Wheeler = GetPrivateProfileInt(TEXT("Settings"), TEXT("EnableDamper18Wheeler"), 0, settingsFilename);
+static int DamperStrength18Wheeler = GetPrivateProfileInt(TEXT("Settings"), TEXT("DamperStrength18Wheeler"), 100, settingsFilename);
+
+static int configMinForceFasterThanSpeed = GetPrivateProfileInt(TEXT("Settings"), TEXT("MinForceFasterThanSpeed"), 0, settingsFilename);
+static int configMaxForceFasterThanSpeed = GetPrivateProfileInt(TEXT("Settings"), TEXT("MaxForceFasterThanSpeed"), 100, settingsFilename);
+static int configAlternativeMinForceLeftFasterThanSpeed = GetPrivateProfileInt(TEXT("Settings"), TEXT("AlternativeMinForceLeftFasterThanSpeed"), 0, settingsFilename);
+static int configAlternativeMaxForceLeftFasterThanSpeed = GetPrivateProfileInt(TEXT("Settings"), TEXT("AlternativeMaxForceLeftFasterThanSpeed"), 100, settingsFilename);
+static int configAlternativeMinForceRightFasterThanSpeed = GetPrivateProfileInt(TEXT("Settings"), TEXT("AlternativeMinForceRightFasterThanSpeed"), 0, settingsFilename);
+static int configAlternativeMaxForceRightFasterThanSpeed = GetPrivateProfileInt(TEXT("Settings"), TEXT("AlternativeMaxForceRightFasterThanSpeed"), 100, settingsFilename);
+static int configFeedbackLengthFasterThanSpeed = GetPrivateProfileInt(TEXT("Settings"), TEXT("FeedbackLengthFasterThanSpeed"), 120, settingsFilename);
+static int PowerModeFasterThanSpeed = GetPrivateProfileInt(TEXT("Settings"), TEXT("PowerModeFasterThanSpeed"), 0, settingsFilename);
+static int EnableForceSpringEffectFasterThanSpeed = GetPrivateProfileInt(TEXT("Settings"), TEXT("EnableForceSpringEffectFasterThanSpeed"), 0, settingsFilename);
+static int ForceSpringStrengthFasterThanSpeed = GetPrivateProfileInt(TEXT("Settings"), TEXT("ForceSpringStrengthFasterThanSpeed"), 0, settingsFilename);
+static int EnableDamperFasterThanSpeed = GetPrivateProfileInt(TEXT("Settings"), TEXT("EnableDamperFasterThanSpeed"), 0, settingsFilename);
+static int DamperStrengthFasterThanSpeed = GetPrivateProfileInt(TEXT("Settings"), TEXT("DamperStrengthFasterThanSpeed"), 100, settingsFilename);
+
+static int configMinForceMaximumSpeed = GetPrivateProfileInt(TEXT("Settings"), TEXT("MinForceMaximumSpeed"), 0, settingsFilename);
+static int configMaxForceMaximumSpeed = GetPrivateProfileInt(TEXT("Settings"), TEXT("MaxForceMaximumSpeed"), 100, settingsFilename);
+static int configAlternativeMinForceLeftMaximumSpeed = GetPrivateProfileInt(TEXT("Settings"), TEXT("AlternativeMinForceLeftMaximumSpeed"), 0, settingsFilename);
+static int configAlternativeMaxForceLeftMaximumSpeed = GetPrivateProfileInt(TEXT("Settings"), TEXT("AlternativeMaxForceLeftMaximumSpeed"), 100, settingsFilename);
+static int configAlternativeMinForceRightMaximumSpeed = GetPrivateProfileInt(TEXT("Settings"), TEXT("AlternativeMinForceRightMaximumSpeed"), 0, settingsFilename);
+static int configAlternativeMaxForceRightMaximumSpeed = GetPrivateProfileInt(TEXT("Settings"), TEXT("AlternativeMaxForceRightMaximumSpeed"), 100, settingsFilename);
+static int configFeedbackLengthMaximumSpeed = GetPrivateProfileInt(TEXT("Settings"), TEXT("FeedbackLengthMaximumSpeed"), 120, settingsFilename);
+static int PowerModeMaximumSpeed = GetPrivateProfileInt(TEXT("Settings"), TEXT("PowerModeMaximumSpeed"), 0, settingsFilename);
+static int EnableForceSpringEffectMaximumSpeed = GetPrivateProfileInt(TEXT("Settings"), TEXT("EnableForceSpringEffectMaximumSpeed"), 0, settingsFilename);
+static int ForceSpringStrengthMaximumSpeed = GetPrivateProfileInt(TEXT("Settings"), TEXT("ForceSpringStrengthMaximumSpeed"), 0, settingsFilename);
+static int EnableDamperMaximumSpeed = GetPrivateProfileInt(TEXT("Settings"), TEXT("EnableDamperMaximumSpeed"), 0, settingsFilename);
+static int DamperStrengthMaximumSpeed = GetPrivateProfileInt(TEXT("Settings"), TEXT("DamperStrengthMaximumSpeed"), 100, settingsFilename);
+
+static int configMinForceClubKart = GetPrivateProfileInt(TEXT("Settings"), TEXT("MinForceClubKart"), 0, settingsFilename);
+static int configMaxForceClubKart = GetPrivateProfileInt(TEXT("Settings"), TEXT("MaxForceClubKart"), 100, settingsFilename);
+static int configAlternativeMinForceLeftClubKart = GetPrivateProfileInt(TEXT("Settings"), TEXT("AlternativeMinForceLeftClubKart"), 0, settingsFilename);
+static int configAlternativeMaxForceLeftClubKart = GetPrivateProfileInt(TEXT("Settings"), TEXT("AlternativeMaxForceLeftClubKart"), 100, settingsFilename);
+static int configAlternativeMinForceRightClubKart = GetPrivateProfileInt(TEXT("Settings"), TEXT("AlternativeMinForceRightClubKart"), 0, settingsFilename);
+static int configAlternativeMaxForceRightClubKart = GetPrivateProfileInt(TEXT("Settings"), TEXT("AlternativeMaxForceRightClubKart"), 100, settingsFilename);
+static int configFeedbackLengthClubKart = GetPrivateProfileInt(TEXT("Settings"), TEXT("FeedbackLengthClubKart"), 120, settingsFilename);
+static int PowerModeClubKart = GetPrivateProfileInt(TEXT("Settings"), TEXT("PowerModeClubKart"), 0, settingsFilename);
+static int EnableForceSpringEffectClubKart = GetPrivateProfileInt(TEXT("Settings"), TEXT("EnableForceSpringEffectClubKart"), 0, settingsFilename);
+static int ForceSpringStrengthClubKart = GetPrivateProfileInt(TEXT("Settings"), TEXT("ForceSpringStrengthClubKart"), 0, settingsFilename);
+static int EnableDamperClubKart = GetPrivateProfileInt(TEXT("Settings"), TEXT("EnableDamperClubKart"), 0, settingsFilename);
+static int DamperStrengthClubKart = GetPrivateProfileInt(TEXT("Settings"), TEXT("DamperStrengthClubKart"), 100, settingsFilename);
+static int DoubleSineClubKart = GetPrivateProfileInt(TEXT("Settings"), TEXT("DoubleSineClubKart"), 0, settingsFilename);
+static int DoubleConstantClubKart = GetPrivateProfileInt(TEXT("Settings"), TEXT("DoubleConstantClubKart"), 0, settingsFilename);
+
+static int configMinForceKingOfRoute66 = GetPrivateProfileInt(TEXT("Settings"), TEXT("MinForceKingOfRoute66"), 0, settingsFilename);
+static int configMaxForceKingOfRoute66 = GetPrivateProfileInt(TEXT("Settings"), TEXT("MaxForceKingOfRoute66"), 100, settingsFilename);
+static int configAlternativeMinForceLeftKingOfRoute66 = GetPrivateProfileInt(TEXT("Settings"), TEXT("AlternativeMinForceLeftKingOfRoute66"), 0, settingsFilename);
+static int configAlternativeMaxForceLeftKingOfRoute66 = GetPrivateProfileInt(TEXT("Settings"), TEXT("AlternativeMaxForceLeftKingOfRoute66"), 100, settingsFilename);
+static int configAlternativeMinForceRightKingOfRoute66 = GetPrivateProfileInt(TEXT("Settings"), TEXT("AlternativeMinForceRightKingOfRoute66"), 0, settingsFilename);
+static int configAlternativeMaxForceRightKingOfRoute66 = GetPrivateProfileInt(TEXT("Settings"), TEXT("AlternativeMaxForceRightKingOfRoute66"), 100, settingsFilename);
+static int configFeedbackLengthKingOfRoute66 = GetPrivateProfileInt(TEXT("Settings"), TEXT("FeedbackLengthKingOfRoute66"), 120, settingsFilename);
+static int PowerModeKingOfRoute66 = GetPrivateProfileInt(TEXT("Settings"), TEXT("PowerModeKingOfRoute66"), 0, settingsFilename);
+static int EnableForceSpringEffectKingOfRoute66 = GetPrivateProfileInt(TEXT("Settings"), TEXT("EnableForceSpringEffectKingOfRoute66"), 0, settingsFilename);
+static int ForceSpringStrengthKingOfRoute66 = GetPrivateProfileInt(TEXT("Settings"), TEXT("ForceSpringStrengthKingOfRoute66"), 0, settingsFilename);
+static int EnableDamperKingOfRoute66 = GetPrivateProfileInt(TEXT("Settings"), TEXT("EnableDamperKingOfRoute66"), 0, settingsFilename);
+static int DamperStrengthKingOfRoute66 = GetPrivateProfileInt(TEXT("Settings"), TEXT("DamperStrengthKingOfRoute66"), 100, settingsFilename);
+static int DoubleSineKingOfRoute66 = GetPrivateProfileInt(TEXT("Settings"), TEXT("DoubleSineKingOfRoute66"), 0, settingsFilename);
+static int DoubleConstantKingOfRoute66 = GetPrivateProfileInt(TEXT("Settings"), TEXT("DoubleConstantKingOfRoute66"), 0, settingsFilename);
+
+static int configMinForceSegaDrivingSimulator = GetPrivateProfileInt(TEXT("Settings"), TEXT("MinForceSegaDrivingSimulator"), 0, settingsFilename);
+static int configMaxForceSegaDrivingSimulator = GetPrivateProfileInt(TEXT("Settings"), TEXT("MaxForceSegaDrivingSimulator"), 100, settingsFilename);
+static int configAlternativeMinForceLeftSegaDrivingSimulator = GetPrivateProfileInt(TEXT("Settings"), TEXT("AlternativeMinForceLeftSegaDrivingSimulator"), 0, settingsFilename);
+static int configAlternativeMaxForceLeftSegaDrivingSimulator = GetPrivateProfileInt(TEXT("Settings"), TEXT("AlternativeMaxForceLeftSegaDrivingSimulator"), 100, settingsFilename);
+static int configAlternativeMinForceRightSegaDrivingSimulator = GetPrivateProfileInt(TEXT("Settings"), TEXT("AlternativeMinForceRightSegaDrivingSimulator"), 0, settingsFilename);
+static int configAlternativeMaxForceRightSegaDrivingSimulator = GetPrivateProfileInt(TEXT("Settings"), TEXT("AlternativeMaxForceRightSegaDrivingSimulator"), 100, settingsFilename);
+static int configFeedbackLengthSegaDrivingSimulator = GetPrivateProfileInt(TEXT("Settings"), TEXT("FeedbackLengthSegaDrivingSimulator"), 120, settingsFilename);
+static int PowerModeSegaDrivingSimulator = GetPrivateProfileInt(TEXT("Settings"), TEXT("PowerModeSegaDrivingSimulator"), 0, settingsFilename);
+static int EnableForceSpringEffectSegaDrivingSimulator = GetPrivateProfileInt(TEXT("Settings"), TEXT("EnableForceSpringEffectSegaDrivingSimulator"), 0, settingsFilename);
+static int ForceSpringStrengthSegaDrivingSimulator = GetPrivateProfileInt(TEXT("Settings"), TEXT("ForceSpringStrengthSegaDrivingSimulator"), 0, settingsFilename);
+static int EnableDamperSegaDrivingSimulator = GetPrivateProfileInt(TEXT("Settings"), TEXT("EnableDamperSegaDrivingSimulator"), 0, settingsFilename);
+static int DamperStrengthSegaDrivingSimulator = GetPrivateProfileInt(TEXT("Settings"), TEXT("DamperStrengthSegaDrivingSimulator"), 100, settingsFilename);
+static int DoubleSineSegaDrivingSimulator = GetPrivateProfileInt(TEXT("Settings"), TEXT("DoubleSineSegaDrivingSimulator"), 0, settingsFilename);
+static int DoubleConstantSegaDrivingSimulator = GetPrivateProfileInt(TEXT("Settings"), TEXT("DoubleConstantSegaDrivingSimulator"), 0, settingsFilename);
 
 static bool init = false;
 static bool initSpring = false;
@@ -875,9 +1082,9 @@ static bool Effect1 = false;
 static bool Effect2 = false;
 static bool Effect3 = false;
 static bool DirtDevilSine = false;
-static bool ForceSpringEffect = false;
 static bool DontSineUntilRaceStart = false;
 static bool HardDrivinFrame = false;
+static bool NaomiFFBGo = false;
 static bool Motion = false;
 static bool MotionFalse = false;
 static bool StartEffectOnce = false;
@@ -891,8 +1098,8 @@ HINSTANCE hPrevInstance;
 LPSTR lpCmdLine;
 int nCmdShow;
 
+static const char* FlycastnameFFB;
 const char* nameFFB;
-const char* romFFB;
 const char* EmulatorName;
 char* name;
 char* romname;
@@ -908,16 +1115,613 @@ int frame = 0;
 int HardDrivinFFB;
 int StopConstant;
 int newstateFFB;
+int oldstateFFB;
+int EffectCount;
 int stateFFB;
 int stateFFB2;
 int stateFFB3;
 int stateFFBDevice2;
 int stateFFBDevice3;
+int SineEffectState;
 double Divide;
-static int FFBAddress;
+static INT_PTR FFBAddress;
 static UINT8 ff;
 
 std::string wheelA("wheel");
+
+static int speedffb(int ffRaw) {
+	switch (ffRaw) {
+	case 0x1E:
+		return 31;
+	case 0x1C:
+		return 30;
+	case 0x1A:
+		return 29;
+	case 0x18:
+		return 28;
+	case 0x16:
+		return 27;
+	case 0x14:
+		return 26;
+	case 0x12:
+		return 25;
+	case 0x10:
+		return 24;
+	case 0x0E:
+		return 23;
+	case 0x0C:
+		return 22;
+	case 0x0A:
+		return 21;
+	case 0x08:
+		return 20;
+	case 0x06:
+		return 19;
+	case 0x04:
+		return 18;
+	case 0x02:
+		return 17;
+
+	case 0x1F:
+		return 16;
+	case 0x1D:
+		return 15;
+	case 0x1B:
+		return 14;
+	case 0x19:
+		return 13;
+	case 0x17:
+		return 12;
+	case 0x15:
+		return 11;
+	case 0x13:
+		return 10;
+	case 0x11:
+		return 9;
+	case 0x0F:
+		return 8;
+	case 0x0D:
+		return 7;
+	case 0x0B:
+		return 6;
+	case 0x09:
+		return 5;
+	case 0x07:
+		return 4;
+	case 0x05:
+		return 3;
+	case 0x03:
+		return 2;
+	case 0x01:
+		return 1;
+	}
+}
+
+static void FFBGameEffects(EffectConstants* constants, Helpers* helpers, EffectTriggers* triggers, int stateFFB, LPCSTR name)
+{
+	if (RunningFFB == Daytona2Active) //Daytona 2,Scud Race & LeMans
+	{
+		if (name == RawDrive)
+		{
+			helpers->log("got value: ");
+			std::string ffs = std::to_string(stateFFB);
+			helpers->log((char*)ffs.c_str());
+
+			if (stateFFB > 0x09 && stateFFB < 0x20) //Spring
+			{
+				double percentForce = (stateFFB - 9) / 16.0;
+				triggers->Spring(percentForce);
+			}
+
+			if (stateFFB > 0x1F && stateFFB < 0x30) //Clutch
+			{
+				double percentForce = (stateFFB - 31) / 16.0;
+				triggers->Friction(percentForce);
+			}
+
+			if (stateFFB > 0x2F && stateFFB < 0x40) //Centering
+			{
+				double percentForce = (stateFFB - 47) / 16.0;
+				triggers->Rumble(percentForce, percentForce, 100);
+				triggers->Sine(40, 0, percentForce);
+			}
+
+			if (stateFFB > 0x3F && stateFFB < 0x50) //Uncentering
+			{
+				double percentForce = (stateFFB - 63) / 16.0;
+				triggers->Spring(0);
+			}
+
+			if (stateFFB > 0x4F && stateFFB < 0x60) //Roll Right
+			{
+				double percentForce = (stateFFB - 79) / 16.0;
+				double percentLength = 100;
+				triggers->Rumble(percentForce, 0, percentLength);
+				triggers->Constant(constants->DIRECTION_FROM_LEFT, percentForce);
+			}
+			else if (stateFFB > 0x5F && stateFFB < 0x70) //Roll Left
+			{
+				double percentForce = (stateFFB - 95) / 16.0;
+				double percentLength = 100;
+				triggers->Rumble(0, percentForce, percentLength);
+				triggers->Constant(constants->DIRECTION_FROM_RIGHT, percentForce);
+			}
+
+			//Test Menu
+			if (stateFFB == 0x80)
+			{
+				triggers->Rumble(0, 0, 0);
+				triggers->Constant(constants->DIRECTION_FROM_LEFT, 0);
+				triggers->Constant(constants->DIRECTION_FROM_RIGHT, 0);
+			}
+			else if (stateFFB == 0x81)
+			{
+				triggers->Rumble(0.5, 0, 100);
+				triggers->Constant(constants->DIRECTION_FROM_LEFT, 0.5);
+			}
+			else if (stateFFB == 0x82)
+			{
+				triggers->Rumble(0, 0.5, 100);
+				triggers->Constant(constants->DIRECTION_FROM_RIGHT, 0.5);
+			}
+		}
+	}
+
+	if (RunningFFB == DirtDevilsActive) //Dirt Devils
+	{
+		if (name == RawDrive)
+		{
+			helpers->log("got value: ");
+			std::string ffs = std::to_string(stateFFB);
+			helpers->log((char*)ffs.c_str());
+
+			if (stateFFB == 0x10)
+			{
+				double percentForce = 0.7;
+				triggers->Spring(percentForce);
+			}
+
+			if (stateFFB == 0x27 || stateFFB == 0x30)
+				DirtDevilSine = false;
+
+			if (stateFFB == 0x2F)
+				DirtDevilSine = true;
+
+			if (DirtDevilSine)
+			{
+				double percentForce = (stateFFB - 31) / 16.0;
+				triggers->Sine(60, 0, percentForce);
+				triggers->Rumble(percentForce, percentForce, 100);
+			}
+		}
+	}
+
+	if (RunningFFB == Srally2Active) //Sega Rally 2, Emergency Call Ambulance
+	{
+		if (name == RawDrive)
+		{
+			helpers->log("got value: ");
+			std::string ffs = std::to_string(stateFFB);
+			helpers->log((char*)ffs.c_str());
+
+			if (stateFFB > 0x00 && stateFFB <= 0x3F)
+			{
+				double percentForce = (stateFFB) / 64.0;
+				double percentLength = 100;
+				triggers->Rumble(0, percentForce, percentLength);
+				triggers->Constant(constants->DIRECTION_FROM_RIGHT, percentForce);
+			}
+			else if (stateFFB > 0x3F && stateFFB <= 0x7F)
+			{
+				double percentForce = (stateFFB - 64) / 64.0;
+				double percentLength = 100;
+				triggers->Rumble(percentForce, 0, percentLength);
+				triggers->Constant(constants->DIRECTION_FROM_LEFT, percentForce);
+			}
+		}
+	}
+
+	if (RunningFFB == VirtuaRacingActive) //Virtua Racing
+	{
+		if (name == digit0)
+		{
+			helpers->log("got value: ");
+			std::string ffs = std::to_string(stateFFB);
+			helpers->log((char*)ffs.c_str());
+
+			if ((stateFFB == 0x03) || (stateFFB == 0x07) || (stateFFB == 0x09) || (stateFFB == 0x10))
+			{
+				if (stateFFB == 0x07)
+					DontSineUntilRaceStart = true;
+
+				if (stateFFB == 0x09)
+					DontSineUntilRaceStart = false;
+
+				//Spring
+				double percentForce = 0.8;
+				triggers->Spring(percentForce);
+			}
+
+			if (stateFFB == 0x20 || stateFFB == 0x28) //Clutch
+			{
+				double percentForce = 0.4;
+				triggers->Friction(percentForce);
+			}
+
+			if (stateFFB > 0x2F && stateFFB < 0x40) //Centering
+			{
+				double percentForce = (stateFFB - 47) / 11.0;
+				triggers->Spring(percentForce);
+			}
+
+			if (stateFFB == 0x40 || stateFFB == 0x46 || stateFFB == 0x4A) //Uncentering
+			{
+				if (stateFFB == 0x40)
+				{
+					double percentForce = 0.4;
+					triggers->Rumble(percentForce, percentForce, 100);
+					triggers->Sine(70, 30, percentForce);
+				}
+				else
+				{
+					if (DontSineUntilRaceStart) //Uncentering
+					{
+						double percentForce = 0.4;
+						triggers->Rumble(percentForce, percentForce, 100);
+						triggers->Sine(70, 30, percentForce);
+					}
+				}
+			}
+
+			if (stateFFB == 0x50 || stateFFB == 0x5F) //Roll Left
+			{
+				double percentForce = 0.5;
+				double percentLength = 100;
+				triggers->Rumble(0, percentForce, percentLength);
+				triggers->Constant(constants->DIRECTION_FROM_RIGHT, percentForce);
+			}
+			else if (stateFFB == 0x60 || stateFFB == 0x6F) //Roll Right
+			{
+				double percentForce = 0.5;
+				double percentLength = 100;
+				triggers->Rumble(percentForce, 0, percentLength);
+				triggers->Constant(constants->DIRECTION_FROM_LEFT, percentForce);
+			}
+		}
+	}
+
+	if (RunningFFB == RacingFullValueActive1) //Mame games using all values 
+	{
+		if (name == wheel || name == wheel_motor)
+		{
+			helpers->log("got value: ");
+			std::string ffs = std::to_string(stateFFB);
+			helpers->log((char*)ffs.c_str());
+
+			if (stateFFB > 0x80 && stateFFB < 0x100)
+			{
+				double percentForce = (256 - stateFFB) / 126.0;
+				double percentLength = 100;
+				triggers->Rumble(percentForce, 0, percentLength);
+				triggers->Constant(constants->DIRECTION_FROM_LEFT, percentForce);
+			}
+			else if (stateFFB > 0x00 && stateFFB < 0x80)
+			{
+				double percentForce = (stateFFB) / 126.0;
+				double percentLength = 100;
+				triggers->Rumble(0, percentForce, percentLength);
+				triggers->Constant(constants->DIRECTION_FROM_RIGHT, percentForce);
+			}
+		}
+	}
+
+	if (RunningFFB == RacingFullValueActive2) //Mame games using all values (reverse direction to above)
+	{
+		if (name == wheel)
+		{
+			helpers->log("got value: ");
+			std::string ffs = std::to_string(stateFFB);
+			helpers->log((char*)ffs.c_str());
+
+			if (stateFFB > 0x80 && stateFFB < 0x100)
+			{
+				double percentForce = (256 - stateFFB) / 126.0;
+				double percentLength = 100;
+				triggers->Rumble(0, percentForce, percentLength);
+				triggers->Constant(constants->DIRECTION_FROM_RIGHT, percentForce);
+			}
+			else if (stateFFB > 0x00 && stateFFB < 0x80)
+			{
+				double percentForce = (stateFFB) / 126.0;
+				double percentLength = 100;
+				triggers->Rumble(percentForce, 0, percentLength);
+				triggers->Constant(constants->DIRECTION_FROM_LEFT, percentForce);
+			}
+		}
+	}
+
+	if (RunningFFB == MaximumSpeedActive)
+	{
+		if (name == awffb)
+		{
+			helpers->log("got value: ");
+			std::string ffs = std::to_string(stateFFB);
+			helpers->log((char*)ffs.c_str());
+
+			UINT8 FFB = speedffb(stateFFB);
+
+			if (FFB > 0x00 && FFB < 0x11)
+			{
+				double percentForce = FFB / 16.0;
+				double percentLength = 100;
+				triggers->Rumble(percentForce, 0, percentLength);
+				triggers->Constant(constants->DIRECTION_FROM_LEFT, percentForce);
+			}
+			else if (FFB > 0x10 && FFB < 0x20)
+			{
+				double percentForce = (FFB - 16) / 16.0;
+				double percentLength = 100;
+				triggers->Rumble(0, percentForce, percentLength);
+				triggers->Constant(constants->DIRECTION_FROM_RIGHT, percentForce);
+			}
+		}
+	}
+
+	if (RunningFFB == NaomiFFBActive)
+	{
+		if (name == m3ffb)
+		{
+			helpers->log("got value: ");
+			std::string ffs = std::to_string(stateFFB);
+			helpers->log((char*)ffs.c_str());
+
+			if (stateFFB != 0xD0)
+			{
+				if (oldstateFFB != stateFFB)
+				{
+					if ((stateFFB > 0xB0 && stateFFB < 0xC0) || stateFFB == 0x9F)
+					{
+						SineEffectState = stateFFB;
+						Effect1 = true;
+					}
+				}
+
+				if (stateFFB > 0x10 && stateFFB < 0x20)
+				{
+					double percentForce = (stateFFB - 10) / 15.0;
+					triggers->Spring(percentForce);
+				}
+
+				if (stateFFB > 0x20 && stateFFB < 0x30)
+				{
+					double percentForce = (stateFFB - 32) / 15.0;
+					triggers->Friction(percentForce);
+				}
+
+				if (stateFFB > 0x30 && stateFFB < 0x40)
+				{
+					double percentForce = (stateFFB - 48) / 15.0;
+					triggers->Rumble(percentForce, percentForce, 100);
+					triggers->Sine(40, 0, percentForce);
+				}
+
+				if (stateFFB > 0x40 && stateFFB < 0x50)
+				{
+					double percentForce = (stateFFB - 64) / 15.0;
+					triggers->Spring(percentForce);
+				}
+
+				if (stateFFB > 0x50 && stateFFB < 0x60)
+				{
+					double percentForce = (stateFFB - 80) / 15.0;
+					double percentLength = 100;
+					triggers->Rumble(percentForce, 0, percentLength);
+					triggers->Constant(constants->DIRECTION_FROM_LEFT, percentForce);
+				}
+
+				if (stateFFB > 0x60 && stateFFB < 0x70)
+				{
+					if (stateFFB != 0x68 && stateFFB != 0x69 && stateFFB != 0x6A && stateFFB != 0x6B)
+					{
+						double percentForce = (stateFFB - 96) / 15.0;
+						double percentLength = 100;
+						triggers->Rumble(0, percentForce, percentLength);
+						triggers->Constant(constants->DIRECTION_FROM_RIGHT, percentForce);
+					}
+				}
+
+				if (stateFFB > 0x80 && stateFFB < 0x90)
+				{
+					double percentForce = (stateFFB - 128) / 15.0;
+					double percentLength = 100;
+					triggers->Rumble(0, percentForce, percentLength);
+					triggers->Constant(constants->DIRECTION_FROM_RIGHT, percentForce);
+				}
+
+				if (stateFFB > 0x90 && stateFFB < 0xA0)
+				{
+					double percentForce = (stateFFB - 144) / 15.0;
+					double percentLength = 100;
+					triggers->Rumble(percentForce, 0, percentLength);
+					triggers->Constant(constants->DIRECTION_FROM_LEFT, percentForce);
+				}
+
+				if (stateFFB > 0xA0 && stateFFB < 0xB0)
+				{
+					double percentForce = (stateFFB - 160) / 15.0;
+					double percentLength = 100;
+					triggers->Rumble(percentForce, 0, percentLength);
+					triggers->Constant(constants->DIRECTION_FROM_LEFT, percentForce);
+				}
+
+				if (stateFFB == 0xBF)
+				{
+					double percentForce = 1.0;
+					double percentLength = 100;
+					triggers->Rumble(0, percentForce, percentLength);
+					triggers->Constant(constants->DIRECTION_FROM_RIGHT, percentForce);
+				}
+
+				if (stateFFB > 0xC0 && stateFFB < 0xD0)
+				{
+					double percentForce = (stateFFB - 192) / 15.0;
+					triggers->Spring(percentForce);
+				}
+
+				if (stateFFB > 0xD0 && stateFFB < 0xE0)
+				{
+					double percentForce = (stateFFB - 208) / 15.0;
+					double percentLength = 100;
+					triggers->Friction(percentForce);
+				}
+
+				if (stateFFB > 0xE0 && stateFFB < 0xE9)
+				{
+					double percentForce = (stateFFB - 224) / 8.0;
+					double percentLength = 100;
+					triggers->Rumble(percentForce, 0, percentLength);
+					triggers->Constant(constants->DIRECTION_FROM_LEFT, percentForce);
+				}
+
+				if (stateFFB > 0xE8 && stateFFB < 0xF0)
+				{
+					double percentForce = (stateFFB - 232) / 8.0;
+					double percentLength = 100;
+					triggers->Rumble(percentForce, 0, percentLength);
+					triggers->Constant(constants->DIRECTION_FROM_RIGHT, percentForce);
+				}
+
+				if (Effect1)
+				{
+					++EffectCount;
+
+					if (EffectCount >= 31)
+					{
+						Effect1 = false;
+						EffectCount = 0;
+					}
+
+					double percentForce = (SineEffectState - 176) / 15.0;
+					triggers->Rumble(percentForce, percentForce, 100);
+					triggers->Sine(60, 0, percentForce);
+				}
+
+				if (stateFFB == 0xC0)
+				{
+					triggers->Rumble(0, 0, 100);
+					triggers->Sine(60, 0, 0);
+					triggers->Friction(0);
+					triggers->Constant(constants->DIRECTION_FROM_RIGHT, 0);
+					triggers->Constant(constants->DIRECTION_FROM_LEFT, 0);
+				}
+				oldstateFFB = stateFFB;
+			}
+		}
+	}
+
+	if (RunningFFB == InitialDActive)
+	{
+		if (name == midiffb)
+		{
+			helpers->log("got value: ");
+			std::string ffs = std::to_string(stateFFB);
+			helpers->log((char*)ffs.c_str());
+
+			BYTE* ffb = reinterpret_cast<BYTE*>(&stateFFB);
+
+			if (ffb[2] == 0x80 && ffb[0] == 0x01)
+				triggers->Spring(1.0);
+
+			if (ffb[2] == 0x85 && ffb[1] > 0x00 && ffb[0] > 0x00)
+			{
+				double percentForce = ffb[0] / 127.0;
+				double Period = ffb[1] / 127.0 * 120.0;
+				double percentLength = 100;
+				triggers->Rumble(percentForce, percentForce, percentLength);
+				triggers->Sine(static_cast<int>(Period), 0, percentForce);
+			}
+
+			if (ffb[2] == 0x86 && ffb[0] > 0x00 && ffb[0] < 0x80)
+			{
+				double percentForce = ffb[0] / 127.0;
+				double percentLength = 100;
+				triggers->Spring(percentForce);
+			}
+
+			if (ffb[2] == 0x84 && ffb[0] > 0x00 && ffb[0] < 0x80)
+			{
+				if (ffb[1] == 0x00)
+				{
+					double percentForce = (128 - ffb[0]) / 127.0;
+					double percentLength = 100;
+					triggers->Rumble(percentForce, 0, percentLength);
+					triggers->Constant(constants->DIRECTION_FROM_LEFT, percentForce);
+				}
+				else if (ffb[1] == 0x01)
+				{
+					double percentForce = (ffb[0] / 127.0);
+					double percentLength = 100;
+					triggers->Rumble(0, percentForce, percentLength);
+					triggers->Constant(constants->DIRECTION_FROM_RIGHT, percentForce);
+				}
+			}
+		}
+	}
+
+	if (RunningFFB == HardDrivinActive) //Hard Drivin
+	{
+		if (!HardDrivinFrame)
+			HardDrivinFrame = true;
+
+		//if ((frame & 7) == 4)
+		if (frame == 4)
+		{
+			HardDrivinFFB = (vals[0] & 15) + ((vals[3] & 7) << 5);
+
+			if ((vals[1] & 0xF0) == 0xF0)
+				HardDrivinFFB |= 0x10;
+
+			if ((vals[2] & 0xF0) == 0xF0)
+				HardDrivinFFB = -HardDrivinFFB;
+
+			//helpers->log("got value: ");
+			//helpers->log((char*)ffs.c_str());
+
+			//std::string ffs = std::to_string(HardDrivinFFB);
+			//std::string val0 = std::to_string(vals[0]);
+			//std::string val1 = std::to_string(vals[1]);
+			//std::string val2 = std::to_string(vals[2]);
+			//std::string val3 = std::to_string(vals[3]);
+			//std::string val4 = std::to_string(vals[4]);
+			//static char moreTest[256];
+			//memset(moreTest, 0, 256);
+			//sprintf(moreTest, "vals=%s %s %s %s FFS=%s", val0.c_str(), val1.c_str(), val2.c_str(), val3.c_str(), ffs.c_str());
+			//helpers->log((char*)moreTest);
+
+			if (HardDrivinFFB > 100) 
+				HardDrivinFFB = 100;
+
+			if (HardDrivinFFB < -100)
+				HardDrivinFFB = -100;
+
+			if (HardDrivinFFB >= 0)
+			{
+				double percentForce = HardDrivinFFB / 100.0;
+				double percentLength = 100;
+				triggers->Rumble(percentForce, 0, percentLength);
+				triggers->Constant(constants->DIRECTION_FROM_LEFT, percentForce);
+			}
+			else if (HardDrivinFFB < 0)
+			{
+				HardDrivinFFB = -HardDrivinFFB;
+				double percentForce = HardDrivinFFB / 100.0;
+				double percentLength = 100;
+				triggers->Rumble(0, percentForce, percentLength);
+				triggers->Constant(constants->DIRECTION_FROM_RIGHT, percentForce);
+			}
+		}
+	}
+}
 
 typedef int(__stdcall* MAME_START)(int hWnd);
 typedef int(__stdcall* MAME_STOP)(void);
@@ -958,6 +1762,12 @@ void CallTheOutputs()
 		MessageBoxA(NULL, "MAME32.dll is missing!", "FFBPluginError", NULL);
 #endif
 	}
+}
+static int(__stdcall* ExitOri)(UINT uExitCode);
+static int __stdcall ExitHook(UINT uExitCode)
+{
+	TerminateProcess(GetCurrentProcess(), 0);
+	return 0;
 }
 
 typedef struct _id_map_entry id_map_entry;
@@ -1102,7 +1912,6 @@ void add_map_entry(id_map_entry* entry, int id, char* name)
 	}
 }
 
-
 int __stdcall mame_start(int hWnd)
 {
 	WCHAR buf[256];
@@ -1125,6 +1934,47 @@ int __stdcall mame_stop(void)
 	return 1;
 }
 
+static void removeWord(char* str, char* toRemove)
+{
+	int i, j, stringLen, toRemoveLen;
+	int found;
+
+	stringLen = strlen(str);
+	toRemoveLen = strlen(toRemove);
+
+
+	for (i = 0; i <= stringLen - toRemoveLen; i++)
+	{
+		found = 1;
+		for (j = 0; j < toRemoveLen; j++)
+		{
+			if (str[i + j] != toRemove[j])
+			{
+				found = 0;
+				break;
+			}
+		}
+
+		if (str[i + j] != ' ' && str[i + j] != '\t' && str[i + j] != '\n' && str[i + j] != '\0')
+		{
+			found = 0;
+		}
+
+
+		if (found == 1)
+		{
+			for (j = i; j <= stringLen - toRemoveLen; j++)
+			{
+				str[j] = str[j + toRemoveLen];
+			}
+
+			stringLen = stringLen - toRemoveLen;
+
+			i--;
+		}
+	}
+}
+
 int __stdcall mame_copydata(int id, const char* name)
 {
 	WCHAR buf[256];
@@ -1133,7 +1983,27 @@ int __stdcall mame_copydata(int id, const char* name)
 
 	if (id == 0)
 	{
-		romFFB = name;
+		sprintf(GameName, "%s", name);
+
+		removeWord(GameName, "game =");
+
+		int whitespace = 0;
+
+		for (int i = 0; i < strlen(GameName); i++)
+		{
+			if (GameName[i] == ' ' || GameName[i] == '\t')
+				whitespace++;
+			else
+				break;
+		}
+
+		for (int i = 0; i < strlen(GameName); i++)
+		{
+			if (i + whitespace < strlen(GameName))
+				GameName[i] = GameName[i + whitespace];
+			else
+				GameName[i] = 0;
+		}
 	}
 
 	AppendTextToEditCtrl(hEdit, buf);
@@ -1153,7 +2023,9 @@ int __stdcall mame_updatestate(const char* id, int state)
 	wsprintf(buf, L"updatestate: id=%d (%S) state=%d\r\n", id, name, state);
 	AppendTextToEditCtrl(hEdit, buf);
 
-	nameFFB = name;
+	CStringA stringName(name);
+	nameFFB = stringName;
+
 	newstateFFB = state;
 
 	if (HardDrivinFrame)
@@ -1193,6 +2065,9 @@ int __stdcall mame_updatestate(const char* id, int state)
 			}
 		}
 	}
+
+	if (RomGameName && RunningFFB > 0)
+		FFBGameEffects(myconstants, myhelpers, mytriggers, state, name);
 	
 	return 1;
 }
@@ -1207,24 +2082,9 @@ int __stdcall mame_output(const char* name, int value)
 	return 1;
 }
 
-//static BOOL CALLBACK FindWindowBySubstr(HWND hwnd, LPARAM substring)
-//{
-//	const DWORD TITLE_SIZE = 1024;
-//	TCHAR windowTitle[TITLE_SIZE];
-//
-//	if (GetWindowText(hwnd, windowTitle, TITLE_SIZE))
-//	{
-//		if (_tcsstr(windowTitle, LPCTSTR(substring)) != NULL)
-//		{
-//			return false;
-//		}
-//	}
-//	return true;
-//}
-
 static DWORD WINAPI ScanThread(LPVOID lpParam)
 {
-	if (romname == raveracw || romname == raveracj || romname == raveracja) //Rave Racer
+	if (romname == raveracw || romname == raveracj || romname == raveracja || romname == raverace) //Rave Racer
 	{
 		aAddy2 = PatternScan("\xF8\x89\xC2\x00\x9C\x0B\x40\x05\x64\x38\x05\x64\x39\x36\x14\x74\x07\x14\x73\x07", "xxxxxxxxxxxxxxxxxxxx");
 	}
@@ -1254,7 +2114,7 @@ static DWORD WINAPI ScanThread(LPVOID lpParam)
 		aAddy2 = PatternScan("\x80\x38\x00\x50\x49\x5A\x05\x70\x11\x01\x4B\x54\x4F", "xxxxxxxxxxxxx");
 	}
 
-	if ((romname == dirtdash) || (romname == acedrvrw) || (romname == victlapw)) //Dirt Dash, Ace Driver & Ace Driver Victory Lap
+	if (romname == dirtdash || romname == dirtdasha || romname == dirtdashj || romname == acedrvrw || romname == acedrive || romname == victlapw || romname == victlap) //Dirt Dash, Ace Driver & Ace Driver Victory Lap
 	{
 		aAddy2 = PatternScan("\xC8\x00\xC8\x00\xC8\x00\xC8\x00\xC8\x00\xC8\x00\xC8\x00\xC8\x00\x14\x00\x14\x00\x14\x00\x14\x00\x14\x00\x14\x00\x14\x00\x14", "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
 	}
@@ -1264,7 +2124,6 @@ static DWORD WINAPI ScanThread(LPVOID lpParam)
 
 static int raveracer(int ffRaw) {
 	switch (ffRaw) {
-
 		//case 0xFE:
 			//return 128;
 	case 0x7E:
@@ -1530,12 +2389,6 @@ DWORD WINAPI ThreadForOutputs(LPVOID lpParam)
 	return 0;
 }
 
-DWORD WINAPI ThreadForForcedSpring(LPVOID lpParam)
-{
-	ForceSpringEffect = true;
-	return 0;
-}
-
 DWORD WINAPI ThreadForDaytonaStartEffect(LPVOID lpParam)
 {
 	Sleep(1300);
@@ -1545,10 +2398,12 @@ DWORD WINAPI ThreadForDaytonaStartEffect(LPVOID lpParam)
 
 void MAMESupermodel::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTriggers* triggers) {
 
+	myconstants = constants;
+	myhelpers = helpers;
+	mytriggers = triggers;
+
 	if (!init)
 	{
-		CreateThread(NULL, 0, ThreadForOutputs, NULL, 0, NULL);
-
 		wchar_t* deviceGUIDString2 = new wchar_t[256];
 		int Device2GUID = GetPrivateProfileString(TEXT("Settings"), TEXT("Device2GUID"), NULL, deviceGUIDString2, 256, settingsFilename);
 		char joystick_guid[256];
@@ -1556,7 +2411,6 @@ void MAMESupermodel::FFBLoop(EffectConstants* constants, Helpers* helpers, Effec
 		SDL_JoystickGUID guid, dev_guid;
 		int numJoysticks = SDL_NumJoysticks();
 		std::string njs = std::to_string(numJoysticks);
-		((char)njs.c_str());
 		for (int i = 0; i < SDL_NumJoysticks(); i++)
 		{
 			extern int joystick1Index;
@@ -1565,7 +2419,6 @@ void MAMESupermodel::FFBLoop(EffectConstants* constants, Helpers* helpers, Effec
 				continue;
 			}
 			SDL_Joystick* js2 = SDL_JoystickOpen(i);
-			joystick_index2 = SDL_JoystickInstanceID(js2);
 			SDL_JoystickGUID guid = SDL_JoystickGetGUID(js2);
 			char guid_str[1024];
 			SDL_JoystickGetGUIDString(guid, guid_str, sizeof(guid_str));
@@ -1577,6 +2430,7 @@ void MAMESupermodel::FFBLoop(EffectConstants* constants, Helpers* helpers, Effec
 			if (!memcmp(&guid, &dev_guid, sizeof(SDL_JoystickGUID)))
 			{
 				GameController2 = SDL_JoystickOpen(i);
+				joystick_index2 = SDL_JoystickInstanceID(GameController2);
 				ControllerHaptic2 = SDL_HapticOpenFromJoystick(GameController2);
 				break;
 			}
@@ -1603,7 +2457,6 @@ void MAMESupermodel::FFBLoop(EffectConstants* constants, Helpers* helpers, Effec
 				continue;
 			}
 			SDL_Joystick* js3 = SDL_JoystickOpen(i);
-			joystick_index3 = SDL_JoystickInstanceID(js3);
 			SDL_JoystickGUID guid2 = SDL_JoystickGetGUID(js3);
 			char guid_str2[1024];
 			SDL_JoystickGetGUIDString(guid2, guid_str2, sizeof(guid_str2));
@@ -1615,6 +2468,7 @@ void MAMESupermodel::FFBLoop(EffectConstants* constants, Helpers* helpers, Effec
 			if (!memcmp(&guid2, &dev_guid2, sizeof(SDL_JoystickGUID)))
 			{
 				GameController3 = SDL_JoystickOpen(i);
+				joystick_index3 = SDL_JoystickInstanceID(GameController3);
 				ControllerHaptic3 = SDL_HapticOpenFromJoystick(GameController3);
 				break;
 			}
@@ -1627,28 +2481,23 @@ void MAMESupermodel::FFBLoop(EffectConstants* constants, Helpers* helpers, Effec
 			SDL_HapticRumbleInit(ControllerHaptic3);
 		}
 		SDL_HapticSetGain(haptic3, 100);
+
+		if (configGameId == 60)
+		{
+			MH_Initialize();
+			MH_CreateHookApi(L"KERNEL32.dll", "ExitProcess", ExitHook, (void**)&ExitOri);
+			MH_EnableHook(MH_ALL_HOOKS);
+		}
 		init = true;
 	}
 
-	if (EnableForceSpringEffect == 1)
+	if (EnableForceSpringEffect)
 	{
-		if (!initSpring)
-		{
-			CreateThread(NULL, 0, ThreadForForcedSpring, NULL, 0, NULL);
-			initSpring = true;
-		}	
-	}
-
-	if (EnableForceSpringEffect == 1)
-	{
-		if (ForceSpringEffect)
-		{
-			triggers->Springi(ForceSpringStrength / 100.0);
-		}
+		triggers->Springi(ForceSpringStrength / 100.0);
 	}
 
 	romname = new char[256]; //name of rom being played
-	sprintf(romname, "%s", romFFB);
+	sprintf(romname, "%s", GameName);
 
 	name = new char[256]; //name of FFB currently
 	sprintf(name, "%s", nameFFB);
@@ -1668,11 +2517,15 @@ void MAMESupermodel::FFBLoop(EffectConstants* constants, Helpers* helpers, Effec
 				configAlternativeMaxForceRight = configAlternativeMaxForceRightDaytona2;
 				configFeedbackLength = configFeedbackLengthDaytona2;
 				PowerMode = PowerModeDaytona2;
+				EnableDamper = EnableDamperDaytona2;
+				DamperStrength = DamperStrengthDaytona2;
+				EnableForceSpringEffect = EnableForceSpringEffectDaytona2;
+				ForceSpringStrength = ForceSpringStrengthDaytona2;
 
 				RunningFFB = "Daytona2Active";
 			}
 
-			if (romname == scud || romname == scuda || romname == scudj || romname == scudplus || romname == scudplusa)
+			if (romname == scud || romname == scuda || romname == scudau || romname == scuddx|| romname == scudj || romname == scudplus || romname == scudplusa)
 			{
 				configMinForce = configMinForceScud;
 				configMaxForce = configMaxForceScud;
@@ -1682,6 +2535,10 @@ void MAMESupermodel::FFBLoop(EffectConstants* constants, Helpers* helpers, Effec
 				configAlternativeMaxForceRight = configAlternativeMaxForceRightScud;
 				configFeedbackLength = configFeedbackLengthScud;
 				PowerMode = PowerModeScud;
+				EnableDamper = EnableDamperScud;
+				DamperStrength = DamperStrengthScud;
+				EnableForceSpringEffect = EnableForceSpringEffectScud;
+				ForceSpringStrength = ForceSpringStrengthScud;
 
 				RunningFFB = "Daytona2Active";
 			}
@@ -1696,11 +2553,15 @@ void MAMESupermodel::FFBLoop(EffectConstants* constants, Helpers* helpers, Effec
 				configAlternativeMaxForceRight = configAlternativeMaxForceRightLeMans;
 				configFeedbackLength = configFeedbackLengthLeMans;
 				PowerMode = PowerModeLeMans;
+				EnableDamper = EnableDamperLeMans;
+				DamperStrength = DamperStrengthLeMans;
+				EnableForceSpringEffect = EnableForceSpringEffectLeMans;
+				ForceSpringStrength = ForceSpringStrengthLeMans;
 
 				RunningFFB = "Daytona2Active";
 			}
 
-			if (romname == dirtdvlsa || romname == dirtdvls || romname == dirtdvlsj || romname == dirtdvlsg)
+			if (romname == dirtdvlsa || romname == dirtdvls || romname == dirtdvlsj || romname == dirtdvlsg || romname == dirtdvlsu || romname == dirtdvlsau)
 			{
 				configMinForce = configMinForceDirtDevils;
 				configMaxForce = configMaxForceDirtDevils;
@@ -1712,11 +2573,13 @@ void MAMESupermodel::FFBLoop(EffectConstants* constants, Helpers* helpers, Effec
 				PowerMode = PowerModeDirtDevils;
 				EnableForceSpringEffect = EnableForceSpringEffectDirtDevils;
 				ForceSpringStrength = ForceSpringStrengthDirtDevils;
+				EnableDamper = EnableDamperDirtDevils;
+				DamperStrength = DamperStrengthDirtDevils;
 
 				RunningFFB = "DirtDevilsActive";
 			}
 
-			if (romname == srally2 || romname == srally2x || romname == srally2p || romname == srally2pa)
+			if (romname == srally2 || romname == srally2x || romname == srally2dx || romname == srally2p || romname == srally2pa)
 			{
 				configMinForce = configMinForceSRally2;
 				configMaxForce = configMaxForceSRally2;
@@ -1728,6 +2591,8 @@ void MAMESupermodel::FFBLoop(EffectConstants* constants, Helpers* helpers, Effec
 				PowerMode = PowerModeSRally2;
 				EnableForceSpringEffect = EnableForceSpringEffectSRally2;
 				ForceSpringStrength = ForceSpringStrengthSRally2;
+				EnableDamper = EnableDamperSRally2;
+				DamperStrength = DamperStrengthSRally2;
 
 				RunningFFB = "Srally2Active";
 			}
@@ -1744,6 +2609,8 @@ void MAMESupermodel::FFBLoop(EffectConstants* constants, Helpers* helpers, Effec
 				PowerMode = PowerModeECA;
 				EnableForceSpringEffect = EnableForceSpringEffectECA;
 				ForceSpringStrength = ForceSpringStrengthECA;
+				EnableDamper = EnableDamperECA;
+				DamperStrength = DamperStrengthECA;
 
 				RunningFFB = "Srally2Active";
 			}
@@ -1759,6 +2626,8 @@ void MAMESupermodel::FFBLoop(EffectConstants* constants, Helpers* helpers, Effec
 				configFeedbackLength = configFeedbackLengthVirtuaRacing;
 				EnableForceSpringEffect = EnableForceSpringEffectVirtuaRacing;
 				ForceSpringStrength = ForceSpringStrengthVirtuaRacing;
+				EnableDamper = EnableDamperVirtuaRacing;
+				DamperStrength = DamperStrengthVirtuaRacing;
 
 				RunningFFB = "VirtuaRacingActive";
 			}
@@ -1775,6 +2644,8 @@ void MAMESupermodel::FFBLoop(EffectConstants* constants, Helpers* helpers, Effec
 				PowerMode = PowerModeSFRush;
 				EnableForceSpringEffect = EnableForceSpringEffectSFRush;
 				ForceSpringStrength = ForceSpringStrengthSFRush;
+				EnableDamper = EnableDamperSFRush;
+				DamperStrength = DamperStrengthSFRush;
 
 				RunningFFB = "RacingFullValueActive2";
 			}
@@ -1791,6 +2662,8 @@ void MAMESupermodel::FFBLoop(EffectConstants* constants, Helpers* helpers, Effec
 				PowerMode = PowerModeSFRushRock;
 				EnableForceSpringEffect = EnableForceSpringEffectSFRushRock;
 				ForceSpringStrength = ForceSpringStrengthSFRushRock;
+				EnableDamper = EnableDamperSFRushRock;
+				DamperStrength = DamperStrengthSFRushRock;
 
 				RunningFFB = "RacingFullValueActive2";
 			}
@@ -1807,6 +2680,8 @@ void MAMESupermodel::FFBLoop(EffectConstants* constants, Helpers* helpers, Effec
 				PowerMode = PowerModeCrusnWld;
 				EnableForceSpringEffect = EnableForceSpringEffectCrusnWld;
 				ForceSpringStrength = ForceSpringStrengthCrusnWld;
+				EnableDamper = EnableDamperCrusnWld;
+				DamperStrength = DamperStrengthCrusnWld;
 
 				RunningFFB = "RacingFullValueActive2";
 			}
@@ -1823,6 +2698,8 @@ void MAMESupermodel::FFBLoop(EffectConstants* constants, Helpers* helpers, Effec
 				PowerMode = PowerModeSuperChase;
 				EnableForceSpringEffect = EnableForceSpringEffectSuperChase;
 				ForceSpringStrength = ForceSpringStrengthSuperChase;
+				EnableDamper = EnableDamperSuperChase;
+				DamperStrength = DamperStrengthSuperChase;
 
 				RunningFFB = "SuperChaseActive";
 			}
@@ -1839,6 +2716,8 @@ void MAMESupermodel::FFBLoop(EffectConstants* constants, Helpers* helpers, Effec
 				PowerMode = PowerModeOffRoadC;
 				EnableForceSpringEffect = EnableForceSpringEffectOffRoadC;
 				ForceSpringStrength = ForceSpringStrengthOffRoadC;
+				EnableDamper = EnableDamperOffRoadC;
+				DamperStrength = DamperStrengthOffRoadC;
 
 				RunningFFB = "RacingFullValueActive2";
 			}
@@ -1855,6 +2734,8 @@ void MAMESupermodel::FFBLoop(EffectConstants* constants, Helpers* helpers, Effec
 				PowerMode = PowerModeCrusnUSA;
 				EnableForceSpringEffect = EnableForceSpringEffectCrusnUSA;
 				ForceSpringStrength = ForceSpringStrengthCrusnUSA;
+				EnableDamper = EnableDamperCrusnUSA;
+				DamperStrength = DamperStrengthCrusnUSA;
 
 				RunningFFB = "RacingFullValueActive2";
 			}
@@ -1871,6 +2752,8 @@ void MAMESupermodel::FFBLoop(EffectConstants* constants, Helpers* helpers, Effec
 				PowerMode = PowerModeCalSpeed;
 				EnableForceSpringEffect = EnableForceSpringEffectCalSpeed;
 				ForceSpringStrength = ForceSpringStrengthCalSpeed;
+				EnableDamper = EnableDamperCalSpeed;
+				DamperStrength = DamperStrengthCalSpeed;
 
 				RunningFFB = "RacingFullValueActive1";
 			}
@@ -1887,6 +2770,8 @@ void MAMESupermodel::FFBLoop(EffectConstants* constants, Helpers* helpers, Effec
 				PowerMode = PowerModeSFRush2049;
 				EnableForceSpringEffect = EnableForceSpringEffectSFRush2049;
 				ForceSpringStrength = ForceSpringStrengthSFRush2049;
+				EnableDamper = EnableDamperSFRush2049;
+				DamperStrength = DamperStrengthSFRush2049;
 
 				RunningFFB = "RacingFullValueActive1";
 			}
@@ -1907,6 +2792,8 @@ void MAMESupermodel::FFBLoop(EffectConstants* constants, Helpers* helpers, Effec
 				PowerMode = PowerModeHardD;
 				EnableForceSpringEffect = EnableForceSpringEffectHardD;
 				ForceSpringStrength = ForceSpringStrengthHardD;
+				EnableDamper = EnableDamperHardD;
+				DamperStrength = DamperStrengthHardD;
 
 				RunningFFB = "HardDrivinActive";
 			}
@@ -2326,6 +3213,8 @@ void MAMESupermodel::FFBLoop(EffectConstants* constants, Helpers* helpers, Effec
 				configFeedbackLength = configFeedbackLengthHyperDrive;
 				EnableForceSpringEffect = EnableForceSpringEffectHyperDrive;
 				ForceSpringStrength = ForceSpringStrengthHyperDrive;
+				EnableDamper = EnableDamperHyperDrive;
+				DamperStrength = DamperStrengthHyperDrive;
 				
 				RunningFFB = "RacingFullValueActive1";
 			}
@@ -2341,11 +3230,13 @@ void MAMESupermodel::FFBLoop(EffectConstants* constants, Helpers* helpers, Effec
 				configFeedbackLength = configFeedbackLengthVaporTrx;
 				EnableForceSpringEffect = EnableForceSpringEffectVaporTrx;
 				ForceSpringStrength = ForceSpringStrengthVaporTrx;
+				EnableDamper = EnableDamperVaporTrx;
+				DamperStrength = DamperStrengthVaporTrx;
 				
 				RunningFFB = "RacingFullValueActive1";
 			}
 
-			if (romname == raveracw || romname == raveracj || romname == raveracja)
+			if (romname == raveracw || romname == raveracj || romname == raveracja || romname == raverace)
 			{
 				configMinForce = configMinForceRaveRacer;
 				configMaxForce = configMaxForceRaveRacer;
@@ -2357,6 +3248,8 @@ void MAMESupermodel::FFBLoop(EffectConstants* constants, Helpers* helpers, Effec
 				PowerMode = PowerModeRaveRacer;
 				EnableForceSpringEffect = EnableForceSpringEffectRaveRacer;
 				ForceSpringStrength = ForceSpringStrengthRaveRacer;
+				EnableDamper = EnableDamperRaveRacer;
+				DamperStrength = DamperStrengthRaveRacer;
 
 				RunningFFB = "RaveRacerActive";
 			}
@@ -2373,6 +3266,8 @@ void MAMESupermodel::FFBLoop(EffectConstants* constants, Helpers* helpers, Effec
 				PowerMode = PowerModeDaytonaMAME;
 				EnableForceSpringEffect = EnableForceSpringEffectDaytonaMAME;
 				ForceSpringStrength = ForceSpringStrengthDaytonaMAME;
+				EnableDamper = EnableDamperDaytonaMAME;
+				DamperStrength = DamperStrengthDaytonaMAME;
 
 				RunningFFB = "M2PatternActive";
 			}
@@ -2389,6 +3284,8 @@ void MAMESupermodel::FFBLoop(EffectConstants* constants, Helpers* helpers, Effec
 				PowerMode = PowerModeIndy500MAME;
 				EnableForceSpringEffect = EnableForceSpringEffectIndy500MAME;
 				ForceSpringStrength = ForceSpringStrengthIndy500MAME;
+				EnableDamper = EnableDamperIndy500MAME;
+				DamperStrength = DamperStrengthIndy500MAME;
 
 				RunningFFB = "M2PatternActive";
 			}
@@ -2405,6 +3302,8 @@ void MAMESupermodel::FFBLoop(EffectConstants* constants, Helpers* helpers, Effec
 				PowerMode = PowerModeSuperGTMAME;
 				EnableForceSpringEffect = EnableForceSpringEffectSuperGTMAME;
 				ForceSpringStrength = ForceSpringStrengthSuperGTMAME;
+				EnableDamper = EnableDamperSuperGTMAME;
+				DamperStrength = DamperStrengthSuperGTMAME;
 
 				RunningFFB = "M2PatternActive";
 			}
@@ -2421,11 +3320,13 @@ void MAMESupermodel::FFBLoop(EffectConstants* constants, Helpers* helpers, Effec
 				PowerMode = PowerModeSRallyMAME;
 				EnableForceSpringEffect = EnableForceSpringEffectSRallyMAME;
 				ForceSpringStrength = ForceSpringStrengthSRallyMAME;
+				EnableDamper = EnableDamperSRallyMAME;
+				DamperStrength = DamperStrengthSRallyMAME;
 
 				RunningFFB = "SrallyActive";
 			}
 
-			if (romname == dirtdash)
+			if (romname == dirtdash || romname == dirtdasha || romname == dirtdashj)
 			{
 				configMinForce = configMinForceDirtDash;
 				configMaxForce = configMaxForceDirtDash;
@@ -2438,11 +3339,13 @@ void MAMESupermodel::FFBLoop(EffectConstants* constants, Helpers* helpers, Effec
 				EnableForceSpringEffect = EnableForceSpringEffectDirtDash;
 				ForceSpringStrength = ForceSpringStrengthDirtDash;
 				Divide = FFBDivideDirtDash * 1.0;
+				EnableDamper = EnableDamperDirtDash;
+				DamperStrength = DamperStrengthDirtDash;
 
 				RunningFFB = "NamcoFFBActive";
 			}
 
-			if (romname == victlapw)
+			if (romname == victlapw || romname == victlap)
 			{
 				configMinForce = configMinForceAceDriverVictory;
 				configMaxForce = configMaxForceAceDriverVictory;
@@ -2455,11 +3358,13 @@ void MAMESupermodel::FFBLoop(EffectConstants* constants, Helpers* helpers, Effec
 				EnableForceSpringEffect = EnableForceSpringEffectAceDriverVictory;
 				ForceSpringStrength = ForceSpringStrengthAceDriverVictory;
 				Divide = FFBDivideAceDriverVictory * 1.0;
+				EnableDamper = EnableDamperAceDriverVictory;
+				DamperStrength = DamperStrengthAceDriverVictory;
 
 				RunningFFB = "NamcoFFBActive";
 			}
 
-			if (romname == acedrvrw)
+			if (romname == acedrvrw || romname == acedrive)
 			{
 				configMinForce = configMinForceAceDriver;
 				configMaxForce = configMaxForceAceDriver;
@@ -2472,11 +3377,167 @@ void MAMESupermodel::FFBLoop(EffectConstants* constants, Helpers* helpers, Effec
 				EnableForceSpringEffect = EnableForceSpringEffectAceDriver;
 				ForceSpringStrength = ForceSpringStrengthAceDriver;
 				Divide = FFBDivideAceDriver * 1.0;
+				EnableDamper = EnableDamperAceDriver;
+				DamperStrength = DamperStrengthAceDriver;
 
 				RunningFFB = "NamcoFFBActive";
 			}
 
-			if (enableLogging == 1)
+			if (romname == InitialDVer1 || romname == InitialDVer2 || romname == InitialDVer3)
+			{
+				configMinForce = configMinForceInitialD;
+				configMaxForce = configMaxForceInitialD;
+				configAlternativeMinForceLeft = configAlternativeMinForceLeftInitialD;
+				configAlternativeMaxForceLeft = configAlternativeMaxForceLeftInitialD;
+				configAlternativeMinForceRight = configAlternativeMinForceRightInitialD;
+				configAlternativeMaxForceRight = configAlternativeMaxForceRightInitialD;
+				configFeedbackLength = configFeedbackLengthInitialD;
+				PowerMode = PowerModeInitialD;
+				EnableDamper = EnableDamperInitialD;
+				DamperStrength = DamperStrengthInitialD;
+				EnableForceSpringEffect = EnableForceSpringEffectInitialD;
+				ForceSpringStrength = ForceSpringStrengthInitialD;
+				DoubleSine = DoubleSineInitialD;
+				DoubleConstant = DoubleConstantInitialD;
+
+				RunningFFB = "InitialDActive";
+			}
+
+			if (romname == TheKingOfRoute66)
+			{
+				configMinForce = configMinForceKingOfRoute66;
+				configMaxForce = configMaxForceKingOfRoute66;
+				configAlternativeMinForceLeft = configAlternativeMinForceLeftKingOfRoute66;
+				configAlternativeMaxForceLeft = configAlternativeMaxForceLeftKingOfRoute66;
+				configAlternativeMinForceRight = configAlternativeMinForceRightKingOfRoute66;
+				configAlternativeMaxForceRight = configAlternativeMaxForceRightKingOfRoute66;
+				configFeedbackLength = configFeedbackLengthKingOfRoute66;
+				PowerMode = PowerModeKingOfRoute66;
+				EnableDamper = EnableDamperKingOfRoute66;
+				DamperStrength = DamperStrengthKingOfRoute66;
+				EnableForceSpringEffect = EnableForceSpringEffectKingOfRoute66;
+				ForceSpringStrength = ForceSpringStrengthKingOfRoute66;
+				DoubleSine = DoubleSineKingOfRoute66;
+				DoubleConstant = DoubleConstantKingOfRoute66;
+
+				RunningFFB = "InitialDActive";
+			}
+
+			if (romname == ClubKartInJapan)
+			{
+				configMinForce = configMinForceClubKart;
+				configMaxForce = configMaxForceClubKart;
+				configAlternativeMinForceLeft = configAlternativeMinForceLeftClubKart;
+				configAlternativeMaxForceLeft = configAlternativeMaxForceLeftClubKart;
+				configAlternativeMinForceRight = configAlternativeMinForceRightClubKart;
+				configAlternativeMaxForceRight = configAlternativeMaxForceRightClubKart;
+				configFeedbackLength = configFeedbackLengthClubKart;
+				PowerMode = PowerModeClubKart;
+				EnableDamper = EnableDamperClubKart;
+				DamperStrength = DamperStrengthClubKart;
+				EnableForceSpringEffect = EnableForceSpringEffectClubKart;
+				ForceSpringStrength = ForceSpringStrengthClubKart;
+				DoubleSine = DoubleSineClubKart;
+				DoubleConstant = DoubleConstantClubKart;
+
+				RunningFFB = "InitialDActive";
+			}
+
+			if (romname == SegaDrivingSimulator)
+			{
+				configMinForce = configMinForceSegaDrivingSimulator;
+				configMaxForce = configMaxForceSegaDrivingSimulator;
+				configAlternativeMinForceLeft = configAlternativeMinForceLeftSegaDrivingSimulator;
+				configAlternativeMaxForceLeft = configAlternativeMaxForceLeftSegaDrivingSimulator;
+				configAlternativeMinForceRight = configAlternativeMinForceRightSegaDrivingSimulator;
+				configAlternativeMaxForceRight = configAlternativeMaxForceRightSegaDrivingSimulator;
+				configFeedbackLength = configFeedbackLengthSegaDrivingSimulator;
+				PowerMode = PowerModeSegaDrivingSimulator;
+				EnableDamper = EnableDamperSegaDrivingSimulator;
+				DamperStrength = DamperStrengthSegaDrivingSimulator;
+				EnableForceSpringEffect = EnableForceSpringEffectSegaDrivingSimulator;
+				ForceSpringStrength = ForceSpringStrengthSegaDrivingSimulator;
+				DoubleSine = DoubleSineSegaDrivingSimulator;
+				DoubleConstant = DoubleConstantSegaDrivingSimulator;
+
+				RunningFFB = "InitialDActive";
+			}
+
+			if (romname == MaximumSPEED)
+			{
+				configMinForce = configMinForceMaximumSpeed;
+				configMaxForce = configMaxForceMaximumSpeed;
+				configAlternativeMinForceLeft = configAlternativeMinForceLeftMaximumSpeed;
+				configAlternativeMaxForceLeft = configAlternativeMaxForceLeftMaximumSpeed;
+				configAlternativeMinForceRight = configAlternativeMinForceRightMaximumSpeed;
+				configAlternativeMaxForceRight = configAlternativeMaxForceRightMaximumSpeed;
+				configFeedbackLength = configFeedbackLengthMaximumSpeed;
+				PowerMode = PowerModeMaximumSpeed;
+				EnableDamper = EnableDamperMaximumSpeed;
+				DamperStrength = DamperStrengthMaximumSpeed;
+				EnableForceSpringEffect = EnableForceSpringEffectMaximumSpeed;
+				ForceSpringStrength = ForceSpringStrengthMaximumSpeed;
+
+				RunningFFB = "MaximumSpeedActive";
+			}
+
+			if (romname == FasterThanSPEED)
+			{
+				configMinForce = configMinForceFasterThanSpeed;
+				configMaxForce = configMaxForceFasterThanSpeed;
+				configAlternativeMinForceLeft = configAlternativeMinForceLeftFasterThanSpeed;
+				configAlternativeMaxForceLeft = configAlternativeMaxForceLeftFasterThanSpeed;
+				configAlternativeMinForceRight = configAlternativeMinForceRightFasterThanSpeed;
+				configAlternativeMaxForceRight = configAlternativeMaxForceRightFasterThanSpeed;
+				configFeedbackLength = configFeedbackLengthFasterThanSpeed;
+				PowerMode = PowerModeFasterThanSpeed;
+				EnableDamper = EnableDamperFasterThanSpeed;
+				DamperStrength = DamperStrengthFasterThanSpeed;
+				EnableForceSpringEffect = EnableForceSpringEffectFasterThanSpeed;
+				ForceSpringStrength = ForceSpringStrengthFasterThanSpeed;
+
+				RunningFFB = "MaximumSpeedActive";
+			}
+
+			if (romname == F355ChallengeJapan)
+			{
+				configMinForce = configMinForceF355;
+				configMaxForce = configMaxForceF355;
+				configAlternativeMinForceLeft = configAlternativeMinForceLeftF355;
+				configAlternativeMaxForceLeft = configAlternativeMaxForceLeftF355;
+				configAlternativeMinForceRight = configAlternativeMinForceRightF355;
+				configAlternativeMaxForceRight = configAlternativeMaxForceRightF355;
+				configFeedbackLength = configFeedbackLengthF355;
+				PowerMode = PowerModeF355;
+				EnableDamper = EnableDamperF355;
+				DamperStrength = DamperStrengthF355;
+				EnableForceSpringEffect = EnableForceSpringEffectF355;
+				ForceSpringStrength = ForceSpringStrengthF355;
+
+				RunningFFB = "NaomiFFBActive";
+				NaomiFFBGo = true;
+			}
+
+			if (romname == EighteenWheeler)
+			{
+				configMinForce = configMinForce18Wheeler;
+				configMaxForce = configMaxForce18Wheeler;
+				configAlternativeMinForceLeft = configAlternativeMinForceLeft18Wheeler;
+				configAlternativeMaxForceLeft = configAlternativeMaxForceLeft18Wheeler;
+				configAlternativeMinForceRight = configAlternativeMinForceRight18Wheeler;
+				configAlternativeMaxForceRight = configAlternativeMaxForceRight18Wheeler;
+				configFeedbackLength = configFeedbackLength18Wheeler;
+				PowerMode = PowerMode18Wheeler;
+				EnableDamper = EnableDamper18Wheeler;
+				DamperStrength = DamperStrength18Wheeler;
+				EnableForceSpringEffect = EnableForceSpringEffect18Wheeler;
+				ForceSpringStrength = ForceSpringStrength18Wheeler;
+
+				RunningFFB = "NaomiFFBActive";
+				NaomiFFBGo = true;
+			}
+
+			if (enableLogging)
 			{
 				char romnametext[256];
 				sprintf(romnametext, "RomName = %s", romname);
@@ -2488,360 +3549,14 @@ void MAMESupermodel::FFBLoop(EffectConstants* constants, Helpers* helpers, Effec
 			}
 
 			if ((RunningFFB != NULL) && (RunningFFB[0] != '\0'))
-			{
 				RomGameName = true;
-			}
 		}
 	}
 
-	//if (!EmuName)
-	//{
-	//	//Select code to run via emulator name using partial window title to avoid issues with FPS showing etc
-	//	const TCHAR MAMEstring[] = TEXT("MAME");
-	//	EnumWindows(FindWindowBySubstr, (LPARAM)MAMEstring);
-
-	//	const TCHAR Supermodelstring[] = TEXT("Supermodel");
-	//	EnumWindows(FindWindowBySubstr, (LPARAM)Supermodelstring);
-
-	//	if (!EnumWindows(FindWindowBySubstr, (LPARAM)MAMEstring))
-	//	{
-	//		EmulatorName = "MAME";
-	//	}
-
-	//	if (!EnumWindows(FindWindowBySubstr, (LPARAM)Supermodelstring))
-	//	{
-	//		EmulatorName = "Supermodel";
-	//	}
-
-	//	Emulator = new char[256]; // Emulator name
-	//	sprintf(Emulator, "%s", EmulatorName);
-
-	//	if ((EmulatorName != NULL) && (EmulatorName[0] != '\0'))
-	//	{
-	//		EmuName = true;
-	//	}
-	//}
-
-	if (RomGameName)
+	if (RomGameName && RunningFFB > 0)
 	{
-		if (RunningFFB == Daytona2Active) //Daytona 2,Scud Race & LeMans
-		{
-			ForceSpringEffect = false;
-
-			if (name == RawDrive)
-			{
-				helpers->log("got value: ");
-				std::string ffs = std::to_string(newstateFFB);
-				helpers->log((char*)ffs.c_str());
-
-				stateFFB = newstateFFB;
-			}
-
-			if ((stateFFB > 0x09) && (stateFFB < 0x20))
-			{
-				//Spring
-				double percentForce = (stateFFB - 9) / 16.0;
-				triggers->Spring(percentForce);
-			}
-
-			if ((stateFFB > 0x1F) && (stateFFB < 0x30))
-			{
-				//Clutch
-				double percentForce = (stateFFB - 31) / 16.0;
-				triggers->Friction(percentForce);
-			}
-
-			if ((stateFFB > 0x2F) && (stateFFB < 0x40))
-			{
-				//Centering
-				double percentForce = (stateFFB - 47) / 16.0;
-				triggers->Rumble(percentForce, percentForce, 100);
-				triggers->Sine(40, 0, percentForce);
-			}
-
-			if ((stateFFB > 0x3F) && (stateFFB < 0x50))
-			{
-				//Uncentering
-				double percentForce = (stateFFB - 63) / 16.0;
-				triggers->Spring(0);
-			}
-
-			if ((stateFFB > 0x4F) && (stateFFB < 0x60))
-			{
-				//Roll Right
-				double percentForce = (stateFFB - 79) / 16.0;
-				double percentLength = 100;
-				triggers->Rumble(percentForce, 0, percentLength);
-				triggers->Constant(constants->DIRECTION_FROM_LEFT, percentForce);
-			}
-			else if ((stateFFB > 0x5F) && (stateFFB < 0x70))
-			{
-				//Roll Left
-				double percentForce = (stateFFB - 95) / 16.0;
-				double percentLength = 100;
-				triggers->Rumble(0, percentForce, percentLength);
-				triggers->Constant(constants->DIRECTION_FROM_RIGHT, percentForce);
-			}
-
-			UINT8 static oldff = 0;
-			UINT8 newff = stateFFB;
-
-			if (stateFFB == 0x9C)
-			{
-				if (oldff != newff)
-				{
-					Effect1 = true;
-				}
-			}
-
-			if (Effect1)
-			{
-				triggers->Sine(100, 0, 0.8);
-				Effect1 = false;
-			}
-
-			if (stateFFB == 0x05)
-			{
-				triggers->Sine(40, 0, 0.5);
-				triggers->Friction(0.5);
-			}
-
-			if (stateFFB == 0x75)
-			{
-				if (!StartEffectOnce)
-				{
-					StartEffectOnce = true;
-					Effect2 = true;
-					CreateThread(NULL, 0, ThreadForDaytonaStartEffect, NULL, 0, NULL);
-				}
-			}
-			else
-			{
-				if (StartEffectOnce)
-				{
-					StartEffectOnce = false;
-				}
-			}
-
-			if (Effect2)
-			{
-				triggers->Sine(70, 60, 0.5);
-			}
-
-			//Test Menu
-			if (stateFFB == 0x80)
-			{
-				triggers->Rumble(0, 0, 0);
-				triggers->Constant(constants->DIRECTION_FROM_LEFT, 0);
-				triggers->Constant(constants->DIRECTION_FROM_RIGHT, 0);
-			}
-			else if (stateFFB == 0x81)
-			{
-				triggers->Rumble(0.5, 0, 100);
-				triggers->Constant(constants->DIRECTION_FROM_LEFT, 0.5);
-			}
-			else if (stateFFB == 0x82)
-			{
-				triggers->Rumble(0, 0.5, 100);
-				triggers->Constant(constants->DIRECTION_FROM_RIGHT, 0.5);
-			}
-			oldff = newff;
-		}
-		
-		if (RunningFFB == DirtDevilsActive) //Dirt Devils
-		{
-			if (name == RawDrive)
-			{
-				helpers->log("got value: ");
-				std::string ffs = std::to_string(newstateFFB);
-				helpers->log((char*)ffs.c_str());
-
-				stateFFB = newstateFFB;
-			}
-
-			if (stateFFB == 0x10)
-			{
-				double percentForce = 0.7;
-				triggers->Spring(percentForce);
-			}
-
-			if ((stateFFB == 0x27) || (stateFFB == 0x30))
-			{
-				DirtDevilSine = false;
-			}
-
-			if (stateFFB == 0x2F)
-			{
-				DirtDevilSine = true;
-			}
-
-			if (DirtDevilSine)
-			{
-				double percentForce = (stateFFB - 31) / 16.0;
-				triggers->Sine(60, 0, percentForce);
-				triggers->Rumble(percentForce, percentForce, 100);
-			}
-		}
-
-		if (RunningFFB == Srally2Active) //Sega Rally 2, Emergency Call Ambulance
-		{
-			if (name == RawDrive)
-			{
-				helpers->log("got value: ");
-				std::string ffs = std::to_string(newstateFFB);
-				helpers->log((char*)ffs.c_str());
-
-				stateFFB = newstateFFB;
-			}
-
-			if ((stateFFB > 0x00) && (stateFFB < 0x26))
-			{
-				double percentForce = (stateFFB) / 37.0;
-				double percentLength = 100;
-				triggers->Rumble(0, percentForce, percentLength);
-				triggers->Constant(constants->DIRECTION_FROM_RIGHT, percentForce);
-			}
-			else if ((stateFFB > 0x3F) && (stateFFB < 0x66))
-			{
-				double percentForce = (stateFFB - 64) / 37.0;
-				double percentLength = 100;
-				triggers->Rumble(percentForce, 0, percentLength);
-				triggers->Constant(constants->DIRECTION_FROM_LEFT, percentForce);
-			}
-		}
-
-		if (RunningFFB == VirtuaRacingActive) //Virtua Racing
-		{
-			if (name == digit0)
-			{
-				helpers->log("got value: ");
-				std::string ffs = std::to_string(newstateFFB);
-				helpers->log((char*)ffs.c_str());
-
-				stateFFB = newstateFFB;
-			}
-
-			if ((stateFFB == 0x03) || (stateFFB == 0x07) || (stateFFB == 0x09) || (stateFFB == 0x10))
-			{
-				if (stateFFB == 0x07)
-				{
-					DontSineUntilRaceStart = true;
-				}
-				if (stateFFB == 0x09)
-				{
-					DontSineUntilRaceStart = false;
-				}
-				//Spring
-				double percentForce = 0.8;
-				triggers->Spring(percentForce);
-			}
-
-			if ((stateFFB == 0x20) || (stateFFB == 0x28))
-			{
-				//Clutch
-				double percentForce = 0.4;
-				triggers->Friction(percentForce);
-			}
-
-			if ((stateFFB > 0x2F) && (stateFFB < 0x40))
-			{
-				//Centering
-				double percentForce = (stateFFB - 47) / 11.0;
-				triggers->Spring(percentForce);
-			}
-
-			if ((stateFFB == 0x40) || (stateFFB == 0x46) || (stateFFB == 0x4A))
-			{
-				if (stateFFB == 0x40)
-				{
-					//Uncentering
-					double percentForce = 0.4;
-					triggers->Rumble(percentForce, percentForce, 100);
-					triggers->Sine(70, 30, percentForce);
-				}
-				else
-				{
-					if (DontSineUntilRaceStart)
-					{
-						//Uncentering
-						double percentForce = 0.4;
-						triggers->Rumble(percentForce, percentForce, 100);
-						triggers->Sine(70, 30, percentForce);
-					}
-				}
-			}
-
-			if ((stateFFB == 0x50) || (stateFFB == 0x5F))
-			{
-				//Roll Left
-				double percentForce = 0.5;
-				double percentLength = 100;
-				triggers->Rumble(0, percentForce, percentLength);
-				triggers->Constant(constants->DIRECTION_FROM_RIGHT, percentForce);
-			}
-			else if ((stateFFB == 0x60) || (stateFFB == 0x6F))
-			{
-				//Roll Right
-				double percentForce = 0.5;
-				double percentLength = 100;
-				triggers->Rumble(percentForce, 0, percentLength);
-				triggers->Constant(constants->DIRECTION_FROM_LEFT, percentForce);
-			}
-		}
-
-		if (RunningFFB == RacingFullValueActive1) //Mame games using all values 
-		{
-			if (name == wheel)
-			{
-				helpers->log("got value: ");
-				std::string ffs = std::to_string(newstateFFB);
-				helpers->log((char*)ffs.c_str());
-
-				stateFFB = newstateFFB;
-			}
-
-			if ((stateFFB > 0x80) && (stateFFB < 0x100))
-			{
-				double percentForce = (256 - stateFFB) / 127.0;
-				double percentLength = 100;
-				triggers->Rumble(0, percentForce, percentLength);
-				triggers->Constant(constants->DIRECTION_FROM_LEFT, percentForce);
-			}
-			else if ((stateFFB > 0x00) && (stateFFB < 0x80))
-			{
-				double percentForce = (stateFFB) / 127.0;
-				double percentLength = 100;
-				triggers->Rumble(percentForce, 0, percentLength);
-				triggers->Constant(constants->DIRECTION_FROM_RIGHT, percentForce);
-			}
-		}
-
-		if (RunningFFB == RacingFullValueActive2) //Mame games using all values (reverse direction to above)
-		{
-			if (name == wheel)
-			{
-				helpers->log("got value: ");
-				std::string ffs = std::to_string(newstateFFB);
-				helpers->log((char*)ffs.c_str());
-
-				stateFFB = newstateFFB;
-			}
-
-			if ((stateFFB > 0x80) && (stateFFB < 0x100))
-			{
-				double percentForce = (256 - stateFFB) / 127.0;
-				double percentLength = 100;
-				triggers->Rumble(0, percentForce, percentLength);
-				triggers->Constant(constants->DIRECTION_FROM_RIGHT, percentForce);
-			}
-			else if ((stateFFB > 0x00) && (stateFFB < 0x80))
-			{
-				double percentForce = (stateFFB) / 127.0;
-				double percentLength = 100;
-				triggers->Rumble(percentForce, 0, percentLength);
-				triggers->Constant(constants->DIRECTION_FROM_LEFT, percentForce);
-			}
-		}
+		if (RunningFFB > 0 && EnableDamper)
+			triggers->Damper(DamperStrength / 100.0);
 
 		if (RunningFFB == LightGunActive) //LightGun Games
 		{
@@ -3317,10 +4032,10 @@ void MAMESupermodel::FFBLoop(EffectConstants* constants, Helpers* helpers, Effec
 						Scan = true;
 					}
 
-					UINT8 CheckAddy2 = helpers->ReadByte((int)aAddy2 - 0xDF, false);
+					UINT8 CheckAddy2 = helpers->ReadByte((INT_PTR)aAddy2 - 0xDF, false);
 					if (CheckAddy2 == 0xC2)
 					{
-						FFBAddress = (int)aAddy2 - 0x1C0;
+						FFBAddress = (INT_PTR)aAddy2 - 0x1C0;
 						PatternFind = true;
 					}
 				}
@@ -3409,10 +4124,10 @@ void MAMESupermodel::FFBLoop(EffectConstants* constants, Helpers* helpers, Effec
 							CreateThread(NULL, 0, ScanThread, NULL, 0, NULL);
 							Scan = true;
 						}
-						UINT8 CheckAddy2 = helpers->ReadByte((int)aAddy2 + 0x04, false);
+						UINT8 CheckAddy2 = helpers->ReadByte((INT_PTR)aAddy2 + 0x04, false);
 						if (CheckAddy2 == 0x01)
 						{
-							FFBAddress = (int)aAddy2 + 0x04;
+							FFBAddress = (INT_PTR)aAddy2 + 0x04;
 							PatternFind = true;
 						}
 					}
@@ -3425,10 +4140,10 @@ void MAMESupermodel::FFBLoop(EffectConstants* constants, Helpers* helpers, Effec
 							Scan = true;
 						}
 
-						UINT8 CheckAddy2 = helpers->ReadByte((int)aAddy2 - 0x14, false);
+						UINT8 CheckAddy2 = helpers->ReadByte((INT_PTR)aAddy2 - 0x14, false);
 						if (CheckAddy2 == 0x0C)
 						{
-							FFBAddress = (int)aAddy2 + 0x50;
+							FFBAddress = (INT_PTR)aAddy2 + 0x50;
 							PatternFind = true;
 						}
 					}
@@ -3513,10 +4228,10 @@ void MAMESupermodel::FFBLoop(EffectConstants* constants, Helpers* helpers, Effec
 						Scan = true;
 					}
 
-					UINT8 CheckAddy2 = helpers->ReadByte((int)aAddy2 + 0x35, false);
+					UINT8 CheckAddy2 = helpers->ReadByte((INT_PTR)aAddy2 + 0x35, false);
 					if (CheckAddy2 == 0xFF)
 					{
-						FFBAddress = (int)aAddy2 + 0x2B;
+						FFBAddress = (INT_PTR)aAddy2 + 0x2B;
 						PatternFind = true;
 					}
 				}
@@ -3562,10 +4277,10 @@ void MAMESupermodel::FFBLoop(EffectConstants* constants, Helpers* helpers, Effec
 					Scan = true;
 				}
 
-				UINT8 CheckAddy2 = helpers->ReadByte((int)aAddy2 + 0x12, false);
+				UINT8 CheckAddy2 = helpers->ReadByte((INT_PTR)aAddy2 + 0x12, false);
 				if (CheckAddy2 == 0x5A)
 				{
-					FFBAddress = (int)aAddy2 + 0x6C8;
+					FFBAddress = (INT_PTR)aAddy2 + 0x6C8;
 					PatternFind = true;
 				}
 			}
@@ -3612,7 +4327,7 @@ void MAMESupermodel::FFBLoop(EffectConstants* constants, Helpers* helpers, Effec
 				}
 				else
 				{
-					if (romname == dirtdash)
+					if (romname == acedrvrw || romname == acedrive || romname == victlapw || romname == victlap || romname == dirtdash || romname == dirtdasha || romname == dirtdashj)
 					{
 						if (!Scan)
 						{
@@ -3620,42 +4335,10 @@ void MAMESupermodel::FFBLoop(EffectConstants* constants, Helpers* helpers, Effec
 							Scan = true;
 						}
 
-						UINT8 CheckAddy2 = helpers->ReadByte((int)aAddy2 - 0x3E6, false);
-						if (CheckAddy2 == 0x01)
-						{
-							FFBAddress = (int)aAddy2 - 0x2C6;
-							PatternFind = true;
-						}
-					}
-
-					if (romname == victlapw)
-					{
-						if (!Scan)
-						{
-							CreateThread(NULL, 0, ScanThread, NULL, 0, NULL);
-							Scan = true;
-						}
-
-						UINT8 CheckAddy2 = helpers->ReadByte((int)aAddy2 - 0x3E4, false);
-						if (CheckAddy2 == 0x38)
-						{
-							FFBAddress = (int)aAddy2 - 0x2C6;
-							PatternFind = true;
-						}
-					}
-
-					if (romname == acedrvrw)
-					{
-						if (!Scan)
-						{
-							CreateThread(NULL, 0, ScanThread, NULL, 0, NULL);
-							Scan = true;
-						}
-
-						UINT8 CheckAddy2 = helpers->ReadByte((int)aAddy2 - 0x3E3, false);
+						UINT8 CheckAddy2 = helpers->ReadByte((INT_PTR)aAddy2 - 0x3E3, false);
 						if (CheckAddy2 == 0x80)
 						{
-							FFBAddress = (int)aAddy2 - 0x2C6;
+							FFBAddress = (INT_PTR)aAddy2 - 0x2C6;
 							PatternFind = true;
 						}
 					}
@@ -3691,73 +4374,6 @@ void MAMESupermodel::FFBLoop(EffectConstants* constants, Helpers* helpers, Effec
 					triggers->Rumble(percentForce, 0, percentLength);
 					triggers->Constant(constants->DIRECTION_FROM_LEFT, percentForce);
 				}
-			}
-		}
-
-		if (RunningFFB == HardDrivinActive) //Hard Drivin
-		{
-			if (!HardDrivinFrame)
-			{
-				HardDrivinFrame = true;
-			}
-
-			//if ((frame & 7) == 4)
-			if(frame==4)
-			{
-				
-				HardDrivinFFB = (vals[0] & 15) + ((vals[3] & 7) << 5);
-
-				if ((vals[1] & 0xF0) == 0xF0)
-				{
-					HardDrivinFFB |= 0x10;
-				}
-
-				if ((vals[2] & 0xF0) == 0xF0)
-				{
-					HardDrivinFFB = -HardDrivinFFB;
-				}
-				
-
-				//helpers->log("got value: ");
-				//helpers->log((char*)ffs.c_str());
-
-				static char test[256];
-				memset(test, 0, 256);
-				sprintf(test, "hex print: %d", HardDrivinFFB);
-				OutputDebugStringA(test);
-
-				//std::string ffs = std::to_string(HardDrivinFFB);
-				//std::string val0 = std::to_string(vals[0]);
-				//std::string val1 = std::to_string(vals[1]);
-				//std::string val2 = std::to_string(vals[2]);
-				//std::string val3 = std::to_string(vals[3]);
-				//std::string val4 = std::to_string(vals[4]);
-				//static char moreTest[256];
-				//memset(moreTest, 0, 256);
-				//sprintf(moreTest, "vals=%s %s %s %s FFS=%s", val0.c_str(), val1.c_str(), val2.c_str(), val3.c_str(), ffs.c_str());
-				//helpers->log((char*)moreTest);
-
-				if (HardDrivinFFB > 100) {
-					HardDrivinFFB = 100;
-				}
-				if (HardDrivinFFB < -100) {
-					HardDrivinFFB = -100;
-				}
-				if (HardDrivinFFB >= 0)
-					{
-					double percentForce = HardDrivinFFB / 100.0;
-					double percentLength = 100;
-					triggers->Rumble(percentForce, 0, percentLength);
-					triggers->Constant(constants->DIRECTION_FROM_LEFT, percentForce);
-				} else if (HardDrivinFFB < 0)
-				{
-					HardDrivinFFB = -HardDrivinFFB;
-					double percentForce = HardDrivinFFB / 100.0;
-					double percentLength = 100;
-					triggers->Rumble(0, percentForce, percentLength);
-					triggers->Constant(constants->DIRECTION_FROM_RIGHT, percentForce);
-				} 
-
 			}
 		}
 	}

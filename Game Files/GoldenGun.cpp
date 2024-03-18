@@ -74,7 +74,6 @@ void GoldenGun::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTrig
 			SDL_JoystickGUID guid, dev_guid;
 			int numJoysticks = SDL_NumJoysticks();
 			std::string njs = std::to_string(numJoysticks);
-			((char)njs.c_str());
 			for (int i = 0; i < SDL_NumJoysticks(); i++)
 			{
 				extern int joystick1Index;
@@ -83,7 +82,6 @@ void GoldenGun::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTrig
 					continue;
 				}
 				SDL_Joystick* js2 = SDL_JoystickOpen(i);
-				joystick_index2 = SDL_JoystickInstanceID(js2);
 				SDL_JoystickGUID guid = SDL_JoystickGetGUID(js2);
 				char guid_str[1024];
 				SDL_JoystickGetGUIDString(guid, guid_str, sizeof(guid_str));
@@ -95,6 +93,7 @@ void GoldenGun::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTrig
 				if (!memcmp(&guid, &dev_guid, sizeof(SDL_JoystickGUID)))
 				{
 					GameController2 = SDL_JoystickOpen(i);
+					joystick_index2 = SDL_JoystickInstanceID(GameController2);
 					ControllerHaptic2 = SDL_HapticOpenFromJoystick(GameController2);
 					break;
 				}

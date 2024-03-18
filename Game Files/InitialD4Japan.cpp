@@ -15,43 +15,51 @@ along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
 #include "InitialD4Japan.h"
 #include "math.h"
 
+extern int EnableDamper;
+extern int DamperStrength;
+
 void InitialD4Japan::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTriggers* triggers) {
 
-	UINT8 ff = helpers->ReadByte(0x0898985A, /* isRelativeOffset */ false);
-	UINT8 ff1 = helpers->ReadByte(0x08989859, /* isRelativeOffset */ false);
-	UINT8 ff2 = helpers->ReadByte(0x08989858, /* isRelativeOffset */ false);
-	helpers->log("got value: ");
-	std::string ffs = std::to_string(ff);
-	helpers->log((char*)ffs.c_str());
+	if (EnableDamper)
+		triggers->Damper(DamperStrength / 100.0);
 
-	if (ff2 == 0x86)
+	DWORD FFB = helpers->ReadInt32(0x08989858, false);
+
+	BYTE* ffb = reinterpret_cast<BYTE*>(&FFB);
+
+	if (ffb[0] == 0x80 && ffb[2] == 0x01)
 	{
-		triggers->Spring(0.8);
+		triggers->Spring(1.0);
 	}
-	if (ff2 == 0x85) //cars colliding or rubbing against wall etc
+
+	if (ffb[0] == 0x85 && ffb[1] > 0x00 && ffb[2] > 0x00)
 	{
-		if (ff1 > 0)
-		{
-			double percentLength = 200;
-			double percentForce = (0.6);
-			triggers->Friction(percentForce);
-			triggers->Rumble(percentForce, percentForce, percentLength);
-		}
+		double percentForce = ffb[2] / 127.0;
+		double Period = ffb[1] / 127.0 * 120.0;
+		double percentLength = 100;
+		triggers->Rumble(percentForce, percentForce, percentLength);
+		triggers->Sine(static_cast<int>(Period), 0, percentForce);
 	}
-	if (ff2 == 0x84)
+
+	if (ffb[0] == 0x86 && ffb[2] > 0x00)
 	{
-		if ((ff > 0x37) && (ff < 0x80) && (ff1 == 0))
+		double percentForce = ffb[2] / 127.0;
+		double percentLength = 100;
+		triggers->Spring(percentForce);
+	}
+
+	if (ffb[0] == 0x84 && ffb[2] > 0x00)
+	{
+		if (ffb[1] == 0x00)
 		{
-			helpers->log("moving wheel right");
-			double percentForce = (128 - ff) / 72.0;
+			double percentForce = (128 - ffb[2]) / 127.0;
 			double percentLength = 100;
 			triggers->Rumble(percentForce, 0, percentLength);
 			triggers->Constant(constants->DIRECTION_FROM_LEFT, percentForce);
 		}
-		else if ((ff > 0x00) && (ff < 0x49) && (ff1 == 1))
+		else if (ffb[1] == 0x01)
 		{
-			helpers->log("moving wheel left");
-			double percentForce = (ff) / 72.0;
+			double percentForce = (ffb[2] / 127.0);
 			double percentLength = 100;
 			triggers->Rumble(0, percentForce, percentLength);
 			triggers->Constant(constants->DIRECTION_FROM_RIGHT, percentForce);

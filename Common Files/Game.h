@@ -1,5 +1,7 @@
 #pragma once
 #include <Windows.h>
+#include "MinHook.h"
+
 // struct
 struct EffectTriggers {
 	void(*Constant)(int direction, double strength);
@@ -11,6 +13,7 @@ struct EffectTriggers {
 	void(*Rumble)(double lowfrequency, double highfrequency, double length);
 	void(*RumbleDevice2)(double lowfrequency, double highfrequency, double length);
 	void(*RumbleDevice3)(double lowfrequency, double highfrequency, double length);
+	void(*RumbleTriggers)(double lefttrigger, double righttrigger, double length);
 	void(*LeftRight)(double smallstrength, double largestrength, double length);
 	void(*LeftRightDevice2)(double smallstrength, double largestrength, double length);
 	void(*Springi)(double strength);
@@ -98,6 +101,7 @@ public:
 	void log(char *msg);
 	void logInt(int value);
 	void logInit(char *msg);
+	void info(const char* format, ...);
 	// reading memory
 	LPVOID GetTranslatedOffset(INT_PTR offset);
 	int ReadInt32(INT_PTR offset, bool isRelativeOffset);
@@ -107,6 +111,7 @@ public:
 	INT_PTR WriteIntPtr(INT_PTR offset, INT_PTR val, bool isRelativeOffset);
 	UINT8 WriteNop(INT_PTR offset, int countBytes, bool isRelativeOffset);
 	INT_PTR ReadIntPtr(INT_PTR offset, bool isRelativeOffset);
+	long long ReadLong(INT_PTR offset, bool isRelativeOffset);
 	float ReadFloat32(INT_PTR offset, bool isRelativeOffset);
 };
 

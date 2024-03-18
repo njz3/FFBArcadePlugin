@@ -31,6 +31,21 @@ void Helpers::logInit(char *msg) {
 	ofs.close();
 }
 
+void Helpers::info(const char* format, ...)
+{
+	va_list args;
+	char buffer[1024];
+
+	va_start(args, format);
+	int len = _vsnprintf(buffer, sizeof(buffer), format, args);
+	va_end(args);
+
+	buffer[len] = '\n';
+	buffer[len + 1] = '\0';
+
+	OutputDebugStringA(buffer);
+}
+
 // reading memory
 LPVOID Helpers::GetTranslatedOffset(INT_PTR offset)
 {
@@ -105,6 +120,15 @@ INT_PTR Helpers::ReadIntPtr(INT_PTR offset, bool isRelativeOffset)
 	LPVOID trueOffset = (isRelativeOffset ? GetTranslatedOffset(offset) : (LPVOID)offset);
 	INT_PTR val;
 	ReadProcessMemory(GetCurrentProcess(), trueOffset, &val, sizeof(INT_PTR), &read);
+	return val;
+};
+
+long long Helpers::ReadLong(INT_PTR offset, bool isRelativeOffset)
+{
+	SIZE_T read;
+	LPVOID trueOffset = (isRelativeOffset ? GetTranslatedOffset(offset) : (LPVOID)offset);
+	long long val;
+	ReadProcessMemory(GetCurrentProcess(), trueOffset, &val, sizeof(long long), &read);
 	return val;
 };
 

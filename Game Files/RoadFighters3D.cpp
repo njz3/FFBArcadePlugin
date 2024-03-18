@@ -23,6 +23,8 @@ extern HINSTANCE gl_hlibavs;
 extern int joystick_index1;
 extern int joystick_index2;
 extern SDL_Joystick* GameController2;
+extern int EnableDamper;
+extern int DamperStrength;
 static bool avoiderror = true;
 static bool testbuttonA;
 static bool servicebuttonA;
@@ -70,6 +72,12 @@ static int leverUp = GetPrivateProfileInt(TEXT("Settings"), TEXT("leverUp"), 0, 
 static int leverDown = GetPrivateProfileInt(TEXT("Settings"), TEXT("leverDown"), 0, settingsFilename);
 static int leverLeft = GetPrivateProfileInt(TEXT("Settings"), TEXT("leverLeft"), 0, settingsFilename);
 static int leverRight = GetPrivateProfileInt(TEXT("Settings"), TEXT("leverRight"), 0, settingsFilename);
+static int Gear1Button = GetPrivateProfileInt(TEXT("Settings"), TEXT("Gear1Button"), 0, settingsFilename);
+static int Gear2Button = GetPrivateProfileInt(TEXT("Settings"), TEXT("Gear2Button"), 0, settingsFilename);
+static int Gear3Button = GetPrivateProfileInt(TEXT("Settings"), TEXT("Gear3Button"), 0, settingsFilename);
+static int Gear4Button = GetPrivateProfileInt(TEXT("Settings"), TEXT("Gear4Button"), 0, settingsFilename);
+static int Gear5Button = GetPrivateProfileInt(TEXT("Settings"), TEXT("Gear5Button"), 0, settingsFilename);
+static int Gear6Button = GetPrivateProfileInt(TEXT("Settings"), TEXT("Gear6Button"), 0, settingsFilename);
 static int ExitButtonDevice2 = GetPrivateProfileInt(TEXT("Settings"), TEXT("ExitButtonDevice2"), 0, settingsFilename);
 static int TestButtonDevice2 = GetPrivateProfileInt(TEXT("Settings"), TEXT("TestButtonDevice2"), 0, settingsFilename);
 static int ServiceButtonDevice2 = GetPrivateProfileInt(TEXT("Settings"), TEXT("ServiceButtonDevice2"), 0, settingsFilename);
@@ -80,6 +88,12 @@ static int leverUpDevice2 = GetPrivateProfileInt(TEXT("Settings"), TEXT("leverUp
 static int leverDownDevice2 = GetPrivateProfileInt(TEXT("Settings"), TEXT("leverDownDevice2"), 0, settingsFilename);
 static int leverLeftDevice2 = GetPrivateProfileInt(TEXT("Settings"), TEXT("leverLeftDevice2"), 0, settingsFilename);
 static int leverRightDevice2 = GetPrivateProfileInt(TEXT("Settings"), TEXT("leverRightDevice2"), 0, settingsFilename);
+static int Gear1ButtonDevice2 = GetPrivateProfileInt(TEXT("Settings"), TEXT("Gear1ButtonDevice2"), 0, settingsFilename);
+static int Gear2ButtonDevice2 = GetPrivateProfileInt(TEXT("Settings"), TEXT("Gear2ButtonDevice2"), 0, settingsFilename);
+static int Gear3ButtonDevice2 = GetPrivateProfileInt(TEXT("Settings"), TEXT("Gear3ButtonDevice2"), 0, settingsFilename);
+static int Gear4ButtonDevice2 = GetPrivateProfileInt(TEXT("Settings"), TEXT("Gear4ButtonDevice2"), 0, settingsFilename);
+static int Gear5ButtonDevice2 = GetPrivateProfileInt(TEXT("Settings"), TEXT("Gear5ButtonDevice2"), 0, settingsFilename);
+static int Gear6ButtonDevice2 = GetPrivateProfileInt(TEXT("Settings"), TEXT("Gear6ButtonDevice2"), 0, settingsFilename);
 
 static int ThreadLoop()
 {
@@ -90,8 +104,7 @@ static int ThreadLoop()
 	int cabid = myHelpers->ReadByte((INT_PTR)gl_hjgtDll + 0x951034, false);
 	int cabid2 = myHelpers->ReadByte((INT_PTR)gl_hjgtDll + 0x952B9C, false);
 	float timeroutofmenu = myHelpers->ReadByte((INT_PTR)gl_hjgtDll + 0x94BEE8, false);
-	uintptr_t jgtBase;
-	jgtBase = (uintptr_t)GetModuleHandleA("jgt.dll");
+	 uintptr_t jgtBase = (uintptr_t)GetModuleHandleA("jgt.dll");
 
 	if (CabinetID == 2)
 	{
@@ -211,16 +224,23 @@ static int ThreadLoop()
 		{
 			myHelpers->WriteFloat32((INT_PTR)gl_hjgtDll + 0x954394, 0, false);
 		}
+
+		if (EnableDamper == 1)
+		{
+			myTriggers->Damper(DamperStrength / 100.0);
+		}
+
 		if ((ff3 != 0x00) && (ff4 != 0x00))
 		{
-			if ((ff2 > 0x00)& (ff2 < 0x40))
+			if (ff2 > 0x00 && ff2 < 0x40)
 			{
 				double percentForce = (ff2) / 63.0;
 				double percentLength = 100;
 				myTriggers->Rumble(percentForce, percentForce, percentLength);
 				myTriggers->Sine(120, 120, percentForce);
 			}
-			if ((ff1 > 0x00)& (ff1 < 0x08))
+
+			if (ff1 > 0x00 && ff1 < 0x08)
 			{
 				//helpers->log("moving wheel left");
 				double percentForce = (ff1) / 7.0;
@@ -228,7 +248,7 @@ static int ThreadLoop()
 				myTriggers->Rumble(0, percentForce, percentLength);
 				myTriggers->Constant(myConstants->DIRECTION_FROM_LEFT, percentForce);
 			}
-			else if ((ff1 > 0x07)& (ff1 < 0x10))
+			else if (ff1 > 0x07 && ff1 < 0x10)
 			{
 				//helpers->log("moving wheel right");
 				double percentForce = (16 - ff1) / 8.0;
@@ -369,10 +389,11 @@ void RoadFighters3D::FFBLoop(EffectConstants *constants, Helpers *helpers, Effec
 		{
 		int menuvalue = myHelpers->ReadIntPtr((INT_PTR)gl_hjgtDll + 0x0094BFFC, false);
 		int menuvalue1 = myHelpers->ReadIntPtr((INT_PTR)menuvalue + 0x46C, false);
+
 		myTriggers = triggers;
 		myConstants = constants;
 		myHelpers = helpers;
-			if ((e.type == SDL_JOYAXISMOTION) & (ShowAxisForSetup == 0))
+			if (e.type == SDL_JOYAXISMOTION && ShowAxisForSetup == 0)
 			{
 				if (e.jaxis.which == joystick_index1)
 				{
@@ -390,7 +411,7 @@ void RoadFighters3D::FFBLoop(EffectConstants *constants, Helpers *helpers, Effec
 							e.jaxis.value = e.jaxis.value + WHEEL_DEAD_ZONE;
 							helpers->WriteByte((INT_PTR)gl_hjgtDll + 0x7D2B39, (127 + (e.jaxis.value - WHEEL_DEAD_ZONE) / 255), false);
 						}
-						else if ((e.jaxis.value < WHEEL_DEAD_ZONE) & (e.jaxis.value > -WHEEL_DEAD_ZONE))
+						else if (e.jaxis.value < WHEEL_DEAD_ZONE && e.jaxis.value > -WHEEL_DEAD_ZONE)
 						{
 							helpers->WriteByte((INT_PTR)gl_hjgtDll + 0x7D2B39, 0x7F, false);
 						}
@@ -411,7 +432,7 @@ void RoadFighters3D::FFBLoop(EffectConstants *constants, Helpers *helpers, Effec
 									e.jaxis.value = e.jaxis.value - ACCL_DEAD_ZONE;
 									helpers->WriteByte((INT_PTR)gl_hjgtDll + 0x7D2B41, ((e.jaxis.value + ACCL_DEAD_ZONE) / 128), false);
 								}
-								else if ((e.jaxis.value < ACCL_DEAD_ZONE) & (e.jaxis.value > -ACCL_DEAD_ZONE))
+								else if (e.jaxis.value < ACCL_DEAD_ZONE && e.jaxis.value > -ACCL_DEAD_ZONE)
 								{
 									helpers->WriteByte((INT_PTR)gl_hjgtDll + 0x7D2B41, 0x00, false);
 									helpers->WriteByte((INT_PTR)gl_hjgtDll + 0x7D2B3D, 0x00, false);
@@ -464,7 +485,7 @@ void RoadFighters3D::FFBLoop(EffectConstants *constants, Helpers *helpers, Effec
 									e.jaxis.value = e.jaxis.value + ACCL_DEAD_ZONE;
 									helpers->WriteByte((INT_PTR)gl_hjgtDll + 0x7D2B41, ((-e.jaxis.value + ACCL_DEAD_ZONE) / 128), false);
 								}
-								else if ((e.jaxis.value < ACCL_DEAD_ZONE) & (e.jaxis.value > -ACCL_DEAD_ZONE))
+								else if (e.jaxis.value < ACCL_DEAD_ZONE && e.jaxis.value > -ACCL_DEAD_ZONE)
 								{
 									helpers->WriteByte((INT_PTR)gl_hjgtDll + 0x7D2B41, 0xFF, false);
 									helpers->WriteByte((INT_PTR)gl_hjgtDll + 0x7D2B3D, 0xFF, false);
@@ -1134,6 +1155,34 @@ void RoadFighters3D::FFBLoop(EffectConstants *constants, Helpers *helpers, Effec
 					{
 						helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x8000, false);
 					}
+					if (e.jbutton.button == Gear1Button)
+					{
+						helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x1040, false);
+						helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x4000, false);
+					}
+					if (e.jbutton.button == Gear2Button)
+					{
+						helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x2080, false);
+						helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x4000, false);
+					}
+					if (e.jbutton.button == Gear3Button)
+					{
+						helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x1040, false);
+					}
+					if (e.jbutton.button == Gear4Button)
+					{
+						helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x2080, false);
+					}
+					if (e.jbutton.button == Gear5Button)
+					{
+						helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x1040, false);
+						helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x8000, false);
+					}
+					if (e.jbutton.button == Gear6Button)
+					{
+						helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x2080, false);
+						helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x8000, false);
+					}
 				}
 				else if (e.jbutton.which == joystick_index2)
 				{
@@ -1177,15 +1226,15 @@ void RoadFighters3D::FFBLoop(EffectConstants *constants, Helpers *helpers, Effec
 						int Writegearnumber2 = helpers->ReadIntPtr((INT_PTR)Writegearnumber1 + 0x390, false);
 						helpers->WriteIntPtr((INT_PTR)Writegearnumber2 + 0x18, ++gearnumber3, false);
 					}
-					if ((e.jbutton.button == leverDownDevice2) & (SequentialGears == 0))
+					if (e.jbutton.button == leverDownDevice2 && SequentialGears == 0)
 					{
 						helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x2080, false);
 					}
-					if ((e.jbutton.button == leverDownDevice2) & (SequentialGears == 1) && (menuvalue1 == 0x00))
+					if (e.jbutton.button == leverDownDevice2 && SequentialGears == 1 && menuvalue1 == 0x00)
 					{
 						helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x2080, false);
 					}
-					if ((e.jbutton.button == leverDownDevice2) & (SequentialGears == 1) & (gearnumber3 > 0x01))
+					if (e.jbutton.button == leverDownDevice2 && SequentialGears == 1 && gearnumber3 > 0x01)
 					{
 						int Writegearnumber = helpers->ReadIntPtr((INT_PTR)gl_hjgtDll + 0x00953F70, false);
 						int Writegearnumber1 = helpers->ReadIntPtr((INT_PTR)Writegearnumber + 0x5C, false);
@@ -1198,6 +1247,34 @@ void RoadFighters3D::FFBLoop(EffectConstants *constants, Helpers *helpers, Effec
 					}
 					if (e.jbutton.button == leverRightDevice2)
 					{
+						helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x8000, false);
+					}
+					if (e.jbutton.button == Gear1ButtonDevice2)
+					{
+						helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x1040, false);
+						helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x4000, false);
+					}
+					if (e.jbutton.button == Gear2ButtonDevice2)
+					{
+						helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x2080, false);
+						helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x4000, false);
+					}
+					if (e.jbutton.button == Gear3ButtonDevice2)
+					{
+						helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x1040, false);
+					}
+					if (e.jbutton.button == Gear4ButtonDevice2)
+					{
+						helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x2080, false);
+					}
+					if (e.jbutton.button == Gear5ButtonDevice2)
+					{
+						helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x1040, false);
+						helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x8000, false);
+					}
+					if (e.jbutton.button == Gear6ButtonDevice2)
+					{
+						helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x2080, false);
 						helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x8000, false);
 					}
 				}
@@ -1222,15 +1299,15 @@ void RoadFighters3D::FFBLoop(EffectConstants *constants, Helpers *helpers, Effec
 					{
 						helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread -= 0x800, false);
 					}
-					if ((e.jbutton.button == leverUp) && (SequentialGears == 0))
+					if (e.jbutton.button == leverUp && SequentialGears == 0)
 					{
 						helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread -= 0x1040, false);
 					}
-					if ((e.jbutton.button == leverUp) && (SequentialGears == 1) && (menuvalue1 == 0x00))
+					if (e.jbutton.button == leverUp && SequentialGears == 1 && menuvalue1 == 0x00)
 					{
 						helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread -= 0x1040, false);
 					}
-					if ((e.jbutton.button == leverDown) && (SequentialGears == 0))
+					if (e.jbutton.button == leverDown && SequentialGears == 0)
 					{
 						helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread -= 0x2080, false);
 					}
@@ -1244,6 +1321,34 @@ void RoadFighters3D::FFBLoop(EffectConstants *constants, Helpers *helpers, Effec
 					}
 					if (e.jbutton.button == leverRight)
 					{
+						helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread -= 0x8000, false);
+					}
+					if (e.jbutton.button == Gear1Button)
+					{
+						helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread -= 0x1040, false);
+						helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread -= 0x4000, false);
+					}
+					if (e.jbutton.button == Gear2Button)
+					{
+						helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread -= 0x2080, false);
+						helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread -= 0x4000, false);
+					}
+					if (e.jbutton.button == Gear3Button)
+					{
+						helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread -= 0x1040, false);
+					}
+					if (e.jbutton.button == Gear4Button)
+					{
+						helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread -= 0x2080, false);
+					}
+					if (e.jbutton.button == Gear5Button)
+					{
+						helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread -= 0x1040, false);
+						helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread -= 0x8000, false);
+					}
+					if (e.jbutton.button == Gear6Button)
+					{
+						helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread -= 0x2080, false);
 						helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread -= 0x8000, false);
 					}
 				}
@@ -1287,6 +1392,34 @@ void RoadFighters3D::FFBLoop(EffectConstants *constants, Helpers *helpers, Effec
 					}
 					if (e.jbutton.button == leverRightDevice2)
 					{
+						helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread -= 0x8000, false);
+					}
+					if (e.jbutton.button == Gear1ButtonDevice2)
+					{
+						helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread -= 0x1040, false);
+						helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread -= 0x4000, false);
+					}
+					if (e.jbutton.button == Gear2ButtonDevice2)
+					{
+						helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread -= 0x2080, false);
+						helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread -= 0x4000, false);
+					}
+					if (e.jbutton.button == Gear3ButtonDevice2)
+					{
+						helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread -= 0x1040, false);
+					}
+					if (e.jbutton.button == Gear4ButtonDevice2)
+					{
+						helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread -= 0x2080, false);
+					}
+					if (e.jbutton.button == Gear5ButtonDevice2)
+					{
+						helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread -= 0x1040, false);
+						helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread -= 0x8000, false);
+					}
+					if (e.jbutton.button == Gear6ButtonDevice2)
+					{
+						helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread -= 0x2080, false);
 						helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread -= 0x8000, false);
 					}
 				}

@@ -14,36 +14,54 @@ along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
 #include <string>
 #include "KODrive.h"
 
+extern int EnableDamper;
+extern int DamperStrength;
+
 void KODrive::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTriggers* triggers) {
-	UINT8 ff = helpers->ReadByte(0x00B261F6, /* isRelativeOffset */ false);
-	UINT8 ff1 = helpers->ReadByte(0x00B261F5, /* isRelativeOffset */ false);
-	helpers->log("got value: ");
-	std::string ffs = std::to_string(ff);
-	helpers->log((char*)ffs.c_str());
 
-	if ((ff == 10) & (ff1 == 30))
+	if (EnableDamper)
+		triggers->Damper(DamperStrength / 100.0);
+
+	DWORD FFB = helpers->ReadInt32(0x7261F4, true);
+
+	BYTE* ffb = reinterpret_cast<BYTE*>(&FFB);
+
+	if (ffb[0] == 0x80 && ffb[2] == 0x01)
 	{
-		double percentForce = 0.4;
-		double percentForce1 = 2.7;
-		double percentLength = 100;
-		triggers->Rumble(percentForce1, percentForce1, percentLength);
-		triggers->Sine(80, 80, percentForce);
+		triggers->Spring(1.0);
 	}
 
-	if ((ff > 0x66)& (ff < 0x80)& (ff1 == 0))
+	if (ffb[0] == 0x85 && ffb[1] > 0x00 && ffb[2] > 0x00)
 	{
-		helpers->log("moving wheel right");
-		double percentForce = (128 - ff) / 24.0;
+		double percentForce = ffb[2] / 24.0;
+		double Period = ffb[1] / 128.0 * 120.0;
 		double percentLength = 100;
-		triggers->Rumble(percentForce, 0, percentLength);
-		triggers->Constant(constants->DIRECTION_FROM_LEFT, percentForce);
+		triggers->Rumble(percentForce, percentForce, percentLength);
+		triggers->Sine(static_cast<int>(Period), 0, percentForce);
 	}
-	else if ((ff > 0x00)& (ff < 0x19)& (ff1 == 1))
+
+	if (ffb[0] == 0x86 && ffb[2] > 0x00)
 	{
-		helpers->log("moving wheel left");
-		double percentForce = (ff) / 24.0;
+		double percentForce = ffb[2] / 24.0;
 		double percentLength = 100;
-		triggers->Rumble(0, percentForce, percentLength);
-		triggers->Constant(constants->DIRECTION_FROM_RIGHT, percentForce);
+		triggers->Spring(percentForce);
+	}
+
+	if (ffb[0] == 0x84 && ffb[2] > 0x00)
+	{
+		if (ffb[1] == 0x00)
+		{
+			double percentForce = (128 - ffb[2]) / 24.0;
+			double percentLength = 100;
+			triggers->Rumble(percentForce, 0, percentLength);
+			triggers->Constant(constants->DIRECTION_FROM_LEFT, percentForce);
+		}
+		else if (ffb[1] == 0x01)
+		{
+			double percentForce = (ffb[2] / 24.0);
+			double percentLength = 100;
+			triggers->Rumble(0, percentForce, percentLength);
+			triggers->Constant(constants->DIRECTION_FROM_RIGHT, percentForce);
+		}
 	}
 }

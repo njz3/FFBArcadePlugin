@@ -19,6 +19,8 @@ static EffectTriggers *myTriggers;
 static EffectConstants *myConstants;
 static Helpers *myHelpers;
 extern SDL_Event e;
+extern int EnableDamper;
+extern int DamperStrength;
 static bool init = false;
 static wchar_t *settingsFilename = TEXT(".\\FFBPlugin.ini");
 static int ShowButtonNumbersForSetup = GetPrivateProfileInt(TEXT("Settings"), TEXT("ShowButtonNumbersForSetup"), 0, settingsFilename);
@@ -96,16 +98,21 @@ static int ThreadLoop()
 		SpeedStrength = 0;
 	}
 
+	if (EnableDamper == 1)
+	{
+		myTriggers->Damper(DamperStrength / 100.0);
+	}
+
 	if (ff8 == 1)
 	{
-		if ((ff6 >= 0x00) & (ff6 < 0x7F))
+		if ((ff6 >= 0x00) && (ff6 < 0x7F))
 		{
 			double percentForce = ((127 - ff6) / 127.0);
 			double percentLength = 100;
 			myTriggers->Rumble(percentForce, 0, percentLength);
 			myTriggers->Constant(myConstants->DIRECTION_FROM_LEFT, percentForce);
 		}
-		if ((ff6 > 0x7F)& (ff6 < 0x100))
+		if ((ff6 > 0x7F) && (ff6 < 0x100))
 		{
 			double percentForce = ((ff6 - 127) / 128.0);
 			double percentLength = 100;
@@ -115,14 +122,14 @@ static int ThreadLoop()
 	}
 	if (ff9 == 1)
 	{
-		if ((ff6 >= 0x00) & (ff6 < 0x7F))
+		if ((ff6 >= 0x00) && (ff6 < 0x7F))
 		{
 			double percentForce = ((127 - ff6) / 127.0);
 			double percentLength = 100;
 			myTriggers->Rumble(percentForce, 0, percentLength);
 			myTriggers->Constant(myConstants->DIRECTION_FROM_LEFT, percentForce);
 		}
-		if ((ff6 > 0x7F)& (ff6 < 0x100))
+		if ((ff6 > 0x7F) && (ff6 < 0x100))
 		{
 			double percentForce = ((ff6 - 127) / 128.0);
 			double percentLength = 100;

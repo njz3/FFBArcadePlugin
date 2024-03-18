@@ -77,7 +77,6 @@ void NascarInputsEnabled(Helpers* helpers)
 		for (int i = 0; i < SDL_NumJoysticks(); i++)
 		{
 			SDL_Joystick* js2 = SDL_JoystickOpen(i);
-			joystick_index2 = SDL_JoystickInstanceID(js2);
 			SDL_JoystickGUID guid = SDL_JoystickGetGUID(js2);
 			char guid_str[1024];
 			SDL_JoystickGetGUIDString(guid, guid_str, sizeof(guid_str));
@@ -90,6 +89,7 @@ void NascarInputsEnabled(Helpers* helpers)
 			if (!memcmp(&guid, &dev_guid, sizeof(SDL_JoystickGUID)))
 			{
 				GameController2 = SDL_JoystickOpen(i);
+				joystick_index2 = SDL_JoystickInstanceID(GameController2);
 				break;
 			}
 		}
@@ -151,7 +151,7 @@ void NascarInputsEnabled(Helpers* helpers)
 	while (SDL_WaitEvent(&e) != 0)
 	{
 		UINT8 shiftupdownreadA = helpers->ReadByte(ShiftUpDownAddress, false);
-		if ((e.type == SDL_JOYAXISMOTION) & (ShowAxisForSetup == 0))
+		if ((e.type == SDL_JOYAXISMOTION) && (ShowAxisForSetup == 0))
 		{
 			if (e.jaxis.which == joystick_index1)
 			{
@@ -169,7 +169,7 @@ void NascarInputsEnabled(Helpers* helpers)
 						e.jaxis.value = e.jaxis.value + WHEEL_DEAD_ZONE;
 						helpers->WriteByte(SteeringAddress, (127 + (e.jaxis.value - WHEEL_DEAD_ZONE) / 255), false);
 					}
-					else if ((e.jaxis.value < WHEEL_DEAD_ZONE) & (e.jaxis.value > -WHEEL_DEAD_ZONE))
+					else if ((e.jaxis.value < WHEEL_DEAD_ZONE) && (e.jaxis.value > -WHEEL_DEAD_ZONE))
 					{
 						helpers->WriteByte(SteeringAddress, 0x7F, false);
 					}
@@ -190,7 +190,7 @@ void NascarInputsEnabled(Helpers* helpers)
 								e.jaxis.value = e.jaxis.value - ACCL_DEAD_ZONE;
 								helpers->WriteByte(BrakeAddress, ((e.jaxis.value + ACCL_DEAD_ZONE) / 128), false);
 							}
-							else if ((e.jaxis.value < ACCL_DEAD_ZONE) & (e.jaxis.value > -ACCL_DEAD_ZONE))
+							else if ((e.jaxis.value < ACCL_DEAD_ZONE) && (e.jaxis.value > -ACCL_DEAD_ZONE))
 							{
 								helpers->WriteByte(AcclAddress, 0x00, false);
 								helpers->WriteByte(BrakeAddress, 0x00, false);
@@ -243,7 +243,7 @@ void NascarInputsEnabled(Helpers* helpers)
 								e.jaxis.value = e.jaxis.value + ACCL_DEAD_ZONE;
 								helpers->WriteByte(BrakeAddress, ((-e.jaxis.value + ACCL_DEAD_ZONE) / 128), false);
 							}
-							else if ((e.jaxis.value < ACCL_DEAD_ZONE) & (e.jaxis.value > -ACCL_DEAD_ZONE))
+							else if ((e.jaxis.value < ACCL_DEAD_ZONE) && (e.jaxis.value > -ACCL_DEAD_ZONE))
 							{
 								helpers->WriteByte(AcclAddress, 0xFF, false);
 								helpers->WriteByte(BrakeAddress, 0xFF, false);

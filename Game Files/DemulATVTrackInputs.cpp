@@ -73,7 +73,6 @@ void ATVTrackInputsEnabled(Helpers* helpers)
 		for (int i = 0; i < SDL_NumJoysticks(); i++)
 		{
 			SDL_Joystick* js2 = SDL_JoystickOpen(i);
-			joystick_index2 = SDL_JoystickInstanceID(js2);
 			SDL_JoystickGUID guid = SDL_JoystickGetGUID(js2);
 			char guid_str[1024];
 			SDL_JoystickGetGUIDString(guid, guid_str, sizeof(guid_str));
@@ -86,6 +85,7 @@ void ATVTrackInputsEnabled(Helpers* helpers)
 			if (!memcmp(&guid, &dev_guid, sizeof(SDL_JoystickGUID)))
 			{
 				GameController2 = SDL_JoystickOpen(i);
+				joystick_index2 = SDL_JoystickInstanceID(GameController2);
 				break;
 			}
 		}
@@ -146,7 +146,7 @@ void ATVTrackInputsEnabled(Helpers* helpers)
 
 	while (SDL_WaitEvent(&e) != 0)
 	{
-		if ((e.type == SDL_JOYAXISMOTION) & (ShowAxisForSetup == 0))
+		if ((e.type == SDL_JOYAXISMOTION) && (ShowAxisForSetup == 0))
 		{
 			if (e.jaxis.which == joystick_index1)
 			{
@@ -164,7 +164,7 @@ void ATVTrackInputsEnabled(Helpers* helpers)
 						e.jaxis.value = e.jaxis.value + WHEEL_DEAD_ZONE;
 						SteeringValue = (127 + (e.jaxis.value - WHEEL_DEAD_ZONE) / 255);
 					}
-					else if ((e.jaxis.value < WHEEL_DEAD_ZONE) & (e.jaxis.value > -WHEEL_DEAD_ZONE))
+					else if ((e.jaxis.value < WHEEL_DEAD_ZONE) && (e.jaxis.value > -WHEEL_DEAD_ZONE))
 					{
 						SteeringValue = 0x7F;
 					}
@@ -187,7 +187,7 @@ void ATVTrackInputsEnabled(Helpers* helpers)
 								e.jaxis.value = e.jaxis.value - ACCL_DEAD_ZONE;
 								BrakeValue = ((e.jaxis.value + ACCL_DEAD_ZONE) / 128);
 							}
-							else if ((e.jaxis.value < ACCL_DEAD_ZONE) & (e.jaxis.value > -ACCL_DEAD_ZONE))
+							else if ((e.jaxis.value < ACCL_DEAD_ZONE) && (e.jaxis.value > -ACCL_DEAD_ZONE))
 							{
 								helpers->WriteByte(AcclAddress, 0x00, false);
 								BrakeValue = 0x00;
@@ -274,7 +274,7 @@ void ATVTrackInputsEnabled(Helpers* helpers)
 								e.jaxis.value = e.jaxis.value + ACCL_DEAD_ZONE;
 								BrakeValue = ((-e.jaxis.value + ACCL_DEAD_ZONE) / 128);
 							}
-							else if ((e.jaxis.value < ACCL_DEAD_ZONE) & (e.jaxis.value > -ACCL_DEAD_ZONE))
+							else if ((e.jaxis.value < ACCL_DEAD_ZONE) && (e.jaxis.value > -ACCL_DEAD_ZONE))
 							{
 								helpers->WriteByte(AcclAddress, 0xFF, false);
 								BrakeValue = 0x00;
@@ -517,41 +517,41 @@ void ATVTrackInputsEnabled(Helpers* helpers)
 				}
 				else if (e.jhat.which == joystick_index2)
 				{
-					if (dpdup.compare(exit2) == 0)
+					if (dpdup2.compare(exit2) == 0)
 					{
 						system("taskkill /f /im demul.exe");
 					}
-					if (dpdup.compare(test2) == 0)
+					if (dpdup2.compare(test2) == 0)
 					{
 						helpers->WriteByte(ServiceTestAddress, servicetestread -= 0x08, false);
 						testbuttonA = true;
 					}
-					if (dpdup.compare(service2) == 0)
+					if (dpdup2.compare(service2) == 0)
 					{
 						helpers->WriteByte(ServiceTestAddress, servicetestread -= 0x02, false);
 						servicebuttonA = true;
 					}
-					if (dpdup.compare(coin2) == 0)
+					if (dpdup2.compare(coin2) == 0)
 					{
 						helpers->WriteByte(ServiceTestAddress, servicetestread -= 0x20, false);
 						coinA = true;
 					}
-					if (dpdup.compare(emergency2) == 0)
+					if (dpdup2.compare(emergency2) == 0)
 					{
 						helpers->WriteByte(BrakeAddress, brakeread += 0x40, false);
 						emergencystopA = true;
 					}
-					if (dpdup.compare(start2) == 0)
+					if (dpdup2.compare(start2) == 0)
 					{
 						helpers->WriteByte(BrakeAddress, brakeread -= 0x80, false);
 						startbuttonA = true;
 					}
-					if (dpdup.compare(volup2) == 0)
+					if (dpdup2.compare(volup2) == 0)
 					{
 						helpers->WriteByte(ServiceTestAddress, servicetestread -= 0x01, false);
 						volumeupA = true;
 					}
-					if (dpdup.compare(voldown2) == 0)
+					if (dpdup2.compare(voldown2) == 0)
 					{
 						helpers->WriteByte(ServiceTestAddress, servicetestread -= 0x04, false);
 						volumedownA = true;

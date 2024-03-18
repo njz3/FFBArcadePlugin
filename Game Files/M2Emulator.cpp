@@ -17,6 +17,10 @@ along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
 #include "math.h"
 #include "SDL.h"
 
+extern void M2EmulatorDaytonaUSAInputsEnabled(Helpers* helpers);
+extern void M2EmulatorSegaRallyInputsEnabled(Helpers* helpers);
+extern void M2EmulatorIndy500InputsEnabled(Helpers* helpers);
+
 //M2 Emulator Games
 std::string SegaRallyChampionship("Sega Rally Championship");
 std::string SegaRallyChampionshipRevB("Sega Rally Championship (Rev B)");
@@ -56,7 +60,14 @@ extern int configAlternativeMinForceRight;
 extern int configAlternativeMaxForceRight;
 extern int EnableForceSpringEffect;
 extern int ForceSpringStrength;
+extern int EnableDamper;
+extern int DamperStrength;
+static DWORD hookAddressM2A;
+static DWORD hookAddressM2B;
+static DWORD hookAddressM2C;
+static UINT8 OldFFB;
 
+static int InputDeviceWheelEnable = GetPrivateProfileInt(TEXT("Settings"), TEXT("InputDeviceWheelEnable"), 0, settingsFilename);
 static int DaytonaAIMultiplayerHack = GetPrivateProfileInt(TEXT("Settings"), TEXT("DaytonaAIMultiplayerHack"), 0, settingsFilename);
 static int DaytonaForcePanoramicAttract = GetPrivateProfileInt(TEXT("Settings"), TEXT("DaytonaForcePanoramicAttract"), 0, settingsFilename);
 static int EnableOutputs = GetPrivateProfileInt(TEXT("Settings"), TEXT("EnableOutputs"), 0, settingsFilename);
@@ -71,6 +82,8 @@ static int configFeedbackLengthDaytona = GetPrivateProfileInt(TEXT("Settings"), 
 static int PowerModeDaytona = GetPrivateProfileInt(TEXT("Settings"), TEXT("PowerModeDaytona"), 0, settingsFilename);
 static int EnableForceSpringEffectDaytona = GetPrivateProfileInt(TEXT("Settings"), TEXT("EnableForceSpringEffectDaytona"), 0, settingsFilename);
 static int ForceSpringStrengthDaytona = GetPrivateProfileInt(TEXT("Settings"), TEXT("ForceSpringStrengthDaytona"), 0, settingsFilename);
+static int EnableDamperDaytona = GetPrivateProfileInt(TEXT("Settings"), TEXT("EnableDamperDaytona"), 0, settingsFilename);
+static int DamperStrengthDaytona = GetPrivateProfileInt(TEXT("Settings"), TEXT("DamperStrengthDaytona"), 100, settingsFilename);
 
 static int configMinForceSRally = GetPrivateProfileInt(TEXT("Settings"), TEXT("MinForceSRally"), 0, settingsFilename);
 static int configMaxForceSRally = GetPrivateProfileInt(TEXT("Settings"), TEXT("MaxForceSRally"), 100, settingsFilename);
@@ -82,6 +95,8 @@ static int configFeedbackLengthSRally = GetPrivateProfileInt(TEXT("Settings"), T
 static int PowerModeSRally = GetPrivateProfileInt(TEXT("Settings"), TEXT("PowerModeSRally"), 0, settingsFilename);
 static int EnableForceSpringEffectSRally = GetPrivateProfileInt(TEXT("Settings"), TEXT("EnableForceSpringEffectSRally"), 0, settingsFilename);
 static int ForceSpringStrengthSRally = GetPrivateProfileInt(TEXT("Settings"), TEXT("ForceSpringStrengthSRally"), 0, settingsFilename);
+static int EnableDamperSRally = GetPrivateProfileInt(TEXT("Settings"), TEXT("EnableDamperSRally"), 0, settingsFilename);
+static int DamperStrengthSRally = GetPrivateProfileInt(TEXT("Settings"), TEXT("DamperStrengthSRally"), 100, settingsFilename);
 
 static int configMinForceIndy500 = GetPrivateProfileInt(TEXT("Settings"), TEXT("MinForceIndy500"), 0, settingsFilename);
 static int configMaxForceIndy500 = GetPrivateProfileInt(TEXT("Settings"), TEXT("MaxForceIndy500"), 100, settingsFilename);
@@ -93,6 +108,8 @@ static int configFeedbackLengthIndy500 = GetPrivateProfileInt(TEXT("Settings"), 
 static int PowerModeIndy500 = GetPrivateProfileInt(TEXT("Settings"), TEXT("PowerModeIndy500"), 0, settingsFilename);
 static int EnableForceSpringEffectIndy500 = GetPrivateProfileInt(TEXT("Settings"), TEXT("EnableForceSpringEffectIndy500"), 0, settingsFilename);
 static int ForceSpringStrengthIndy500 = GetPrivateProfileInt(TEXT("Settings"), TEXT("ForceSpringStrengthIndy500"), 0, settingsFilename);
+static int EnableDamperIndy500 = GetPrivateProfileInt(TEXT("Settings"), TEXT("EnableDamperIndy500"), 0, settingsFilename);
+static int DamperStrengthIndy500 = GetPrivateProfileInt(TEXT("Settings"), TEXT("DamperStrengthIndy500"), 100, settingsFilename);
 
 static int configMinForceSTCC = GetPrivateProfileInt(TEXT("Settings"), TEXT("MinForceSTCC"), 0, settingsFilename);
 static int configMaxForceSTCC = GetPrivateProfileInt(TEXT("Settings"), TEXT("MaxForceSTCC"), 100, settingsFilename);
@@ -104,6 +121,8 @@ static int configFeedbackLengthSTCC = GetPrivateProfileInt(TEXT("Settings"), TEX
 static int PowerModeSTCC = GetPrivateProfileInt(TEXT("Settings"), TEXT("PowerModeSTCC"), 0, settingsFilename);
 static int EnableForceSpringEffectSTCC = GetPrivateProfileInt(TEXT("Settings"), TEXT("EnableForceSpringEffectSTCC"), 0, settingsFilename);
 static int ForceSpringStrengthSTCC = GetPrivateProfileInt(TEXT("Settings"), TEXT("ForceSpringStrengthSTCC"), 0, settingsFilename);
+static int EnableDamperSTCC = GetPrivateProfileInt(TEXT("Settings"), TEXT("EnableDamperSTCC"), 0, settingsFilename);
+static int DamperStrengthSTCC = GetPrivateProfileInt(TEXT("Settings"), TEXT("DamperStrengthSTCC"), 100, settingsFilename);
 
 static int configMinForceOverRev = GetPrivateProfileInt(TEXT("Settings"), TEXT("MinForceOverRev"), 0, settingsFilename);
 static int configMaxForceOverRev = GetPrivateProfileInt(TEXT("Settings"), TEXT("MaxForceOverRev"), 100, settingsFilename);
@@ -115,6 +134,8 @@ static int configFeedbackLengthOverRev = GetPrivateProfileInt(TEXT("Settings"), 
 static int PowerModeOverRev = GetPrivateProfileInt(TEXT("Settings"), TEXT("PowerModeOverRev"), 0, settingsFilename);
 static int EnableForceSpringEffectOverRev = GetPrivateProfileInt(TEXT("Settings"), TEXT("EnableForceSpringEffectOverRev"), 0, settingsFilename);
 static int ForceSpringStrengthOverRev = GetPrivateProfileInt(TEXT("Settings"), TEXT("ForceSpringStrengthOverRev"), 0, settingsFilename);
+static int EnableDamperOverRev = GetPrivateProfileInt(TEXT("Settings"), TEXT("EnableDamperOverRev"), 0, settingsFilename);
+static int DamperStrengthOverRev = GetPrivateProfileInt(TEXT("Settings"), TEXT("DamperStrengthOverRev"), 100, settingsFilename);
 
 static int configMinForceSuperGT = GetPrivateProfileInt(TEXT("Settings"), TEXT("MinForceSuperGT"), 0, settingsFilename);
 static int configMaxForceSuperGT = GetPrivateProfileInt(TEXT("Settings"), TEXT("MaxForceSuperGT"), 100, settingsFilename);
@@ -126,12 +147,39 @@ static int configFeedbackLengthSuperGT = GetPrivateProfileInt(TEXT("Settings"), 
 static int PowerModeSuperGT = GetPrivateProfileInt(TEXT("Settings"), TEXT("PowerModeSuperGT"), 0, settingsFilename);
 static int EnableForceSpringEffectSuperGT = GetPrivateProfileInt(TEXT("Settings"), TEXT("EnableForceSpringEffectSuperGT"), 0, settingsFilename);
 static int ForceSpringStrengthSuperGT = GetPrivateProfileInt(TEXT("Settings"), TEXT("ForceSpringStrengthSuperGT"), 0, settingsFilename);
+static int EnableDamperSuperGT = GetPrivateProfileInt(TEXT("Settings"), TEXT("EnableDamperSuperGT"), 0, settingsFilename);
+static int DamperStrengthSuperGT = GetPrivateProfileInt(TEXT("Settings"), TEXT("DamperStrengthSuperGT"), 100, settingsFilename);
+
+static HWND hWnd1;
+static HWND hWnd2;
+static HWND hWnd3;
+static HWND hWnd4;
+static HWND hWnd5;
+static HWND hWnd6;
+static HWND hWnd7;
+static HWND hWnd8;
+static HWND hWnd9;
+static HWND hWnd10;
+static HWND hWnd11;
+static HWND hWnd12;
+static HWND hWnd13;
+static HWND hWnd14;
+static HWND hWnd15;
+static HWND hWnd16;
+static HWND hWnd17;
+static HWND hWnd18;
+static HWND hWnd19;
+static HWND hWnd20;
+HWND hWndM2;
 
 static bool init = false;
+static bool inputinit = false;
 static bool CustomStrengthInit = false;
 static bool outputinit = false;
 
 static UINT8 ff;
+
+static void OldInputs(){}
 
 static bool __stdcall ExitHook(UINT uExitCode)
 {
@@ -164,110 +212,193 @@ static DWORD jmpBackAddy;
 
 char* romnameM2;
 
+static int ThreadLoop()
+{
+	if (hWnd1 > NULL || hWnd14 > NULL || hWnd15 > NULL)
+	{
+		if (InputDeviceWheelEnable)
+			M2EmulatorSegaRallyInputsEnabled(0);
+	}
+	
+	if (hWnd2 > NULL || hWnd7 > NULL || hWnd8 > NULL || hWnd9 > NULL || hWnd10 > NULL || hWnd11 > NULL || hWnd12 > NULL || hWnd13 > NULL)
+	{
+		if (InputDeviceWheelEnable)
+			M2EmulatorDaytonaUSAInputsEnabled(0);
+	}
+
+	if (hWnd3 > NULL || hWnd4 > NULL || hWnd5 > NULL || hWnd6 > NULL || hWnd16 > NULL || hWnd17 > NULL || hWnd18 > NULL || hWnd19 > NULL || hWnd20 > NULL)
+	{
+		if (InputDeviceWheelEnable)
+			M2EmulatorIndy500InputsEnabled(0);
+	}
+	return 0;
+}
+
+static DWORD WINAPI InputLoop(LPVOID lpParam)
+{
+	while (true)
+	{
+		ThreadLoop();
+		Sleep(16);
+	}
+}
+
 void M2Emulator::FFBLoop(EffectConstants * constants, Helpers * helpers, EffectTriggers * triggers) {
 
-	HWND hWnd1 = FindWindowA(0, ("Sega Rally Championship"));
-	HWND hWnd2 = FindWindowA(0, ("Daytona USA"));
-	HWND hWnd3 = FindWindowA(0, ("Indianapolis 500 (Rev A, Deluxe)"));
-	HWND hWnd4 = FindWindowA(0, ("Sega Touring Car Championship (Rev A)"));
-	HWND hWnd5 = FindWindowA(0, ("Over Rev"));
-	HWND hWnd6 = FindWindowA(0, ("Super GT 24h"));
-	HWND hWnd7 = FindWindowA(0, ("Daytona USA '93 Edition"));
-	HWND hWnd8 = FindWindowA(0, ("Daytona USA (Saturn Ads)"));
-	HWND hWnd9 = FindWindowA(0, ("Daytona USA Special Edition"));
-	HWND hWnd10 = FindWindowA(0, ("Daytona USA Turbo"));
-	HWND hWnd11 = FindWindowA(0, ("Daytona USA Turbo (Rev A)"));
-	HWND hWnd12 = FindWindowA(0, ("Daytona USA: GTX 2004"));
-	HWND hWnd13 = FindWindowA(0, ("Daytona USA: To The Maxx"));
-	HWND hWnd14 = FindWindowA(0, ("Sega Rally Championship (Rev B)"));
-	HWND hWnd15 = FindWindowA(0, ("Sega Rally Pro Drivin'"));
-	HWND hWnd16 = FindWindowA(0, ("Indianapolis 500 (Rev A, Twin, Newer rev)"));
-	HWND hWnd17 = FindWindowA(0, ("Indianapolis 500 (Rev A, Twin, Older rev)"));
-	HWND hWnd18 = FindWindowA(0, ("Sega Touring Car Championship"));
-	HWND hWnd19 = FindWindowA(0, ("Sega Touring Car Championship (Rev B)"));
-	HWND hWnd20 = FindWindowA(0, ("Over Rev (Model 2B)"));
+	hWnd1 = FindWindowA(0, ("Sega Rally Championship"));
+	hWnd2 = FindWindowA(0, ("Daytona USA"));
+	hWnd3 = FindWindowA(0, ("Indianapolis 500 (Rev A, Deluxe)"));
+	hWnd4 = FindWindowA(0, ("Sega Touring Car Championship (Rev A)"));
+	hWnd5 = FindWindowA(0, ("Over Rev"));
+	hWnd6 = FindWindowA(0, ("Super GT 24h"));
+	hWnd7 = FindWindowA(0, ("Daytona USA '93 Edition"));
+	hWnd8 = FindWindowA(0, ("Daytona USA (Saturn Ads)"));
+	hWnd9 = FindWindowA(0, ("Daytona USA Special Edition"));
+	hWnd10 = FindWindowA(0, ("Daytona USA Turbo"));
+	hWnd11 = FindWindowA(0, ("Daytona USA Turbo (Rev A)"));
+	hWnd12 = FindWindowA(0, ("Daytona USA: GTX 2004"));
+	hWnd13 = FindWindowA(0, ("Daytona USA: To The Maxx"));
+	hWnd14 = FindWindowA(0, ("Sega Rally Championship (Rev B)"));
+	hWnd15 = FindWindowA(0, ("Sega Rally Pro Drivin'"));
+	hWnd16 = FindWindowA(0, ("Indianapolis 500 (Rev A, Twin, Newer rev)"));
+	hWnd17 = FindWindowA(0, ("Indianapolis 500 (Rev A, Twin, Older rev)"));
+	hWnd18 = FindWindowA(0, ("Sega Touring Car Championship"));
+	hWnd19 = FindWindowA(0, ("Sega Touring Car Championship (Rev B)"));
+	hWnd20 = FindWindowA(0, ("Over Rev (Model 2B)"));
 
 	romnameM2 = new char[256];
+
+	if (hWnd1 > NULL || hWnd2 > NULL || hWnd3 > NULL || hWnd4 > NULL || hWnd5 > NULL || hWnd6 > NULL || hWnd7 > NULL || hWnd8 > NULL || hWnd9 > NULL || hWnd10 > NULL ||
+		hWnd11 > NULL || hWnd12 > NULL || hWnd13 > NULL || hWnd14 > NULL || hWnd15 > NULL || hWnd16 > NULL || hWnd17 > NULL || hWnd18 > NULL || hWnd19 > NULL || hWnd20 > NULL)
+	{
+		if (InputDeviceWheelEnable)
+		{
+			hookAddressM2A = 0x4CA450;
+			hookAddressM2B = 0x4CB870;
+			hookAddressM2C = 0x4C9080;
+			helpers->WriteNop(0xCCA6B, 6, true);
+
+			int hookLength = 6;
+
+			if (hookAddressM2A)
+			{
+				jmpBackAddy = hookAddressM2A + hookLength;
+				Hook((void*)hookAddressM2A, OldInputs, hookLength);
+			}
+
+			if (hookAddressM2B)
+			{
+				jmpBackAddy = hookAddressM2B + hookLength;
+				Hook((void*)hookAddressM2B, OldInputs, hookLength);
+			}
+
+			if (hookAddressM2C)
+			{
+				jmpBackAddy = hookAddressM2C + hookLength;
+				Hook((void*)hookAddressM2C, OldInputs, hookLength);
+			}
+		}
+	}
 
 	if (hWnd1 > NULL)
 	{
 		sprintf(romnameM2, "%s", "Sega Rally Championship");
+		hWndM2 = hWnd1;
 	}
 	else if(hWnd2 > NULL)
 	{
 		sprintf(romnameM2, "%s", "Daytona USA");
+		hWndM2 = hWnd2;
 	}
 	else if (hWnd3 > NULL)
 	{
 		sprintf(romnameM2, "%s", "Indianapolis 500 (Rev A, Deluxe)");
+		hWndM2 = hWnd3;
 	}
 	else if (hWnd4 > NULL)
 	{
 		sprintf(romnameM2, "%s", "Sega Touring Car Championship (Rev A)");
+		hWndM2 = hWnd4;
 	}
 	else if (hWnd5 > NULL)
 	{
 		sprintf(romnameM2, "%s", "Over Rev");
+		hWndM2 = hWnd5;
 	}
 	else if (hWnd6 > NULL)
 	{
 		sprintf(romnameM2, "%s", "Super GT 24h");
+		hWndM2 = hWnd6;
 	}
 	else if (hWnd7 > NULL)
 	{
 		sprintf(romnameM2, "%s", "Daytona USA '93 Edition");
+		hWndM2 = hWnd7;
 	}
 	else if (hWnd8 > NULL)
 	{
 		sprintf(romnameM2, "%s", "Daytona USA (Saturn Ads)");
+		hWndM2 = hWnd8;
 	}
 	else if (hWnd9 > NULL)
 	{
 		sprintf(romnameM2, "%s", "Daytona USA Special Edition");
+		hWndM2 = hWnd9;
 	}
 	else if (hWnd10 > NULL)
 	{
 		sprintf(romnameM2, "%s", "Daytona USA Turbo");
+		hWndM2 = hWnd10;
 	}
 	else if (hWnd11 > NULL)
 	{
 		sprintf(romnameM2, "%s", "Daytona USA Turbo (Rev A)");
+		hWndM2 = hWnd11;
 	}
 	else if (hWnd12 > NULL)
 	{
 		sprintf(romnameM2, "%s", "Daytona USA: GTX 2004");
+		hWndM2 = hWnd12;
 	}
 	else if (hWnd13 > NULL)
 	{
 		sprintf(romnameM2, "%s", "Daytona USA: To The Maxx");
+		hWndM2 = hWnd13;
 	}
 	else if (hWnd14 > NULL)
 	{
 		sprintf(romnameM2, "%s", "Sega Rally Championship (Rev B)");
+		hWndM2 = hWnd14;
 	}
 	else if (hWnd15 > NULL)
 	{
 		sprintf(romnameM2, "%s", "Sega Rally Pro Drivin'");
+		hWndM2 = hWnd15;
 	}
 	else if (hWnd16 > NULL)
 	{
 		sprintf(romnameM2, "%s", "Indianapolis 500 (Rev A, Twin, Newer rev)");
+		hWndM2 = hWnd16;
 	}
 	else if (hWnd17 > NULL)
 	{
 		sprintf(romnameM2, "%s", "Indianapolis 500 (Rev A, Twin, Older rev)");
+		hWndM2 = hWnd17;
 	}
 	else if (hWnd18 > NULL)
 	{
 		sprintf(romnameM2, "%s", "Sega Touring Car Championship");
+		hWndM2 = hWnd18;
 	}
 	else if (hWnd19 > NULL)
 	{
 		sprintf(romnameM2, "%s", "Sega Touring Car Championship (Rev B)");
+		hWndM2 = hWnd19;
 	}
 	else if (hWnd20 > NULL)
 	{
 		sprintf(romnameM2, "%s", "Over Rev (Model 2B)");
+		hWndM2 = hWnd20;
 	}
 
 	if (EnableForceSpringEffect == 1)
@@ -275,13 +406,25 @@ void M2Emulator::FFBLoop(EffectConstants * constants, Helpers * helpers, EffectT
 		triggers->Springi(ForceSpringStrength / 100.0);
 	}
 
+	if (EnableDamper == 1)
+	{
+		triggers->Damper(DamperStrength / 100.0);
+	}
+
 	if (!outputinit)
 	{
-		if (EnableOutputs == 1)
+		if (EnableOutputs)
 		{
 			HMODULE lib = LoadLibraryA("OutputBlaster.dll");
 			outputinit = true;
 		}		
+	}
+
+	if (!inputinit)
+	{
+		if (InputDeviceWheelEnable)
+			CreateThread(NULL, 0, InputLoop, NULL, 0, NULL);
+		inputinit = true;
 	}
 
 	HMODULE hMod = GetModuleHandleA("KERNEL32.dll");
@@ -372,6 +515,8 @@ void M2Emulator::FFBLoop(EffectConstants * constants, Helpers * helpers, EffectT
 			PowerMode = PowerModeSRally;
 			EnableForceSpringEffect = EnableForceSpringEffectSRally;
 			ForceSpringStrength = ForceSpringStrengthSRally;
+			EnableDamper = EnableDamperSRally;
+			DamperStrength = DamperStrengthSRally;
 		}
 
 		UINT8 ff1 = helpers->ReadByte(0x174CF4, /* isRelativeOffset*/ true); //SegaRallyChampionship
@@ -379,22 +524,29 @@ void M2Emulator::FFBLoop(EffectConstants * constants, Helpers * helpers, EffectT
 		helpers->log((char*)ffs.c_str());
 		helpers->log("got value: ");
 
-		if ((ff1 > 0xBF) && (ff1 < 0xDF))
+		if (OldFFB != ff1)
 		{
-			helpers->log("moving wheel left");
-			double percentForce = (ff1 - 191) / 31.0;
-			double percentLength = 100;
-			triggers->Rumble(0, percentForce, percentLength);
-			triggers->Constant(constants->DIRECTION_FROM_RIGHT, percentForce);
+			if (ff1 >= 0xC0 && ff1 <= 0xDF)
+			{
+				helpers->log("moving wheel left");
+				double percentForce = (ff1 - 191) / 32.0;
+				double percentLength = 100;
+
+				triggers->Rumble(0, percentForce, percentLength);
+				triggers->Constant(constants->DIRECTION_FROM_RIGHT, percentForce);
+			}
+			
+			if (ff1 >= 0x80 && ff1 <= 0x9F)
+			{
+				helpers->log("moving wheel right");
+				double percentForce = (ff1 - 127) / 32.0;
+				double percentLength = 100;
+
+				triggers->Rumble(percentForce, 0, percentLength);
+				triggers->Constant(constants->DIRECTION_FROM_LEFT, percentForce);
+			}
 		}
-		else if ((ff1 > 0x7F) && (ff1 < 0x9F))
-		{
-			helpers->log("moving wheel right");
-			double percentForce = (ff1 - 127) / 31.0;
-			double percentLength = 100;
-			triggers->Rumble(percentForce, 0, percentLength);
-			triggers->Constant(constants->DIRECTION_FROM_LEFT, percentForce);
-		}
+		OldFFB = ff1;
 	}
 
 	if ((hWnd2 > NULL) || (hWnd7 > NULL) || (hWnd8 > NULL) || (hWnd9 > NULL) || (hWnd10 > NULL) || (hWnd11 > NULL) || (hWnd12 > NULL) || (hWnd13 > NULL))
@@ -412,6 +564,8 @@ void M2Emulator::FFBLoop(EffectConstants * constants, Helpers * helpers, EffectT
 			PowerMode = PowerModeDaytona;
 			EnableForceSpringEffect = EnableForceSpringEffectDaytona;
 			ForceSpringStrength = ForceSpringStrengthDaytona;
+			EnableDamper = EnableDamperDaytona;
+			DamperStrength = DamperStrengthDaytona;
 		}
 
 		if (DaytonaForcePanoramicAttract == 1)
@@ -473,7 +627,7 @@ void M2Emulator::FFBLoop(EffectConstants * constants, Helpers * helpers, EffectT
 						helpers->WriteByte(Rambase1 + 0x6384, 0x06, /* isRelativeOffset*/ false);
 						helpers->WriteByte(Rambase1 + 0x6684, 0x07, /* isRelativeOffset*/ false);
 					}
-					if ((gamestate == 0x16) & (countdown == 0x00) & (track == 0x00))
+					if ((gamestate == 0x16) && (countdown == 0x00) && (track == 0x00))
 					{
 						Sleep(150);
 						helpers->WriteByte(Rambase1 + 0x40000, 0x99, /* isRelativeOffset*/ false); // change to 99
@@ -483,7 +637,7 @@ void M2Emulator::FFBLoop(EffectConstants * constants, Helpers * helpers, EffectT
 						helpers->WriteByte(Rambase1 + 0x40000, 0x01, /* isRelativeOffset*/ false); // change back to 1
 						helpers->WriteByte(Rambase1 + 0x1850, 0x01, /* isRelativeOffset*/ false);
 					}
-					else if ((gamestate == 0x14) & (trackselect == 0x00) & (track == 0x02 || track == 0x01))
+					else if ((gamestate == 0x14) && (trackselect == 0x00) && (track == 0x02 || track == 0x01))
 					{
 						helpers->WriteByte(Rambase1 + 0x40000, 0x99, /* isRelativeOffset*/ false); // change to 99
 						Sleep(50);
@@ -495,19 +649,19 @@ void M2Emulator::FFBLoop(EffectConstants * constants, Helpers * helpers, EffectT
 				}
 				else if (linkID == 0x01)
 				{
-					if ((gamestate == 0x1A) & (gamestatetimer < 100))
+					if ((gamestate == 0x1A) && (gamestatetimer < 100))
 					{
 						helpers->WriteByte(0xC2130, 0x88, /* isRelativeOffset*/ true);
 						helpers->WriteByte(0xC2131, 0x14, /* isRelativeOffset*/ true);
 						helpers->WriteByte(0xC2132, 0x01, /* isRelativeOffset*/ true);
 					}
-					else if ((gamestate == 0x1A) & (gamestatetimer > 100))
+					else if ((gamestate == 0x1A) && (gamestatetimer > 100))
 					{
 						Sleep(100);
 						helpers->WriteNop(0xC2130, 3, true);
 					}
 
-					if ((gamestate > 0x1A)& (gamestate < 0x1A))
+					if ((gamestate > 0x1A) && (gamestate < 0x1A))
 					{
 						helpers->WriteByte(0xC2130, 0x88, /* isRelativeOffset*/ true);
 						helpers->WriteByte(0xC2131, 0x14, /* isRelativeOffset*/ true);
@@ -527,11 +681,11 @@ void M2Emulator::FFBLoop(EffectConstants * constants, Helpers * helpers, EffectT
 						helpers->WriteByte(Rambase1 + 0x6384, 0x06, /* isRelativeOffset*/ false);
 						helpers->WriteByte(Rambase1 + 0x6684, 0x07, /* isRelativeOffset*/ false);
 					}
-					if ((gamestatetimer > 4294964133)& (gamestate == 0x12))
+					if ((gamestatetimer > 4294964133) && (gamestate == 0x12))
 					{
 						helpers->WriteIntPtr(Rambase1 + 0x10A8, 0x3B6, /* isRelativeOffset*/ false);
 					}
-					if ((gamestate == 0x16) & (countdown == 0x00) & (track == 0x00))
+					if ((gamestate == 0x16) && (countdown == 0x00) && (track == 0x00))
 					{
 						helpers->WriteByte(Rambase1 + 0x40000, 0x99, /* isRelativeOffset*/ false); // change to 99
 						Sleep(50);
@@ -540,7 +694,7 @@ void M2Emulator::FFBLoop(EffectConstants * constants, Helpers * helpers, EffectT
 						helpers->WriteByte(Rambase1 + 0x40000, 0x01, /* isRelativeOffset*/ false); // change back to 1
 						helpers->WriteByte(Rambase1 + 0x1850, 0x01, /* isRelativeOffset*/ false);
 					}
-					else if ((gamestate == 0x14) & (trackselect == 0x00) & (track == 0x02 || track == 0x01))
+					else if ((gamestate == 0x14) && (trackselect == 0x00) && (track == 0x02 || track == 0x01))
 					{
 						helpers->WriteByte(Rambase1 + 0x40000, 0x99, /* isRelativeOffset*/ false); // change to 99
 						Sleep(50);
@@ -570,7 +724,7 @@ void M2Emulator::FFBLoop(EffectConstants * constants, Helpers * helpers, EffectT
 						helpers->WriteByte(Rambase1 + 0x6384, 0x06, /* isRelativeOffset*/ false);
 						helpers->WriteByte(Rambase1 + 0x6684, 0x07, /* isRelativeOffset*/ false);
 					}
-					if ((gamestate == 0x16) & (countdown == 0x00) & (track == 0x00))
+					if ((gamestate == 0x16) && (countdown == 0x00) && (track == 0x00))
 					{
 						Sleep(250);
 						helpers->WriteByte(Rambase1 + 0x40000, 0x99, /* isRelativeOffset*/ false); // change to 99
@@ -580,7 +734,7 @@ void M2Emulator::FFBLoop(EffectConstants * constants, Helpers * helpers, EffectT
 						helpers->WriteByte(Rambase1 + 0x40000, 0x01, /* isRelativeOffset*/ false); // change back to 1
 						helpers->WriteByte(Rambase1 + 0x1850, 0x01, /* isRelativeOffset*/ false);
 					}
-					else if ((gamestate == 0x14) & (trackselect == 0x00) & (track == 0x02 || track == 0x01))
+					else if ((gamestate == 0x14) && (trackselect == 0x00) && (track == 0x02 || track == 0x01))
 					{
 						helpers->WriteByte(Rambase1 + 0x40000, 0x99, /* isRelativeOffset*/ false); // change to 99
 						Sleep(50);
@@ -590,26 +744,26 @@ void M2Emulator::FFBLoop(EffectConstants * constants, Helpers * helpers, EffectT
 						helpers->WriteByte(Rambase1 + 0x1468, 0x01, /* isRelativeOffset*/ false);
 						helpers->WriteFloat32(Rambase1 + 0x519C, 450.0, /* isRelativeOffset */ false);
 					}
-					if ((gamestatetimer > 4294964133)& (gamestate == 0x12))
+					if ((gamestatetimer > 4294964133) && (gamestate == 0x12))
 					{
 						helpers->WriteIntPtr(Rambase1 + 0x10A8, 0x3B6, /* isRelativeOffset*/ false);
 					}
 				}
 				else if (linkID == 0x02)
 				{
-					if ((gamestate == 0x1A) & (gamestatetimer < 100))
+					if ((gamestate == 0x1A) && (gamestatetimer < 100))
 					{
 						helpers->WriteByte(0xC2130, 0x88, /* isRelativeOffset*/ true);
 						helpers->WriteByte(0xC2131, 0x14, /* isRelativeOffset*/ true);
 						helpers->WriteByte(0xC2132, 0x01, /* isRelativeOffset*/ true);
 					}
-					else if ((gamestate == 0x1A) & (gamestatetimer > 100))
+					else if ((gamestate == 0x1A) && (gamestatetimer > 100))
 					{
 						Sleep(100);
 						helpers->WriteNop(0xC2130, 3, true);
 					}
 
-					if ((gamestate > 0x1A)& (gamestate < 0x1A))
+					if ((gamestate > 0x1A) && (gamestate < 0x1A))
 					{
 						helpers->WriteByte(0xC2130, 0x88, /* isRelativeOffset*/ true);
 						helpers->WriteByte(0xC2131, 0x14, /* isRelativeOffset*/ true);
@@ -628,7 +782,7 @@ void M2Emulator::FFBLoop(EffectConstants * constants, Helpers * helpers, EffectT
 						helpers->WriteByte(Rambase1 + 0x6384, 0x06, /* isRelativeOffset*/ false);
 						helpers->WriteByte(Rambase1 + 0x6684, 0x07, /* isRelativeOffset*/ false);
 					}
-					if ((gamestate == 0x16) & (countdown == 0x00) & (track == 0x00))
+					if ((gamestate == 0x16) && (countdown == 0x00) && (track == 0x00))
 					{
 						Sleep(150);
 						helpers->WriteByte(Rambase1 + 0x40000, 0x99, /* isRelativeOffset*/ false); // change to 99
@@ -638,7 +792,7 @@ void M2Emulator::FFBLoop(EffectConstants * constants, Helpers * helpers, EffectT
 						helpers->WriteByte(Rambase1 + 0x40000, 0x01, /* isRelativeOffset*/ false); // change back to 1
 						helpers->WriteByte(Rambase1 + 0x1850, 0x01, /* isRelativeOffset*/ false);
 					}
-					else if ((gamestate == 0x14) & (trackselect == 0x00) & (track == 0x02 || track == 0x01))
+					else if ((gamestate == 0x14) && (trackselect == 0x00) && (track == 0x02 || track == 0x01))
 					{
 						helpers->WriteByte(Rambase1 + 0x40000, 0x99, /* isRelativeOffset*/ false); // change to 99
 						Sleep(50);
@@ -647,26 +801,26 @@ void M2Emulator::FFBLoop(EffectConstants * constants, Helpers * helpers, EffectT
 						helpers->WriteByte(Rambase1 + 0x40000, 0x01, /* isRelativeOffset*/ false); // change back to 1
 						helpers->WriteByte(Rambase1 + 0x1468, 0x01, /* isRelativeOffset*/ false);
 					}
-					if ((gamestatetimer > 4294964133)& (gamestate == 0x12))
+					if ((gamestatetimer > 4294964133) && (gamestate == 0x12))
 					{
 						helpers->WriteIntPtr(Rambase1 + 0x10A8, 0x3B6, /* isRelativeOffset*/ false);
 					}
 				}
 				else if (linkID == 0x01)
 				{
-					if ((gamestate == 0x1A) & (gamestatetimer < 100))
+					if ((gamestate == 0x1A) && (gamestatetimer < 100))
 					{
 						helpers->WriteByte(0xC2130, 0x88, /* isRelativeOffset*/ true);
 						helpers->WriteByte(0xC2131, 0x14, /* isRelativeOffset*/ true);
 						helpers->WriteByte(0xC2132, 0x01, /* isRelativeOffset*/ true);
 					}
-					else if ((gamestate == 0x1A) & (gamestatetimer > 100))
+					else if ((gamestate == 0x1A) && (gamestatetimer > 100))
 					{
 						Sleep(100);
 						helpers->WriteNop(0xC2130, 3, true);
 					}
 
-					if ((gamestate > 0x1A)& (gamestate < 0x1A))
+					if ((gamestate > 0x1A) && (gamestate < 0x1A))
 					{
 						helpers->WriteByte(0xC2130, 0x88, /* isRelativeOffset*/ true);
 						helpers->WriteByte(0xC2131, 0x14, /* isRelativeOffset*/ true);
@@ -686,11 +840,11 @@ void M2Emulator::FFBLoop(EffectConstants * constants, Helpers * helpers, EffectT
 						helpers->WriteByte(Rambase1 + 0x6384, 0x06, /* isRelativeOffset*/ false);
 						helpers->WriteByte(Rambase1 + 0x6684, 0x07, /* isRelativeOffset*/ false);
 					}
-					if ((gamestatetimer > 4294964133)& (gamestate == 0x12))
+					if ((gamestatetimer > 4294964133) && (gamestate == 0x12))
 					{
 						helpers->WriteIntPtr(Rambase1 + 0x10A8, 0x3B6, /* isRelativeOffset*/ false);
 					}
-					if ((gamestate == 0x16) & (countdown == 0x00) & (track == 0x00))
+					if ((gamestate == 0x16) && (countdown == 0x00) && (track == 0x00))
 					{
 						helpers->WriteByte(Rambase1 + 0x40000, 0x99, /* isRelativeOffset*/ false); // change to 99
 						Sleep(50);
@@ -699,7 +853,7 @@ void M2Emulator::FFBLoop(EffectConstants * constants, Helpers * helpers, EffectT
 						helpers->WriteByte(Rambase1 + 0x40000, 0x01, /* isRelativeOffset*/ false); // change back to 1
 						helpers->WriteByte(Rambase1 + 0x1850, 0x01, /* isRelativeOffset*/ false);
 					}
-					else if ((gamestate == 0x14) & (trackselect == 0x00) & (track == 0x01))
+					else if ((gamestate == 0x14) && (trackselect == 0x00) && (track == 0x01))
 					{
 						helpers->WriteByte(Rambase1 + 0x40000, 0x99, /* isRelativeOffset*/ false); // change to 99
 						Sleep(50);
@@ -710,7 +864,7 @@ void M2Emulator::FFBLoop(EffectConstants * constants, Helpers * helpers, EffectT
 						helpers->WriteIntPtr(Rambase1 + 0x51A4, 0xC2F195E8, /* isRelativeOffset */ false);
 						helpers->WriteByte(Rambase1 + 0x1468, 0x01, /* isRelativeOffset*/ false);
 					}
-					else if ((gamestate == 0x14) & (trackselect == 0x00) & (track == 0x02))
+					else if ((gamestate == 0x14) && (trackselect == 0x00) && (track == 0x02))
 					{
 						helpers->WriteByte(Rambase1 + 0x40000, 0x99, /* isRelativeOffset*/ false); // change to 99
 						Sleep(50);
@@ -740,7 +894,7 @@ void M2Emulator::FFBLoop(EffectConstants * constants, Helpers * helpers, EffectT
 						helpers->WriteByte(Rambase1 + 0x6384, 0x06, /* isRelativeOffset*/ false);
 						helpers->WriteByte(Rambase1 + 0x6684, 0x07, /* isRelativeOffset*/ false);
 					}
-					if ((gamestate == 0x16) & (countdown == 0x00) & (track == 0x00))
+					if ((gamestate == 0x16) && (countdown == 0x00) && (track == 0x00))
 					{
 						Sleep(250);
 						helpers->WriteByte(Rambase1 + 0x40000, 0x99, /* isRelativeOffset*/ false); // change to 99
@@ -750,7 +904,7 @@ void M2Emulator::FFBLoop(EffectConstants * constants, Helpers * helpers, EffectT
 						helpers->WriteByte(Rambase1 + 0x40000, 0x01, /* isRelativeOffset*/ false); // change back to 1
 						helpers->WriteByte(Rambase1 + 0x1850, 0x01, /* isRelativeOffset*/ false);
 					}
-					else if ((gamestate == 0x14) & (trackselect == 0x00) & (track == 0x01))
+					else if ((gamestate == 0x14) && (trackselect == 0x00) && (track == 0x01))
 					{
 						helpers->WriteByte(Rambase1 + 0x40000, 0x99, /* isRelativeOffset*/ false); // change to 99
 						Sleep(50);
@@ -761,7 +915,7 @@ void M2Emulator::FFBLoop(EffectConstants * constants, Helpers * helpers, EffectT
 						helpers->WriteIntPtr(Rambase1 + 0x51A4, 0xC302CAF4, /* isRelativeOffset */ false);
 						helpers->WriteByte(Rambase1 + 0x1468, 0x01, /* isRelativeOffset*/ false);
 					}
-					else if ((gamestate == 0x14) & (trackselect == 0x00) & (track == 0x02))
+					else if ((gamestate == 0x14) && (trackselect == 0x00) && (track == 0x02))
 					{
 						helpers->WriteByte(Rambase1 + 0x40000, 0x99, /* isRelativeOffset*/ false); // change to 99
 						Sleep(50);
@@ -773,26 +927,26 @@ void M2Emulator::FFBLoop(EffectConstants * constants, Helpers * helpers, EffectT
 						helpers->WriteIntPtr(Rambase1 + 0x51A4, 0xC37C0001, /* isRelativeOffset */ false);
 						helpers->WriteByte(Rambase1 + 0x1468, 0x01, /* isRelativeOffset*/ false);
 					}
-					if ((gamestatetimer > 4294964133)& (gamestate == 0x12))
+					if ((gamestatetimer > 4294964133) && (gamestate == 0x12))
 					{
 						helpers->WriteIntPtr(Rambase1 + 0x10A8, 0x3B6, /* isRelativeOffset*/ false);
 					}
 				}
 				if (linkID == 0x03)
 				{
-					if ((gamestate == 0x1A) & (gamestatetimer < 100))
+					if ((gamestate == 0x1A) && (gamestatetimer < 100))
 					{
 						helpers->WriteByte(0xC2130, 0x88, /* isRelativeOffset*/ true);
 						helpers->WriteByte(0xC2131, 0x14, /* isRelativeOffset*/ true);
 						helpers->WriteByte(0xC2132, 0x01, /* isRelativeOffset*/ true);
 					}
-					else if ((gamestate == 0x1A) & (gamestatetimer > 100))
+					else if ((gamestate == 0x1A) && (gamestatetimer > 100))
 					{
 						Sleep(100);
 						helpers->WriteNop(0xC2130, 3, true);
 					}
 
-					if ((gamestate > 0x1A)& (gamestate < 0x1A))
+					if ((gamestate > 0x1A) && (gamestate < 0x1A))
 					{
 						helpers->WriteByte(0xC2130, 0x88, /* isRelativeOffset*/ true);
 						helpers->WriteByte(0xC2131, 0x14, /* isRelativeOffset*/ true);
@@ -812,7 +966,7 @@ void M2Emulator::FFBLoop(EffectConstants * constants, Helpers * helpers, EffectT
 						helpers->WriteByte(Rambase1 + 0x6384, 0x06, /* isRelativeOffset*/ false);
 						helpers->WriteByte(Rambase1 + 0x6684, 0x07, /* isRelativeOffset*/ false);
 					}
-					if ((gamestate == 0x16) & (countdown == 0x00) & (track == 0x00))
+					if ((gamestate == 0x16) && (countdown == 0x00) && (track == 0x00))
 					{
 						Sleep(350);
 						helpers->WriteByte(Rambase1 + 0x40000, 0x99, /* isRelativeOffset*/ false); // change to 99
@@ -822,7 +976,7 @@ void M2Emulator::FFBLoop(EffectConstants * constants, Helpers * helpers, EffectT
 						helpers->WriteByte(Rambase1 + 0x40000, 0x01, /* isRelativeOffset*/ false); // change back to 1
 						helpers->WriteByte(Rambase1 + 0x1850, 0x01, /* isRelativeOffset*/ false);
 					}
-					else if ((gamestate == 0x14) & (trackselect == 0x00) & (track == 0x02))
+					else if ((gamestate == 0x14) && (trackselect == 0x00) && (track == 0x02))
 					{
 						helpers->WriteByte(Rambase1 + 0x40000, 0x99, /* isRelativeOffset*/ false); // change to 99
 						Sleep(50);
@@ -834,7 +988,7 @@ void M2Emulator::FFBLoop(EffectConstants * constants, Helpers * helpers, EffectT
 						Sleep(50);
 						helpers->WriteIntPtr(Rambase1 + 0x51A4, 0xC37CF3D0, /* isRelativeOffset */ false);
 					}
-					else if ((gamestate == 0x14) & (trackselect == 0x00) & (track == 0x01))
+					else if ((gamestate == 0x14) && (trackselect == 0x00) && (track == 0x01))
 					{
 						helpers->WriteByte(Rambase1 + 0x40000, 0x99, /* isRelativeOffset*/ false); // change to 99
 						Sleep(50);
@@ -844,26 +998,26 @@ void M2Emulator::FFBLoop(EffectConstants * constants, Helpers * helpers, EffectT
 						helpers->WriteByte(Rambase1 + 0x1468, 0x01, /* isRelativeOffset*/ false);
 						helpers->WriteFloat32(Rambase1 + 0x519C, 450.0, /* isRelativeOffset */ false);
 					}
-					if ((gamestatetimer > 4294964133)& (gamestate == 0x12))
+					if ((gamestatetimer > 4294964133) && (gamestate == 0x12))
 					{
 						helpers->WriteIntPtr(Rambase1 + 0x10A8, 0x3B6, /* isRelativeOffset*/ false);
 					}
 				}
 				else if (linkID == 0x02)
 				{
-					if ((gamestate == 0x1A) & (gamestatetimer < 100))
+					if ((gamestate == 0x1A) && (gamestatetimer < 100))
 					{
 						helpers->WriteByte(0xC2130, 0x88, /* isRelativeOffset*/ true);
 						helpers->WriteByte(0xC2131, 0x14, /* isRelativeOffset*/ true);
 						helpers->WriteByte(0xC2132, 0x01, /* isRelativeOffset*/ true);
 					}
-					else if ((gamestate == 0x1A) & (gamestatetimer > 100))
+					else if ((gamestate == 0x1A) && (gamestatetimer > 100))
 					{
 						Sleep(100);
 						helpers->WriteNop(0xC2130, 3, true);
 					}
 
-					if ((gamestate > 0x1A)& (gamestate < 0x1A))
+					if ((gamestate > 0x1A) && (gamestate < 0x1A))
 					{
 						helpers->WriteByte(0xC2130, 0x88, /* isRelativeOffset*/ true);
 						helpers->WriteByte(0xC2131, 0x14, /* isRelativeOffset*/ true);
@@ -882,7 +1036,7 @@ void M2Emulator::FFBLoop(EffectConstants * constants, Helpers * helpers, EffectT
 						helpers->WriteByte(Rambase1 + 0x6384, 0x06, /* isRelativeOffset*/ false);
 						helpers->WriteByte(Rambase1 + 0x6684, 0x07, /* isRelativeOffset*/ false);
 					}
-					if ((gamestate == 0x16) & (countdown == 0x00) & (track == 0x00))
+					if ((gamestate == 0x16) && (countdown == 0x00) && (track == 0x00))
 					{
 						Sleep(150);
 						helpers->WriteByte(Rambase1 + 0x40000, 0x99, /* isRelativeOffset*/ false); // change to 99
@@ -892,7 +1046,7 @@ void M2Emulator::FFBLoop(EffectConstants * constants, Helpers * helpers, EffectT
 						helpers->WriteByte(Rambase1 + 0x40000, 0x01, /* isRelativeOffset*/ false); // change back to 1
 						helpers->WriteByte(Rambase1 + 0x1850, 0x01, /* isRelativeOffset*/ false);
 					}
-					else if ((gamestate == 0x14) & (trackselect == 0x00) & (track == 0x02 || track == 0x01))
+					else if ((gamestate == 0x14) && (trackselect == 0x00) && (track == 0x02 || track == 0x01))
 					{
 						helpers->WriteByte(Rambase1 + 0x40000, 0x99, /* isRelativeOffset*/ false); // change to 99
 						Sleep(50);
@@ -901,26 +1055,26 @@ void M2Emulator::FFBLoop(EffectConstants * constants, Helpers * helpers, EffectT
 						helpers->WriteByte(Rambase1 + 0x40000, 0x01, /* isRelativeOffset*/ false); // change back to 1
 						helpers->WriteByte(Rambase1 + 0x1468, 0x01, /* isRelativeOffset*/ false);
 					}
-					if ((gamestatetimer > 4294964133)& (gamestate == 0x12))
+					if ((gamestatetimer > 4294964133) && (gamestate == 0x12))
 					{
 						helpers->WriteIntPtr(Rambase1 + 0x10A8, 0x3B6, /* isRelativeOffset*/ false);
 					}
 				}
 				else if (linkID == 0x01)
 				{
-					if ((gamestate == 0x1A) & (gamestatetimer < 100))
+					if ((gamestate == 0x1A) && (gamestatetimer < 100))
 					{
 						helpers->WriteByte(0xC2130, 0x88, /* isRelativeOffset*/ true);
 						helpers->WriteByte(0xC2131, 0x14, /* isRelativeOffset*/ true);
 						helpers->WriteByte(0xC2132, 0x01, /* isRelativeOffset*/ true);
 					}
-					else if ((gamestate == 0x1A) & (gamestatetimer > 100))
+					else if ((gamestate == 0x1A) && (gamestatetimer > 100))
 					{
 						Sleep(100);
 						helpers->WriteNop(0xC2130, 3, true);
 					}
 
-					if ((gamestate > 0x1A)& (gamestate < 0x1A))
+					if ((gamestate > 0x1A) && (gamestate < 0x1A))
 					{
 						helpers->WriteByte(0xC2130, 0x88, /* isRelativeOffset*/ true);
 						helpers->WriteByte(0xC2131, 0x14, /* isRelativeOffset*/ true);
@@ -940,11 +1094,11 @@ void M2Emulator::FFBLoop(EffectConstants * constants, Helpers * helpers, EffectT
 						helpers->WriteByte(Rambase1 + 0x6384, 0x06, /* isRelativeOffset*/ false);
 						helpers->WriteByte(Rambase1 + 0x6684, 0x07, /* isRelativeOffset*/ false);
 					}
-					if ((gamestatetimer > 4294964133)& (gamestate == 0x12))
+					if ((gamestatetimer > 4294964133) && (gamestate == 0x12))
 					{
 						helpers->WriteIntPtr(Rambase1 + 0x10A8, 0x3B6, /* isRelativeOffset*/ false);
 					}
-					if ((gamestate == 0x16) & (countdown == 0x00) & (track == 0x00))
+					if ((gamestate == 0x16) && (countdown == 0x00) && (track == 0x00))
 					{
 						helpers->WriteByte(Rambase1 + 0x40000, 0x99, /* isRelativeOffset*/ false); // change to 99
 						Sleep(50);
@@ -953,7 +1107,7 @@ void M2Emulator::FFBLoop(EffectConstants * constants, Helpers * helpers, EffectT
 						helpers->WriteByte(Rambase1 + 0x40000, 0x01, /* isRelativeOffset*/ false); // change back to 1
 						helpers->WriteByte(Rambase1 + 0x1850, 0x01, /* isRelativeOffset*/ false);
 					}
-					else if ((gamestate == 0x14) & (trackselect == 0x00) & (track == 0x01))
+					else if ((gamestate == 0x14) && (trackselect == 0x00) && (track == 0x01))
 					{
 						helpers->WriteByte(Rambase1 + 0x40000, 0x99, /* isRelativeOffset*/ false); // change to 99
 						Sleep(50);
@@ -964,7 +1118,7 @@ void M2Emulator::FFBLoop(EffectConstants * constants, Helpers * helpers, EffectT
 						helpers->WriteIntPtr(Rambase1 + 0x51A4, 0xC2F195E8, /* isRelativeOffset */ false);
 						helpers->WriteByte(Rambase1 + 0x1468, 0x01, /* isRelativeOffset*/ false);
 					}
-					else if ((gamestate == 0x14) & (trackselect == 0x00) & (track == 0x02))
+					else if ((gamestate == 0x14) && (trackselect == 0x00) && (track == 0x02))
 					{
 						helpers->WriteByte(Rambase1 + 0x40000, 0x99, /* isRelativeOffset*/ false); // change to 99
 						Sleep(50);
@@ -997,6 +1151,8 @@ void M2Emulator::FFBLoop(EffectConstants * constants, Helpers * helpers, EffectT
 			PowerMode = PowerModeIndy500;
 			EnableForceSpringEffect = EnableForceSpringEffectIndy500;
 			ForceSpringStrength = ForceSpringStrengthIndy500;
+			EnableDamper = EnableDamperIndy500;
+			DamperStrength = DamperStrengthIndy500;
 		}
 
 		ff = helpers->ReadByte(0x17285B, /* isRelativeOffset*/ true); //Indy500
@@ -1017,6 +1173,8 @@ void M2Emulator::FFBLoop(EffectConstants * constants, Helpers * helpers, EffectT
 			PowerMode = PowerModeSTCC;
 			EnableForceSpringEffect = EnableForceSpringEffectSTCC;
 			ForceSpringStrength = ForceSpringStrengthSTCC;
+			EnableDamper = EnableDamperSTCC;
+			DamperStrength = DamperStrengthSTCC;
 		}
 
 		ff = helpers->ReadByte(0x17285B, /* isRelativeOffset*/ true); //Sega Touring Car Championship
@@ -1037,6 +1195,8 @@ void M2Emulator::FFBLoop(EffectConstants * constants, Helpers * helpers, EffectT
 			PowerMode = PowerModeOverRev;
 			EnableForceSpringEffect = EnableForceSpringEffectOverRev;
 			ForceSpringStrength = ForceSpringStrengthOverRev;
+			EnableDamper = EnableDamperOverRev;
+			DamperStrength = DamperStrengthOverRev;
 		}
 
 		ff = helpers->ReadByte(0x17285B, /* isRelativeOffset*/ true); //OverRev
@@ -1057,6 +1217,8 @@ void M2Emulator::FFBLoop(EffectConstants * constants, Helpers * helpers, EffectT
 			PowerMode = PowerModeSuperGT;
 			EnableForceSpringEffect = EnableForceSpringEffectSuperGT;
 			ForceSpringStrength = ForceSpringStrengthSuperGT;
+			EnableDamper = EnableDamperSuperGT;
+			DamperStrength = DamperStrengthSuperGT;
 		}
 
 		ff = helpers->ReadByte(0x17285B, /* isRelativeOffset*/ true); //Super GT 24h

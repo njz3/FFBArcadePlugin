@@ -6,12 +6,16 @@ class TeknoParrotGame : public Game {
 	// TP-related
 	HANDLE hSection;
 	LPVOID secData;
-	int ffbOffset = 0;
-	int ffbOffset2 = 0;
 
 protected:
+	int ffbOffset = 0;
+	int ffbOffset2 = 0;
+	int ffbOffset3 = 0;
+	int ffbOffset4 = 0;
 	int GetTeknoParrotFFB();
 	int GetTeknoParrotFFB2();
+	int GetTeknoParrotFFB3();
+	int GetTeknoParrotFFB4();
 	TeknoParrotGame();
 
 public:

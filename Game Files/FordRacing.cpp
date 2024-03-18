@@ -13,12 +13,17 @@ along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
 
 #include <string>
 #include "FordRacing.h"
+extern int EnableDamper;
+extern int DamperStrength;
 
 void FordRacing::FFBLoop(EffectConstants *constants, Helpers *helpers, EffectTriggers* triggers) {
 	helpers->log("in FR Ffbloop");
 	const int ff = GetTeknoParrotFFB();
 	std::string ffs = std::to_string(ff);
 	helpers->log((char *)ffs.c_str());
+
+	if (EnableDamper)
+		triggers->Damper(DamperStrength / 100.0);
 
 	if (ff < -65505 && ff > -65515)
 	{

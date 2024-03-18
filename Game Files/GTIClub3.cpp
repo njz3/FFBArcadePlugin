@@ -14,6 +14,8 @@ along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
 #include <string>
 #include "GTIClub3.h"
 #include "math.h"
+extern int EnableDamper;
+extern int DamperStrength;
 
 void GTIClub3::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTriggers* triggers) {
 
@@ -25,27 +27,34 @@ void GTIClub3::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTrigg
 	std::string ffs = std::to_string(ff2);
 	helpers->log((char*)ffs.c_str());
 
-	if ((ff1 > 0x00)& (ff1 < 0x40)& (menu == 0))
+	if (EnableDamper == 1)
 	{
-		double percentForce = (ff1) / 63.0;
-		double percentLength = 100;
-		triggers->Rumble(percentForce, percentForce, percentLength);
-		triggers->Sine(120, 120, percentForce);
+		triggers->Damper(DamperStrength / 100.0);
 	}
-	if ((ff > 0x80)& (ff < 0x101)& (menu == 0))
+
+	if (!menu)
 	{
-		helpers->log("moving wheel right");
-		double percentForce = (257 - ff) / 128.0;
-		double percentLength = 100;
-		triggers->Rumble(percentForce, 0, percentLength);
-		triggers->Constant(constants->DIRECTION_FROM_RIGHT, percentForce);
-	}
-	else if ((ff > 0x00)& (ff < 0x80)& (menu == 0))
-	{
-		helpers->log("moving wheel left");
-		double percentForce = (ff) / 127.0;
-		double percentLength = 100;
-		triggers->Rumble(0, percentForce, percentLength);
-		triggers->Constant(constants->DIRECTION_FROM_LEFT, percentForce);
+		if (ff1 > 0x00 && ff1 < 0x40)
+		{
+			double percentForce = ff1 / 63.0;
+			double percentLength = 100;
+			triggers->Rumble(percentForce, percentForce, percentLength);
+			triggers->Sine(120, 0, percentForce);
+		}
+
+		if (ff > 0x80 && ff < 0x101)
+		{
+			double percentForce = (257 - ff) / 128.0;
+			double percentLength = 100;
+			triggers->Rumble(percentForce, 0, percentLength);
+			triggers->Constant(constants->DIRECTION_FROM_RIGHT, percentForce);
+		}
+		else if (ff > 0x00 && ff < 0x80)
+		{
+			double percentForce = (ff) / 127.0;
+			double percentLength = 100;
+			triggers->Rumble(0, percentForce, percentLength);
+			triggers->Constant(constants->DIRECTION_FROM_LEFT, percentForce);
+		}
 	}
 }
