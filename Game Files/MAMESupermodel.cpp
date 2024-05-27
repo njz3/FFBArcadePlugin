@@ -241,6 +241,7 @@ std::string SegaDrivingSimulator("SEGA DRIVING SIMULATOR\n");
 std::string M2Active("M2Active");
 std::string M2PatternActive("M2PatternActive");
 std::string Daytona2Active("Daytona2Active");
+std::string ScudRaceActive("ScudRaceActive");
 std::string DirtDevilsActive("DirtDevilsActive");
 std::string SrallyActive("SrallyActive");
 std::string Srally2Active("Srally2Active");
@@ -1197,9 +1198,17 @@ static int speedffb(int ffRaw) {
 	}
 }
 
+static int DriveboardSequenceRunning = 0; // 0 = no sequence
+
+static unsigned long DriveboardSequence_starttime_ms = 0;
+static unsigned long DriveboardSequence_duration_ms = 0;
+static unsigned long CurrentTime_ms = 0;
+static double ScudIntensityFactor = 1.0;
+
+// Function called each time we receive a new variable from MAME/Supermodel
 static void FFBGameEffects(EffectConstants* constants, Helpers* helpers, EffectTriggers* triggers, int stateFFB, LPCSTR name)
 {
-	if (RunningFFB == Daytona2Active) //Daytona 2,Scud Race & LeMans
+	if (RunningFFB == Daytona2Active) //Daytona 2
 	{
 		if (name == RawDrive)
 		{
@@ -1207,41 +1216,49 @@ static void FFBGameEffects(EffectConstants* constants, Helpers* helpers, EffectT
 			std::string ffs = std::to_string(stateFFB);
 			helpers->log((char*)ffs.c_str());
 
-			if (stateFFB > 0x09 && stateFFB < 0x20) //Spring
+			if (stateFFB >= 0x0 && stateFFB <= 0x09) // Sequences
+			{
+				switch (stateFFB) {
+				case 1:
+					break;
+				}
+			}
+
+			if (stateFFB >= 0x0A && stateFFB < 0x20) //Spring
 			{
 				double percentForce = (stateFFB - 9) / 16.0;
 				triggers->Spring(percentForce);
 			}
 
-			if (stateFFB > 0x1F && stateFFB < 0x30) //Clutch
+			if (stateFFB >= 0x20 && stateFFB < 0x30) //Clutch
 			{
-				double percentForce = (stateFFB - 31) / 16.0;
+				double percentForce = (stateFFB - 0x1F) / 16.0;
 				triggers->Friction(percentForce);
 			}
 
-			if (stateFFB > 0x2F && stateFFB < 0x40) //Centering
+			if (stateFFB >= 0x30 && stateFFB < 0x40) //Centering
 			{
-				double percentForce = (stateFFB - 47) / 16.0;
+				double percentForce = (stateFFB - 0x2F) / 16.0;
 				triggers->Rumble(percentForce, percentForce, 100);
 				triggers->Sine(40, 0, percentForce);
 			}
 
-			if (stateFFB > 0x3F && stateFFB < 0x50) //Uncentering
+			if (stateFFB >= 0x40 && stateFFB < 0x50) //Uncentering
 			{
-				double percentForce = (stateFFB - 63) / 16.0;
+				double percentForce = (stateFFB - 0x3F) / 16.0;
 				triggers->Spring(0);
 			}
 
-			if (stateFFB > 0x4F && stateFFB < 0x60) //Roll Right
+			if (stateFFB >= 0x50 && stateFFB < 0x60) //Roll Right
 			{
-				double percentForce = (stateFFB - 79) / 16.0;
+				double percentForce = (stateFFB - 0x4F) / 16.0;
 				double percentLength = 100;
 				triggers->Rumble(percentForce, 0, percentLength);
 				triggers->Constant(constants->DIRECTION_FROM_LEFT, percentForce);
 			}
-			else if (stateFFB > 0x5F && stateFFB < 0x70) //Roll Left
+			else if (stateFFB >= 0x60 && stateFFB < 0x70) //Roll Left
 			{
-				double percentForce = (stateFFB - 95) / 16.0;
+				double percentForce = (stateFFB - 0x5F) / 16.0;
 				double percentLength = 100;
 				triggers->Rumble(0, percentForce, percentLength);
 				triggers->Constant(constants->DIRECTION_FROM_RIGHT, percentForce);
@@ -1267,7 +1284,108 @@ static void FFBGameEffects(EffectConstants* constants, Helpers* helpers, EffectT
 		}
 	}
 
-	if (RunningFFB == DirtDevilsActive) //Dirt Devils
+	
+	if (RunningFFB == ScudRaceActive) // Scud Race (should also cover Dirt Devils, ECA and Lemans provided cabinet is set to 'Twin-Lemans')
+	{
+		if (name == RawDrive)
+		{
+			helpers->log("got value: ");
+			std::string ffs = std::to_string(stateFFB);
+			helpers->log((char*)ffs.c_str());
+
+			
+			if (stateFFB >= 0x0 && stateFFB <= 0x09) // Sequences
+			{
+				// Mask: only 3 bits are relevant
+				int sequence = stateFFB & 0x7;
+				switch (sequence) {
+				case 1:
+				case 2:
+					// Unlimited time ?
+					DriveboardSequence_duration_ms = 1000;
+					break;
+				}
+				DriveboardSequence_starttime_ms = CurrentTime_ms;
+				DriveboardSequenceRunning = sequence;
+			}
+
+			if (stateFFB >= 0x10 && stateFFB < 0x20) //Spring
+			{
+				// Spring Effect. 0x10 to stop the effect. Intensity range from 0x11...0x17(strong). Values are duplicated on 0x18...0x1F
+				double percentForce = (stateFFB & 0x7) / 7.0;
+				triggers->Spring(percentForce);
+			}
+
+			if (stateFFB >= 0x20 && stateFFB < 0x30) //Intensity
+			{
+				// Intensity gain for torque and vibration effects(does not seem to be applied to sequence, spring or power-slide effect).
+				// When a torque effect or a vibration effect is played, allows to modulate its intensity. 
+				// 0x20(very weak, almost no effect)...0x2F(strong)
+				ScudIntensityFactor = (double)(stateFFB - 0x1F) / 16.0; // => 0.066 to 1.0
+			}
+
+			if (stateFFB >= 0x30 && stateFFB < 0x40) //Vibration
+			{
+				// Vibration effect. 0x30 to stop the effect.
+				// Intensity range from 0x31...0x35(strong). Intensity seems to be modulated with 0x2X
+				double percentForce = (double)(stateFFB - 0x30) / 5.0 * ScudIntensityFactor;
+				triggers->Rumble(percentForce, percentForce, 100);
+				triggers->Sine(40, 0, percentForce);
+			}
+
+			if (stateFFB >= 0x40 && stateFFB < 0x50) // Power slide
+			{
+				// Power-slide effect. Perform a sine of torque that increase the torque and push the steering wheel in one direction, 
+				// then to the other direction, like driving in a hole. 
+				// 0x40...0x47(strong) push first right, then left. 
+				// 0x48...0x4F(strong) pushes first left, then right. 
+				// Intensity is given by the 3bits less significant bits. Duration is about 2-3secondes
+				bool direction = stateFFB < 0x48;
+				int intensity = stateFFB & 0xF;
+				double percentForce = (intensity) / 8.0;
+				// Sign it
+				if (direction)
+					percentForce *= -1.0;
+				// Make it 3 seconds, no fade
+				triggers->Sine(3000.0, 0, percentForce);
+			}
+
+			if (stateFFB >= 0x50 && stateFFB < 0x60) //Constant torque Right
+			{
+				double percentForce = (double)(stateFFB - 0x4F) / 16.0 * ScudIntensityFactor;
+				double percentLength = 100;
+				triggers->Rumble(percentForce, 0, percentLength);
+				triggers->Constant(constants->DIRECTION_FROM_LEFT, percentForce);
+			}
+			else if (stateFFB >= 0x60 && stateFFB < 0x70) //Constant torque Left
+			{
+				double percentForce = (double)(stateFFB - 0x5F) / 16.0 * ScudIntensityFactor;
+				double percentLength = 100;
+				triggers->Rumble(0, percentForce, percentLength);
+				triggers->Constant(constants->DIRECTION_FROM_RIGHT, percentForce);
+			}
+
+			//Test Menu
+			if (stateFFB == 0x80)
+			{
+				triggers->Rumble(0, 0, 0);
+				triggers->Constant(constants->DIRECTION_FROM_LEFT, 0);
+				triggers->Constant(constants->DIRECTION_FROM_RIGHT, 0);
+			}
+			else if (stateFFB == 0x81)
+			{
+				triggers->Rumble(0.5, 0, 100);
+				triggers->Constant(constants->DIRECTION_FROM_LEFT, 0.5);
+			}
+			else if (stateFFB == 0x82)
+			{
+				triggers->Rumble(0, 0.5, 100);
+				triggers->Constant(constants->DIRECTION_FROM_RIGHT, 0.5);
+			}
+		}
+	}
+
+	if (RunningFFB == DirtDevilsActive) //Dirt Devils, ECA
 	{
 		if (name == RawDrive)
 		{
@@ -1296,7 +1414,7 @@ static void FFBGameEffects(EffectConstants* constants, Helpers* helpers, EffectT
 		}
 	}
 
-	if (RunningFFB == Srally2Active) //Sega Rally 2, Emergency Call Ambulance
+	if (RunningFFB == Srally2Active) //Sega Rally 2
 	{
 		if (name == RawDrive)
 		{
@@ -1304,16 +1422,16 @@ static void FFBGameEffects(EffectConstants* constants, Helpers* helpers, EffectT
 			std::string ffs = std::to_string(stateFFB);
 			helpers->log((char*)ffs.c_str());
 
-			if (stateFFB > 0x00 && stateFFB <= 0x3F)
+			if (stateFFB >= 0x00 && stateFFB <= 0x3F)
 			{
 				double percentForce = (stateFFB) / 64.0;
 				double percentLength = 100;
 				triggers->Rumble(0, percentForce, percentLength);
 				triggers->Constant(constants->DIRECTION_FROM_RIGHT, percentForce);
 			}
-			else if (stateFFB > 0x3F && stateFFB <= 0x7F)
+			else if (stateFFB >= 0x40 && stateFFB <= 0x7F)
 			{
-				double percentForce = (stateFFB - 64) / 64.0;
+				double percentForce = (stateFFB - 0x40) / 64.0;
 				double percentLength = 100;
 				triggers->Rumble(percentForce, 0, percentLength);
 				triggers->Constant(constants->DIRECTION_FROM_LEFT, percentForce);
@@ -2540,7 +2658,7 @@ void MAMESupermodel::FFBLoop(EffectConstants* constants, Helpers* helpers, Effec
 				EnableForceSpringEffect = EnableForceSpringEffectScud;
 				ForceSpringStrength = ForceSpringStrengthScud;
 
-				RunningFFB = "Daytona2Active";
+				RunningFFB = "ScudRaceActive";
 			}
 
 			if (romname == lemans24)
@@ -2558,7 +2676,7 @@ void MAMESupermodel::FFBLoop(EffectConstants* constants, Helpers* helpers, Effec
 				EnableForceSpringEffect = EnableForceSpringEffectLeMans;
 				ForceSpringStrength = ForceSpringStrengthLeMans;
 
-				RunningFFB = "Daytona2Active";
+				RunningFFB = "ScudRaceActive";
 			}
 
 			if (romname == dirtdvlsa || romname == dirtdvls || romname == dirtdvlsj || romname == dirtdvlsg || romname == dirtdvlsu || romname == dirtdvlsau)
@@ -2576,7 +2694,7 @@ void MAMESupermodel::FFBLoop(EffectConstants* constants, Helpers* helpers, Effec
 				EnableDamper = EnableDamperDirtDevils;
 				DamperStrength = DamperStrengthDirtDevils;
 
-				RunningFFB = "DirtDevilsActive";
+				RunningFFB = "ScudRaceActive";
 			}
 
 			if (romname == srally2 || romname == srally2x || romname == srally2dx || romname == srally2p || romname == srally2pa)
@@ -2612,7 +2730,7 @@ void MAMESupermodel::FFBLoop(EffectConstants* constants, Helpers* helpers, Effec
 				EnableDamper = EnableDamperECA;
 				DamperStrength = DamperStrengthECA;
 
-				RunningFFB = "Srally2Active";
+				RunningFFB = "ScudRaceActive";
 			}
 
 			if (romname == vr)
@@ -3555,8 +3673,59 @@ void MAMESupermodel::FFBLoop(EffectConstants* constants, Helpers* helpers, Effec
 
 	if (RomGameName && RunningFFB > 0)
 	{
+
 		if (RunningFFB > 0 && EnableDamper)
 			triggers->Damper(DamperStrength / 100.0);
+
+		if (RunningFFB > 0 && DriveboardSequenceRunning > 0) {
+			// MAME or Supermodel has an active sequenceplaying
+			CurrentTime_ms += 16;
+
+			if ((DriveboardSequence_starttime_ms - CurrentTime_ms) > DriveboardSequence_duration_ms) {
+				// Sequence done, stop it
+				DriveboardSequenceRunning = 0;
+			}
+			// Now play a sequence effect each 16ms
+			if (RunningFFB == ScudRaceActive) {
+				switch (DriveboardSequenceRunning) {
+				case 0:
+					// No sequence
+					break;
+				case 1: {
+						// Sequence: light random direction shocks (very short impulse of torque) in the steering wheel, like driving on gravel
+						double intensity = 0.2;
+						const int frequency = 200;
+						bool randShock = (rand() % frequency) == 0;
+						if (randShock) {
+							bool direction = (rand() % 2) == 0;
+							if (direction) {
+								triggers->Constant(constants->DIRECTION_FROM_LEFT, intensity);
+							}
+							else {
+								triggers->Constant(constants->DIRECTION_FROM_RIGHT, intensity);
+							}
+						}
+					}
+					break;
+				case 2: {
+					// Sequence: light random direction shocks (very short impulse of torque) in the steering wheel, like driving on gravel
+					double intensity = 0.5;
+					const int frequency = 200;
+					bool randShock = (rand() % frequency) == 0;
+					if (randShock) {
+						bool direction = (rand() % 2) == 0;
+						if (direction) {
+							triggers->Constant(constants->DIRECTION_FROM_LEFT, intensity);
+						}
+						else {
+							triggers->Constant(constants->DIRECTION_FROM_RIGHT, intensity);
+						}
+					}
+				}
+					  break;
+				}
+			}
+		}
 
 		if (RunningFFB == LightGunActive) //LightGun Games
 		{
@@ -4377,4 +4546,6 @@ void MAMESupermodel::FFBLoop(EffectConstants* constants, Helpers* helpers, Effec
 			}
 		}
 	}
+
+
 }

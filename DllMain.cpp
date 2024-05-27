@@ -3517,9 +3517,11 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ulReasonForCall, LPVOID lpReserved)
 		SetErrorMode(SEM_FAILCRITICALERRORS | SEM_NOGPFAULTERRORBOX);
 
 
-		if (configGameId == 60)
+		if (configGameId == 60) {
 			WritePrivateProfileStringA("Settings", "ProcessID", 0, ".\\FFBPlugin.ini");
+		}
 
+		hlp.log("Closing SDL haptic device");
 		if (haptic)
 		{
 			SDL_HapticStopAll(haptic);
@@ -3538,6 +3540,7 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ulReasonForCall, LPVOID lpReserved)
 			SDL_HapticClose(haptic3);
 		}
 
+		hlp.log("Closing game controller");
 		if (GameController)
 		{
 			if (EnableRumble)
@@ -3564,6 +3567,7 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ulReasonForCall, LPVOID lpReserved)
 
 			SDL_JoystickClose(GameController3);
 		}
+		hlp.log("All done, leaving");
 
 		break;
 	}
