@@ -64,11 +64,11 @@ static int __cdecl Wheel_SetHook(float param_1)
 		}
 	}
 	if (lastFF >= 0) {
-		myTriggers->Rumble(0, lastFF, 100.0);
+		myTriggers->Rumble(0, lastFF, 100);
 		myTriggers->Constant(myConstants->DIRECTION_FROM_RIGHT, lastFF);
 	}
 	if (lastFF <= 0) {
-		myTriggers->Rumble(0, lastFF * -1, 100.0);
+		myTriggers->Rumble(0, lastFF * -1, 100);
 		myTriggers->Constant(myConstants->DIRECTION_FROM_LEFT, lastFF * -1);
 	}
 	return 0;
@@ -78,7 +78,7 @@ static int __cdecl Wheel_SetHook(float param_1)
 void CruisnBlast::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTriggers* triggers) {
 	if (!init)
 	{
-		DWORD ImageBase = (DWORD)GetModuleHandleA(0);
+		INT_PTR ImageBase = (INT_PTR)GetModuleHandleA(0);
 
 		if (EnableDamper)
 			triggers->Damper(DamperStrength / 100.0);

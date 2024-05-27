@@ -23,7 +23,7 @@ extern SDL_Haptic* haptic2;
 static bool init = false;
 
 void LGI::FFBLoop(EffectConstants *constants, Helpers *helpers, EffectTriggers* triggers) {	
-	int ff = helpers->ReadIntPtr(0x0063BF5C, /* isRelativeOffset */ true);
+	INT_PTR ff = helpers->ReadIntPtr(0x0063BF5C, /* isRelativeOffset */ true);
 	UINT8 ff1 = helpers->ReadByte(ff + 0x44, /* isRelativeOffset */ false);
 	INT_PTR health1p1 = helpers->ReadIntPtr(0x00820024, /* isRelativeOffset*/ true);
 	INT_PTR health1p2 = helpers->ReadIntPtr(health1p1 + 0x4, /* isRelativeOffset */ false);
@@ -59,10 +59,10 @@ void LGI::FFBLoop(EffectConstants *constants, Helpers *helpers, EffectTriggers* 
 			int Device2GUID = GetPrivateProfileString(TEXT("Settings"), TEXT("Device2GUID"), NULL, deviceGUIDString2, 256, settingsFilename);
 			char joystick_guid[256];
 			sprintf(joystick_guid, "%S", deviceGUIDString2);
-			SDL_JoystickGUID guid, dev_guid;
+			SDL_JoystickGUID dev_guid;
 			int numJoysticks = SDL_NumJoysticks();
-			std::string njs = std::to_string(numJoysticks);
-			((char)njs.c_str());
+			/*std::string njs = std::to_string(numJoysticks);
+			((char)njs.c_str());*/
 			for (int i = 0; i < SDL_NumJoysticks(); i++)
 			{
 				extern int joystick1Index;
@@ -91,142 +91,113 @@ void LGI::FFBLoop(EffectConstants *constants, Helpers *helpers, EffectTriggers* 
 			haptic2 = ControllerHaptic2;
 			if ((SDL_HapticRumbleSupported(haptic2) == SDL_TRUE))
 			{
-				SDL_HapticRumbleInit;
+				//SDL_HapticRumbleInit;
 				SDL_HapticRumbleInit(ControllerHaptic2);
 			}
 		}
 		init = true;
 	}
 
+	UINT32 length_ms = configFeedbackLength;
 	if ((oldFloat1 != newFloat1) && (health1p != 0x01))
 	{
+		double percentForce = ((Health1pStrength) / 100.0);
 		if (HowtoRumbleHealthEffect == 0)
 		{
-			double percentForce = ((Health1pStrength) / 100.0);
-			double percentLength = configFeedbackLength;
-			triggers->Rumble(percentForce, percentForce, percentLength);
+			triggers->Rumble(percentForce, percentForce, length_ms);
 		}
 		else if (HowtoRumbleHealthEffect == 1)
 		{
-			double percentForce = ((Health1pStrength) / 100.0);
-			double percentLength = configFeedbackLength;
-			triggers->Rumble(0, percentForce, percentLength);
+			triggers->Rumble(0, percentForce, length_ms);
 		}
 		else if (HowtoRumbleHealthEffect == 2)
 		{
-			double percentForce = ((Health1pStrength) / 100.0);
-			double percentLength = configFeedbackLength;
-			triggers->Rumble(percentForce, 0, percentLength);
+			triggers->Rumble(percentForce, 0, length_ms);
 		}
 	}
 		
 	if ((oldFloat2 != newFloat2) && (health2p != 0x01))
 	{
+		double percentForce = ((Health2pStrength) / 100.0);
 		if (HowtoRumbleHealthEffect == 0)
 		{
-			double percentForce = ((Health2pStrength) / 100.0);
-			double percentLength = configFeedbackLength;
-			triggers->RumbleDevice2(percentForce, percentForce, percentLength);
+			triggers->RumbleDevice2(percentForce, percentForce, length_ms);
 		}
 		else if (HowtoRumbleHealthEffect == 1)
 		{
-			double percentForce = ((Health2pStrength) / 100.0);
-			double percentLength = configFeedbackLength;
-			triggers->RumbleDevice2(0, percentForce, percentLength);
+			triggers->RumbleDevice2(0, percentForce, length_ms);
 		}
 		else if (HowtoRumbleHealthEffect == 2)
 		{
-			double percentForce = ((Health2pStrength) / 100.0);
-			double percentLength = configFeedbackLength;
-			triggers->RumbleDevice2(percentForce, 0, percentLength);
+			triggers->RumbleDevice2(percentForce, 0, length_ms);
 		}
 	}
 		
 	if (ff1 & 0x20)
 	{
+		double percentForce = ((Knock1pStrength) / 100.0);
 		if (HowtoRumbleKnockEffect == 0)
 		{
-			double percentForce = ((Knock1pStrength) / 100.0);
-			double percentLength = configFeedbackLength;
-			triggers->Rumble(percentForce, percentForce, percentLength);
+			triggers->Rumble(percentForce, percentForce, length_ms);
 		}
 		else if (HowtoRumbleKnockEffect == 1)
 		{
-			double percentForce = ((Knock1pStrength) / 100.0);
-			double percentLength = configFeedbackLength;
-			triggers->Rumble(0, percentForce, percentLength);
+			triggers->Rumble(0, percentForce, length_ms);
 		}
 		else if (HowtoRumbleKnockEffect == 2)
 		{
-			double percentForce = ((Knock1pStrength) / 100.0);
-			double percentLength = configFeedbackLength;
-			triggers->Rumble(percentForce, 0, percentLength);
+			triggers->Rumble(percentForce, 0, length_ms);
 		}
 	}
 		
 	if (ff1 & 0x40)
 	{
+		double percentForce = ((Motor1pStrength) / 100.0);
 		if (HowtoRumbleMotorEffect == 0)
 		{
-			double percentForce = ((Motor1pStrength) / 100.0);
-			double percentLength = configFeedbackLength;
-			triggers->Rumble(percentForce, percentForce, percentLength);
+			triggers->Rumble(percentForce, percentForce, length_ms);
 		}
 		else if (HowtoRumbleMotorEffect == 1)
 		{
-			double percentForce = ((Motor1pStrength) / 100.0);
-			double percentLength = configFeedbackLength;
-			triggers->Rumble(0, percentForce, percentLength);
+			triggers->Rumble(0, percentForce, length_ms);
 		}
 		else if (HowtoRumbleMotorEffect == 2)
 		{
-			double percentForce = ((Motor1pStrength) / 100.0);
-			double percentLength = configFeedbackLength;
-			triggers->Rumble(percentForce, 0, percentLength);
+			triggers->Rumble(percentForce, 0, length_ms);
 		}
 	}
 		
 	if (ff1 & 0x04)
 	{
+		double percentForce = ((Knock2pStrength) / 100.0);
 		if (HowtoRumbleKnockEffect == 0)
 		{
-			double percentForce = ((Knock2pStrength) / 100.0);
-			double percentLength = configFeedbackLength;
-			triggers->RumbleDevice2(percentForce, percentForce, percentLength);
+			triggers->RumbleDevice2(percentForce, percentForce, length_ms);
 		}
 		else if (HowtoRumbleKnockEffect == 1)
 		{
-			double percentForce = ((Knock2pStrength) / 100.0);
-			double percentLength = configFeedbackLength;
-			triggers->RumbleDevice2(0, percentForce, percentLength);
+			triggers->RumbleDevice2(0, percentForce, length_ms);
 		}
 		else if (HowtoRumbleKnockEffect == 2)
 		{
-			double percentForce = ((Knock2pStrength) / 100.0);
-			double percentLength = configFeedbackLength;
-			triggers->RumbleDevice2(percentForce, 0, percentLength);
+			triggers->RumbleDevice2(percentForce, 0, length_ms);
 		}
 	}
 		
 	if (ff1 & 0x08)
 	{
+		double percentForce = ((Motor2pStrength) / 100.0);
 		if (HowtoRumbleMotorEffect == 0)
 		{
-			double percentForce = ((Motor2pStrength) / 100.0);
-			double percentLength = configFeedbackLength;
-			triggers->RumbleDevice2(percentForce, percentForce, percentLength);
+			triggers->RumbleDevice2(percentForce, percentForce, length_ms);
 		}
 		else if (HowtoRumbleMotorEffect == 1)
 		{
-			double percentForce = ((Motor2pStrength) / 100.0);
-			double percentLength = configFeedbackLength;
-			triggers->RumbleDevice2(0, percentForce, percentLength);
+			triggers->RumbleDevice2(0, percentForce, length_ms);
 		}
 		else if (HowtoRumbleMotorEffect == 2)
 		{
-			double percentForce = ((Motor2pStrength) / 100.0);
-			double percentLength = configFeedbackLength;
-			triggers->RumbleDevice2(percentForce, 0, percentLength);
+			triggers->RumbleDevice2(percentForce, 0, length_ms);
 		}
 	}
 	oldFloat1 = newFloat1;

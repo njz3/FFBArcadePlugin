@@ -23,6 +23,8 @@ void InitialD4::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTrig
 
 	BYTE* ffb = reinterpret_cast<BYTE*>(&FFB);
 
+	UINT32 length_ms = 100;
+
 	if (ffb[0] == 0x80 && ffb[2] == 0x01)
 	{
 		triggers->Spring(1.0);
@@ -32,15 +34,13 @@ void InitialD4::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTrig
 	{
 		double percentForce = ffb[2] / 127.0;
 		double Period = ffb[1] / 127.0 * 120.0;
-		double percentLength = 100;
-		triggers->Rumble(percentForce, percentForce, percentLength);
-		triggers->Sine(static_cast<int>(Period), 0, percentForce);
+		triggers->Rumble(percentForce, percentForce, length_ms);
+		triggers->Sine(static_cast<int>(Period), 0, percentForce, length_ms);
 	}
 
 	if (ffb[0] == 0x86 && ffb[2] > 0x00)
 	{
 		double percentForce = ffb[2] / 127.0;
-		double percentLength = 100;
 		triggers->Spring(percentForce);
 	}
 
@@ -49,15 +49,13 @@ void InitialD4::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTrig
 		if (ffb[1] == 0x00)
 		{
 			double percentForce = (128 - ffb[2]) / 127.0;
-			double percentLength = 100;
-			triggers->Rumble(percentForce, 0, percentLength);
+			triggers->Rumble(percentForce, 0, length_ms);
 			triggers->Constant(constants->DIRECTION_FROM_LEFT, percentForce);
 		}
 		else if (ffb[1] == 0x01)
 		{
 			double percentForce = (ffb[2] / 127.0);
-			double percentLength = 100;
-			triggers->Rumble(0, percentForce, percentLength);
+			triggers->Rumble(0, percentForce, length_ms);
 			triggers->Constant(constants->DIRECTION_FROM_RIGHT, percentForce);
 		}
 	}

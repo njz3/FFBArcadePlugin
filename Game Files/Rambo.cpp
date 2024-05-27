@@ -78,10 +78,10 @@ void Rambo::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTriggers
 			int Device2GUID = GetPrivateProfileString(TEXT("Settings"), TEXT("Device2GUID"), NULL, deviceGUIDString2, 256, settingsFilename);
 			char joystick_guid[256];
 			sprintf(joystick_guid, "%S", deviceGUIDString2);
-			SDL_JoystickGUID guid, dev_guid;
+			SDL_JoystickGUID dev_guid;
 			int numJoysticks = SDL_NumJoysticks();
-			std::string njs = std::to_string(numJoysticks);
-			((char)njs.c_str());
+			/*std::string njs = std::to_string(numJoysticks);
+			((char)njs.c_str());*/
 			for (int i = 0; i < SDL_NumJoysticks(); i++)
 			{
 				extern int joystick1Index;
@@ -110,32 +110,30 @@ void Rambo::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTriggers
 			haptic2 = ControllerHaptic2;
 			if ((SDL_HapticRumbleSupported(haptic2) == SDL_TRUE))
 			{
-				SDL_HapticRumbleInit;
+				//SDL_HapticRumbleInit;
 				SDL_HapticRumbleInit(ControllerHaptic2);
 			}
 		}
 		init = true;
 	}
 
+	UINT32 length_ms = configFeedbackLength;
 	if (oldHealth1p != newHealth1p)
 	{
 		if (HowtoRumbleHealthEffect == 0)
 		{
 			double percentForce = ((Health1pStrength) / 100.0);
-			double percentLength = configFeedbackLength;
-			triggers->Rumble(percentForce, percentForce, percentLength);
+			triggers->Rumble(percentForce, percentForce, length_ms);
 		}
 		else if (HowtoRumbleHealthEffect == 1)
 		{
 			double percentForce = ((Health1pStrength) / 100.0);
-			double percentLength = configFeedbackLength;
-			triggers->Rumble(0, percentForce, percentLength);
+			triggers->Rumble(0, percentForce, length_ms);
 		}
 		else if (HowtoRumbleHealthEffect == 2)
 		{
 			double percentForce = ((Health1pStrength) / 100.0);
-			double percentLength = configFeedbackLength;
-			triggers->Rumble(percentForce, 0, percentLength);
+			triggers->Rumble(percentForce, 0, length_ms);
 		}
 	}
 
@@ -144,20 +142,17 @@ void Rambo::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTriggers
 		if (HowtoRumbleHealthEffect == 0)
 		{
 			double percentForce = ((Health2pStrength) / 100.0);
-			double percentLength = configFeedbackLength;
-			triggers->RumbleDevice2(percentForce, percentForce, percentLength);
+			triggers->RumbleDevice2(percentForce, percentForce, length_ms);
 		}
 		else if (HowtoRumbleHealthEffect == 1)
 		{
 			double percentForce = ((Health2pStrength) / 100.0);
-			double percentLength = configFeedbackLength;
-			triggers->RumbleDevice2(0, percentForce, percentLength);
+			triggers->RumbleDevice2(0, percentForce, length_ms);
 		}
 		else if (HowtoRumbleHealthEffect == 2)
 		{
 			double percentForce = ((Health2pStrength) / 100.0);
-			double percentLength = configFeedbackLength;
-			triggers->RumbleDevice2(percentForce, 0, percentLength);
+			triggers->RumbleDevice2(percentForce, 0, length_ms);
 		}
 	}
 
@@ -166,20 +161,17 @@ void Rambo::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTriggers
 		if (HowtoRumbleGunEffect == 0)
 		{
 			double percentForce = ((Gun1pStrength) / 100.0);
-			double percentLength = configFeedbackLength;
-			triggers->Rumble(percentForce, percentForce, percentLength);
+			triggers->Rumble(percentForce, percentForce, length_ms);
 		}
 		else if (HowtoRumbleGunEffect == 1)
 		{
 			double percentForce = ((Gun1pStrength) / 100.0);
-			double percentLength = configFeedbackLength;
-			triggers->Rumble(0, percentForce, percentLength);
+			triggers->Rumble(0, percentForce, length_ms);
 		}
 		else if (HowtoRumbleGunEffect == 2)
 		{
 			double percentForce = ((Gun1pStrength) / 100.0);
-			double percentLength = configFeedbackLength;
-			triggers->Rumble(percentForce, 0, percentLength);
+			triggers->Rumble(percentForce, 0, length_ms);
 		}
 	}
 
@@ -188,20 +180,17 @@ void Rambo::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTriggers
 		if (HowtoRumbleGunEffect == 0)
 		{
 			double percentForce = ((Gun2pStrength) / 100.0);
-			double percentLength = configFeedbackLength;
-			triggers->RumbleDevice2(percentForce, percentForce, percentLength);
+			triggers->RumbleDevice2(percentForce, percentForce, length_ms);
 		}
 		else if (HowtoRumbleGunEffect == 1)
 		{
 			double percentForce = ((Gun2pStrength) / 100.0);
-			double percentLength = configFeedbackLength;
-			triggers->RumbleDevice2(0, percentForce, percentLength);
+			triggers->RumbleDevice2(0, percentForce, length_ms);
 		}
 		else if (HowtoRumbleGunEffect == 2)
 		{
 			double percentForce = ((Gun2pStrength) / 100.0);
-			double percentLength = configFeedbackLength;
-			triggers->RumbleDevice2(percentForce, 0, percentLength);
+			triggers->RumbleDevice2(percentForce, 0, length_ms);
 		}
 	}
 
@@ -210,20 +199,17 @@ void Rambo::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTriggers
 		if (HowtoRumbleRageEffect == 0)
 		{
 			double percentForce = ((Rage1pStrength) / 100.0);
-			double percentLength = configFeedbackLength;
-			triggers->Rumble(percentForce, percentForce, percentLength);
+			triggers->Rumble(percentForce, percentForce, length_ms);
 		}
 		else if (HowtoRumbleRageEffect == 1)
 		{
 			double percentForce = ((Rage1pStrength) / 100.0);
-			double percentLength = configFeedbackLength;
-			triggers->Rumble(0, percentForce, percentLength);
+			triggers->Rumble(0, percentForce, length_ms);
 		}
 		else if (HowtoRumbleRageEffect == 2)
 		{
 			double percentForce = ((Rage1pStrength) / 100.0);
-			double percentLength = configFeedbackLength;
-			triggers->Rumble(percentForce, 0, percentLength);
+			triggers->Rumble(percentForce, 0, length_ms);
 		}
 	}
 
@@ -232,20 +218,17 @@ void Rambo::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTriggers
 		if (HowtoRumbleRageEffect == 0)
 		{
 			double percentForce = ((Rage2pStrength) / 100.0);
-			double percentLength = configFeedbackLength;
-			triggers->RumbleDevice2(percentForce, percentForce, percentLength);
+			triggers->RumbleDevice2(percentForce, percentForce, length_ms);
 		}
 		else if (HowtoRumbleRageEffect == 1)
 		{
 			double percentForce = ((Rage2pStrength) / 100.0);
-			double percentLength = configFeedbackLength;
-			triggers->RumbleDevice2(0, percentForce, percentLength);
+			triggers->RumbleDevice2(0, percentForce, length_ms);
 		}
 		else if (HowtoRumbleRageEffect == 2)
 		{
 			double percentForce = ((Rage2pStrength) / 100.0);
-			double percentLength = configFeedbackLength;
-			triggers->RumbleDevice2(percentForce, 0, percentLength);
+			triggers->RumbleDevice2(percentForce, 0, length_ms);
 		}
 	}
 

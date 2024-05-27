@@ -1191,6 +1191,11 @@ void Initialize(int device_index)
 	effects.effect_sine_id = SDL_HapticNewEffect(haptic, &tempEffect);
 
 	tempEffect = SDL_HapticEffect();
+	tempEffect.type = SDL_HAPTIC_SINE;
+	tempEffect.constant.direction.type = SDL_HAPTIC_CARTESIAN;
+	effects.effect_vibration_id = SDL_HapticNewEffect(haptic, &tempEffect);
+
+	tempEffect = SDL_HapticEffect();
 	tempEffect.type = SDL_HAPTIC_SPRING;
 	tempEffect.condition.direction.type = SDL_HAPTIC_CARTESIAN;
 	tempEffect.condition.delay = 0;
@@ -1273,9 +1278,9 @@ std::chrono::milliseconds timeOfLastSineEffectDevice3 = duration_cast<millisecon
 double lastSineEffectStrength = 0;
 double lastSineEffectStrengthDevice2 = 0;
 double lastSineEffectStrengthDevice3 = 0;
-double lastSineEffectPeriod = 0;
-double lastSineEffectPeriodDevice2 = 0;
-double lastSineEffectPeriodDevice3 = 0;
+double lastSineEffectLength_ms = 0;
+double lastSineEffectLengthDevice2_ms = 0;
+double lastSineEffectLengthDevice3_ms = 0;
 
 void TriggerConstantEffect(int direction, double strength)
 {
@@ -1394,7 +1399,7 @@ void TriggerInertiaEffect(double strength)
 	SDL_HapticRunEffect(haptic, effects.effect_inertia_id, 1);
 }
 
-void TriggerTriangleEffect(double strength, double length)
+void TriggerTriangleEffect(double strength, UINT32 length_ms)
 {
 	int direction = 1;
 	if (strength < -0.001) {
@@ -1438,7 +1443,7 @@ void TriggerTriangleEffect(double strength, double length)
 		power = -32767;
 
 	tempEffect.periodic.magnitude = power;
-	tempEffect.periodic.length = length;
+	tempEffect.periodic.length = length_ms;
 	tempEffect.periodic.attack_length = 1000;
 	tempEffect.periodic.fade_length = 1000;
 
@@ -1474,14 +1479,14 @@ void TriggerDamperEffect(double strength)
 	SDL_HapticRunEffect(haptic, effects.effect_damper_id, 1);
 }
 
-void TriggerRampEffect(double start, double end, double length)
+void TriggerRampEffect(double start, double end, UINT32 length_ms)
 {
 	SDL_HapticEffect tempEffect;
 	SDL_memset(&tempEffect, 0, sizeof(SDL_HapticEffect));
 	tempEffect.type = SDL_HAPTIC_RAMP;
 	tempEffect.ramp.type = SDL_HAPTIC_RAMP;
 	tempEffect.ramp.direction.type = SDL_HAPTIC_CARTESIAN;
-	tempEffect.ramp.length = length;
+	tempEffect.ramp.length = length_ms;
 	SHORT minForce = (SHORT)(start > 0.001 ? (configMinForce / 100.0 * 32767.0) : 0); // strength is a double so we do an epsilon check of 0.001 instead of > 0.
 	SHORT maxForce = (SHORT)(configMaxForce / 100.0 * 32767.0);
 	SHORT range = maxForce - minForce;
@@ -1506,7 +1511,7 @@ void TriggerRampEffect(double start, double end, double length)
 	SDL_HapticRunEffect(haptic, effects.effect_ramp_id, 1);
 }
 
-void TriggerSawtoothUpEffect(double strength, double length)
+void TriggerSawtoothUpEffect(double strength, UINT32 length_ms)
 {
 	SDL_HapticEffect tempEffect;
 	SDL_memset(&tempEffect, 0, sizeof(SDL_HapticEffect));
@@ -1523,7 +1528,7 @@ void TriggerSawtoothUpEffect(double strength, double length)
 		power = 32767;
 
 	tempEffect.periodic.magnitude = power;
-	tempEffect.periodic.length = length;
+	tempEffect.periodic.length = length_ms;
 	tempEffect.periodic.attack_length = 1000;
 	tempEffect.periodic.fade_length = 1000;
 
@@ -1531,7 +1536,7 @@ void TriggerSawtoothUpEffect(double strength, double length)
 	SDL_HapticRunEffect(haptic, effects.effect_sawtoothup_id, 1);
 }
 
-void TriggerSawtoothDownEffect(double strength, double length) {
+void TriggerSawtoothDownEffect(double strength, UINT32 length_ms) {
 	SDL_HapticEffect tempEffect;
 	SDL_memset(&tempEffect, 0, sizeof(SDL_HapticEffect));
 	tempEffect.type = SDL_HAPTIC_SAWTOOTHDOWN;
@@ -1547,7 +1552,7 @@ void TriggerSawtoothDownEffect(double strength, double length) {
 		power = 32767;
 
 	tempEffect.periodic.magnitude = power;
-	tempEffect.periodic.length = length;
+	tempEffect.periodic.length = length_ms;
 	tempEffect.periodic.attack_length = 1000;
 	tempEffect.periodic.fade_length = 1000;
 
@@ -1560,7 +1565,7 @@ void TriggerFrictionEffect(double strength)
 	TriggerFrictionEffectWithDefaultOption(strength, false);
 }
 
-void TriggerSineEffect(UINT16 period, UINT16 fadePeriod, double strength)
+void TriggerSineEffect(UINT16 period_ms, UINT16 fadePeriod_ms, double strength, UINT32 length_ms)
 {
 	std::chrono::milliseconds now = duration_cast<milliseconds>(system_clock::now().time_since_epoch());
 	long long elapsedTime = (std::chrono::duration_cast<std::chrono::milliseconds>(now - timeOfLastSineEffect)).count();
@@ -1576,7 +1581,7 @@ void TriggerSineEffect(UINT16 period, UINT16 fadePeriod, double strength)
 		return;
 
 	// we ignore the new effect until the last one is completed, unless the new one is significantly stronger
-	if (elapsedTime < lastSineEffectPeriod && strength < (lastSineEffectStrength * 1.5)) {
+	if (elapsedTime < lastSineEffectLength_ms && strength < (lastSineEffectStrength * 1.5)) {
 		return;
 	}
 
@@ -1587,7 +1592,7 @@ void TriggerSineEffect(UINT16 period, UINT16 fadePeriod, double strength)
 	tempEffect.periodic.direction.type = SDL_HAPTIC_CARTESIAN;
 	tempEffect.periodic.direction.dir[0] = direction;
 	tempEffect.constant.direction.dir[1] = 0; //Y Position
-	tempEffect.periodic.period = period;
+	tempEffect.periodic.period = period_ms;
 
 	int confMinForce = configMinForce;
 	int confMaxForce = configMaxForce;
@@ -1625,19 +1630,19 @@ void TriggerSineEffect(UINT16 period, UINT16 fadePeriod, double strength)
 		magnitude = -32767;
 
 	tempEffect.periodic.magnitude = (SHORT)(magnitude);
-	tempEffect.periodic.length = period;
-	tempEffect.periodic.attack_length = fadePeriod;
-	tempEffect.periodic.fade_length = fadePeriod;
+	tempEffect.periodic.length = length_ms;
+	tempEffect.periodic.attack_length = fadePeriod_ms;
+	tempEffect.periodic.fade_length = fadePeriod_ms;
 
 	SDL_HapticUpdateEffect(haptic, effects.effect_sine_id, &tempEffect);
 	SDL_HapticRunEffect(haptic, effects.effect_sine_id, 1);
 
 	timeOfLastSineEffect = now;
 	lastSineEffectStrength = strength;
-	lastSineEffectPeriod = period;
+	lastSineEffectLength_ms = length_ms;
 }
 
-void TriggerSineEffectDevice2(UINT16 period, UINT16 fadePeriod, double strength)
+void TriggerSineEffectDevice2(UINT16 period, UINT16 fadePeriod_ms, double strength, UINT32 length_ms)
 {
 	std::chrono::milliseconds now = duration_cast<milliseconds>(system_clock::now().time_since_epoch());
 	long long elapsedTime = (std::chrono::duration_cast<std::chrono::milliseconds>(now - timeOfLastSineEffectDevice2)).count();
@@ -1653,7 +1658,7 @@ void TriggerSineEffectDevice2(UINT16 period, UINT16 fadePeriod, double strength)
 		return;
 
 	// we ignore the new effect until the last one is completed, unless the new one is significantly stronger
-	if (elapsedTime < lastSineEffectPeriodDevice2 && strength < (lastSineEffectStrengthDevice2 * 1.5)) {
+	if (elapsedTime < lastSineEffectLengthDevice2_ms && strength < (lastSineEffectStrengthDevice2 * 1.5)) {
 		return;
 	}
 
@@ -1693,19 +1698,19 @@ void TriggerSineEffectDevice2(UINT16 period, UINT16 fadePeriod, double strength)
 		magnitude = -32767;
 
 	tempEffect.periodic.magnitude = (SHORT)(magnitude);
-	tempEffect.periodic.length = period;
-	tempEffect.periodic.attack_length = fadePeriod;
-	tempEffect.periodic.fade_length = fadePeriod;
+	tempEffect.periodic.length = length_ms;
+	tempEffect.periodic.attack_length = fadePeriod_ms;
+	tempEffect.periodic.fade_length = fadePeriod_ms;
 
 	SDL_HapticUpdateEffect(haptic2, effects.effect_sine_id_device2, &tempEffect);
 	SDL_HapticRunEffect(haptic2, effects.effect_sine_id_device2, 1);
 
 	timeOfLastSineEffectDevice2 = now;
 	lastSineEffectStrengthDevice2 = strength;
-	lastSineEffectPeriodDevice2 = period;
+	lastSineEffectLengthDevice2_ms = length_ms;
 }
 
-void TriggerSineEffectDevice3(UINT16 period, UINT16 fadePeriod, double strength)
+void TriggerSineEffectDevice3(UINT16 period_ms, UINT16 fadePeriod_ms, double strength, UINT32 length_ms)
 {
 	std::chrono::milliseconds now = duration_cast<milliseconds>(system_clock::now().time_since_epoch());
 	long long elapsedTime = (std::chrono::duration_cast<std::chrono::milliseconds>(now - timeOfLastSineEffectDevice3)).count();
@@ -1721,7 +1726,7 @@ void TriggerSineEffectDevice3(UINT16 period, UINT16 fadePeriod, double strength)
 		return;
 
 	// we ignore the new effect until the last one is completed, unless the new one is significantly stronger
-	if (elapsedTime < lastSineEffectPeriodDevice3 && strength < (lastSineEffectStrengthDevice3 * 1.5)) {
+	if (elapsedTime < lastSineEffectLengthDevice3_ms && strength < (lastSineEffectStrengthDevice3 * 1.5)) {
 		return;
 	}
 
@@ -1732,7 +1737,7 @@ void TriggerSineEffectDevice3(UINT16 period, UINT16 fadePeriod, double strength)
 	tempEffect.periodic.direction.type = SDL_HAPTIC_CARTESIAN;
 	tempEffect.periodic.direction.dir[0] = direction;
 	tempEffect.constant.direction.dir[1] = 0; //Y Position
-	tempEffect.periodic.period = period;
+	tempEffect.periodic.period = period_ms;
 
 	int confMinForce = configMinForceDevice3;
 	int confMaxForce = configMaxForceDevice3;
@@ -1761,16 +1766,16 @@ void TriggerSineEffectDevice3(UINT16 period, UINT16 fadePeriod, double strength)
 		magnitude = -32767;
 
 	tempEffect.periodic.magnitude = (SHORT)(magnitude);
-	tempEffect.periodic.length = period;
-	tempEffect.periodic.attack_length = fadePeriod;
-	tempEffect.periodic.fade_length = fadePeriod;
+	tempEffect.periodic.length = length_ms;
+	tempEffect.periodic.attack_length = fadePeriod_ms;
+	tempEffect.periodic.fade_length = fadePeriod_ms;
 
 	SDL_HapticUpdateEffect(haptic3, effects.effect_sine_id_device3, &tempEffect);
 	SDL_HapticRunEffect(haptic3, effects.effect_sine_id_device3, 1);
 
 	timeOfLastSineEffectDevice3 = now;
 	lastSineEffectStrengthDevice3 = strength;
-	lastSineEffectPeriodDevice3 = period;
+	lastSineEffectLengthDevice3_ms = length_ms;
 }
 
 void TriggerSpringEffectWithDefaultOption(double strength, bool isDefault)
@@ -1855,7 +1860,7 @@ void TriggerSpringEffectInfinite(double strength)
 	SDL_HapticRunEffect(haptic, effects.effect_spring_id, 1);
 }
 
-void TriggerLeftRightEffect(double smallstrength, double largestrength, double length)
+void TriggerLeftRightEffect(double smallstrength, double largestrength, UINT32 length_ms)
 {
 	if (EnableRumble)
 	{
@@ -1863,7 +1868,7 @@ void TriggerLeftRightEffect(double smallstrength, double largestrength, double l
 		{
 			SDL_HapticEffect tempEffect;
 			tempEffect.type = SDL_HAPTIC_LEFTRIGHT;
-			tempEffect.leftright.length = length;
+			tempEffect.leftright.length = length_ms;
 			SHORT minForce = (SHORT)(smallstrength > 0.001 ? (configMinForce / 100.0 * 32767.0) : 0); // strength is a double so we do an epsilon check of 0.001 instead of > 0.
 			SHORT maxForce = (SHORT)(configMaxForce / 100.0 * 32767.0);
 			SHORT range = maxForce - minForce;
@@ -1879,7 +1884,7 @@ void TriggerLeftRightEffect(double smallstrength, double largestrength, double l
 		{
 			SDL_HapticEffect tempEffect;
 			tempEffect.type = SDL_HAPTIC_LEFTRIGHT;
-			tempEffect.leftright.length = length;
+			tempEffect.leftright.length = length_ms;
 			SHORT minForce = (SHORT)(largestrength > 0.001 ? (configMinForce / 100.0 * 32767.0) : 0); // strength is a double so we do an epsilon check of 0.001 instead of > 0.
 			SHORT maxForce = (SHORT)(configMaxForce / 100.0 * 32767.0);
 			SHORT range = maxForce - minForce;
@@ -1894,7 +1899,7 @@ void TriggerLeftRightEffect(double smallstrength, double largestrength, double l
 	}
 }
 
-void TriggerLeftRightDevice2Effect(double smallstrength, double largestrength, double length)
+void TriggerLeftRightDevice2Effect(double smallstrength, double largestrength, UINT32 length_ms)
 {
 	if (EnableRumble)
 	{
@@ -1902,7 +1907,7 @@ void TriggerLeftRightDevice2Effect(double smallstrength, double largestrength, d
 		{
 			SDL_HapticEffect tempEffect;
 			tempEffect.type = SDL_HAPTIC_LEFTRIGHT;
-			tempEffect.leftright.length = length;
+			tempEffect.leftright.length = length_ms;
 			SHORT minForce = (SHORT)(smallstrength > 0.001 ? (configMinForce / 100.0 * 32767.0) : 0); // strength is a double so we do an epsilon check of 0.001 instead of > 0.
 			SHORT maxForce = (SHORT)(configMaxForce / 100.0 * 32767.0);
 			SHORT range = maxForce - minForce;
@@ -1918,7 +1923,7 @@ void TriggerLeftRightDevice2Effect(double smallstrength, double largestrength, d
 		{
 			SDL_HapticEffect tempEffect;
 			tempEffect.type = SDL_HAPTIC_LEFTRIGHT;
-			tempEffect.leftright.length = length;
+			tempEffect.leftright.length = length_ms;
 			SHORT minForce = (SHORT)(largestrength > 0.001 ? (configMinForce / 100.0 * 32767.0) : 0); // strength is a double so we do an epsilon check of 0.001 instead of > 0.
 			SHORT maxForce = (SHORT)(configMaxForce / 100.0 * 32767.0);
 			SHORT range = maxForce - minForce;
@@ -1933,7 +1938,7 @@ void TriggerLeftRightDevice2Effect(double smallstrength, double largestrength, d
 	}
 }
 
-void TriggerRumbleEffect(double highfrequency, double lowfrequency, double length)
+void TriggerRumbleEffect(double highfrequency, double lowfrequency, UINT32 length_ms)
 {
 	if (EnableRumble)
 	{
@@ -1951,19 +1956,19 @@ void TriggerRumbleEffect(double highfrequency, double lowfrequency, double lengt
 			double LowPercentRange = 100.0 - LowPercent;
 			double HighPercent = (HighMotor / 65535.0) * 100.0;
 			double Calculation = LowPercent + ((LowPercentRange * HighPercent) / 100.0);
-			LowMotor = 65535.0 * (Calculation / 100.0);
+			LowMotor = (DWORD)(65535.0 * (Calculation / 100.0));
 		}
 
 		if (ReverseRumble)
 		{
-			int ReverseRumble = SDL_JoystickRumble(GameController, HighMotor, LowMotor, length);
+			int ReverseRumble = SDL_JoystickRumble(GameController, HighMotor, LowMotor, length_ms);
 
 			if (ReverseRumble == -1)
 				EnableRumble = 0;
 		}
 		else
 		{
-			int Rumble = SDL_JoystickRumble(GameController, LowMotor, HighMotor, length);
+			int Rumble = SDL_JoystickRumble(GameController, LowMotor, HighMotor, length_ms);
 
 			if (Rumble == -1)
 				EnableRumble = 0;
@@ -1971,7 +1976,7 @@ void TriggerRumbleEffect(double highfrequency, double lowfrequency, double lengt
 	}
 }
 
-void TriggerRumbleEffectDevice2(double highfrequency, double lowfrequency, double length)
+void TriggerRumbleEffectDevice2(double highfrequency, double lowfrequency, UINT32 length_ms)
 {
 	if (EnableRumbleDevice2)
 	{
@@ -1985,14 +1990,14 @@ void TriggerRumbleEffectDevice2(double highfrequency, double lowfrequency, doubl
 
 		if (ReverseRumbleDevice2)
 		{
-			int ReverseRumble2 = SDL_JoystickRumble(GameController2, HighMotor, LowMotor, length);
+			int ReverseRumble2 = SDL_JoystickRumble(GameController2, HighMotor, LowMotor, length_ms);
 
 			if (ReverseRumble2 == -1)
 				EnableRumbleDevice2 = 0;
 		}
 		else
 		{
-			int Rumble2 = SDL_JoystickRumble(GameController2, LowMotor, HighMotor, length);
+			int Rumble2 = SDL_JoystickRumble(GameController2, LowMotor, HighMotor, length_ms);
 
 			if (Rumble2 == -1)
 				EnableRumbleDevice2 = 0;
@@ -2000,7 +2005,7 @@ void TriggerRumbleEffectDevice2(double highfrequency, double lowfrequency, doubl
 	}
 }
 
-void TriggerRumbleEffectDevice3(double highfrequency, double lowfrequency, double length)
+void TriggerRumbleEffectDevice3(double highfrequency, double lowfrequency, UINT32 length_ms)
 {
 	if (EnableRumbleDevice3)
 	{
@@ -2014,14 +2019,14 @@ void TriggerRumbleEffectDevice3(double highfrequency, double lowfrequency, doubl
 
 		if (ReverseRumbleDevice3)
 		{
-			int ReverseRumble3 = SDL_JoystickRumble(GameController3, HighMotor, LowMotor, length);
+			int ReverseRumble3 = SDL_JoystickRumble(GameController3, HighMotor, LowMotor, length_ms);
 
 			if (ReverseRumble3 == -1)
 				EnableRumbleDevice3 = 0;
 		}
 		else
 		{
-			int Rumble3 = SDL_JoystickRumble(GameController3, LowMotor, HighMotor, length);
+			int Rumble3 = SDL_JoystickRumble(GameController3, LowMotor, HighMotor, length_ms);
 
 			if (Rumble3 == -1)
 				EnableRumbleDevice3 = 0;
@@ -2029,7 +2034,7 @@ void TriggerRumbleEffectDevice3(double highfrequency, double lowfrequency, doubl
 	}
 }
 
-void TriggerRumbleTriggerEffect(double lefttrigger, double righttrigger, double length)
+void TriggerRumbleTriggerEffect(double lefttrigger, double righttrigger, UINT32 length_ms)
 {
 	if (EnableRumbleTriggers)
 	{
@@ -2041,7 +2046,7 @@ void TriggerRumbleTriggerEffect(double lefttrigger, double righttrigger, double 
 		DWORD LeftMotor = (DWORD)(lefttrigger * rangeLow + minForceLow);
 		DWORD RightMotor = (DWORD)(righttrigger * rangeHigh + minForceHigh);
 
-		int RumbleTriggers = SDL_JoystickRumbleTriggers(GameController, LeftMotor, RightMotor, length);
+		int RumbleTriggers = SDL_JoystickRumbleTriggers(GameController, LeftMotor, RightMotor, length_ms);
 
 		if (RumbleTriggers == -1)
 			EnableRumbleTriggers = 0;

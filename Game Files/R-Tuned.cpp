@@ -44,7 +44,7 @@ void RTuned::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTrigger
 	if (SpringCrash == 0xFF)
 	{
 		double percentForce = 1.0;
-		triggers->Sine(300, 300, percentForce);
+		triggers->Sine(300, 300, percentForce, 100);
 		triggers->Rumble(percentForce, percentForce, 100);
 	}
 	else if (SpringCrash == 0x04)
@@ -56,8 +56,8 @@ void RTuned::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTrigger
 	if (WhenBoost == 0x7F)
 	{
 		double percentForce = (BoostEffect / 400.0);
-		double percentLength = (100);
-		triggers->Rumble(percentForce, percentForce, percentLength);
-		triggers->Sine(60, 60, percentForce);
+		UINT32 length_ms = 100;
+		triggers->Rumble(percentForce, percentForce, length_ms);
+		triggers->Sine(60, 60, percentForce, length_ms);
 	}
 }

@@ -74,7 +74,7 @@ void AliensExtermination::FFBLoop(EffectConstants* constants, Helpers* helpers, 
 			int Device2GUID = GetPrivateProfileString(TEXT("Settings"), TEXT("Device2GUID"), NULL, deviceGUIDString2, 256, settingsFilename);
 			char joystick_guid[256];
 			sprintf(joystick_guid, "%S", deviceGUIDString2);
-			SDL_JoystickGUID guid, dev_guid;
+			SDL_JoystickGUID dev_guid;
 			int numJoysticks = SDL_NumJoysticks();
 			std::string njs = std::to_string(numJoysticks);
 			for (int i = 0; i < SDL_NumJoysticks(); i++)
@@ -105,7 +105,7 @@ void AliensExtermination::FFBLoop(EffectConstants* constants, Helpers* helpers, 
 			haptic2 = ControllerHaptic2;
 			if ((SDL_HapticRumbleSupported(haptic2) == SDL_TRUE))
 			{
-				SDL_HapticRumbleInit;
+				//SDL_HapticRumbleInit;
 				SDL_HapticRumbleInit(ControllerHaptic2);
 			}
 		}
@@ -135,6 +135,8 @@ void AliensExtermination::FFBLoop(EffectConstants* constants, Helpers* helpers, 
 
 	static UINT8 oldShoot2 = 0;
 	UINT8 newShoot2 = Shoot2p;
+	
+	UINT32 length = configFeedbackLength;
 
 	if (oldAmmo != newAmmo)
 	{
@@ -145,20 +147,17 @@ void AliensExtermination::FFBLoop(EffectConstants* constants, Helpers* helpers, 
 				if (HowtoRumbleGunEffect == 0)
 				{
 					double percentForce = (Gun1pStrength / 100.0);
-					double percentLength = configFeedbackLength;
-					triggers->Rumble(percentForce, percentForce, percentLength);
+					triggers->Rumble(percentForce, percentForce, length);
 				}
 				else if (HowtoRumbleGunEffect == 1)
 				{
 					double percentForce = (Gun1pStrength / 100.0);
-					double percentLength = configFeedbackLength;
-					triggers->Rumble(0, percentForce, percentLength);
+					triggers->Rumble(0, percentForce, length);
 				}
 				else if (HowtoRumbleGunEffect == 2)
 				{
 					double percentForce = (Gun1pStrength / 100.0);
-					double percentLength = configFeedbackLength;
-					triggers->Rumble(percentForce, 0, percentLength);
+					triggers->Rumble(percentForce, 0, length);
 				}
 			}
 		}
@@ -178,20 +177,17 @@ void AliensExtermination::FFBLoop(EffectConstants* constants, Helpers* helpers, 
 				if (HowtoRumbleGunEffect == 0)
 				{
 					double percentForce = (Gun1pStrength / 100.0);
-					double percentLength = configFeedbackLength;
-					triggers->Rumble(percentForce, percentForce, percentLength);
+					triggers->Rumble(percentForce, percentForce, length);
 				}
 				else if (HowtoRumbleGunEffect == 1)
 				{
 					double percentForce = (Gun1pStrength / 100.0);
-					double percentLength = configFeedbackLength;
-					triggers->Rumble(0, percentForce, percentLength);
+					triggers->Rumble(0, percentForce, length);
 				}
 				else if (HowtoRumbleGunEffect == 2)
 				{
 					double percentForce = (Gun1pStrength / 100.0);
-					double percentLength = configFeedbackLength;
-					triggers->Rumble(percentForce, 0, percentLength);
+					triggers->Rumble(percentForce, 0, length);
 				}
 			}
 		}
@@ -206,20 +202,17 @@ void AliensExtermination::FFBLoop(EffectConstants* constants, Helpers* helpers, 
 				if (HowtoRumbleGunEffect == 0)
 				{
 					double percentForce = (Gun2pStrength / 100.0);
-					double percentLength = configFeedbackLength;
-					triggers->RumbleDevice2(percentForce, percentForce, percentLength);
+					triggers->RumbleDevice2(percentForce, percentForce, length);
 				}
 				else if (HowtoRumbleGunEffect == 1)
 				{
 					double percentForce = (Gun2pStrength / 100.0);
-					double percentLength = configFeedbackLength;
-					triggers->RumbleDevice2(0, percentForce, percentLength);
+					triggers->RumbleDevice2(0, percentForce, length);
 				}
 				else if (HowtoRumbleGunEffect == 2)
 				{
 					double percentForce = (Gun2pStrength / 100.0);
-					double percentLength = configFeedbackLength;
-					triggers->RumbleDevice2(percentForce, 0, percentLength);
+					triggers->RumbleDevice2(percentForce, 0, length);
 				}
 			}
 		}
@@ -239,20 +232,17 @@ void AliensExtermination::FFBLoop(EffectConstants* constants, Helpers* helpers, 
 				if (HowtoRumbleGunEffect == 0)
 				{
 					double percentForce = (Gun2pStrength / 100.0);
-					double percentLength = configFeedbackLength;
-					triggers->RumbleDevice2(percentForce, percentForce, percentLength);
+					triggers->RumbleDevice2(percentForce, percentForce, length);
 				}
 				else if (HowtoRumbleGunEffect == 1)
 				{
 					double percentForce = (Gun2pStrength / 100.0);
-					double percentLength = configFeedbackLength;
-					triggers->RumbleDevice2(0, percentForce, percentLength);
+					triggers->RumbleDevice2(0, percentForce, length);
 				}
 				else if (HowtoRumbleGunEffect == 2)
 				{
 					double percentForce = (Gun2pStrength / 100.0);
-					double percentLength = configFeedbackLength;
-					triggers->RumbleDevice2(percentForce, 0, percentLength);
+					triggers->RumbleDevice2(percentForce, 0, length);
 				}
 			}
 		}
@@ -267,20 +257,17 @@ void AliensExtermination::FFBLoop(EffectConstants* constants, Helpers* helpers, 
 				if (HowtoRumbleFlameEffect == 0)
 				{
 					double percentForce = (Flame1pStrength / 100.0);
-					double percentLength = configFeedbackLength;
-					triggers->Rumble(percentForce, percentForce, percentLength);
+					triggers->Rumble(percentForce, percentForce, length);
 				}
 				else if (HowtoRumbleFlameEffect == 1)
 				{
 					double percentForce = (Flame1pStrength / 100.0);
-					double percentLength = configFeedbackLength;
-					triggers->Rumble(0, percentForce, percentLength);
+					triggers->Rumble(0, percentForce, length);
 				}
 				else if (HowtoRumbleFlameEffect == 2)
 				{
 					double percentForce = (Flame1pStrength / 100.0);
-					double percentLength = configFeedbackLength;
-					triggers->Rumble(percentForce, 0, percentLength);
+					triggers->Rumble(percentForce, 0, length);
 				}
 			}
 		}
@@ -300,20 +287,17 @@ void AliensExtermination::FFBLoop(EffectConstants* constants, Helpers* helpers, 
 				if (HowtoRumbleFlameEffect == 0)
 				{
 					double percentForce = (Flame2pStrength / 100.0);
-					double percentLength = configFeedbackLength;
-					triggers->RumbleDevice2(percentForce, percentForce, percentLength);
+					triggers->RumbleDevice2(percentForce, percentForce, length);
 				}
 				else if (HowtoRumbleFlameEffect == 1)
 				{
 					double percentForce = (Flame2pStrength / 100.0);
-					double percentLength = configFeedbackLength;
-					triggers->RumbleDevice2(0, percentForce, percentLength);
+					triggers->RumbleDevice2(0, percentForce, length);
 				}
 				else if (HowtoRumbleFlameEffect == 2)
 				{
 					double percentForce = (Flame2pStrength / 100.0);
-					double percentLength = configFeedbackLength;
-					triggers->RumbleDevice2(percentForce, 0, percentLength);
+					triggers->RumbleDevice2(percentForce, 0, length);
 				}
 			}
 		}
@@ -333,20 +317,17 @@ void AliensExtermination::FFBLoop(EffectConstants* constants, Helpers* helpers, 
 				if (HowtoRumbleHealthEffect == 0)
 				{
 					double percentForce = (Health1pStrength / 100.0);
-					double percentLength = configFeedbackLength;
-					triggers->Rumble(percentForce, percentForce, percentLength);
+					triggers->Rumble(percentForce, percentForce, length);
 				}
 				else if (HowtoRumbleHealthEffect == 1)
 				{
 					double percentForce = (Health1pStrength / 100.0);
-					double percentLength = configFeedbackLength;
-					triggers->Rumble(0, percentForce, percentLength);
+					triggers->Rumble(0, percentForce, length);
 				}
 				else if (HowtoRumbleHealthEffect == 2)
 				{
 					double percentForce = (Health1pStrength / 100.0);
-					double percentLength = configFeedbackLength;
-					triggers->Rumble(percentForce, 0, percentLength);
+					triggers->Rumble(percentForce, 0, length);
 				}
 			}
 		}
@@ -366,20 +347,17 @@ void AliensExtermination::FFBLoop(EffectConstants* constants, Helpers* helpers, 
 				if (HowtoRumbleHealthEffect == 0)
 				{
 					double percentForce = (Health2pStrength / 100.0);
-					double percentLength = configFeedbackLength;
-					triggers->RumbleDevice2(percentForce, percentForce, percentLength);
+					triggers->RumbleDevice2(percentForce, percentForce, length);
 				}
 				else if (HowtoRumbleHealthEffect == 1)
 				{
 					double percentForce = (Health2pStrength / 100.0);
-					double percentLength = configFeedbackLength;
-					triggers->RumbleDevice2(0, percentForce, percentLength);
+					triggers->RumbleDevice2(0, percentForce, length);
 				}
 				else if (HowtoRumbleHealthEffect == 2)
 				{
 					double percentForce = (Health2pStrength / 100.0);
-					double percentLength = configFeedbackLength;
-					triggers->RumbleDevice2(percentForce, 0, percentLength);
+					triggers->RumbleDevice2(percentForce, 0, length);
 				}
 			}
 		}

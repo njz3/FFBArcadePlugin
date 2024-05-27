@@ -55,32 +55,32 @@ void DirtyDrivin::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTr
 	if (ff > 0)
 	{
 		double percentForce = ff;
-		double percentLength = 100;
+		UINT32 length = 100;
 
 		if (ReverseFFB)
 		{
-			triggers->Rumble(0, percentForce, percentLength);
+			triggers->Rumble(0, percentForce, length);
 			triggers->Constant(constants->DIRECTION_FROM_RIGHT, percentForce);
 		}
 		else
 		{
-			triggers->Rumble(percentForce, 0, percentLength);
+			triggers->Rumble(percentForce, 0, length);
 			triggers->Constant(constants->DIRECTION_FROM_LEFT, percentForce);
 		}
 	}
 	else if (ff < 0)
 	{
 		double percentForce = -ff;
-		double percentLength = 100;
+		UINT32 length = 100;
 
 		if (ReverseFFB)
 		{
-			triggers->Rumble(percentForce, 0, percentLength);
+			triggers->Rumble(percentForce, 0, length);
 			triggers->Constant(constants->DIRECTION_FROM_LEFT, percentForce);
 		}
 		else
 		{
-			triggers->Rumble(0, percentForce, percentLength);
+			triggers->Rumble(0, percentForce, length);
 			triggers->Constant(constants->DIRECTION_FROM_RIGHT, percentForce);
 		}
 	}

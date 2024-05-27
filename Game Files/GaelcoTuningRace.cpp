@@ -26,27 +26,26 @@ static int(__stdcall* SetMotorOri)(DWORD* a1);
 static int __stdcall SetMotorHook(DWORD* a1)
 {
 	long double v1 = *(float*)&a1;
+	UINT32 length = 100;
 
 	if (v1 > 0)
 	{
 		double percentForce = v1;
-		double percentLength = 100;
 
 		if (percentForce > 1.0)
 			percentForce = 1.0;
 
-		myTriggers->Rumble(percentForce, 0, percentLength);
+		myTriggers->Rumble(percentForce, 0, length);
 		myTriggers->Constant(myConstants->DIRECTION_FROM_LEFT, percentForce);
 	}
 	else if (v1 < 0)
 	{
 		double percentForce = -v1;
-		double percentLength = 100;
 
 		if (percentForce > 1.0)
 			percentForce = 1.0;
 
-		myTriggers->Rumble(0, percentForce, percentLength);
+		myTriggers->Rumble(0, percentForce, length);
 		myTriggers->Constant(myConstants->DIRECTION_FROM_RIGHT, percentForce);
 	}
 	return SetMotorOri(a1);

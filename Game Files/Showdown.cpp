@@ -36,18 +36,17 @@ static int __stdcall Out32Hook(DWORD device, DWORD data)
 		//sprintf(test, "data: %d", data);
 		//OutputDebugStringA(test);
 
+		UINT32 length_ms = 100;
 		if (data > 15)
 		{
 			double percentForce = (31 - data) / 15.0;
-			double percentLength = 100;
-			myTriggers->Rumble(percentForce, 0, percentLength);
+			myTriggers->Rumble(percentForce, 0, length_ms);
 			myTriggers->Constant(myConstants->DIRECTION_FROM_LEFT, percentForce);
 		}
 		else if (data > 0)
 		{
 			double percentForce = (16 - data) / 15.0;
-			double percentLength = 100;
-			myTriggers->Rumble(0, percentForce, percentLength);
+			myTriggers->Rumble(0, percentForce, length_ms);
 			myTriggers->Constant(myConstants->DIRECTION_FROM_RIGHT, percentForce);
 		}
 	}
@@ -96,7 +95,7 @@ void Showdown::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTrigg
 	{
 		init = true;
 
-		DWORD ImageBase = (DWORD)GetModuleHandleA(0);
+		INT_PTR ImageBase = (INT_PTR)GetModuleHandleA(0);
 
 		MH_Initialize();
 		//MH_CreateHook((void*)(ImageBase + 0x92E000), EnableFFBHook, (void**)&EnableFFBOri);

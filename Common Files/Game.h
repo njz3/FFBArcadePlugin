@@ -7,22 +7,22 @@ struct EffectTriggers {
 	void(*Constant)(int direction, double strength);
 	void(*Spring)(double strength);
 	void(*Friction)(double strength);
-	void(*Sine)(UINT16 period, UINT16 fadePeriod, double strength);
-	void(*SineDevice2)(UINT16 period, UINT16 fadePeriod, double strength);
-	void(*SineDevice3)(UINT16 period, UINT16 fadePeriod, double strength);
-	void(*Rumble)(double lowfrequency, double highfrequency, double length);
-	void(*RumbleDevice2)(double lowfrequency, double highfrequency, double length);
-	void(*RumbleDevice3)(double lowfrequency, double highfrequency, double length);
-	void(*RumbleTriggers)(double lefttrigger, double righttrigger, double length);
-	void(*LeftRight)(double smallstrength, double largestrength, double length);
-	void(*LeftRightDevice2)(double smallstrength, double largestrength, double length);
+	void(*Sine)(UINT16 waveperiod_ms, UINT16 fadePeriod_ms, double strength, UINT32 length_ms);
+	void(*SineDevice2)(UINT16 waveperiod_ms, UINT16 fadePeriod_ms, double strength, UINT32 length_ms);
+	void(*SineDevice3)(UINT16 waveperiod_ms, UINT16 fadePeriod_ms, double strength, UINT32 length_ms);
+	void(*Rumble)(double lowfrequency, double highfrequency, UINT32 length_ms);
+	void(*RumbleDevice2)(double lowfrequency, double highfrequency, UINT32 length_ms);
+	void(*RumbleDevice3)(double lowfrequency, double highfrequency, UINT32 length_ms);
+	void(*RumbleTriggers)(double lefttrigger, double righttrigger, UINT32 length_ms);
+	void(*LeftRight)(double smallstrength, double largestrength, UINT32 length_ms);
+	void(*LeftRightDevice2)(double smallstrength, double largestrength, UINT32 length_ms);
 	void(*Springi)(double strength);
 	void(*Inertia)(double strength);
-	void(*Ramp)(double start, double end, double length);
+	void(*Ramp)(double start, double end, UINT32 length_ms);
 	void(*Damper)(double strength);
-	void(*SawtoothUp)(double strength, double length);
-	void(*SawtoothDown)(double strength, double length);
-	void(*Triangle)(double strength, double length);
+	void(*SawtoothUp)(double strength, UINT32 length_ms);
+	void(*SawtoothDown)(double strength, UINT32 length_ms);
+	void(*Triangle)(double strength, UINT32 length_ms);
 };
 
 // classes

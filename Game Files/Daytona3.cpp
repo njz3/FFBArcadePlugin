@@ -40,6 +40,7 @@ void Daytona3::FFBLoop(EffectConstants *constants, Helpers *helpers, EffectTrigg
 	if (EnableDamper)
 		triggers->Damper(DamperStrength / 100.0);
 
+	UINT32 length_ms = 100;
 	if (OriginalFFB)
 	{
 		UINT8 FFB = helpers->ReadByte(0x131FEC9, true);
@@ -50,23 +51,21 @@ void Daytona3::FFBLoop(EffectConstants *constants, Helpers *helpers, EffectTrigg
 		if (FFB > 0x80 && FFB <= 0x8F) // ????
 		{
 			double percentForce = (144 - FFB) / 15.0;
-			double percentLength = 100.0;
 			triggers->Spring(percentForce);
 		}
 
 		if (FFB > 0x90 && FFB <= 0x9F) // Roll Right
 		{
 			double percentForce = (160 - FFB) / 15.0;
-			double percentLength = 100.0;
 
 			if ((TrackSelected == 2 || TrackSelected == 4) && GameState == 0x16)
 			{
-				triggers->Rumble(0, percentForce, percentLength);
+				triggers->Rumble(0, percentForce, length_ms);
 				triggers->Constant(constants->DIRECTION_FROM_RIGHT, percentForce);
 			}
 			else
 			{
-				triggers->Rumble(percentForce, 0, percentLength);
+				triggers->Rumble(percentForce, 0, length_ms);
 				triggers->Constant(constants->DIRECTION_FROM_LEFT, percentForce);
 			}
 		}
@@ -74,16 +73,15 @@ void Daytona3::FFBLoop(EffectConstants *constants, Helpers *helpers, EffectTrigg
 		if (FFB > 0xA0 && FFB <= 0xAF) // Roll Left
 		{
 			double percentForce = (176 - FFB) / 15.0;
-			double percentLength = 100.0;
 
 			if ((TrackSelected == 2 || TrackSelected == 4) && GameState == 0x16)
 			{
-				triggers->Rumble(percentForce, 0, percentLength);
+				triggers->Rumble(percentForce, 0, length_ms);
 				triggers->Constant(constants->DIRECTION_FROM_LEFT, percentForce);
 			}
 			else
 			{
-				triggers->Rumble(0, percentForce, percentLength);
+				triggers->Rumble(0, percentForce, length_ms);
 				triggers->Constant(constants->DIRECTION_FROM_RIGHT, percentForce);
 			}
 		}
@@ -91,9 +89,8 @@ void Daytona3::FFBLoop(EffectConstants *constants, Helpers *helpers, EffectTrigg
 		if (FFB > 0xB0 && FFB <= 0xBF) // Shaking across grass etc
 		{
 			double percentForce = (192 - FFB) / 15.0;
-			double percentLength = 100.0;
-			triggers->Sine(180, 0, percentForce);
-			triggers->Rumble(percentForce, percentForce, percentLength);
+			triggers->Sine(180, 0, percentForce, length_ms);
+			triggers->Rumble(percentForce, percentForce, length_ms);
 		}
 
 		if (FFB > 0xC0 && FFB <= 0xCF) // Spring + Rumble on wheel while racing
@@ -101,7 +98,7 @@ void Daytona3::FFBLoop(EffectConstants *constants, Helpers *helpers, EffectTrigg
 			double percentForce = (207 - FFB) / 15.0;
 			double SinepercentForce = (FFB - 192) / 96.0;
 			triggers->Spring(percentForce);
-			triggers->Sine(40, 0, SinepercentForce);
+			triggers->Sine(40, 0, SinepercentForce, 100);
 		}
 
 		if (FFB > 0xD0 && FFB <= 0xDF) // Wheel loose as tyres spin (no effect)
@@ -128,15 +125,13 @@ void Daytona3::FFBLoop(EffectConstants *constants, Helpers *helpers, EffectTrigg
 		if (ff > 15)
 		{
 			double percentForce = (31 - ff) / 15.0;
-			double percentLength = 100;
-			triggers->Rumble(percentForce, 0, percentLength);
+			triggers->Rumble(percentForce, 0, length_ms);
 			triggers->Constant(constants->DIRECTION_FROM_LEFT, percentForce);
 		}
 		else if (ff > 0)
 		{
 			double percentForce = (16 - ff) / 15.0;
-			double percentLength = 100;
-			triggers->Rumble(0, percentForce, percentLength);
+			triggers->Rumble(0, percentForce, length_ms);
 			triggers->Constant(constants->DIRECTION_FROM_RIGHT, percentForce);
 		}
 	}

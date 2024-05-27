@@ -30,9 +30,11 @@ static int FFBRumbleStripFadeSinePeriod = GetPrivateProfileInt(TEXT("Settings"),
 
 void D1GP::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTriggers* triggers)
 {
-	float FFBConstant = GetTeknoParrotFFB() / 1000.0;
+	float FFBConstant = GetTeknoParrotFFB() / 1000.0f;
 	int Effect = GetTeknoParrotFFB2();
 	float Speedo = helpers->ReadFloat32(0x2150F4, true);
+
+	UINT length = 100;
 
 	if (EnableDamper)
 		triggers->Damper(DamperStrength / 100.0);
@@ -40,23 +42,21 @@ void D1GP::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTriggers*
 	if (FFBConstant > 0)
 	{
 		double percentForce = FFBConstant * 5.0;
-		double percentLength = 100;
 
 		if (percentForce > 1.0)
 			percentForce = 1.0;
 
-		triggers->Rumble(0, percentForce, percentLength);
+		triggers->Rumble(0, percentForce, length);
 		triggers->Constant(constants->DIRECTION_FROM_RIGHT, percentForce);
 	}
 	else if (FFBConstant < 0)
 	{
 		double percentForce = -FFBConstant * 5.0;
-		double percentLength = 100;
 
 		if (percentForce > 1.0)
 			percentForce = 1.0;
 
-		triggers->Rumble(percentForce, 0, percentLength);
+		triggers->Rumble(percentForce, 0, length);
 		triggers->Constant(constants->DIRECTION_FROM_LEFT, percentForce);
 	}
 
@@ -73,8 +73,8 @@ void D1GP::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTriggers*
 			triggers->Spring(0.8);
 			break;
 		case 0x02:
-			triggers->Rumble(0.3, 0.3, 100);
-			triggers->Sine(35, 0, 0.3);
+			triggers->Rumble(0.3, 0.3, length);
+			triggers->Sine(35, 0, 0.3, length);
 			break;
 		case 0x04:
 			LetsShake = true;
@@ -90,15 +90,15 @@ void D1GP::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTriggers*
 		case 0x20:
 		case 0x80:
 		case 0x200:
-			triggers->Rumble(percentForce, percentForce, 100);
-			triggers->Sine(FFBGrassSinePeriod, FFBGrassFadeSinePeriod, percentForce);
+			triggers->Rumble(percentForce, percentForce, length);
+			triggers->Sine(FFBGrassSinePeriod, FFBGrassFadeSinePeriod, percentForce, length);
 			break;
 		case 0x10:
 		case 0x40:
 		case 0x100:
 		case 0x400:
-			triggers->Rumble(percentForce, percentForce, 100);
-			triggers->Sine(FFBRumbleStripSinePeriod, FFBRumbleStripFadeSinePeriod, percentForce);
+			triggers->Rumble(percentForce, percentForce, length);
+			triggers->Sine(FFBRumbleStripSinePeriod, FFBRumbleStripFadeSinePeriod, percentForce, length);
 			break;
 		}
 	}
@@ -113,8 +113,8 @@ void D1GP::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTriggers*
 			LetsShake = false;
 		}
 
-		triggers->Rumble(0.6, 0.6, 100);
-		triggers->Sine(70, 60, 0.4);
+		triggers->Rumble(0.6, 0.6, length);
+		triggers->Sine(70, 60, 0.4, length);
 	}
 
 	oldEffect = Effect;

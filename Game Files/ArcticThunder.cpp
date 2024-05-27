@@ -29,9 +29,9 @@ void ArcticThunder::FFBLoop(EffectConstants* constants, Helpers* helpers, Effect
 
 	if (GetTeknoParrotFFB2() != 0xFF && GetTeknoParrotFFB2())
 	{
-		float FFBSine = (GetTeknoParrotFFB2() / 255.0);
-		triggers->Sine(50, 0, FFBSine);
-		triggers->Rumble(0, FFBSine, 100.0);
+		float FFBSine = ((float)GetTeknoParrotFFB2() / 255.0f);
+		triggers->Sine(50, 0, FFBSine, 100);
+		triggers->Rumble(0, FFBSine, 100);
 	}
 
 	int FFB = GetTeknoParrotFFB3();
@@ -42,14 +42,14 @@ void ArcticThunder::FFBLoop(EffectConstants* constants, Helpers* helpers, Effect
 		{
 			double percentForce = ((FFB - 128.0) / 127.0);
 
-			triggers->Rumble(0, percentForce, 100.0);
+			triggers->Rumble(0, percentForce, 100);
 			triggers->Constant(constants->DIRECTION_FROM_LEFT, percentForce);
 		}
 		else if (FFB < 0x80)
 		{
 			double percentForce = ((128.0 - FFB) / 127.0);
 
-			triggers->Rumble(percentForce, 0, 100.0);
+			triggers->Rumble(percentForce, 0, 100);
 			triggers->Constant(constants->DIRECTION_FROM_RIGHT, percentForce);
 		}
 	}

@@ -26,6 +26,7 @@ extern int DamperStrength;
 static int(__cdecl* FnFSendToLptOrig)(uint16_t addr, uint8_t FFB);
 static int __cdecl FnFSendToLpt(uint16_t addr, uint8_t FFB)
 {
+	UINT32 length = 100;
 	if (addr == 0x378)
 	{
 		bool isLeft = FFB < 0x80;
@@ -33,13 +34,13 @@ static int __cdecl FnFSendToLpt(uint16_t addr, uint8_t FFB)
 		if (isLeft) {
 
 			percentForce = static_cast<float>(FFB) / 0x7F;
-			myTriggers->Rumble(0, percentForce, 100.0);
+			myTriggers->Rumble(0, percentForce, length);
 			myTriggers->Constant(myConstants->DIRECTION_FROM_RIGHT, percentForce);
 		}
 		else {
 
 			percentForce = static_cast<float>(FFB - 0x80) / 0x7F;
-			myTriggers->Rumble(0, percentForce, 100.0);
+			myTriggers->Rumble(0, percentForce, length);
 			myTriggers->Constant(myConstants->DIRECTION_FROM_LEFT, percentForce);
 		}
 	}

@@ -61,10 +61,11 @@ void FasterThanSpeedInputsEnabled(Helpers* helpers)
 		int Device2GUID = GetPrivateProfileString(TEXT("Settings"), TEXT("Device2GUID"), NULL, deviceGUIDString2, 256, settingsFilename);
 		char joystick_guid[256];
 		sprintf(joystick_guid, "%S", deviceGUIDString2);
-		SDL_JoystickGUID guid, dev_guid;
+		SDL_JoystickGUID dev_guid;
 		int numJoysticks = SDL_NumJoysticks();
-		std::string njs = std::to_string(numJoysticks);
+		/*std::string njs = std::to_string(numJoysticks);
 		((char)njs.c_str());
+		*/
 		for (int i = 0; i < SDL_NumJoysticks(); i++)
 		{
 			SDL_Joystick* js2 = SDL_JoystickOpen(i);
@@ -129,9 +130,9 @@ void FasterThanSpeedInputsEnabled(Helpers* helpers)
 	std::string dpdleft2(DpadLeftCharDevice2);
 	std::string dpdright2(DpadRightCharDevice2);
 
-	const int WHEEL_DEAD_ZONE = (SteeringDeadzone * 100.0);
-	const int ACCL_DEAD_ZONE = (1 + PedalDeadzone * 100.0);
-	const int BRAKE_DEAD_ZONE = (1 + PedalDeadzone * 100.0);
+	const int WHEEL_DEAD_ZONE = (SteeringDeadzone * 100);
+	const int ACCL_DEAD_ZONE = (1 + PedalDeadzone * 100);
+	const int BRAKE_DEAD_ZONE = (1 + PedalDeadzone * 100);
 	const int SETUP_DEAD_ZONE = 20000;
 
 	UINT8 shiftupdownread = helpers->ReadByte(ShiftUpDownAddress, false);
@@ -172,7 +173,7 @@ void FasterThanSpeedInputsEnabled(Helpers* helpers)
 							if (e.jaxis.value < -ACCL_DEAD_ZONE)
 							{
 								e.jaxis.value = e.jaxis.value + ACCL_DEAD_ZONE;
-								helpers->WriteByte(AcclAddress, ((-e.jaxis.value + ACCL_DEAD_ZONE) / 128.5), false);
+								helpers->WriteByte(AcclAddress, (UINT8)((-e.jaxis.value + ACCL_DEAD_ZONE) / 128.5), false);
 							}
 							else if (e.jaxis.value > ACCL_DEAD_ZONE)
 							{

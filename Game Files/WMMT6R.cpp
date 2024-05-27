@@ -133,7 +133,7 @@ static int GearChangeThread(void* ptr)
 	}
 	myHelpers->log("gear change");
 	double percentForce = GearChangeStrength / 100.0;
-	myTriggers->Sine(GearChangeLength, GearChangeLength, percentForce);
+	myTriggers->Sine(GearChangeLength, GearChangeLength, percentForce, 150);
 	myTriggers->Rumble(0, percentForce, 150);
 	return 0;
 }
@@ -193,7 +193,7 @@ void WMMT6R::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTrigger
 		{
 			helpers->log("joint/stripe on the right");
 			percentForce = (1.0 * collisions) * JointsAndStripesStrength / 100.0;
-			triggers->Sine(80, 80, percentForce);
+			triggers->Sine(80, 80, percentForce, 150);
 			triggers->Rumble(0, percentForce, 150);
 		}
 		else
@@ -210,7 +210,7 @@ void WMMT6R::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTrigger
 		{
 			helpers->log("joint/stripe on the left");
 			percentForce = (1.0 * collisions) * JointsAndStripesStrength / 100.0;
-			triggers->Sine(80, 80, percentForce);
+			triggers->Sine(80, 80, percentForce, 150);
 			triggers->Rumble(0, -1.0 * percentForce, 150);
 		}
 		else
@@ -232,7 +232,7 @@ void WMMT6R::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTrigger
 		helpers->log("tires slip left");
 		bool highSpeedVibrations = (294 <= speed) && (1.0 * tiresSlip) < (LimitBetweenHighSpeedVibrationsAndTiresSlip / 1000.0);
 		percentForce = (-1.0 * tiresSlip) * (highSpeedVibrations ? HighSpeedVibrationsStrength : TiresSlipStrength) / 100.0;
-		triggers->Sine(100, 100, percentForce);
+		triggers->Sine(100, 100, percentForce, 150);
 
 		if (!highSpeedVibrations && ((0 == JointsAndStripesStrength && 0 == CollisionsStrength) || (0.001 > collisions && -0.001 < collisions)))
 		{
@@ -244,7 +244,7 @@ void WMMT6R::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTrigger
 		helpers->log("tires slip right");
 		bool highSpeedVibrations = (294 <= speed) && (-1.0 * tiresSlip) < (LimitBetweenHighSpeedVibrationsAndTiresSlip / 1000.0);
 		percentForce = (-1.0 * tiresSlip) * (highSpeedVibrations ? HighSpeedVibrationsStrength : TiresSlipStrength) / 100.0;
-		triggers->Sine(100, 100, percentForce);
+		triggers->Sine(100, 100, percentForce, 150);
 
 		if (!highSpeedVibrations && ((0 == JointsAndStripesStrength && 0 == CollisionsStrength) || (0.001 > collisions && -0.001 < collisions)))
 		{
@@ -274,7 +274,7 @@ void WMMT6R::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTrigger
 			)
 		{
 			percentForce = (((100.0 - speed) / 100.0) * ((rpm * 100.0 / 8500.0) / 100.0)) * WheelSpinStrength / 100.0;
-			triggers->Sine(120, 120, percentForce);
+			triggers->Sine(120, 120, percentForce, 150);
 			triggers->Rumble(0, percentForce, 150);
 
 			msg = "tires spin: gear: " + std::to_string(gear) + " | speed: " + std::to_string(speed)
@@ -291,7 +291,7 @@ void WMMT6R::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTrigger
 			)
 		{
 			percentForce = (((160.0 - speed) / 150.0) * ((rpm * 100.0 / 8500.0) / 100.0)) * WheelSpinStrength / 100.0;
-			triggers->Sine(120, 120, percentForce);
+			triggers->Sine(120, 120, percentForce, 150);
 			triggers->Rumble(0, percentForce, 150);
 
 			msg = "tires spin: gear: " + std::to_string(gear) + " | speed: " + std::to_string(speed)

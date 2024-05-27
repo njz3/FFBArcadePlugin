@@ -2,7 +2,7 @@
 #include <string>
 #include <windows.h>
 #include "SDL.h"
-static DWORD imageBase;
+static INT_PTR imageBase;
 extern int joystick_index1;
 extern int joystick_index2;
 extern SDL_Joystick* GameController2;
@@ -74,10 +74,10 @@ void M2EmulatorIndy500InputsEnabled(Helpers* helpers)
 		int Device2GUID = GetPrivateProfileString(TEXT("Settings"), TEXT("Device2GUID"), NULL, deviceGUIDString2, 256, settingsFilename);
 		char joystick_guid[256];
 		sprintf(joystick_guid, "%S", deviceGUIDString2);
-		SDL_JoystickGUID guid, dev_guid;
+		SDL_JoystickGUID dev_guid;
 		int numJoysticks = SDL_NumJoysticks();
-		std::string njs = std::to_string(numJoysticks);
-		((char)njs.c_str());
+		/*std::string njs = std::to_string(numJoysticks);
+		((char)njs.c_str());*/
 		for (int i = 0; i < SDL_NumJoysticks(); i++)
 		{
 			SDL_Joystick* js2 = SDL_JoystickOpen(i);
@@ -98,7 +98,7 @@ void M2EmulatorIndy500InputsEnabled(Helpers* helpers)
 			}
 		}
 
-		imageBase = (DWORD)GetModuleHandleA(0);
+		imageBase = (INT_PTR)GetModuleHandleA(0);
 		SteeringAddress = imageBase + 0x1AA70C;
 		AcclAddress = imageBase + 0x1AA70D;
 		BrakeAddress = imageBase + 0x1AA70E;
@@ -207,9 +207,9 @@ void M2EmulatorIndy500InputsEnabled(Helpers* helpers)
 	std::string KeyBrdShiftUp(KeyBrdShiftUpChar);
 	std::string KeyBrdShiftDown(KeyBrdShiftDownChar);
 
-	const int WHEEL_DEAD_ZONE = (SteeringDeadzone * 100.0);
-	const int ACCL_DEAD_ZONE = (1 + PedalDeadzone * 100.0);
-	const int BRAKE_DEAD_ZONE = (1 + PedalDeadzone * 100.0);
+	const int WHEEL_DEAD_ZONE = (SteeringDeadzone * 100);
+	const int ACCL_DEAD_ZONE = (1 + PedalDeadzone * 100);
+	const int BRAKE_DEAD_ZONE = (1 + PedalDeadzone * 100);
 	const int SETUP_DEAD_ZONE = 20000;
 
 	SDL_Window* w = SDL_CreateWindowFrom(hWndM2);
@@ -251,12 +251,12 @@ void M2EmulatorIndy500InputsEnabled(Helpers* helpers)
 							if (e.jaxis.value < -ACCL_DEAD_ZONE)
 							{
 								e.jaxis.value = e.jaxis.value + ACCL_DEAD_ZONE;
-								AcclValue = (-e.jaxis.value + ACCL_DEAD_ZONE) / 128.5;
+								AcclValue = (INT8)((-e.jaxis.value + ACCL_DEAD_ZONE) / 128.5);
 							}
 							else if (e.jaxis.value > ACCL_DEAD_ZONE)
 							{
 								e.jaxis.value = e.jaxis.value - ACCL_DEAD_ZONE;
-								BrakeValue = (e.jaxis.value + ACCL_DEAD_ZONE) / 128;
+								BrakeValue = (INT8)((e.jaxis.value + ACCL_DEAD_ZONE) / 128);
 							}
 							else
 							{
@@ -380,12 +380,12 @@ void M2EmulatorIndy500InputsEnabled(Helpers* helpers)
 							if (e.jaxis.value < -ACCL_DEAD_ZONE)
 							{
 								e.jaxis.value = e.jaxis.value + ACCL_DEAD_ZONE;
-								AcclValue = (-e.jaxis.value + ACCL_DEAD_ZONE) / 128.5;
+								AcclValue = (INT8)((-e.jaxis.value + ACCL_DEAD_ZONE) / 128.5);
 							}
 							else if (e.jaxis.value > ACCL_DEAD_ZONE)
 							{
 								e.jaxis.value = e.jaxis.value - ACCL_DEAD_ZONE;
-								BrakeValue = (e.jaxis.value + ACCL_DEAD_ZONE) / 128;
+								BrakeValue = (INT8)((e.jaxis.value + ACCL_DEAD_ZONE) / 128.0);
 							}
 							else
 							{

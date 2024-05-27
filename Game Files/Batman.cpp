@@ -27,18 +27,17 @@ void Batman::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTrigger
 	if (EnableDamper)
 		triggers->Damper(DamperStrength / 100.0);
 
+	UINT32 length_ms = 100;
 	if (ff > 0)
 	{
 		double percentForce = ff / 1.2;
-		double percentLength = 100;
-		triggers->Rumble(0, percentForce, percentLength);
+		triggers->Rumble(0, percentForce, length_ms);
 		triggers->Constant(constants->DIRECTION_FROM_RIGHT, percentForce);
 	}
 	else if (ff < 0)
 	{
 		double percentForce = -ff / 1.2;
-		double percentLength = 100;
-		triggers->Rumble(percentForce, 0, percentLength);
+		triggers->Rumble(percentForce, 0, length_ms);
 		triggers->Constant(constants->DIRECTION_FROM_LEFT, percentForce);
 	}
 }

@@ -40,40 +40,40 @@ void MarioKartGPDX100Custom::FFBLoop(EffectConstants *constants, Helpers *helper
 		triggers->Damper(DamperStrength / 100.0);
 	}
 
+	UINT32 length_ms = 100;
 	// Large Shake when hitting walls, other karts or getting hit by items
 	if ((4194308 == ff1) && (ff10 == 1))
 	{
 		double percentForce = 1.0;
 		double percentForce1 = 3.5;
-		double percentLength = (500);
-		triggers->Rumble(percentForce1, percentForce1, percentLength);
-		triggers->Sine(200, 200, percentForce);
+		length_ms = 500;
+		triggers->Rumble(percentForce1, percentForce1, length_ms);
+		triggers->Sine(200, 200, percentForce, length_ms);
 	}
 
 	// small friction when driving on dirt while moving
 	if ((3 == ff3) && (ff10 == 1) && (ff5 == 1) && (ff11 == 1065353216))
 	{
 		double percentForce = (0.3);
-		double percentLength = (100);
-		triggers->Rumble(percentForce, 0, percentLength);
+		triggers->Rumble(percentForce, 0, length_ms);
 		triggers->Friction(percentForce);
 	}
 	//	Small constant when hitting bumps
 	if ((10 == ff3) && (ff10 == 1) && (ff5 == 1) && (ff11 == 1065353216))
 	{
 		double percentForce = (0.2);
-		double percentLength = (50);
 		double percentForce1 = 3.0;
-		triggers->Rumble(percentForce1, percentForce1, percentLength);
+		length_ms = 50;
+		triggers->Rumble(percentForce1, percentForce1, length_ms);
 		triggers->Constant(constants->DIRECTION_FROM_RIGHT, percentForce);
 	}
 	// Wheel rumbles while driving on grass
 	if ((4 == ff3) && (ff10 == 1) && (ff5 == 1) && (ff11 == 1065353216))
 	{
 		double percentForce = 0.2;
-		double percentLength = (50);
-		triggers->Rumble(0, percentForce, percentLength);
-		triggers->Sine(50, 50, percentForce);
+		length_ms = 50;
+		triggers->Rumble(0, percentForce, length_ms);
+		triggers->Sine(50, 50, percentForce, (UINT32)length_ms);
 	}
 	//wheel hard to turn while driving through water
 	if ((7 == ff3) && (ff10 == 1) && (ff5 == 1) && (ff11 == 1065353216))
@@ -86,34 +86,34 @@ void MarioKartGPDX100Custom::FFBLoop(EffectConstants *constants, Helpers *helper
 	{
 		double percentForce = 0.1;
 		double percentForce1 = 0.2;
-		double percentLength = (150);
-		triggers->Rumble(percentForce1, 0, percentLength);
-		triggers->Sine(70, 70, percentForce);
+		length_ms = 150;
+		triggers->Rumble(percentForce1, 0, length_ms);
+		triggers->Sine(70, 70, percentForce, length_ms);
 	}
 	//Wheel rumbles lightly when driving over sand
 	if ((14 == ff3) && (ff10 == 1) && (ff5 == 1) && (ff11 == 1065353216))
 	{
 		double percentForce = 0.1;
 		double percentForce1 = 0.2;
-		double percentLength = (50);
-		triggers->Rumble(percentForce1, 0, percentLength);
-		triggers->Sine(70, 70, percentForce);
+		length_ms = 50;
+		triggers->Rumble(percentForce1, 0, length_ms);
+		triggers->Sine(70, 70, percentForce, length_ms);
 	}
 	//Wheel rumbles lightly when driving over rough part of track
 	if ((11 == ff3) && (ff10 == 1) && (ff5 == 1) && (ff11 == 1065353216))
 	{
 		double percentForce = 0.1;
 		double percentForce1 = 0.2;
-		double percentLength = (250);
-		triggers->Rumble(0, percentForce1, percentLength);
-		triggers->Sine(40, 50, percentForce);
+		length_ms = 250;
+		triggers->Rumble(0, percentForce1, length_ms);
+		triggers->Sine(40, 50, percentForce, length_ms);
 	}
 	//Wheel rumbles moderately when driving over wooden bridges
 	if ((8 == ff3) && (ff10 == 1) && (ff5 == 1) && (ff11 == 1065353216))
 	{
 		double percentForce = 0.4;
-		double percentLength = (100);
-		triggers->Rumble(percentForce, percentForce, percentLength);
-		triggers->Sine(120, 120, percentForce);
+		length_ms = 10;
+		triggers->Rumble(percentForce, percentForce, length_ms);
+		triggers->Sine(120, 120, percentForce, length_ms);
 	}
 }

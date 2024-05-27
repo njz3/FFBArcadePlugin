@@ -325,6 +325,7 @@ static int InitialDFFBLoop()
 
 	BYTE* ffb = reinterpret_cast<BYTE*>(&FFB);
 
+	UINT32 length_ms = 100;
 	if (KickStartWait)
 	{
 		if (ffb[0] == 0x80 && ffb[2] == 0x01)
@@ -336,15 +337,13 @@ static int InitialDFFBLoop()
 		{
 			double percentForce = ffb[2] / 127.0;
 			double Period = ffb[1] / 127.0 * 120.0;
-			double percentLength = 100;
-			myTriggers->Rumble(percentForce, percentForce, percentLength);
-			myTriggers->Sine(static_cast<int>(Period), 0, percentForce);
+			myTriggers->Rumble(percentForce, percentForce, length_ms);
+			myTriggers->Sine(static_cast<int>(Period), 0, percentForce, length_ms);
 		}
 
 		if (ffb[0] == 0x86 && ffb[2] > 0x00)
 		{
 			double percentForce = ffb[2] / 127.0;
-			double percentLength = 100;
 			myTriggers->Spring(percentForce);
 		}
 
@@ -353,15 +352,13 @@ static int InitialDFFBLoop()
 			if (ffb[1] == 0x00)
 			{
 				double percentForce = (128 - ffb[2]) / 127.0;
-				double percentLength = 100;
-				myTriggers->Rumble(percentForce, 0, percentLength);
+				myTriggers->Rumble(percentForce, 0, length_ms);
 				myTriggers->Constant(myConstants->DIRECTION_FROM_LEFT, percentForce);
 			}
 			else if (ffb[1] == 0x01)
 			{
 				double percentForce = (ffb[2] / 127.0);
-				double percentLength = 100;
-				myTriggers->Rumble(0, percentForce, percentLength);
+				myTriggers->Rumble(0, percentForce, length_ms);
 				myTriggers->Constant(myConstants->DIRECTION_FROM_RIGHT, percentForce);
 			}
 		}
@@ -372,19 +369,17 @@ static int InitialDFFBLoop()
 static int SmashingDriveFFBLoop()
 {
 	INT_PTR FFBSmashingDrive = myHelpers->ReadIntPtr(FFBAddress, false);
-
+	UINT32 length_ms = 100;
 	if ((FFBSmashingDrive > 0x01) && (FFBSmashingDrive < 0x100))
 	{
 		double percentForce = FFBSmashingDrive / 255.0;
-		double percentLength = 100;
-		myTriggers->Rumble(percentForce, 0, percentLength);
+		myTriggers->Rumble(percentForce, 0, length_ms);
 		myTriggers->Constant(myConstants->DIRECTION_FROM_LEFT, percentForce);
 	}
 	else if ((FFBSmashingDrive > 0x1FF) && (FFBSmashingDrive < 0xFF01))
 	{
 		double percentForce = (FFBSmashingDrive / 65280.0);
-		double percentLength = 100;
-		myTriggers->Rumble(0, percentForce, percentLength);
+		myTriggers->Rumble(0, percentForce, length_ms);
 		myTriggers->Constant(myConstants->DIRECTION_FROM_RIGHT, percentForce);
 	}
 	return 0;
@@ -393,19 +388,17 @@ static int SmashingDriveFFBLoop()
 static int ATVTrackFFBLoop()
 {
 	float FFBATVTrack = myHelpers->ReadFloat32(FFBAddress, false);
-
+	UINT32 length_ms = 100;
 	if (FFBATVTrack > 0)
 	{
 		double percentForce = FFBATVTrack;
-		double percentLength = 100;
-		myTriggers->Rumble(percentForce, 0, percentLength);
+		myTriggers->Rumble(percentForce, 0, length_ms);
 		myTriggers->Constant(myConstants->DIRECTION_FROM_LEFT, percentForce);
 	}
 	else if (FFBATVTrack < 0)
 	{
 		double percentForce = -FFBATVTrack;
-		double percentLength = 100;
-		myTriggers->Rumble(0, percentForce, percentLength);
+		myTriggers->Rumble(0, percentForce, length_ms);
 		myTriggers->Constant(myConstants->DIRECTION_FROM_RIGHT, percentForce);
 	}
 	return 0;
@@ -415,19 +408,17 @@ static int FasterThanSpeedFFBLoop()
 {
 	UINT8 ffbfaster = myHelpers->ReadByte(FFBAddress, false);
 	fffaster = fasterspeed(ffbfaster);
-
+	UINT32 length_ms = 100;
 	if ((fffaster > 0x0B) && (fffaster < 0x17))
 	{
 		double percentForce = (fffaster - 11) / 11.0;
-		double percentLength = 100;
-		myTriggers->Rumble(percentForce, 0, percentLength);
+		myTriggers->Rumble(percentForce, 0, length_ms);
 		myTriggers->Constant(myConstants->DIRECTION_FROM_LEFT, percentForce);
 	}
 	else if ((fffaster > 0x00) && (fffaster < 0x0C))
 	{
 		double percentForce = fffaster / 11.0;
-		double percentLength = 100;
-		myTriggers->Rumble(0, percentForce, percentLength);
+		myTriggers->Rumble(0, percentForce, length_ms);
 		myTriggers->Constant(myConstants->DIRECTION_FROM_RIGHT, percentForce);
 	}
 	return 0;
@@ -435,21 +426,19 @@ static int FasterThanSpeedFFBLoop()
 
 static int MaximumSpeedFFBLoop()
 {
-	UINT8 FFBMaximumSpeed = myHelpers->ReadIntPtr(FFBAddress, false);
+	UINT8 FFBMaximumSpeed = myHelpers->ReadByte(FFBAddress, false);
 	UINT8 FFBMaximumSpeed2 = myHelpers->ReadByte(FFBAddress + 0x01, false);
-
+	UINT32 length_ms = 100;
 	if ((FFBMaximumSpeed > 0x7F) && (FFBMaximumSpeed < 0x100) && (FFBMaximumSpeed2 == 0xFF))
 	{
 		double percentForce = (256 - FFBMaximumSpeed) / 128.0;
-		double percentLength = 100;
-		myTriggers->Rumble(percentForce, 0, percentLength);
+		myTriggers->Rumble(percentForce, 0, length_ms);
 		myTriggers->Constant(myConstants->DIRECTION_FROM_LEFT, percentForce);
 	}
 	else if ((FFBMaximumSpeed > 0x00) && (FFBMaximumSpeed < 0x81) && (FFBMaximumSpeed2 == 0x00))
 	{
 		double percentForce = FFBMaximumSpeed / 128.0;
-		double percentLength = 100;
-		myTriggers->Rumble(0, percentForce, percentLength);
+		myTriggers->Rumble(0, percentForce, length_ms);
 		myTriggers->Constant(myConstants->DIRECTION_FROM_RIGHT, percentForce);
 	}
 	return 0;
@@ -459,19 +448,17 @@ static int NascarFFBLoop()
 {
 	UINT8 ffnas = myHelpers->ReadByte(FFBAddress, false);
 	ffnascar = nascar(ffnas);
-
+	UINT32 length_ms = 100;
 	if ((ffnascar > 0x10) && (ffnascar < 0x21))
 	{
 		double percentForce = (ffnascar - 16) / 16.0;
-		double percentLength = 100;
-		myTriggers->Rumble(percentForce, 0, percentLength);
+		myTriggers->Rumble(percentForce, 0, length_ms);
 		myTriggers->Constant(myConstants->DIRECTION_FROM_LEFT, percentForce);
 	}
 	else if ((ffnascar > 0x00) && (ffnascar < 0x11))
 	{
 		double percentForce = (17 - ffnascar) / 16.0;
-		double percentLength = 100;
-		myTriggers->Rumble(0, percentForce, percentLength);
+		myTriggers->Rumble(0, percentForce, length_ms);
 		myTriggers->Constant(myConstants->DIRECTION_FROM_RIGHT, percentForce);
 	}
 	return 0;
@@ -849,7 +836,7 @@ void Demul::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTriggers
 		{
 			Sleep(5000);
 			aAddy2 = PatternScan("\x13\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x50\x72\x6F\x64\x75\x63\x65\x64\x20\x42\x79\x20", "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
-			FFBAddress = (int)aAddy2 - 0x2F0;
+			FFBAddress = (INT_PTR)aAddy2 - 0x2F0;
 			CreateThread(NULL, 0, NascarRunningLoop, NULL, 0, NULL);
 			FFBGameInit = true;
 		}
@@ -860,16 +847,16 @@ void Demul::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTriggers
 				if (!InputFind)
 				{
 					aAddy = PatternScan("\x11\x00\x16\x1F\x05\x04\x1D\x0D\x07\x12\x18\x14\x02\x13\x09\x15\x0E\x19\x01\x1C\x08\x1A\x17\x03\x0F\x1B\x00\x10\x0A\x0B\x0C\x06\x01", "x?xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
-					UINT8 CheckaAddy = helpers->ReadByte((int)aAddy + 0x01, false);
+					UINT8 CheckaAddy = helpers->ReadByte((INT_PTR)aAddy + 0x01, false);
 					if (CheckaAddy == 0x1E)
 					{
-						SteeringAddress = (int)aAddy - 0xC45;
-						AcclAddress = (int)aAddy - 0xC0D;
-						BrakeAddress = (int)aAddy - 0xBD5;
-						ShiftUpDownAddress = (int)aAddy - 0xDEA;
-						ServiceTestAddress = (int)aAddy - 0x108A;
-						StartViewAddress = (int)aAddy - 0xF8E;
-						CoinAddress = (int)aAddy - 0xFE2;
+						SteeringAddress = (INT_PTR)aAddy - 0xC45;
+						AcclAddress = (INT_PTR)aAddy - 0xC0D;
+						BrakeAddress = (INT_PTR)aAddy - 0xBD5;
+						ShiftUpDownAddress = (INT_PTR)aAddy - 0xDEA;
+						ServiceTestAddress = (INT_PTR)aAddy - 0x108A;
+						StartViewAddress = (INT_PTR)aAddy - 0xF8E;
+						CoinAddress = (INT_PTR)aAddy - 0xFE2;
 						NOPinit = true;
 						InputFind = true;
 					}
@@ -884,7 +871,7 @@ void Demul::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTriggers
 		{
 			Sleep(6000);
 			aAddy2 = PatternScan("\x88\xA9\x00\x09", "xxxx");
-			FFBAddress = (int)aAddy2 + 0x01;
+			FFBAddress = (INT_PTR)aAddy2 + 0x01;
 			FFBGameInit = true;
 		}
 
@@ -904,18 +891,18 @@ void Demul::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTriggers
 				if (!InputFind)
 				{
 					aAddy = PatternScan("\x06\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x01\x00\x00\x00\xFF\xFF\x00\x00\x00\x00\x00\x00\x00\x00\x01\x00\x00\x00\x20", "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
-					UINT8 CheckaAddy = helpers->ReadByte((int)aAddy - 0x2A0, false);
+					UINT8 CheckaAddy = helpers->ReadByte((INT_PTR)aAddy - 0x2A0, false);
 					if (CheckaAddy == 0x01)
 					{
-						SteeringAddress = (int)aAddy - 0x85;
-						AcclAddress = (int)aAddy - 0x4D;
-						BrakeAddress = (int)aAddy - 0x15;
-						StartViewAddress = (int)aAddy - 0x14A;
-						ShiftUpDownAddress = (int)aAddy - 0xDA;
-						ServiceTestAddress = (int)aAddy - 0x246;
-						CoinAddress = (int)aAddy - 0x19E;
-						CardAddress = (int)aAddy + 0x3E;
-						CardAddress2 = (int)aAddy + 0x22;
+						SteeringAddress = (INT_PTR)aAddy - 0x85;
+						AcclAddress = (INT_PTR)aAddy - 0x4D;
+						BrakeAddress = (INT_PTR)aAddy - 0x15;
+						StartViewAddress = (INT_PTR)aAddy - 0x14A;
+						ShiftUpDownAddress = (INT_PTR)aAddy - 0xDA;
+						ServiceTestAddress = (INT_PTR)aAddy - 0x246;
+						CoinAddress = (INT_PTR)aAddy - 0x19E;
+						CardAddress = (INT_PTR)aAddy + 0x3E;
+						CardAddress2 = (INT_PTR)aAddy + 0x22;
 						NOPinit = true;
 						InputFind = true;
 					}
@@ -931,10 +918,10 @@ void Demul::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTriggers
 			Sleep(5000);
 			aAddy2 = PatternScan("\xC0\xF3\x51\x00\x60\x9A\x2C\x01", "xxxxxxxx");
 			
-			UINT8 CheckAddy = helpers->ReadByte((int)aAddy2 - 0x0E, false);
+			UINT8 CheckAddy = helpers->ReadByte((INT_PTR)aAddy2 - 0x0E, false);
 			if (CheckAddy == 0x07)
 			{
-				FFBAddress = (int)aAddy2 - 0xD0;
+				FFBAddress = (INT_PTR)aAddy2 - 0xD0;
 				CreateThread(NULL, 0, SmashingDriveRunningLoop, NULL, 0, NULL);
 				FFBGameInit = true;
 			}
@@ -946,12 +933,12 @@ void Demul::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTriggers
 				if (!InputFind)
 				{
 					aAddy = PatternScan("\x0C\x00\x0E\x0F\x08\x09\x0A\x0B\x1C\x1D\x1E\x1F\x18\x19\x1A\x1B\x04\x05\x06\x07\x00\x01\x02\x03\x14\x15\x16\x17\x10\x11", "x?xxxxxxxxxxxxxxxxxxxxxxxxxxxx");
-					UINT8 CheckaAddy = helpers->ReadByte((int)aAddy + 0x01, false);
+					UINT8 CheckaAddy = helpers->ReadByte((INT_PTR)aAddy + 0x01, false);
 					if (CheckaAddy == 0x0D)
 					{
-						SteeringAddress = (int)aAddy - 0x80A;
-						ServiceTestAddress = (int)aAddy - 0x95A;
-						AcclAddress = (int)aAddy - 0x896;
+						SteeringAddress = (INT_PTR)aAddy - 0x80A;
+						ServiceTestAddress = (INT_PTR)aAddy - 0x95A;
+						AcclAddress = (INT_PTR)aAddy - 0x896;
 						NOPinit = true;
 						InputFind = true;
 					}
@@ -967,10 +954,10 @@ void Demul::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTriggers
 			Sleep(10000);
 			aAddy2 = PatternScan("\x48\x03\x00\x00\xE0\x01\x00\x00\x2C\x01\x00\x00\xB4\x00\x00\x00\x00\x00\x00\x00\x20\xFE\xFF\xFF", "xxxxxxxxxxxxxxxxxxxxxxxx");
 
-			UINT8 CheckAddy = helpers->ReadByte((int)aAddy2 + 0x21, false);
+			UINT8 CheckAddy = helpers->ReadByte((INT_PTR)aAddy2 + 0x21, false);
 			if (CheckAddy == 0xFC)
 			{
-				FFBAddress = (int)aAddy2 + 0x18;
+				FFBAddress = (INT_PTR)aAddy2 + 0x18;
 				CreateThread(NULL, 0, MaximumSpeedRunningLoop, NULL, 0, NULL);
 				FFBGameInit = true;
 			}
@@ -982,15 +969,15 @@ void Demul::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTriggers
 				if (!InputFind)
 				{
 					aAddy = PatternScan("\x14\x00\x05\x10\x0C\x18\x19\x04\x0B\x11\x0D\x1C\x1D\x02\x1F\x08\x06\x17\x0A\x0E\x16\x1A\x07\x15\x0F\x13\x01\x12\x03\x1E\x09", "x?xxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
-					UINT8 CheckaAddy = helpers->ReadByte((int)aAddy + 0x01, false);
+					UINT8 CheckaAddy = helpers->ReadByte((INT_PTR)aAddy + 0x01, false);
 					if (CheckaAddy == 0x1B)
 					{
-						SteeringAddress = (int)aAddy - 0x1316;
-						AcclAddress = (int)aAddy - 0x12DE;
-						BrakeAddress = (int)aAddy - 0x12A6;
-						ShiftUpDownAddress = (int)aAddy - 0x14F2;
-						ServiceTestAddress = (int)aAddy - 0x14F1;
-						CoinAddress = (int)aAddy - 0x136A;
+						SteeringAddress = (INT_PTR)aAddy - 0x1316;
+						AcclAddress = (INT_PTR)aAddy - 0x12DE;
+						BrakeAddress = (INT_PTR)aAddy - 0x12A6;
+						ShiftUpDownAddress = (INT_PTR)aAddy - 0x14F2;
+						ServiceTestAddress = (INT_PTR)aAddy - 0x14F1;
+						CoinAddress = (INT_PTR)aAddy - 0x136A;
 						NOPinit = true;
 						InputFind = true;
 					}
@@ -1006,10 +993,10 @@ void Demul::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTriggers
 			Sleep(10000);
 			aAddy2 = PatternScan("\x01\x00\x10\x00\x00\x00\x00\x00\x00\x2F\x76", "xxxxxxxxxxx");
 
-			UINT8 CheckAddy = helpers->ReadByte((int)aAddy2 + 0x0E, false);
+			UINT8 CheckAddy = helpers->ReadByte((INT_PTR)aAddy2 + 0x0E, false);
 			if (CheckAddy == 0x0C)
 			{
-				FFBAddress = (int)aAddy2 + 0x0F;
+				FFBAddress = (INT_PTR)aAddy2 + 0x0F;
 				CreateThread(NULL, 0, FasterThanSpeedRunningLoop, NULL, 0, NULL);
 				FFBGameInit = true;
 			}
@@ -1021,15 +1008,15 @@ void Demul::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTriggers
 				if (!InputFind)
 				{
 					aAddy = PatternScan("\x14\x00\x05\x10\x0C\x18\x19\x04\x0B\x11\x0D\x1C\x1D\x02\x1F\x08\x06\x17\x0A\x0E\x16\x1A\x07\x15\x0F\x13\x01\x12\x03\x1E\x09", "x?xxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
-					UINT8 CheckaAddy = helpers->ReadByte((int)aAddy + 0x01, false);
+					UINT8 CheckaAddy = helpers->ReadByte((INT_PTR)aAddy + 0x01, false);
 					if (CheckaAddy == 0x1B)
 					{
-						SteeringAddress = (int)aAddy - 0x1316;
-						AcclAddress = (int)aAddy - 0x12DE;
-						BrakeAddress = (int)aAddy - 0x12A6;
-						ShiftUpDownAddress = (int)aAddy - 0x14F2;
-						ServiceTestAddress = (int)aAddy - 0x14F1;
-						CoinAddress = (int)aAddy - 0x136A;
+						SteeringAddress = (INT_PTR)aAddy - 0x1316;
+						AcclAddress = (INT_PTR)aAddy - 0x12DE;
+						BrakeAddress = (INT_PTR)aAddy - 0x12A6;
+						ShiftUpDownAddress = (INT_PTR)aAddy - 0x14F2;
+						ServiceTestAddress = (INT_PTR)aAddy - 0x14F1;
+						CoinAddress = (INT_PTR)aAddy - 0x136A;
 						NOPinit = true;
 						InputFind = true;
 					}
@@ -1044,10 +1031,10 @@ void Demul::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTriggers
 		{
 			Sleep(15000);
 			aAddy2 = PatternScan("\x49\x55\x4C\x00\x00\x00\x05", "xxxxxxx");
-			UINT8 CheckAddy = helpers->ReadByte((int)aAddy2 - 0x04, false);
+			UINT8 CheckAddy = helpers->ReadByte((INT_PTR)aAddy2 - 0x04, false);
 			if (CheckAddy == 0x1E)
 			{
-				FFBAddress = (int)aAddy2 - 0x1A;
+				FFBAddress = (INT_PTR)aAddy2 - 0x1A;
 				CreateThread(NULL, 0, ATVTrackRunningLoop, NULL, 0, NULL);
 				FFBGameInit = true;
 			}
@@ -1059,13 +1046,13 @@ void Demul::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTriggers
 				if (!InputFind)
 				{
 					aAddy = PatternScan("\x11\x00\x16\x1F\x05\x04\x1D\x0D\x07\x12\x18\x14\x02\x13\x09\x15\x0E\x19\x01\x1C\x08\x1A\x17\x03\x0F\x1B\x00\x10\x0A\x0B\x0C\x06\x01", "x?xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
-					UINT8 CheckaAddy = helpers->ReadByte((int)aAddy + 0x01, false);
+					UINT8 CheckaAddy = helpers->ReadByte((INT_PTR)aAddy + 0x01, false);
 					if (CheckaAddy == 0x1E)
 					{
-						SteeringAddress = (int)aAddy - 0xA16;
-						AcclAddress = (int)aAddy - 0x9DE;
-						BrakeAddress = (int)aAddy - 0xABE;
-						ServiceTestAddress = (int)aAddy - 0xB82;
+						SteeringAddress = (INT_PTR)aAddy - 0xA16;
+						AcclAddress = (INT_PTR)aAddy - 0x9DE;
+						BrakeAddress = (INT_PTR)aAddy - 0xABE;
+						ServiceTestAddress = (INT_PTR)aAddy - 0xB82;
 						NOPinit = true;
 						InputFind = true;
 					}

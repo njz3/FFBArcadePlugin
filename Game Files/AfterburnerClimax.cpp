@@ -54,7 +54,7 @@ void AfterburnerClimax::FFBLoop(EffectConstants *constants, Helpers *helpers, Ef
 	if (Vibration & 0x40)
 	{
 		double percentForce = RumbleStrength / 100.0;
-		double percentLength = 100.0;
-		triggers->Rumble(percentForce, percentForce, percentLength);
+		UINT32 length_ms = 100;
+		triggers->Rumble(percentForce, percentForce, length_ms);
 	}
 }

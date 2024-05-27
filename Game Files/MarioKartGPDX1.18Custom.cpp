@@ -229,7 +229,7 @@ void MarioKartGPDX118Custom::FFBLoop(EffectConstants* constants, Helpers* helper
 	{
 		init = true;
 
-		DWORD ImageBase = (DWORD)GetModuleHandleA(0);
+		INT_PTR ImageBase = (INT_PTR)GetModuleHandleA(0);
 
 		MH_Initialize(); 
 		MH_CreateHook((void*)(ImageBase + 0x386940), PlayerCostumeSelectionRightHook, (void**)&PlayerCostumeSelectionRightOri);
@@ -286,7 +286,7 @@ void MarioKartGPDX118Custom::FFBLoop(EffectConstants* constants, Helpers* helper
 		if (MenuPosition != oldMenuPosition && GameState == oldGameState)
 		{
 			double percentForce = MenuRumbleStrength / 100.0;
-			triggers->Sine(60, 0, percentForce);
+			triggers->Sine(60, 0, percentForce, 100);
 			triggers->Rumble(percentForce, percentForce, 100);
 		}
 
@@ -294,25 +294,24 @@ void MarioKartGPDX118Custom::FFBLoop(EffectConstants* constants, Helpers* helper
 		{
 			MenuEffect = false;
 			double percentForce = MenuRumbleStrength / 100.0;
-			triggers->Sine(60, 0, percentForce);
+			triggers->Sine(60, 0, percentForce, 100);
 			triggers->Rumble(percentForce, percentForce, 100);
 		}
 	}
 
 	if (ConstantEffectForSteering && ff11 == 1)
 	{
+		UINT32 length_ms = 100;
 		if (Wheel >= 0 && Wheel < 128)
 		{
 			double percentForce = ((128 - Wheel) / (ConstantEffectForSteeringStrength / 1.0));
-			double percentLength = 100;
-			triggers->Rumble(percentForce, 0, percentLength);
+			triggers->Rumble(percentForce, 0, length_ms);
 			triggers->Constant(constants->DIRECTION_FROM_LEFT, percentForce);
 		}
 		else if (Wheel > 127 && Wheel < 256)
 		{
 			double percentForce = ((Wheel - 127) / (ConstantEffectForSteeringStrength / 1.0));
-			double percentLength = 100;
-			triggers->Rumble(0, percentForce, percentLength);
+			triggers->Rumble(0, percentForce, length_ms);
 			triggers->Constant(constants->DIRECTION_FROM_RIGHT, percentForce);
 		}
 	}
@@ -321,26 +320,26 @@ void MarioKartGPDX118Custom::FFBLoop(EffectConstants* constants, Helpers* helper
 	{
 		// Large Shake when hitting walls, other karts or getting hit by items
 		double percentForce = ((MainShakeRumbleStrength) / 100.0);
-		double percentLength = (500);
-		triggers->Rumble(percentForce, percentForce, percentLength);
-		triggers->Sine(200, 200, percentForce);
+		UINT32 length_ms = 500;
+		triggers->Rumble(percentForce, percentForce, length_ms);
+		triggers->Sine(200, 200, percentForce, 200);
 	}
 
 	if ((BoostRumble == 1) && (ff18 == 1) && (ff11 == 1))
 	{
 		// Shake when Boost
 		double percentForce = ((BoostRumbleStrength) / 100.0);
-		double percentLength = (100);
-		triggers->Rumble(percentForce, percentForce, percentLength);
-		triggers->Sine(60, 60, percentForce);
+		UINT32 length_ms = 100;
+		triggers->Rumble(percentForce, percentForce, length_ms);
+		triggers->Sine(60, 60, percentForce, 100);
 	}
 
 	if ((DriftRumble == 1) && (ff17 == 1) && (Wheel >= 0) && (Wheel < 128) && (ff11 == 1))
 	{
 		// Drift Effect including steering left
 		double percentForce = (((128 - Wheel) / 128.0) * (DriftRumbleControllerStrengthMultiplier / 100.0));
-		double percentLength = (100);
-		triggers->Rumble(percentForce, 0, percentLength);
+		UINT32 length_ms = 100;
+		triggers->Rumble(percentForce, 0, length_ms);
 		triggers->Friction(percentForce);
 	}
 
@@ -348,8 +347,8 @@ void MarioKartGPDX118Custom::FFBLoop(EffectConstants* constants, Helpers* helper
 	{
 		// Drift Effect including steering right
 		double percentForce = (((Wheel - 127) / 128.0) * (DriftRumbleControllerStrengthMultiplier / 100.0));
-		double percentLength = (100);
-		triggers->Rumble(0, percentForce, percentLength);
+		UINT32 length_ms = 100;
+		triggers->Rumble(0, percentForce, length_ms);
 		triggers->Friction(percentForce);
 	}
 
@@ -357,8 +356,8 @@ void MarioKartGPDX118Custom::FFBLoop(EffectConstants* constants, Helpers* helper
 	{
 		// Shake when hitting ground
 		double percentForce = ((HitGroundRumbleStrength) / 100.0);
-		double percentLength = (100);
-		triggers->Rumble(percentForce, percentForce, percentLength);
+		UINT32 length_ms = 100;
+		triggers->Rumble(percentForce, percentForce, length_ms);
 		triggers->Constant(constants->DIRECTION_FROM_LEFT, percentForce);
 		Sleep(50);
 		triggers->Constant(constants->DIRECTION_FROM_RIGHT, percentForce);
@@ -368,26 +367,26 @@ void MarioKartGPDX118Custom::FFBLoop(EffectConstants* constants, Helpers* helper
 	{
 		// Shake when picking up new weapons or using them
 		double percentForce = ((WeaponRumbleStrength) / 100.0);
-		double percentLength = (300);
-		triggers->Rumble(percentForce, percentForce, percentLength);
-		triggers->Sine(80, 50, percentForce);
+		UINT32 length_ms = 300;
+		triggers->Rumble(percentForce, percentForce, length_ms);
+		triggers->Sine(80, 50, percentForce, 100);
 	}
 
 	if ((CoinRumble == 1) && (oldCoins != ff13) && (ff11 == 1))
 	{
 		// Shake when picking up coins
 		double percentForce = ((CoinRumbleStrength) / 100.0);
-		double percentLength = (200);
-		triggers->Rumble(percentForce, percentForce, percentLength);
-		triggers->Sine(50, 50, percentForce);
+		UINT32 length_ms = 200;
+		triggers->Rumble(percentForce, percentForce, length_ms);
+		triggers->Sine(50, 50, percentForce, 100);
 	}
 
 	if ((DirtRumble == 1) && (3 == ff3) && (ff11 == 1) && (ff5 == 1) && (Speed > 0.1))
 	{
 		// small friction when driving on dirt while moving
 		double percentForce = ((DirtRumbleStrength) / 100.0);
-		double percentLength = (100);
-		triggers->Rumble(percentForce, 0, percentLength);
+		UINT32 length_ms = 100;
+		triggers->Rumble(percentForce, 0, length_ms);
 		triggers->Friction(percentForce);
 	}
 
@@ -395,8 +394,8 @@ void MarioKartGPDX118Custom::FFBLoop(EffectConstants* constants, Helpers* helper
 	{
 		//	Small constant when hitting bumps
 		double percentForce = ((SpeedBumpRumbleStrength) / 100.0);
-		double percentLength = (50);
-		triggers->Rumble(percentForce, percentForce, percentLength);
+		UINT32 length_ms = 50;
+		triggers->Rumble(percentForce, percentForce, length_ms);
 		triggers->Constant(constants->DIRECTION_FROM_RIGHT, percentForce);
 		triggers->Constant(constants->DIRECTION_FROM_RIGHT, 0);
 	}
@@ -405,18 +404,18 @@ void MarioKartGPDX118Custom::FFBLoop(EffectConstants* constants, Helpers* helper
 	{
 		// Wheel rumbles while driving on grass
 		double percentForce = ((GrassRumbleStrength) / 100.0);
-		double percentLength = (50);
-		triggers->Rumble(0, percentForce, percentLength);
-		triggers->Sine(50, 50, percentForce);
+		UINT32 length_ms = 50;
+		triggers->Rumble(0, percentForce, length_ms);
+		triggers->Sine(50, 50, percentForce, 100);
 	}
 
 	if ((CarpetRumble == 1) && (9 == ff3) && (ff11 == 1) && (ff5 == 1) && (Speed > 0.1))
 	{
 		// Wheel rumbles while driving on carpet
 		double percentForce = ((CarpetRumbleStrength) / 100.0);
-		double percentLength = (50);
-		triggers->Rumble(0, percentForce, percentLength);
-		triggers->Sine(50, 50, percentForce);
+		UINT32 length_ms = 50;
+		triggers->Rumble(0, percentForce, length_ms);
+		triggers->Sine(50, 50, percentForce, 100);
 	}
 
 	if ((WaterRumble == 1) && (7 == ff3) && (ff11 == 1) && (ff5 == 1) && (Speed > 0.1) && (Wheel >= 0) && (Wheel < 128))
@@ -424,8 +423,8 @@ void MarioKartGPDX118Custom::FFBLoop(EffectConstants* constants, Helpers* helper
 		//wheel hard to turn while driving through water
 		double percentForce = ((WaterRumbleWheelStrength) / 100.0);
 		double percentForce1 = ((128 - Wheel / 128.0) * (WaterRumbleControllerStrengthMultiplier / 100.0));
-		double percentLength = (100);
-		triggers->Rumble(percentForce1, 0, percentLength);
+		UINT32 length_ms = 100;
+		triggers->Rumble(percentForce1, 0, length_ms);
 		triggers->Friction(percentForce);
 	}
 
@@ -433,8 +432,8 @@ void MarioKartGPDX118Custom::FFBLoop(EffectConstants* constants, Helpers* helper
 	{
 		double percentForce = ((WaterRumbleWheelStrength) / 100.0);
 		double percentForce1 = ((Wheel - 127 / 128.0) * (WaterRumbleControllerStrengthMultiplier / 100.0));
-		double percentLength = (100);
-		triggers->Rumble(0, percentForce1, percentLength);
+		UINT32 length_ms = 100;
+		triggers->Rumble(0, percentForce1, length_ms);
 		triggers->Friction(percentForce);
 	}
 
@@ -442,8 +441,8 @@ void MarioKartGPDX118Custom::FFBLoop(EffectConstants* constants, Helpers* helper
 	{
 		//Wheel rumbles lightly when driving over tiles
 		double percentForce = ((TileRumbleStrength) / 100.0);
-		double percentLength = (150);
-		triggers->Rumble(0, percentForce, percentLength);
+		UINT32 length_ms = 150;
+		triggers->Rumble(0, percentForce, length_ms);
 		triggers->Friction(percentForce);
 	}
 
@@ -451,27 +450,27 @@ void MarioKartGPDX118Custom::FFBLoop(EffectConstants* constants, Helpers* helper
 	{
 		//Wheel rumbles lightly when driving over sand
 		double percentForce = ((SandRumbleStrength) / 100.0);
-		double percentLength = (50);
-		triggers->Rumble(percentForce, 0, percentLength);
-		triggers->Sine(70, 70, percentForce);
+		UINT32 length_ms = 50;
+		triggers->Rumble(percentForce, 0, length_ms);
+		triggers->Sine(70, 70, percentForce, 100);
 	}
 
 	if ((RoughTrackRumble == 1) && (11 == ff3) && (ff11 == 1) && (ff5 == 1) && (Speed > 0.1))
 	{
 		//Wheel rumbles lightly when driving over rough part of track
 		double percentForce = ((RoughTrackRumbleStrength) / 100.0);
-		double percentLength = (100);
-		triggers->Rumble(0, percentForce, percentLength);
-		triggers->Sine(40, 50, percentForce);
+		UINT32 length_ms = 100;
+		triggers->Rumble(0, percentForce, length_ms);
+		triggers->Sine(40, 50, percentForce, 100);
 	}
 
 	if ((BridgeRumble == 1) && (8 == ff3) && (ff11 == 1) && (ff5 == 1) && (Speed > 0.1))
 	{
 		//Wheel rumbles moderately when driving over wooden bridges
 		double percentForce = ((BridgeRumbleStrength) / 100.0);
-		double percentLength = (100);
-		triggers->Rumble(percentForce, percentForce, percentLength);
-		triggers->Sine(120, 120, percentForce);
+		UINT32 length_ms = 100;
+		triggers->Rumble(percentForce, percentForce, length_ms);
+		triggers->Sine(120, 120, percentForce, 200);
 	}
 
 	oldCoins = ff13;

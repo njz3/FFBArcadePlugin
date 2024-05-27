@@ -74,27 +74,23 @@ static int ThreadLoop()
 	int Grenade2pStrength = GetPrivateProfileInt(TEXT("Settings"), TEXT("Grenade2pStrength"), 0, settingsFilename);
 	int Health2pStrength = GetPrivateProfileInt(TEXT("Settings"), TEXT("Health2pStrength"), 0, settingsFilename);
 
+	UINT32 length_ms = configFeedbackLength;
 	if ((Health1p == 0) && (IngameValue1p == 11))
 	{
 		if (!HealthA)
 		{
+			double percentForce = ((Health1pStrength) / 100.0);
 			if (HowtoRumbleHealthEffect == 0)
 			{
-				double percentForce = ((Health1pStrength) / 100.0);
-				double percentLength = configFeedbackLength;
-				myTriggers->Rumble(percentForce, percentForce, percentLength);
+				myTriggers->Rumble(percentForce, percentForce, length_ms);
 			}
 			else if (HowtoRumbleHealthEffect == 1)
 			{
-				double percentForce = ((Health1pStrength) / 100.0);
-				double percentLength = configFeedbackLength;
-				myTriggers->Rumble(0, percentForce, percentLength);
+				myTriggers->Rumble(0, percentForce, length_ms);
 			}
 			else if (HowtoRumbleHealthEffect == 2)
 			{
-				double percentForce = ((Health1pStrength) / 100.0);
-				double percentLength = configFeedbackLength;
-				myTriggers->Rumble(percentForce, 0, percentLength);
+				myTriggers->Rumble(percentForce, 0, length_ms);
 			}
 			HealthA = true;
 		}
@@ -104,23 +100,18 @@ static int ThreadLoop()
 	{
 		if (!HealthB)
 		{
+			double percentForce = ((Health2pStrength) / 100.0);
 			if (HowtoRumbleHealthEffect == 0)
 			{
-				double percentForce = ((Health2pStrength) / 100.0);
-				double percentLength = configFeedbackLength;
-				myTriggers->RumbleDevice2(percentForce, percentForce, percentLength);
+				myTriggers->RumbleDevice2(percentForce, percentForce, length_ms);
 			}
 			else if (HowtoRumbleHealthEffect == 1)
 			{
-				double percentForce = ((Health2pStrength) / 100.0);
-				double percentLength = configFeedbackLength;
-				myTriggers->RumbleDevice2(0, percentForce, percentLength);
+				myTriggers->RumbleDevice2(0, percentForce, length_ms);
 			}
 			else if (HowtoRumbleHealthEffect == 2)
 			{
-				double percentForce = ((Health2pStrength) / 100.0);
-				double percentLength = configFeedbackLength;
-				myTriggers->RumbleDevice2(percentForce, 0, percentLength);
+				myTriggers->RumbleDevice2(percentForce, 0, length_ms);
 			}
 			HealthB = true;
 		}
@@ -130,65 +121,50 @@ static int ThreadLoop()
 	{
 		if (oldHealth1p != newHealth1p)
 		{
+			double percentForce = ((Health1pStrength) / 100.0);
 			if (HowtoRumbleHealthEffect == 0)
 			{
-				double percentForce = ((Health1pStrength) / 100.0);
-				double percentLength = configFeedbackLength;
-				myTriggers->Rumble(percentForce, percentForce, percentLength);
+				myTriggers->Rumble(percentForce, percentForce, length_ms);
 			}
 			else if (HowtoRumbleHealthEffect == 1)
 			{
-				double percentForce = ((Health1pStrength) / 100.0);
-				double percentLength = configFeedbackLength;
-				myTriggers->Rumble(0, percentForce, percentLength);
+				myTriggers->Rumble(0, percentForce, length_ms);
 			}
 			else if (HowtoRumbleHealthEffect == 2)
 			{
-				double percentForce = ((Health1pStrength) / 100.0);
-				double percentLength = configFeedbackLength;
-				myTriggers->Rumble(percentForce, 0, percentLength);
+				myTriggers->Rumble(percentForce, 0, length_ms);
 			}
 		}
 		if (oldBullet1p != newBullet1p)
 		{
+			double percentForce = ((Bullet1pStrength) / 100.0);
 			if (HowtoRumbleBulletEffect == 0)
 			{
-				double percentForce = ((Bullet1pStrength) / 100.0);
-				double percentLength = configFeedbackLength;
-				myTriggers->Rumble(percentForce, percentForce, percentLength);
+				myTriggers->Rumble(percentForce, percentForce, length_ms);
 			}
 			else if (HowtoRumbleBulletEffect == 1)
 			{
-				double percentForce = ((Bullet1pStrength) / 100.0);
-				double percentLength = configFeedbackLength;
-				myTriggers->Rumble(0, percentForce, percentLength);
+				myTriggers->Rumble(0, percentForce, length_ms);
 			}
 			else if (HowtoRumbleBulletEffect == 2)
 			{
-				double percentForce = ((Bullet1pStrength) / 100.0);
-				double percentLength = configFeedbackLength;
-				myTriggers->Rumble(percentForce, 0, percentLength);
+				myTriggers->Rumble(percentForce, 0, length_ms);
 			}
 		}
 		if (GrenadeExplode1p == 0x42)
 		{
+			double percentForce = ((Grenade1pStrength) / 100.0);
 			if (HowtoRumbleGrenadeEffect == 0)
 			{
-				double percentForce = ((Grenade1pStrength) / 100.0);
-				double percentLength = configFeedbackLength;
-				myTriggers->Rumble(percentForce, percentForce, percentLength);
+				myTriggers->Rumble(percentForce, percentForce, length_ms);
 			}
 			else if (HowtoRumbleGrenadeEffect == 1)
 			{
-				double percentForce = ((Grenade1pStrength) / 100.0);
-				double percentLength = configFeedbackLength;
-				myTriggers->Rumble(0, percentForce, percentLength);
+				myTriggers->Rumble(0, percentForce, length_ms);
 			}
 			else if (HowtoRumbleGrenadeEffect == 2)
 			{
-				double percentForce = ((Grenade1pStrength) / 100.0);
-				double percentLength = configFeedbackLength;
-				myTriggers->Rumble(percentForce, 0, percentLength);
+				myTriggers->Rumble(percentForce, 0, length_ms);
 			}
 		}
 		HealthA = false;
@@ -198,65 +174,50 @@ static int ThreadLoop()
 	{
 		if (oldHealth2p != newHealth2p)
 		{
+			double percentForce = ((Health2pStrength) / 100.0);
 			if (HowtoRumbleHealthEffect == 0)
 			{
-				double percentForce = ((Health2pStrength) / 100.0);
-				double percentLength = configFeedbackLength;
-				myTriggers->RumbleDevice2(percentForce, percentForce, percentLength);
+				myTriggers->RumbleDevice2(percentForce, percentForce, length_ms);
 			}
 			else if (HowtoRumbleHealthEffect == 1)
 			{
-				double percentForce = ((Health2pStrength) / 100.0);
-				double percentLength = configFeedbackLength;
-				myTriggers->RumbleDevice2(0, percentForce, percentLength);
+				myTriggers->RumbleDevice2(0, percentForce, length_ms);
 			}
 			else if (HowtoRumbleHealthEffect == 2)
 			{
-				double percentForce = ((Health2pStrength) / 100.0);
-				double percentLength = configFeedbackLength;
-				myTriggers->RumbleDevice2(percentForce, 0, percentLength);
+				myTriggers->RumbleDevice2(percentForce, 0, length_ms);
 			}
 		}
 		if (oldBullet2p != newBullet2p)
 		{
+			double percentForce = ((Bullet2pStrength) / 100.0);
 			if (HowtoRumbleBulletEffect == 0)
 			{
-				double percentForce = ((Bullet2pStrength) / 100.0);
-				double percentLength = configFeedbackLength;
-				myTriggers->RumbleDevice2(percentForce, percentForce, percentLength);
+				myTriggers->RumbleDevice2(percentForce, percentForce, length_ms);
 			}
 			else if (HowtoRumbleBulletEffect == 1)
 			{
-				double percentForce = ((Bullet2pStrength) / 100.0);
-				double percentLength = configFeedbackLength;
-				myTriggers->RumbleDevice2(0, percentForce, percentLength);
+				myTriggers->RumbleDevice2(0, percentForce, length_ms);
 			}
 			else if (HowtoRumbleBulletEffect == 2)
 			{
-				double percentForce = ((Bullet2pStrength) / 100.0);
-				double percentLength = configFeedbackLength;
-				myTriggers->RumbleDevice2(percentForce, 0, percentLength);
+				myTriggers->RumbleDevice2(percentForce, 0, length_ms);
 			}
 		}
 		if (GrenadeExplode2p == 0x42)
 		{
+			double percentForce = ((Grenade2pStrength) / 100.0);
 			if (HowtoRumbleGrenadeEffect == 0)
 			{
-				double percentForce = ((Grenade2pStrength) / 100.0);
-				double percentLength = configFeedbackLength;
-				myTriggers->RumbleDevice2(percentForce, percentForce, percentLength);
+				myTriggers->RumbleDevice2(percentForce, percentForce, length_ms);
 			}
 			else if (HowtoRumbleGrenadeEffect == 1)
 			{
-				double percentForce = ((Grenade2pStrength) / 100.0);
-				double percentLength = configFeedbackLength;
-				myTriggers->RumbleDevice2(0, percentForce, percentLength);
+				myTriggers->RumbleDevice2(0, percentForce, length_ms);
 			}
 			else if (HowtoRumbleGrenadeEffect == 2)
 			{
-				double percentForce = ((Grenade2pStrength) / 100.0);
-				double percentLength = configFeedbackLength;
-				myTriggers->RumbleDevice2(percentForce, 0, percentLength);
+				myTriggers->RumbleDevice2(percentForce, 0, length_ms);
 			}
 		}
 		HealthB = false;
@@ -293,10 +254,10 @@ void HOTD4::FFBLoop(EffectConstants *constants, Helpers *helpers, EffectTriggers
 			int Device2GUID = GetPrivateProfileString(TEXT("Settings"), TEXT("Device2GUID"), NULL, deviceGUIDString2, 256, settingsFilename);
 			char joystick_guid[256];
 			sprintf(joystick_guid, "%S", deviceGUIDString2);
-			SDL_JoystickGUID guid, dev_guid;
+			SDL_JoystickGUID  dev_guid;
 			int numJoysticks = SDL_NumJoysticks();
-			std::string njs = std::to_string(numJoysticks);
-			((char)njs.c_str());
+			/*std::string njs = std::to_string(numJoysticks);
+			((char)njs.c_str());*/
 			for (int i = 0; i < SDL_NumJoysticks(); i++)
 			{
 				extern int joystick1Index;
@@ -325,7 +286,7 @@ void HOTD4::FFBLoop(EffectConstants *constants, Helpers *helpers, EffectTriggers
 			haptic2 = ControllerHaptic2;
 			if ((SDL_HapticRumbleSupported(haptic2) == SDL_TRUE))
 			{
-				SDL_HapticRumbleInit;
+				//SDL_HapticRumbleInit;
 				SDL_HapticRumbleInit(ControllerHaptic2);
 			}
 		}

@@ -26,12 +26,12 @@ void SegaRally3::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTri
 	if (EnableDamper)
 		triggers->Damper(DamperStrength / 100.0);
 
+	UINT32 length_ms = 100;
 	if (ff > 15)
 	{
 		helpers->log("moving wheel right");
 		double percentForce = (31 - ff) / 15.0;
-		double percentLength = 100;
-		triggers->Rumble(percentForce, 0, percentLength);
+		triggers->Rumble(percentForce, 0, length_ms);
 		triggers->Constant(constants->DIRECTION_FROM_LEFT, percentForce);
 
 	}
@@ -39,8 +39,7 @@ void SegaRally3::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTri
 	{
 		helpers->log("moving wheel left");
 		double percentForce = (16 - ff) / 15.0;
-		double percentLength = 100;
-		triggers->Rumble(0, percentForce, percentLength);
+		triggers->Rumble(0, percentForce, length_ms);
 		triggers->Constant(constants->DIRECTION_FROM_RIGHT, percentForce);
 	}
 }

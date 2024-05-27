@@ -28,11 +28,11 @@ void SegaRacingClassic::FFBLoop(EffectConstants* constants, Helpers* helpers, Ef
 		triggers->Damper(DamperStrength / 100.0);
 	}
 
+	UINT32 length_ms = 100;
 	if ((ff > 0xD7) && (ff < 0xE0))
 	{
 		//Clutch
 		double percentForce = (224 - ff) / 8.0;
-		double percentLength = 100;
 		triggers->Friction(percentForce);
 	}
 
@@ -40,7 +40,6 @@ void SegaRacingClassic::FFBLoop(EffectConstants* constants, Helpers* helpers, Ef
 	{
 		//Centering
 		double percentForce = (200 - ff) / 8.0;
-		double percentLength = 100;
 		triggers->Spring(pow(percentForce, 0.1));
 	}
 
@@ -48,17 +47,15 @@ void SegaRacingClassic::FFBLoop(EffectConstants* constants, Helpers* helpers, Ef
 	{
 		//Uncentering
 		double percentForce = (192 - ff) / 8.0;
-		double percentLength = 100;
-		triggers->Rumble(percentForce, percentForce, percentLength);
-		triggers->Sine(70, 80, percentForce);
+		triggers->Rumble(percentForce, percentForce, length_ms);
+		triggers->Sine(70, 80, percentForce, length_ms);
 	}
 
 	if ((ff > 0xA7) && (ff < 0xB0))
 	{
 		//Roll Left
 		double percentForce = (176 - ff) / 8.0;
-		double percentLength = 100;
-		triggers->Rumble(0, percentForce, percentLength);
+		triggers->Rumble(0, percentForce, length_ms);
 		triggers->Constant(constants->DIRECTION_FROM_RIGHT, percentForce);
 	}
 
@@ -66,8 +63,7 @@ void SegaRacingClassic::FFBLoop(EffectConstants* constants, Helpers* helpers, Ef
 	{
 		//Roll Right
 		double percentForce = (160 - ff) / 8.0;
-		double percentLength = 100;
-		triggers->Rumble(percentForce, 0, percentLength);
+		triggers->Rumble(percentForce, 0, length_ms);
 		triggers->Constant(constants->DIRECTION_FROM_LEFT, percentForce);
 	}
 }

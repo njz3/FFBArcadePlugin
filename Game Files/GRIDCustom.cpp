@@ -67,45 +67,41 @@ void GRIDCustom::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTri
 	{
 		myHelpers->log("gear change");
 		double percentForce = GearChangeStrength / 100.0;
-		myTriggers->Sine(GearChangeLength, 0, percentForce);
+		myTriggers->Sine(GearChangeLength, 0, percentForce, 150);
 		myTriggers->Rumble(0, percentForce, 150);
 		gearshift = false;
 	}
 
+	UINT32 length_ms = 100;
 	if (Wheels > 0)
 	{
 		double percentForce = Wheels / 37.0;
-		double percentLength = 100;
-		triggers->Rumble(percentForce, percentForce, percentLength);
-		triggers->Sine(80, 80, percentForce);
+		triggers->Rumble(percentForce, percentForce, length_ms);
+		triggers->Sine(80, 80, percentForce, length_ms);
 	}
 
 	if ((Skids > 12) && (speedo > 0))
 	{
 		double percentForce = ((Skids - 12) / 8.0);
-		double percentLength = 100;
-		triggers->Rumble(percentForce, 0, percentLength);
+		triggers->Rumble(percentForce, 0, length_ms);
 	}
 
 	if ((AI > 0) && (PanelBase4 > 0))
 	{
 		double percentForce = (PanelBase4) / 8.0;
-		double percentLength = 100;
-		triggers->Rumble(percentForce, percentForce, percentLength);
+		triggers->Rumble(percentForce, percentForce, length_ms);
 	}
 
 	if ((WallBase4 > 0) && (PanelBase4 > 0))
 	{
 		double percentForce = (PanelBase4) / 8.0;
-		double percentLength = 100;
-		triggers->Rumble(percentForce, 0, percentLength);
+		triggers->Rumble(percentForce, 0, length_ms);
 		triggers->Constant(constants->DIRECTION_FROM_RIGHT, percentForce);
 	}
 	else if ((WallBase4 < 0) && (PanelBase4 > 0))
 	{
 		double percentForce = (PanelBase4) / 8.0;
-		double percentLength = 100;
-		triggers->Rumble(0, percentForce, percentLength);
+		triggers->Rumble(0, percentForce, length_ms);
 		triggers->Constant(constants->DIRECTION_FROM_LEFT, percentForce);
 	}
 	oldgear = newgear;

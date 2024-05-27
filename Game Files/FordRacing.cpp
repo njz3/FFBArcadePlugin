@@ -25,20 +25,19 @@ void FordRacing::FFBLoop(EffectConstants *constants, Helpers *helpers, EffectTri
 	if (EnableDamper)
 		triggers->Damper(DamperStrength / 100.0);
 
+	UINT32 length_ms = 50;
 	if (ff < -65505 && ff > -65515)
 	{
 		helpers->log("moving wheel left");
 		double percentForce = (-65505 - ff) / 9.0;
-		double percentLength = 50;
-		triggers->Rumble(0, percentForce, percentLength);
+		triggers->Rumble(0, percentForce, length_ms);
 		triggers->Constant(constants->DIRECTION_FROM_RIGHT, percentForce);
 	}
 	else if (ff > 0 && ff < 16)
 	{
 		helpers->log("moving wheel right");
 		double percentForce = (16 - ff) / 9.0;
-		double percentLength = 50;
-		triggers->Rumble(percentForce, 0, percentLength);
+		triggers->Rumble(percentForce, 0, length_ms);
 		triggers->Constant(constants->DIRECTION_FROM_LEFT, percentForce);
 	}
 }

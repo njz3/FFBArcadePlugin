@@ -49,7 +49,7 @@ void BG4JP::FFBLoop(EffectConstants *constants, Helpers *helpers, EffectTriggers
 		triggers->Damper(DamperStrength / 100.0);
 
 	double percentForce = ffspeed / 180.00;
-	double percentLength = 100.0;
+	UINT32 length_ms = 100;
 
 	if (percentForce > 1.0)
 		percentForce = 1.0;
@@ -63,8 +63,8 @@ void BG4JP::FFBLoop(EffectConstants *constants, Helpers *helpers, EffectTriggers
 			if (oldgear != newgear && ShiftEffect != 0x00)
 			{
 				double percentForceShift = GearChangeStrength / 100.0;
-				triggers->Sine(GearChangeSinePeriod, 0, percentForceShift);
-				triggers->Rumble(0, percentForceShift, 100.0);
+				triggers->Sine(GearChangeSinePeriod, 0, percentForceShift, 100);
+				triggers->Rumble(0, percentForceShift, 100);
 			}
 		}
 
@@ -72,25 +72,25 @@ void BG4JP::FFBLoop(EffectConstants *constants, Helpers *helpers, EffectTriggers
 		{
 			if (WallContact & 0x02)
 			{
-				triggers->Sine(BoostSinePeriod, BoostFadeSinePeriod, percentForce);
-				triggers->Rumble(percentForce, percentForce, percentLength);
+				triggers->Sine(BoostSinePeriod, BoostFadeSinePeriod, percentForce, length_ms);
+				triggers->Rumble(percentForce, percentForce, length_ms);
 			}
 		}
 
 		if (CarContact & 0x01)
 		{
-			triggers->Sine(120, 0, percentForce);
-			triggers->Rumble(percentForce, percentForce, percentLength);
+			triggers->Sine(120, 0, percentForce, length_ms);
+			triggers->Rumble(percentForce, percentForce, length_ms);
 		}
 
 		if (WallContact & 0x10 || CarContact & 0x08)
 		{
-			triggers->Rumble(percentForce, 0, percentLength);
+			triggers->Rumble(percentForce, 0, length_ms);
 			triggers->Constant(constants->DIRECTION_FROM_LEFT, percentForce);
 		}
 		else if (WallContact & 0x20 || CarContact & 0x02)
 		{
-			triggers->Rumble(0, percentForce, percentLength);
+			triggers->Rumble(0, percentForce, length_ms);
 			triggers->Constant(constants->DIRECTION_FROM_RIGHT, percentForce);
 		}
 	}

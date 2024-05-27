@@ -33,18 +33,17 @@ void MarioKartGPDX110Real::FFBLoop(EffectConstants* constants, Helpers* helpers,
 	DWORD BaseOff0 = helpers->ReadInt32(Base + 0x08, false);
 	float FFB = helpers->ReadFloat32(BaseOff0 + 0xA44, false);
 
+	UINT32 length_ms = 100;
 	if (FFB > 0)
 	{
 		double percentForce = FFB;
-		double percentLength = 100;
-		triggers->Rumble(percentForce, 0, percentLength);
+		triggers->Rumble(percentForce, 0, length_ms);
 		triggers->Constant(constants->DIRECTION_FROM_LEFT, percentForce);
 	}
 	else if (FFB < 0)
 	{
 		double percentForce = -FFB;
-		double percentLength = 100;
-		triggers->Rumble(0, percentForce, percentLength);
+		triggers->Rumble(0, percentForce, length_ms);
 		triggers->Constant(constants->DIRECTION_FROM_RIGHT, percentForce);
 	}
 }

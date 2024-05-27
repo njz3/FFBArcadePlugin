@@ -45,7 +45,7 @@ static int FFBShorelineFriction = GetPrivateProfileInt(TEXT("Settings"), TEXT("F
 void CrazyTaxi::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTriggers* triggers) {
 
 	UINT8 InGame = helpers->ReadByte(0x12AA314, true);
-	DWORD Timer = helpers->ReadIntPtr(0x12A41A4, true);
+	INT_PTR Timer = helpers->ReadIntPtr(0x12A41A4, true);
 	UINT8 GroundEffect = helpers->ReadByte(0x1AB0D74, true);
 	UINT8 OriginalRumble = helpers->ReadByte(0x12EF93B, true);
 	UINT8 CrazyMoves1 = helpers->ReadByte(0x12EF892, true);
@@ -72,26 +72,26 @@ void CrazyTaxi::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTrig
 
 		helpers->WriteByte(0x1C363A, 0x00, true); //Disable native rumble/ffb
 
-		triggers->Springi(SpringStrength / 100.0);
+		triggers->Springi(SpringStrength / 100);
 
 		if (EngineRumbleEffect)
 		{
 			if (Speed < 0.001)
-				triggers->Rumble(0, 0.012, 100.0);
+				triggers->Rumble(0, 0.012, 100);
 			else
-				triggers->Rumble(0, 0.012 + percentForceGround / 7.0, 100.0);
+				triggers->Rumble(0, 0.012 + percentForceGround / 7.0, 100);
 		}
 
 		if (OriginalRumbleEffect)
 		{
 			if (OriginalRumble)
-				triggers->Rumble(0, percentForce, 100.0);
+				triggers->Rumble(0, percentForce, 100);
 
 			if (CrazyMoves1 & 0x10)
-				triggers->Rumble(0, 1.0, 100.0);
+				triggers->Rumble(0, 1.0, 100);
 
 			if (CrazyMoves2)
-				triggers->Rumble(0, 1.0, 100.0);
+				triggers->Rumble(0, 1.0, 100);
 		}
 
 		if (OriginalRumbleEffect && CrazyMoves1 & 0x10 || OriginalRumbleEffect && CrazyMoves2) {}
@@ -104,38 +104,38 @@ void CrazyTaxi::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTrig
 			case 0x03: //Driving on grass
 				if (EnableGroundEffects && Speed > 0.001)
 				{
-					triggers->Rumble(percentForceGround, percentForceGround, 100.0);
-					triggers->Sine(FFBGrassSinePeriod, FFBGrassFadeSinePeriod, percentForceGround);
+					triggers->Rumble(percentForceGround, percentForceGround, 100);
+					triggers->Sine(FFBGrassSinePeriod, FFBGrassFadeSinePeriod, percentForceGround, 100);
 				}
 				break;
 			case 0x05: //Driving on shoreline
 				if (EnableGroundEffects && Speed > 0.001)
 				{
-					triggers->Rumble(percentForceGround, percentForceGround, 100.0);
-					triggers->Sine(FFBShorelineSinePeriod, FFBShorelineFadeSinePeriod, percentForceGround);
+					triggers->Rumble(percentForceGround, percentForceGround, 100);
+					triggers->Sine(FFBShorelineSinePeriod, FFBShorelineFadeSinePeriod, percentForceGround, 100);
 					triggers->Friction(FFBShorelineFriction / 100.0);
 				}
 				break;
 			case 0x09: //Driving on sand
 				if (EnableGroundEffects && Speed > 0.001)
 				{
-					triggers->Rumble(percentForceGround, percentForceGround, 100.0);
-					triggers->Sine(FFBSandSinePeriod, FFBSandFadeSinePeriod, percentForceGround);
+					triggers->Rumble(percentForceGround, percentForceGround, 100);
+					triggers->Sine(FFBSandSinePeriod, FFBSandFadeSinePeriod, percentForceGround, 100);
 					triggers->Friction(FFBSandFriction / 100.0);
 				}
 				break;
 			case 0x0A: //Driving on footpath
 				if (EnableGroundEffects && Speed > 0.001)
 				{
-					triggers->Rumble(percentForceGround, percentForceGround, 100.0);
-					triggers->Sine(FFBFootpathSinePeriod, FFBFootpathFadeSinePeriod, percentForceGround);
+					triggers->Rumble(percentForceGround, percentForceGround, 100);
+					triggers->Sine(FFBFootpathSinePeriod, FFBFootpathFadeSinePeriod, percentForceGround, 100);
 				}
 				break;
 			case 0x0E: //Driving underwater
 				if (EnableGroundEffects && Speed > 0.001)
 				{
-					triggers->Rumble(percentForceGround, percentForceGround, 100.0);
-					triggers->Sine(FFBUnderwaterSinePeriod, FFBUnderwaterFadeSinePeriod, percentForceGround);
+					triggers->Rumble(percentForceGround, percentForceGround, 100);
+					triggers->Sine(FFBUnderwaterSinePeriod, FFBUnderwaterFadeSinePeriod, percentForceGround, 100);
 					triggers->Friction(FFBUnderwaterFriction / 100.0);
 				}
 				break;
@@ -143,36 +143,36 @@ void CrazyTaxi::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTrig
 			case 0x13:
 				if (EnableGroundEffects && Speed > 0.001)
 				{
-					triggers->Rumble(0, percentForceGround, 100.0);
-					triggers->Sine(FFBStairsSinePeriod, FFBStairsFadeSinePeriod, percentForceGround);
+					triggers->Rumble(0, percentForceGround, 100);
+					triggers->Sine(FFBStairsSinePeriod, FFBStairsFadeSinePeriod, percentForceGround, 100);
 				}
 				break;
 			case 0x12: //Driving stairs
 			case 0x14:
 				if (EnableGroundEffects && Speed > 0.001)
 				{
-					triggers->Rumble(percentForceGround, 0, 100.0);
-					triggers->Sine(FFBStairsSinePeriod, FFBStairsFadeSinePeriod, percentForceGround);
+					triggers->Rumble(percentForceGround, 0, 100);
+					triggers->Sine(FFBStairsSinePeriod, FFBStairsFadeSinePeriod, percentForceGround, 100);
 				}
 				break;
 			case 0x15: //Driving subway indoors
 				if (EnableGroundEffects && Speed > 0.001)
 				{
-					triggers->Rumble(percentForceGround, 0, 100.0);
-					triggers->Sine(FFBSubwaySinePeriod, FFBSubwayFadeSinePeriod, percentForceGround);
+					triggers->Rumble(percentForceGround, 0, 100);
+					triggers->Sine(FFBSubwaySinePeriod, FFBSubwayFadeSinePeriod, percentForceGround, 100);
 				}
 				break;
 			case 0xFF: //Colliding with cars/walls
 				if (RightWall > 0)
 				{
-					triggers->Rumble(0, percentForce, 100.0);
+					triggers->Rumble(0, percentForce, 100);
 
 					if (!DisableConstantEffects)
 						triggers->Constant(constants->DIRECTION_FROM_RIGHT, percentForce);
 				}
 				else if (LeftWall > 0)
 				{
-					triggers->Rumble(percentForce, 0, 100.0);
+					triggers->Rumble(percentForce, 0, 100);
 
 					if (!DisableConstantEffects)
 						triggers->Constant(constants->DIRECTION_FROM_LEFT, percentForce);
@@ -191,8 +191,8 @@ void CrazyTaxi::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTrig
 
 		if (Collision)
 		{
-			triggers->Sine(150.0, 0, percentForce);
-			triggers->Rumble(percentForce, percentForce, 100.0);
+			triggers->Sine(150, 0, percentForce, 100);
+			triggers->Rumble(percentForce, percentForce, 100);
 			Collision = false;
 		}
 

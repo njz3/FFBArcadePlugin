@@ -27,11 +27,11 @@ static void __cdecl FUN_00402cf0(float param_1) {
 
 	if (param_1 >= 0) {
 		
-		myTriggers->Rumble(0, param_1, 100.0);
+		myTriggers->Rumble(0, param_1, 100);
 		myTriggers->Constant(myConstants->DIRECTION_FROM_RIGHT, param_1 );
 	}
 	 if (param_1 <= 0) {
-		myTriggers->Rumble(0, param_1 * -1, 100.0);
+		myTriggers->Rumble(0, param_1 * -1, 100);
 		myTriggers->Constant(myConstants->DIRECTION_FROM_LEFT, param_1 * -1);
 	}
 	return;

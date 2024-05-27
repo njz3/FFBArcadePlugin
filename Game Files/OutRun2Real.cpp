@@ -45,26 +45,23 @@ void SendForceFeedback(__int8 force)
 {
 	float ffspeed = myHelpers->ReadFloat32(0x08273DF0, /* isRelativeOffset */ false); //speedo
 
+	double percentForce = SpeedStrength / 100.0;
+	UINT32 length_ms = 100;
+
 	if ((force == 0x10) || (force == 0x0B) || (force == 0x04))
 	{
-		double percentForce = SpeedStrength / 100.0;
-		double percentLength = 100;
-		myTriggers->Rumble(0, percentForce, percentLength);
+		myTriggers->Rumble(0, percentForce, length_ms);
 		myTriggers->Constant(myConstants->DIRECTION_FROM_RIGHT, percentForce);
 	}
 	if ((force == 0x00) || (force == 0x1B) || (force == 0x14))
 	{
-		double percentForce = SpeedStrength / 100.0;
-		double percentLength = 100;
-		myTriggers->Rumble(percentForce, 0, percentLength);
+		myTriggers->Rumble(percentForce, 0, length_ms);
 		myTriggers->Constant(myConstants->DIRECTION_FROM_LEFT, percentForce);
 	}
 	if (force == 0x02)
 	{
-		double percentForce = SpeedStrength / 100.0;
-		double percentLength = 100;
-		myTriggers->Rumble(percentForce, percentForce, percentLength);
-		myTriggers->Sine(70, 80, percentForce);
+		myTriggers->Rumble(percentForce, percentForce, length_ms);
+		myTriggers->Sine(70, 80, percentForce, 200);
 	}
 }
 
@@ -93,7 +90,7 @@ static int ThreadLoop()
 	UINT8 ff8 = myHelpers->ReadByte(0x08304ADC, /* isRelativeOffset */ false); // 1 when race
 	float ffspeed = myHelpers->ReadFloat32(0x08273DF0, /* isRelativeOffset */ false); //speedo
 	UINT8 static oldgear = 0;
-	float newgear = gear;
+	UINT8 newgear = gear;
 
 	if ((ffspeed >= 0.1) && (ffspeed <= 80))
 	{
@@ -148,9 +145,9 @@ static int ThreadLoop()
 	if ((oldgear != newgear) && (ff8 == 1) && (ffspeed >= 0.1))
 	{
 		double percentForce = 0.1;
-		double percentLength = 100;
-		myTriggers->Sine(240, 320, percentForce);
-		myTriggers->Rumble(percentForce, percentForce, percentLength);
+		UINT32 length_ms = 100;
+		myTriggers->Sine(240, 320, percentForce, 250);
+		myTriggers->Rumble(percentForce, percentForce, length_ms);
 	}
 
 	oldgear = newgear;

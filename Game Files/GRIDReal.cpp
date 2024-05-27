@@ -42,18 +42,17 @@ static int __stdcall Out32Hook(DWORD device, DWORD data)
 		{
 			FFBCounter = 0;
 
+			UINT32 length_ms = 100; 
 			if (data > 15)
 			{
 				double percentForce = (31 - data) / 15.0;
-				double percentLength = 100;
-				myTriggers->Rumble(percentForce, 0, percentLength);
+				myTriggers->Rumble(percentForce, 0, length_ms);
 				myTriggers->Constant(myConstants->DIRECTION_FROM_LEFT, percentForce);
 			}
 			else if (data > 0)
 			{
 				double percentForce = (16 - data) / 15.0;
-				double percentLength = 100;
-				myTriggers->Rumble(0, percentForce, percentLength);
+				myTriggers->Rumble(0, percentForce, length_ms);
 				myTriggers->Constant(myConstants->DIRECTION_FROM_RIGHT, percentForce);
 			}
 		}
@@ -67,17 +66,17 @@ static int __fastcall EnableFFBHook(int a1, double a2)
 {
 	EnableFFBOri(a1, a2);
 	
-	*(BYTE*)(a1 + 92) = 1; // FFB
+	*(BYTE*)(a1 + 92) = (BYTE)1; // FFB
 
 	if (FFBOrRumble)
-		*(BYTE*)(a1 + 12) = 1; // Rumble
+		*(BYTE*)(a1 + 12) = (BYTE)1; // Rumble
 
 	return 0;
 }
 
 static DWORD WINAPI XInputSetStateGRID(DWORD dwUserIndex, XINPUT_VIBRATION* pVibration)
 {
-	myTriggers->Rumble(pVibration->wLeftMotorSpeed / 65535.0, pVibration->wRightMotorSpeed / 65535.0, 100.0);
+	myTriggers->Rumble(pVibration->wLeftMotorSpeed / 65535.0, pVibration->wRightMotorSpeed / 65535.0, 100);
 
 	return ERROR_SUCCESS;
 }
@@ -87,7 +86,7 @@ void GRIDReal::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTrigg
 	{
 		init = true;
 
-		DWORD ImageBase = (DWORD)GetModuleHandleA(0);
+		INT_PTR ImageBase = (INT_PTR)GetModuleHandleA(0);
 
 		MH_Initialize();
 		MH_CreateHook((void*)(ImageBase + 0x79CDE0), EnableFFBHook, (void**)&EnableFFBOri);

@@ -47,61 +47,61 @@ void Machstorm::FFBLoop(EffectConstants *constants, Helpers *helpers, EffectTrig
 	{
 		if (power == 61542)
 		{
-			double percentLength = (Power1RumbleLength);
+			UINT32 percentLength = (Power1RumbleLength);
 			double percentForce = ((Power1RumbleStrength) / 100.0);
 			triggers->Rumble(percentForce, percentForce, percentLength);
 		}
 		else if (power == 61543)
 		{
-			double percentLength = (Power2RumbleLength);
+			UINT32 percentLength = (Power2RumbleLength);
 			double percentForce = ((Power2RumbleStrength) / 100.0);
 			triggers->Rumble(percentForce, percentForce, percentLength);
 		}
 		else if (power == 61544)
 		{
-			double percentLength = (Power3RumbleLength);
+			UINT32 percentLength = (Power3RumbleLength);
 			double percentForce = ((Power3RumbleStrength) / 100.0);
 			triggers->Rumble(percentForce, percentForce, percentLength);
 		}
 		else if (power == 61545)
 		{
-			double percentLength = (Power4RumbleLength);
+			UINT32 percentLength = (Power4RumbleLength);
 			double percentForce = ((Power4RumbleStrength) / 100.0);
 			triggers->Rumble(percentForce, percentForce, percentLength);
 		}
 		else if (power == 61546)
 		{
-			double percentLength = (Power5RumbleLength);
+			UINT32 percentLength = (Power5RumbleLength);
 			double percentForce = ((Power5RumbleStrength) / 100.0);
 			triggers->Rumble(percentForce, percentForce, percentLength);
 		}
 		else if (power == 61547)
 		{
-			double percentLength = (Power6RumbleLength);
+			UINT32 percentLength = (Power6RumbleLength);
 			double percentForce = ((Power6RumbleStrength) / 100.0);
 			triggers->Rumble(percentForce, percentForce, percentLength);
 		}
 		else if (power == 61548)
 		{
-			double percentLength = (Power7RumbleLength);
+			UINT32 percentLength = (Power7RumbleLength);
 			double percentForce = ((Power7RumbleStrength) / 100.0);
 			triggers->Rumble(percentForce, percentForce, percentLength);
 		}
 		else if (power == 61549)
 		{
-			double percentLength = (Power8RumbleLength);
+			UINT32 percentLength = (Power8RumbleLength);
 			double percentForce = ((Power8RumbleStrength) / 100.0);
 			triggers->Rumble(percentForce, percentForce, percentLength);
 		}
 		else if (power == 61550)
 		{
-			double percentLength = (Power9RumbleLength);
+			UINT32 percentLength = (Power9RumbleLength);
 			double percentForce = ((Power9RumbleStrength) / 100.0);
 			triggers->Rumble(percentForce, percentForce, percentLength);
 		}
 		else if (power == 61551)
 		{
-			double percentLength = (Power10RumbleLength);
+			UINT32 percentLength = (Power10RumbleLength);
 			double percentForce = ((Power10RumbleStrength) / 100.0);
 			triggers->Rumble(percentForce, percentForce, percentLength);
 		}
@@ -110,61 +110,61 @@ void Machstorm::FFBLoop(EffectConstants *constants, Helpers *helpers, EffectTrig
 	{
 		if (power == 16773366)
 		{
-			double percentLength = (Power1RumbleLength);
+			UINT32 percentLength = (Power1RumbleLength);
 			double percentForce = ((Power1RumbleStrength) / 100.0);
 			triggers->Rumble(percentForce, percentForce, percentLength);
 		}
 		else if (power == 16773367)
 		{
-			double percentLength = (Power2RumbleLength);
+			UINT32 percentLength = (Power2RumbleLength);
 			double percentForce = ((Power2RumbleStrength) / 100.0);
 			triggers->Rumble(percentForce, percentForce, percentLength);
 		}		
 		else if (power == 16773368)
 		{
-			double percentLength = (Power3RumbleLength);
+			UINT32 percentLength = (Power3RumbleLength);
 			double percentForce = ((Power3RumbleStrength) / 100.0);
 			triggers->Rumble(percentForce, percentForce, percentLength);
 		}
 		else if (power == 16773369)
 		{
-			double percentLength = (Power4RumbleLength);
+			UINT32 percentLength = (Power4RumbleLength);
 			double percentForce = ((Power4RumbleStrength) / 100.0);
 			triggers->Rumble(percentForce, percentForce, percentLength);
 		}
 		else if (power == 16773370)
 		{
-			double percentLength = (Power5RumbleLength);
+			UINT32 percentLength = (Power5RumbleLength);
 			double percentForce = ((Power5RumbleStrength) / 100.0);
 			triggers->Rumble(percentForce, percentForce, percentLength);
 		}
 		else if (power == 16773371)
 		{
-			double percentLength = (Power6RumbleLength);
+			UINT32 percentLength = (Power6RumbleLength);
 			double percentForce = ((Power6RumbleStrength) / 100.0);
 			triggers->Rumble(percentForce, percentForce, percentLength);
 		}
 		else if (power == 16773372)
 		{
-			double percentLength = (Power7RumbleLength);
+			UINT32 percentLength = (Power7RumbleLength);
 			double percentForce = ((Power7RumbleStrength) / 100.0);
 			triggers->Rumble(percentForce, percentForce, percentLength);
 		}
 		else if (power == 16773373)
 		{
-			double percentLength = (Power8RumbleLength);
+			UINT32 percentLength = (Power8RumbleLength);
 			double percentForce = ((Power8RumbleStrength) / 100.0);
 			triggers->Rumble(percentForce, percentForce, percentLength);
 		}
 		else if (power == 16773374)
 		{
-			double percentLength = (Power9RumbleLength);
+			UINT32 percentLength = (Power9RumbleLength);
 			double percentForce = ((Power9RumbleStrength) / 100.0);
 			triggers->Rumble(percentForce, percentForce, percentLength);
 		}
 		else if (power == 16773375)
 		{
-			double percentLength = (Power10RumbleLength);
+			UINT32 percentLength = (Power10RumbleLength);
 			double percentForce = ((Power10RumbleStrength) / 100.0);
 			triggers->Rumble(percentForce, percentForce, percentLength);
 		}

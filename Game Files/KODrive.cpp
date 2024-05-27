@@ -31,19 +31,18 @@ void KODrive::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTrigge
 		triggers->Spring(1.0);
 	}
 
+	UINT32 length_ms = 100;
 	if (ffb[0] == 0x85 && ffb[1] > 0x00 && ffb[2] > 0x00)
 	{
 		double percentForce = ffb[2] / 24.0;
 		double Period = ffb[1] / 128.0 * 120.0;
-		double percentLength = 100;
-		triggers->Rumble(percentForce, percentForce, percentLength);
-		triggers->Sine(static_cast<int>(Period), 0, percentForce);
+		triggers->Rumble(percentForce, percentForce, length_ms);
+		triggers->Sine(static_cast<int>(Period), 0, percentForce, 200);
 	}
 
 	if (ffb[0] == 0x86 && ffb[2] > 0x00)
 	{
 		double percentForce = ffb[2] / 24.0;
-		double percentLength = 100;
 		triggers->Spring(percentForce);
 	}
 
@@ -52,15 +51,13 @@ void KODrive::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTrigge
 		if (ffb[1] == 0x00)
 		{
 			double percentForce = (128 - ffb[2]) / 24.0;
-			double percentLength = 100;
-			triggers->Rumble(percentForce, 0, percentLength);
+			triggers->Rumble(percentForce, 0, length_ms);
 			triggers->Constant(constants->DIRECTION_FROM_LEFT, percentForce);
 		}
 		else if (ffb[1] == 0x01)
 		{
 			double percentForce = (ffb[2] / 24.0);
-			double percentLength = 100;
-			triggers->Rumble(0, percentForce, percentLength);
+			triggers->Rumble(0, percentForce, length_ms);
 			triggers->Constant(constants->DIRECTION_FROM_RIGHT, percentForce);
 		}
 	}

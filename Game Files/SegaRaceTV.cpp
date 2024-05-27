@@ -48,7 +48,7 @@ void SegaRaceTV::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTri
 
 
 		
-		triggers->Rumble(0, percentForce, 100.0);
+		triggers->Rumble(0, percentForce, 100);
 		triggers->Constant(constants->DIRECTION_FROM_LEFT, percentForce);
 	}
 	else if (ff > 128)
@@ -57,7 +57,7 @@ void SegaRaceTV::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTri
 		std::ostringstream ss;
 		ss << "RIGHT: " << percentForce << " FF: " << ff;
 		OutputDebugStringA(ss.str().c_str());
-		triggers->Rumble(percentForce, 0, 100.0);
+		triggers->Rumble(percentForce, 0, 100);
 		triggers->Constant(constants->DIRECTION_FROM_RIGHT, percentForce);
 	}
 }

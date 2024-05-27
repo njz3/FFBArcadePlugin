@@ -62,9 +62,9 @@ extern int EnableForceSpringEffect;
 extern int ForceSpringStrength;
 extern int EnableDamper;
 extern int DamperStrength;
-static DWORD hookAddressM2A;
-static DWORD hookAddressM2B;
-static DWORD hookAddressM2C;
+static INT_PTR hookAddressM2A;
+static INT_PTR hookAddressM2B;
+static INT_PTR hookAddressM2C;
 static UINT8 OldFFB;
 
 static int InputDeviceWheelEnable = GetPrivateProfileInt(TEXT("Settings"), TEXT("InputDeviceWheelEnable"), 0, settingsFilename);
@@ -197,10 +197,10 @@ static bool Hook(void * toHook, void * ourFunct, int len) {
 
 	memset(toHook, 0x90, len);
 
-	DWORD relativeAddress = ((DWORD)ourFunct - (DWORD)toHook) - 5;
+	INT_PTR relativeAddress = ((INT_PTR)ourFunct - (INT_PTR)toHook) - 5;
 
 	*(BYTE*)toHook = 0xE9;
-	*(DWORD*)((DWORD)toHook + 1) = relativeAddress;
+	*(DWORD*)((INT_PTR)toHook + 1) = (DWORD)relativeAddress;
 
 	DWORD temp;
 	VirtualProtect(toHook, len, curProtection, &temp);
@@ -208,7 +208,7 @@ static bool Hook(void * toHook, void * ourFunct, int len) {
 	return true;
 }
 
-static DWORD jmpBackAddy;
+static INT_PTR jmpBackAddy;
 
 char* romnameM2;
 
@@ -282,19 +282,19 @@ void M2Emulator::FFBLoop(EffectConstants * constants, Helpers * helpers, EffectT
 
 			if (hookAddressM2A)
 			{
-				jmpBackAddy = hookAddressM2A + hookLength;
+				jmpBackAddy = hookAddressM2A + (INT_PTR)hookLength;
 				Hook((void*)hookAddressM2A, OldInputs, hookLength);
 			}
 
 			if (hookAddressM2B)
 			{
-				jmpBackAddy = hookAddressM2B + hookLength;
+				jmpBackAddy = hookAddressM2B + (INT_PTR)hookLength;
 				Hook((void*)hookAddressM2B, OldInputs, hookLength);
 			}
 
 			if (hookAddressM2C)
 			{
-				jmpBackAddy = hookAddressM2C + hookLength;
+				jmpBackAddy = hookAddressM2C + (INT_PTR)hookLength;
 				Hook((void*)hookAddressM2C, OldInputs, hookLength);
 			}
 		}
@@ -433,10 +433,10 @@ void M2Emulator::FFBLoop(EffectConstants * constants, Helpers * helpers, EffectT
 		if (!init)
 		{
 			int hookLength = 6;
-			DWORD hookAddress = (DWORD)GetProcAddress(GetModuleHandle(L"KERNEL32.dll"), "ExitProcess");
+			INT_PTR hookAddress = (INT_PTR)GetProcAddress(GetModuleHandle(L"KERNEL32.dll"), "ExitProcess");
 			if (hookAddress)
 			{
-				jmpBackAddy = hookAddress + hookLength;
+				jmpBackAddy = hookAddress + (INT_PTR)hookLength;
 				Hook((void*)hookAddress, ExitHook, hookLength);
 				init = true;
 			}
@@ -449,11 +449,11 @@ void M2Emulator::FFBLoop(EffectConstants * constants, Helpers * helpers, EffectT
 		helpers->log((char*)ffs.c_str());
 		helpers->log("got value: ");
 
+		UINT32 length_ms = 100;
 		if ((ff > 0x09) && (ff < 0x18))
 		{
 			//Spring
 			double percentForce = (ff - 15) / 8.0;
-			double percentLength = 100;
 			triggers->Spring(percentForce);
 		}
 
@@ -461,7 +461,6 @@ void M2Emulator::FFBLoop(EffectConstants * constants, Helpers * helpers, EffectT
 		{
 			//Clutch
 			double percentForce = (ff - 31) / 8.0;
-			double percentLength = 100;
 			triggers->Friction(percentForce);
 		}
 
@@ -469,7 +468,6 @@ void M2Emulator::FFBLoop(EffectConstants * constants, Helpers * helpers, EffectT
 		{
 			//Centering
 			double percentForce = (ff - 47) / 13.0;
-			double percentLength = 100;
 			triggers->Spring(percentForce);
 		}
 
@@ -477,25 +475,22 @@ void M2Emulator::FFBLoop(EffectConstants * constants, Helpers * helpers, EffectT
 		{
 			//Uncentering
 			double percentForce = (ff - 63) / 8.0;
-			double percentLength = 100;
-			triggers->Sine(40, 0, percentForce);
-			triggers->Rumble(percentForce, percentForce, percentLength);
+			triggers->Sine(40, 0, percentForce, length_ms);
+			triggers->Rumble(percentForce, percentForce, length_ms);
 		}
 
 		if ((ff > 0x4F) && (ff < 0x58))
 		{
 			//Roll Left
 			double percentForce = (ff - 79) / 8.0;
-			double percentLength = 100;
-			triggers->Rumble(0, percentForce, percentLength);
+			triggers->Rumble(0, percentForce, length_ms);
 			triggers->Constant(constants->DIRECTION_FROM_RIGHT, percentForce);
 		}
 		else if ((ff > 0x5F) && (ff < 0x68))
 		{
 			//Roll Right
 			double percentForce = (ff - 95) / 8.0;
-			double percentLength = 100;
-			triggers->Rumble(percentForce, 0, percentLength);
+			triggers->Rumble(percentForce, 0, length_ms);
 			triggers->Constant(constants->DIRECTION_FROM_LEFT, percentForce);
 		}
 	}
@@ -526,13 +521,13 @@ void M2Emulator::FFBLoop(EffectConstants * constants, Helpers * helpers, EffectT
 
 		if (OldFFB != ff1)
 		{
+			UINT32 length_ms = 100;
 			if (ff1 >= 0xC0 && ff1 <= 0xDF)
 			{
 				helpers->log("moving wheel left");
 				double percentForce = (ff1 - 191) / 32.0;
-				double percentLength = 100;
 
-				triggers->Rumble(0, percentForce, percentLength);
+				triggers->Rumble(0, percentForce, length_ms);
 				triggers->Constant(constants->DIRECTION_FROM_RIGHT, percentForce);
 			}
 			
@@ -540,9 +535,8 @@ void M2Emulator::FFBLoop(EffectConstants * constants, Helpers * helpers, EffectT
 			{
 				helpers->log("moving wheel right");
 				double percentForce = (ff1 - 127) / 32.0;
-				double percentLength = 100;
 
-				triggers->Rumble(percentForce, 0, percentLength);
+				triggers->Rumble(percentForce, 0, length_ms);
 				triggers->Constant(constants->DIRECTION_FROM_LEFT, percentForce);
 			}
 		}

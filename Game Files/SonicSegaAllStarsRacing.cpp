@@ -36,20 +36,19 @@ void SonicSegaAllStarsRacing::FFBLoop(EffectConstants *constants, Helpers *helpe
 
 	if (OLDFFB != FFB)
 	{
+		UINT32 length_ms = 100;
 		if (FFB > 0 && FFB < 19)
 		{
 			helpers->log("moving wheel left");
 			double percentForce = FFB / 18.0;
-			double percentLength = 100;
-			triggers->Rumble(0, percentForce, percentLength);
+			triggers->Rumble(0, percentForce, length_ms);
 			triggers->Constant(constants->DIRECTION_FROM_RIGHT, percentForce);
 		}
 		else if (FFB > 237 && FFB < 256)
 		{
 			helpers->log("moving wheel right");
 			double percentForce = (256 - FFB) / 18.0;
-			double percentLength = 100;
-			triggers->Rumble(percentForce, 0, percentLength);
+			triggers->Rumble(percentForce, 0, length_ms);
 			triggers->Constant(constants->DIRECTION_FROM_LEFT, percentForce);
 		}
 		else

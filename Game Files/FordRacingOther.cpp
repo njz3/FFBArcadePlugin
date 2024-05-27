@@ -28,15 +28,15 @@ static int __stdcall Out32(DWORD device, DWORD data)
 		if (data > 0xFFFF0013 && data < 0xFFFF001F)
 		{
 			double percentForce = (4294901791 - data) / 10.0;
-			double percentLength = 100;
-			myTriggers->Rumble(0, percentForce, percentLength);
+			UINT32 length = 100;
+			myTriggers->Rumble(0, percentForce, length);
 			myTriggers->Constant(myConstants->DIRECTION_FROM_RIGHT, percentForce);
 		}
 		else if (data > 5 && data < 16)
 		{
 			double percentForce = (16 - data) / 10.0;
-			double percentLength = 100;
-			myTriggers->Rumble(percentForce, 0, percentLength);
+			UINT32 length = 100;
+			myTriggers->Rumble(percentForce, 0, length);
 			myTriggers->Constant(myConstants->DIRECTION_FROM_LEFT, percentForce);
 		}
 	}
@@ -53,10 +53,10 @@ static bool Hook(void * toHook, void * ourFunct, int len) {
 
 	memset(toHook, 0x90, len);
 
-	DWORD relativeAddress = ((DWORD)ourFunct - (DWORD)toHook) - 5;
+	INT_PTR relativeAddress = ((INT_PTR)ourFunct - (INT_PTR)toHook) - 5;
 
 	*(BYTE*)toHook = 0xE9;
-	*(DWORD*)((DWORD)toHook + 1) = relativeAddress;
+	*(DWORD*)((INT_PTR)toHook + 1) = (DWORD)relativeAddress;
 
 	DWORD temp;
 	VirtualProtect(toHook, len, curProtection, &temp);
@@ -64,7 +64,7 @@ static bool Hook(void * toHook, void * ourFunct, int len) {
 	return true;
 }
 
-static DWORD jmpBackAddy;
+static INT_PTR jmpBackAddy;
 
 void FordRacingOther::FFBLoop(EffectConstants *constants, Helpers *helpers, EffectTriggers* triggers) {
 	if (!init)
@@ -74,12 +74,15 @@ void FordRacingOther::FFBLoop(EffectConstants *constants, Helpers *helpers, Effe
 		{
 
 			int hookLength = 6;
-			DWORD hookAddress = (DWORD)GetProcAddress(GetModuleHandle(L"inpout32.dll"), "Out32");
-			if (hookAddress)
-			{
-				jmpBackAddy = hookAddress + hookLength;
-				Hook((void*)hookAddress, Out32, hookLength);
-				init = true;
+			HMODULE module = GetModuleHandle(L"inpout32.dll");
+			if (module!=NULL) {
+				INT_PTR hookAddress = (INT_PTR)GetProcAddress(module, "Out32");
+				if (hookAddress)
+				{
+					jmpBackAddy = hookAddress + hookLength;
+					Hook((void*)hookAddress, Out32, hookLength);
+					init = true;
+				}
 			}
 		}
 	}

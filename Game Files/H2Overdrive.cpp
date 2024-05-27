@@ -25,6 +25,7 @@ void H2Overdrive::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTr
 	std::string ffs = std::to_string(ff);
 	helpers->log((char*)ffs.c_str());
 
+	UINT32 length_ms = 100;
 	if (EnableDamper == 1)
 	{
 		triggers->Damper(DamperStrength / 100.0);
@@ -39,15 +40,13 @@ void H2Overdrive::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTr
 	if (ff > 0)
 	{
 		double percentForce = ff;
-		double percentLength = 100;
-		triggers->Rumble(percentForce, 0, percentLength);
+		triggers->Rumble(percentForce, 0, length_ms);
 		triggers->Constant(constants->DIRECTION_FROM_LEFT, percentForce);
 	}
 	else if (ff < 0)
 	{
 		double percentForce = -ff;
-		double percentLength = 100;
-		triggers->Rumble(0, percentForce, percentLength);
+		triggers->Rumble(0, percentForce, length_ms);
 		triggers->Constant(constants->DIRECTION_FROM_RIGHT, percentForce);
 	}
 }

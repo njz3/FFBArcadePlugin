@@ -26,7 +26,7 @@ void TestGame::FFBLoop(EffectConstants *constants, Helpers *helpers, EffectTrigg
 		triggers->Constant(constants->DIRECTION_FROM_RIGHT, 1);
 		break;
 	case -2:
-		triggers->Sine(125, 100, 0.25);
+		triggers->Sine(125, 100, 0.25, 100);
 		break;
 	case -3:
 		triggers->Friction(1);

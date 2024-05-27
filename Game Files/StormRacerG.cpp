@@ -39,9 +39,9 @@ static int FFBRumbleStripFadeSinePeriod = GetPrivateProfileInt(TEXT("Settings"),
 
 void StormRacerG::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTriggers* triggers)
 {
-	float FFBConstant = GetTeknoParrotFFB() / 1000.0;
+	float FFBConstant = (float)GetTeknoParrotFFB() / 1000.0f;
 	int Shake = GetTeknoParrotFFB2();
-	float Ground = GetTeknoParrotFFB3();
+	float Ground = (float)GetTeknoParrotFFB3();
 	float Speedo = helpers->ReadFloat32(0x10BE22D8, true);
 	UINT8 Racing = helpers->ReadByte(0x10BD5B20, true);
 
@@ -62,26 +62,25 @@ void StormRacerG::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTr
 		}
 	}
 
+	UINT32 length_ms = 100;
 	if (FFBConstant > 0)
 	{
 		double percentForce = FFBConstant / (MinFFBConstantStrength / 2.173913043478261);
-		double percentLength = 100;
 
 		if (percentForce > 1.0)
 			percentForce = 1.0;
 
-		triggers->Rumble(0, percentForce, percentLength);
+		triggers->Rumble(0, percentForce, length_ms);
 		triggers->Constant(constants->DIRECTION_FROM_RIGHT, percentForce);
 	}
 	else if (FFBConstant < 0)
 	{
 		double percentForce = -FFBConstant / (MinFFBConstantStrength / 2.173913043478261);
-		double percentLength = 100;
 
 		if (percentForce > 1.0)
 			percentForce = 1.0;
 
-		triggers->Rumble(percentForce, 0, percentLength);
+		triggers->Rumble(percentForce, 0, length_ms);
 		triggers->Constant(constants->DIRECTION_FROM_LEFT, percentForce);
 	}
 
@@ -92,13 +91,12 @@ void StormRacerG::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTr
 			if (Shake > 0)
 			{
 				double percentForce = ((Shake / 1500.0) * (FFBShakeSineStrength / 100.0));
-				double percentLength = 100;
 
 				if (percentForce > 1.0)
 					percentForce = 1.0;
 
-				triggers->Rumble(percentForce, percentForce, percentLength);
-				triggers->Sine(FFBShakeSinePeriod, FFBShakeFadeSinePeriod, percentForce);
+				triggers->Rumble(percentForce, percentForce, length_ms);
+				triggers->Sine(FFBShakeSinePeriod, FFBShakeFadeSinePeriod, percentForce, (UINT32)length_ms);
 			}
 		}
 	}
@@ -110,13 +108,12 @@ void StormRacerG::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTr
 			if (Shake > 0)
 			{
 				double percentForce = ((Shake / 1500.0) * (FFBShakeSineStrength / 100.0));
-				double percentLength = 100;
 
 				if (percentForce > 1.0)
 					percentForce = 1.0;
 
-				triggers->Rumble(percentForce, percentForce, percentLength);
-				triggers->Sine(FFBShakeSinePeriod, FFBShakeFadeSinePeriod, percentForce);
+				triggers->Rumble(percentForce, percentForce, length_ms);
+				triggers->Sine(FFBShakeSinePeriod, FFBShakeFadeSinePeriod, percentForce, (UINT32)length_ms);
 			}
 		}
 	}
@@ -125,36 +122,36 @@ void StormRacerG::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTr
 	{ 
 		if (Speedo > 1.0)
 		{
-			if (Ground < 10000) // Driving on Road (Not implemented yet)
+			if (Ground < 10000.0f) // Driving on Road (Not implemented yet)
 			{
-				Ground = Ground / 1000.0;
+				Ground = Ground / 1000.0f;
 			}
-			else if (Ground < 300000) // Driving on Grass
+			else if (Ground < 300000.0f) // Driving on Grass
 			{
-				Ground = ((Ground - 10000) / 1000.0);
+				Ground = ((Ground - 10000.0f) / 1000.0f);
 
-				Ground = Ground * (FFBGrassSineStrength / 100.0);
+				Ground = Ground * (FFBGrassSineStrength / 100.0f);
 
 				triggers->Rumble(Ground, Ground, 100);
-				triggers->Sine(FFBGrassSinePeriod, FFBGrassFadeSinePeriod, Ground);
+				triggers->Sine(FFBGrassSinePeriod, FFBGrassFadeSinePeriod, Ground, 100);
 			}
-			else if (Ground < 700000) // Driving on Rough Ground
+			else if (Ground < 700000.0f) // Driving on Rough Ground
 			{
-				Ground = ((Ground - 300000) / 1000.0);
+				Ground = ((Ground - 300000.0f) / 1000.0f);
 
-				Ground = Ground * (FFBRoughTerrainSineStrength / 100.0);
+				Ground = Ground * (FFBRoughTerrainSineStrength / 100.0f);
 
 				triggers->Rumble(Ground, Ground, 100);
-				triggers->Sine(FFBRoughTerrainSinePeriod, FFBRoughTerrainFadeSinePeriod, Ground);
+				triggers->Sine(FFBRoughTerrainSinePeriod, FFBRoughTerrainFadeSinePeriod, Ground, 100);
 			}
 			else
 			{
-				Ground = ((Ground - 700000) / 1000.0); // Driving on Rumble Strip
+				Ground = ((Ground - 700000.0f) / 1000.0f); // Driving on Rumble Strip
 
-				Ground = Ground * (FFBRumbleStripSineStrength / 100.0);
+				Ground = Ground * (FFBRumbleStripSineStrength / 100.0f);
 
 				triggers->Rumble(Ground, Ground, 100);
-				triggers->Sine(FFBRumbleStripSinePeriod, FFBRumbleStripFadeSinePeriod, Ground);
+				triggers->Sine(FFBRumbleStripSinePeriod, FFBRumbleStripFadeSinePeriod, Ground, 100);
 			}
 		}
 	}

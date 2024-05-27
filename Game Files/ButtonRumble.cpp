@@ -61,9 +61,9 @@ void ButtonRumble::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectT
 			int Device2GUID = GetPrivateProfileString(TEXT("Settings"), TEXT("Device2GUID"), NULL, deviceGUIDString2, 256, settingsFilename);
 			char joystick_guid[256];
 			sprintf(joystick_guid, "%S", deviceGUIDString2);
-			SDL_JoystickGUID guid, dev_guid;
+			SDL_JoystickGUID dev_guid;
 			int numJoysticks = SDL_NumJoysticks();
-			std::string njs = std::to_string(numJoysticks);
+			//std::string njs = std::to_string(numJoysticks);
 			for (int i = 0; i < SDL_NumJoysticks(); i++)
 			{
 				extern int joystick1Index;
@@ -92,7 +92,7 @@ void ButtonRumble::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectT
 			haptic2 = ControllerHaptic2;
 			if ((SDL_HapticRumbleSupported(haptic2) == SDL_TRUE))
 			{
-				SDL_HapticRumbleInit;
+				//SDL_HapticRumbleInit;
 				SDL_HapticRumbleInit(ControllerHaptic2);
 			}
 		}
@@ -117,6 +117,9 @@ void ButtonRumble::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectT
 			}
 		}
 
+		double percentForce = RumbleStrength / 100.0;
+		UINT32 length_ms = RumbleLength;
+
 		if (e.type == SDL_JOYBUTTONDOWN)
 		{
 			if (e.jaxis.which == joystick_index1)
@@ -125,9 +128,7 @@ void ButtonRumble::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectT
 				{
 					if (e.jbutton.button == Button1Rumble || e.jbutton.button == Button2Rumble || e.jbutton.button == Button3Rumble || e.jbutton.button == Button4Rumble || e.jbutton.button == Button5Rumble || e.jbutton.button == Button6Rumble || e.jbutton.button == Button7Rumble || e.jbutton.button == Button8Rumble || e.jbutton.button == Button9Rumble || e.jbutton.button == Button10Rumble)
 					{
-						double percentForce = RumbleStrength / 100.0;
-						double percentLength = RumbleLength * 1.0;
-						triggers->Rumble(percentForce, percentForce, percentLength);
+						triggers->Rumble(percentForce, percentForce, length_ms);
 					}
 				}
 
@@ -135,9 +136,7 @@ void ButtonRumble::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectT
 				{
 					if (e.jbutton.button == Button1Rumble || e.jbutton.button == Button2Rumble || e.jbutton.button == Button3Rumble || e.jbutton.button == Button4Rumble || e.jbutton.button == Button5Rumble || e.jbutton.button == Button6Rumble || e.jbutton.button == Button7Rumble || e.jbutton.button == Button8Rumble || e.jbutton.button == Button9Rumble || e.jbutton.button == Button10Rumble)
 					{
-							double percentForce = RumbleStrength / 100.0;
-							double percentLength = RumbleLength * 1.0;
-							triggers->Rumble(0, percentForce, percentLength);
+							triggers->Rumble(0, percentForce, length_ms);
 					}
 				}
 
@@ -145,9 +144,7 @@ void ButtonRumble::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectT
 				{
 					if (e.jbutton.button == Button1Rumble || e.jbutton.button == Button2Rumble || e.jbutton.button == Button3Rumble || e.jbutton.button == Button4Rumble || e.jbutton.button == Button5Rumble || e.jbutton.button == Button6Rumble || e.jbutton.button == Button7Rumble || e.jbutton.button == Button8Rumble || e.jbutton.button == Button9Rumble || e.jbutton.button == Button10Rumble)
 					{
-						double percentForce = RumbleStrength / 100.0;
-						double percentLength = RumbleLength * 1.0;
-						triggers->Rumble(percentForce, 0, percentLength);
+						triggers->Rumble(percentForce, 0, length_ms);
 					}
 				}
 			}
@@ -158,9 +155,7 @@ void ButtonRumble::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectT
 				{
 					if (e.jbutton.button == Button1Device2Rumble || e.jbutton.button == Button2Device2Rumble || e.jbutton.button == Button3Device2Rumble || e.jbutton.button == Button4Device2Rumble || e.jbutton.button == Button5Device2Rumble || e.jbutton.button == Button6Device2Rumble || e.jbutton.button == Button7Device2Rumble || e.jbutton.button == Button8Device2Rumble || e.jbutton.button == Button9Device2Rumble || e.jbutton.button == Button10Device2Rumble)
 					{
-						double percentForce = RumbleStrength / 100.0;
-						double percentLength = RumbleLength * 1.0;
-						triggers->RumbleDevice2(percentForce, percentForce, percentLength);
+						triggers->RumbleDevice2(percentForce, percentForce, length_ms);
 					}
 				}
 
@@ -168,9 +163,7 @@ void ButtonRumble::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectT
 				{
 					if (e.jbutton.button == Button1Device2Rumble || e.jbutton.button == Button2Device2Rumble || e.jbutton.button == Button3Device2Rumble || e.jbutton.button == Button4Device2Rumble || e.jbutton.button == Button5Device2Rumble || e.jbutton.button == Button6Device2Rumble || e.jbutton.button == Button7Device2Rumble || e.jbutton.button == Button8Device2Rumble || e.jbutton.button == Button9Device2Rumble || e.jbutton.button == Button10Device2Rumble)
 					{
-						double percentForce = RumbleStrength / 100.0;
-						double percentLength = RumbleLength * 1.0;
-						triggers->RumbleDevice2(0, percentForce, percentLength);
+						triggers->RumbleDevice2(0, percentForce, length_ms);
 					}
 				}
 
@@ -178,9 +171,7 @@ void ButtonRumble::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectT
 				{
 					if (e.jbutton.button == Button1Device2Rumble || e.jbutton.button == Button2Device2Rumble || e.jbutton.button == Button3Device2Rumble || e.jbutton.button == Button4Device2Rumble || e.jbutton.button == Button5Device2Rumble || e.jbutton.button == Button6Device2Rumble || e.jbutton.button == Button7Device2Rumble || e.jbutton.button == Button8Device2Rumble || e.jbutton.button == Button9Device2Rumble || e.jbutton.button == Button10Device2Rumble)
 					{
-						double percentForce = RumbleStrength / 100.0;
-						double percentLength = RumbleLength * 1.0;
-						triggers->RumbleDevice2(percentForce, 0, percentLength);
+						triggers->RumbleDevice2(percentForce, 0, length_ms);
 					}
 				}
 			}
@@ -192,9 +183,7 @@ void ButtonRumble::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectT
 			{
 				if (e.jbutton.button == Button1Rumble || e.jbutton.button == Button2Rumble || e.jbutton.button == Button3Rumble || e.jbutton.button == Button4Rumble || e.jbutton.button == Button5Rumble || e.jbutton.button == Button6Rumble || e.jbutton.button == Button7Rumble || e.jbutton.button == Button8Rumble || e.jbutton.button == Button9Rumble || e.jbutton.button == Button10Rumble)
 				{
-					double percentForce = ((RumbleStrength) / 100.0);
-					double percentLength = RumbleLength * 1.0;
-					triggers->Rumble(0, 0, percentLength);
+					triggers->Rumble(0, 0, length_ms);
 				}
 			}
 
@@ -202,9 +191,7 @@ void ButtonRumble::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectT
 			{
 				if (e.jbutton.button == Button1Device2Rumble || e.jbutton.button == Button2Device2Rumble || e.jbutton.button == Button3Device2Rumble || e.jbutton.button == Button4Device2Rumble || e.jbutton.button == Button5Device2Rumble || e.jbutton.button == Button6Device2Rumble || e.jbutton.button == Button7Device2Rumble || e.jbutton.button == Button8Device2Rumble || e.jbutton.button == Button9Device2Rumble || e.jbutton.button == Button10Device2Rumble)
 				{
-					double percentForce = ((RumbleStrength) / 100.0);
-					double percentLength = RumbleLength * 1.0;
-					triggers->RumbleDevice2(0, 0, percentLength);
+					triggers->RumbleDevice2(0, 0, length_ms);
 				}
 			}
 		}

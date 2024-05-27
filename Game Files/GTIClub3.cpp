@@ -34,26 +34,24 @@ void GTIClub3::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTrigg
 
 	if (!menu)
 	{
+		UINT32 length_ms = 100;
 		if (ff1 > 0x00 && ff1 < 0x40)
 		{
 			double percentForce = ff1 / 63.0;
-			double percentLength = 100;
-			triggers->Rumble(percentForce, percentForce, percentLength);
-			triggers->Sine(120, 0, percentForce);
+			triggers->Rumble(percentForce, percentForce, length_ms);
+			triggers->Sine(120, 0, percentForce, (UINT32)length_ms);
 		}
 
 		if (ff > 0x80 && ff < 0x101)
 		{
 			double percentForce = (257 - ff) / 128.0;
-			double percentLength = 100;
-			triggers->Rumble(percentForce, 0, percentLength);
+			triggers->Rumble(percentForce, 0, length_ms);
 			triggers->Constant(constants->DIRECTION_FROM_RIGHT, percentForce);
 		}
 		else if (ff > 0x00 && ff < 0x80)
 		{
 			double percentForce = (ff) / 127.0;
-			double percentLength = 100;
-			triggers->Rumble(0, percentForce, percentLength);
+			triggers->Rumble(0, percentForce, length_ms);
 			triggers->Constant(constants->DIRECTION_FROM_LEFT, percentForce);
 		}
 	}

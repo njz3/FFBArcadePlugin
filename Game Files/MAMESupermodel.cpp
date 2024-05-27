@@ -1196,6 +1196,7 @@ static int speedffb(int ffRaw) {
 	case 0x01:
 		return 1;
 	}
+	return 0;
 }
 
 static int DriveboardSequenceRunning = 0; // 0 = no sequence
@@ -1215,6 +1216,8 @@ static void FFBGameEffects(EffectConstants* constants, Helpers* helpers, EffectT
 			helpers->log("got value: ");
 			std::string ffs = std::to_string(stateFFB);
 			helpers->log((char*)ffs.c_str());
+
+			UINT32 length_ms = 100;
 
 			if (stateFFB >= 0x0 && stateFFB <= 0x09) // Sequences
 			{
@@ -1240,7 +1243,7 @@ static void FFBGameEffects(EffectConstants* constants, Helpers* helpers, EffectT
 			{
 				double percentForce = (stateFFB - 0x2F) / 16.0;
 				triggers->Rumble(percentForce, percentForce, 100);
-				triggers->Sine(40, 0, percentForce);
+				triggers->Sine(40, 0, percentForce, 100);
 			}
 
 			if (stateFFB >= 0x40 && stateFFB < 0x50) //Uncentering
@@ -1252,15 +1255,13 @@ static void FFBGameEffects(EffectConstants* constants, Helpers* helpers, EffectT
 			if (stateFFB >= 0x50 && stateFFB < 0x60) //Roll Right
 			{
 				double percentForce = (stateFFB - 0x4F) / 16.0;
-				double percentLength = 100;
-				triggers->Rumble(percentForce, 0, percentLength);
+				triggers->Rumble(percentForce, 0, length_ms);
 				triggers->Constant(constants->DIRECTION_FROM_LEFT, percentForce);
 			}
 			else if (stateFFB >= 0x60 && stateFFB < 0x70) //Roll Left
 			{
 				double percentForce = (stateFFB - 0x5F) / 16.0;
-				double percentLength = 100;
-				triggers->Rumble(0, percentForce, percentLength);
+				triggers->Rumble(0, percentForce, length_ms);
 				triggers->Constant(constants->DIRECTION_FROM_RIGHT, percentForce);
 			}
 
@@ -1293,7 +1294,7 @@ static void FFBGameEffects(EffectConstants* constants, Helpers* helpers, EffectT
 			std::string ffs = std::to_string(stateFFB);
 			helpers->log((char*)ffs.c_str());
 
-			
+			UINT32 length_ms = 100;
 			if (stateFFB >= 0x0 && stateFFB <= 0x09) // Sequences
 			{
 				// Mask: only 3 bits are relevant
@@ -1307,6 +1308,11 @@ static void FFBGameEffects(EffectConstants* constants, Helpers* helpers, EffectT
 				}
 				DriveboardSequence_starttime_ms = CurrentTime_ms;
 				DriveboardSequenceRunning = sequence;
+
+				helpers->log("scud: starts sequence");
+				std::string ffs = std::to_string(sequence);
+				helpers->log((char*)ffs.c_str());
+
 			}
 
 			if (stateFFB >= 0x10 && stateFFB < 0x20) //Spring
@@ -1314,6 +1320,11 @@ static void FFBGameEffects(EffectConstants* constants, Helpers* helpers, EffectT
 				// Spring Effect. 0x10 to stop the effect. Intensity range from 0x11...0x17(strong). Values are duplicated on 0x18...0x1F
 				double percentForce = (stateFFB & 0x7) / 7.0;
 				triggers->Spring(percentForce);
+
+				helpers->log("spring ");
+				std::string ffs = std::to_string(percentForce*100);
+				helpers->log((char*)ffs.c_str());
+
 			}
 
 			if (stateFFB >= 0x20 && stateFFB < 0x30) //Intensity
@@ -1322,6 +1333,10 @@ static void FFBGameEffects(EffectConstants* constants, Helpers* helpers, EffectT
 				// When a torque effect or a vibration effect is played, allows to modulate its intensity. 
 				// 0x20(very weak, almost no effect)...0x2F(strong)
 				ScudIntensityFactor = (double)(stateFFB - 0x1F) / 16.0; // => 0.066 to 1.0
+
+				helpers->log("intensity ");
+				std::string ffs = std::to_string(ScudIntensityFactor * 100);
+				helpers->log((char*)ffs.c_str());
 			}
 
 			if (stateFFB >= 0x30 && stateFFB < 0x40) //Vibration
@@ -1330,7 +1345,11 @@ static void FFBGameEffects(EffectConstants* constants, Helpers* helpers, EffectT
 				// Intensity range from 0x31...0x35(strong). Intensity seems to be modulated with 0x2X
 				double percentForce = (double)(stateFFB - 0x30) / 5.0 * ScudIntensityFactor;
 				triggers->Rumble(percentForce, percentForce, 100);
-				triggers->Sine(40, 0, percentForce);
+				triggers->Sine(40, 0, percentForce, 100);
+
+				helpers->log("vibration ");
+				std::string ffs = std::to_string(percentForce * 100);
+				helpers->log((char*)ffs.c_str());
 			}
 
 			if (stateFFB >= 0x40 && stateFFB < 0x50) // Power slide
@@ -1346,22 +1365,20 @@ static void FFBGameEffects(EffectConstants* constants, Helpers* helpers, EffectT
 				// Sign it
 				if (direction)
 					percentForce *= -1.0;
-				// Make it 3 seconds, no fade
-				triggers->Sine(3000.0, 0, percentForce);
+				// Make it 2 seconds, no fade
+				triggers->Sine(2000, 0, percentForce, 2000);
 			}
 
 			if (stateFFB >= 0x50 && stateFFB < 0x60) //Constant torque Right
 			{
 				double percentForce = (double)(stateFFB - 0x4F) / 16.0 * ScudIntensityFactor;
-				double percentLength = 100;
-				triggers->Rumble(percentForce, 0, percentLength);
+				triggers->Rumble(percentForce, 0, length_ms);
 				triggers->Constant(constants->DIRECTION_FROM_LEFT, percentForce);
 			}
 			else if (stateFFB >= 0x60 && stateFFB < 0x70) //Constant torque Left
 			{
 				double percentForce = (double)(stateFFB - 0x5F) / 16.0 * ScudIntensityFactor;
-				double percentLength = 100;
-				triggers->Rumble(0, percentForce, percentLength);
+				triggers->Rumble(0, percentForce, length_ms);
 				triggers->Constant(constants->DIRECTION_FROM_RIGHT, percentForce);
 			}
 
@@ -1408,7 +1425,7 @@ static void FFBGameEffects(EffectConstants* constants, Helpers* helpers, EffectT
 			if (DirtDevilSine)
 			{
 				double percentForce = (stateFFB - 31) / 16.0;
-				triggers->Sine(60, 0, percentForce);
+				triggers->Sine(60, 0, percentForce, 100);
 				triggers->Rumble(percentForce, percentForce, 100);
 			}
 		}
@@ -1422,18 +1439,17 @@ static void FFBGameEffects(EffectConstants* constants, Helpers* helpers, EffectT
 			std::string ffs = std::to_string(stateFFB);
 			helpers->log((char*)ffs.c_str());
 
+			UINT32 length_ms = 100;
 			if (stateFFB >= 0x00 && stateFFB <= 0x3F)
 			{
 				double percentForce = (stateFFB) / 64.0;
-				double percentLength = 100;
-				triggers->Rumble(0, percentForce, percentLength);
+				triggers->Rumble(0, percentForce, length_ms);
 				triggers->Constant(constants->DIRECTION_FROM_RIGHT, percentForce);
 			}
 			else if (stateFFB >= 0x40 && stateFFB <= 0x7F)
 			{
 				double percentForce = (stateFFB - 0x40) / 64.0;
-				double percentLength = 100;
-				triggers->Rumble(percentForce, 0, percentLength);
+				triggers->Rumble(percentForce, 0, length_ms);
 				triggers->Constant(constants->DIRECTION_FROM_LEFT, percentForce);
 			}
 		}
@@ -1447,6 +1463,7 @@ static void FFBGameEffects(EffectConstants* constants, Helpers* helpers, EffectT
 			std::string ffs = std::to_string(stateFFB);
 			helpers->log((char*)ffs.c_str());
 
+			UINT32 length_ms = 100;
 			if ((stateFFB == 0x03) || (stateFFB == 0x07) || (stateFFB == 0x09) || (stateFFB == 0x10))
 			{
 				if (stateFFB == 0x07)
@@ -1478,7 +1495,7 @@ static void FFBGameEffects(EffectConstants* constants, Helpers* helpers, EffectT
 				{
 					double percentForce = 0.4;
 					triggers->Rumble(percentForce, percentForce, 100);
-					triggers->Sine(70, 30, percentForce);
+					triggers->Sine(70, 30, percentForce, 100);
 				}
 				else
 				{
@@ -1486,7 +1503,7 @@ static void FFBGameEffects(EffectConstants* constants, Helpers* helpers, EffectT
 					{
 						double percentForce = 0.4;
 						triggers->Rumble(percentForce, percentForce, 100);
-						triggers->Sine(70, 30, percentForce);
+						triggers->Sine(70, 30, percentForce, 100);
 					}
 				}
 			}
@@ -1494,15 +1511,13 @@ static void FFBGameEffects(EffectConstants* constants, Helpers* helpers, EffectT
 			if (stateFFB == 0x50 || stateFFB == 0x5F) //Roll Left
 			{
 				double percentForce = 0.5;
-				double percentLength = 100;
-				triggers->Rumble(0, percentForce, percentLength);
+				triggers->Rumble(0, percentForce, length_ms);
 				triggers->Constant(constants->DIRECTION_FROM_RIGHT, percentForce);
 			}
 			else if (stateFFB == 0x60 || stateFFB == 0x6F) //Roll Right
 			{
 				double percentForce = 0.5;
-				double percentLength = 100;
-				triggers->Rumble(percentForce, 0, percentLength);
+				triggers->Rumble(percentForce, 0, length_ms);
 				triggers->Constant(constants->DIRECTION_FROM_LEFT, percentForce);
 			}
 		}
@@ -1516,18 +1531,17 @@ static void FFBGameEffects(EffectConstants* constants, Helpers* helpers, EffectT
 			std::string ffs = std::to_string(stateFFB);
 			helpers->log((char*)ffs.c_str());
 
+			UINT32 length_ms = 100;
 			if (stateFFB > 0x80 && stateFFB < 0x100)
 			{
 				double percentForce = (256 - stateFFB) / 126.0;
-				double percentLength = 100;
-				triggers->Rumble(percentForce, 0, percentLength);
+				triggers->Rumble(percentForce, 0, length_ms);
 				triggers->Constant(constants->DIRECTION_FROM_LEFT, percentForce);
 			}
 			else if (stateFFB > 0x00 && stateFFB < 0x80)
 			{
 				double percentForce = (stateFFB) / 126.0;
-				double percentLength = 100;
-				triggers->Rumble(0, percentForce, percentLength);
+				triggers->Rumble(0, percentForce, length_ms);
 				triggers->Constant(constants->DIRECTION_FROM_RIGHT, percentForce);
 			}
 		}
@@ -1541,18 +1555,17 @@ static void FFBGameEffects(EffectConstants* constants, Helpers* helpers, EffectT
 			std::string ffs = std::to_string(stateFFB);
 			helpers->log((char*)ffs.c_str());
 
+			UINT32 length_ms = 100;
 			if (stateFFB > 0x80 && stateFFB < 0x100)
 			{
 				double percentForce = (256 - stateFFB) / 126.0;
-				double percentLength = 100;
-				triggers->Rumble(0, percentForce, percentLength);
+				triggers->Rumble(0, percentForce, length_ms);
 				triggers->Constant(constants->DIRECTION_FROM_RIGHT, percentForce);
 			}
 			else if (stateFFB > 0x00 && stateFFB < 0x80)
 			{
 				double percentForce = (stateFFB) / 126.0;
-				double percentLength = 100;
-				triggers->Rumble(percentForce, 0, percentLength);
+				triggers->Rumble(percentForce, 0, length_ms);
 				triggers->Constant(constants->DIRECTION_FROM_LEFT, percentForce);
 			}
 		}
@@ -1567,19 +1580,18 @@ static void FFBGameEffects(EffectConstants* constants, Helpers* helpers, EffectT
 			helpers->log((char*)ffs.c_str());
 
 			UINT8 FFB = speedffb(stateFFB);
+			UINT32 length_ms = 100;
 
 			if (FFB > 0x00 && FFB < 0x11)
 			{
 				double percentForce = FFB / 16.0;
-				double percentLength = 100;
-				triggers->Rumble(percentForce, 0, percentLength);
+				triggers->Rumble(percentForce, 0, length_ms);
 				triggers->Constant(constants->DIRECTION_FROM_LEFT, percentForce);
 			}
 			else if (FFB > 0x10 && FFB < 0x20)
 			{
 				double percentForce = (FFB - 16) / 16.0;
-				double percentLength = 100;
-				triggers->Rumble(0, percentForce, percentLength);
+				triggers->Rumble(0, percentForce, length_ms);
 				triggers->Constant(constants->DIRECTION_FROM_RIGHT, percentForce);
 			}
 		}
@@ -1592,6 +1604,8 @@ static void FFBGameEffects(EffectConstants* constants, Helpers* helpers, EffectT
 			helpers->log("got value: ");
 			std::string ffs = std::to_string(stateFFB);
 			helpers->log((char*)ffs.c_str());
+
+			UINT32 length_ms = 100;
 
 			if (stateFFB != 0xD0)
 			{
@@ -1620,7 +1634,7 @@ static void FFBGameEffects(EffectConstants* constants, Helpers* helpers, EffectT
 				{
 					double percentForce = (stateFFB - 48) / 15.0;
 					triggers->Rumble(percentForce, percentForce, 100);
-					triggers->Sine(40, 0, percentForce);
+					triggers->Sine(40, 0, percentForce, 100);
 				}
 
 				if (stateFFB > 0x40 && stateFFB < 0x50)
@@ -1632,8 +1646,7 @@ static void FFBGameEffects(EffectConstants* constants, Helpers* helpers, EffectT
 				if (stateFFB > 0x50 && stateFFB < 0x60)
 				{
 					double percentForce = (stateFFB - 80) / 15.0;
-					double percentLength = 100;
-					triggers->Rumble(percentForce, 0, percentLength);
+					triggers->Rumble(percentForce, 0, length_ms);
 					triggers->Constant(constants->DIRECTION_FROM_LEFT, percentForce);
 				}
 
@@ -1642,8 +1655,7 @@ static void FFBGameEffects(EffectConstants* constants, Helpers* helpers, EffectT
 					if (stateFFB != 0x68 && stateFFB != 0x69 && stateFFB != 0x6A && stateFFB != 0x6B)
 					{
 						double percentForce = (stateFFB - 96) / 15.0;
-						double percentLength = 100;
-						triggers->Rumble(0, percentForce, percentLength);
+						triggers->Rumble(0, percentForce, length_ms);
 						triggers->Constant(constants->DIRECTION_FROM_RIGHT, percentForce);
 					}
 				}
@@ -1651,32 +1663,28 @@ static void FFBGameEffects(EffectConstants* constants, Helpers* helpers, EffectT
 				if (stateFFB > 0x80 && stateFFB < 0x90)
 				{
 					double percentForce = (stateFFB - 128) / 15.0;
-					double percentLength = 100;
-					triggers->Rumble(0, percentForce, percentLength);
+					triggers->Rumble(0, percentForce, length_ms);
 					triggers->Constant(constants->DIRECTION_FROM_RIGHT, percentForce);
 				}
 
 				if (stateFFB > 0x90 && stateFFB < 0xA0)
 				{
 					double percentForce = (stateFFB - 144) / 15.0;
-					double percentLength = 100;
-					triggers->Rumble(percentForce, 0, percentLength);
+					triggers->Rumble(percentForce, 0, length_ms);
 					triggers->Constant(constants->DIRECTION_FROM_LEFT, percentForce);
 				}
 
 				if (stateFFB > 0xA0 && stateFFB < 0xB0)
 				{
 					double percentForce = (stateFFB - 160) / 15.0;
-					double percentLength = 100;
-					triggers->Rumble(percentForce, 0, percentLength);
+					triggers->Rumble(percentForce, 0, length_ms);
 					triggers->Constant(constants->DIRECTION_FROM_LEFT, percentForce);
 				}
 
 				if (stateFFB == 0xBF)
 				{
 					double percentForce = 1.0;
-					double percentLength = 100;
-					triggers->Rumble(0, percentForce, percentLength);
+					triggers->Rumble(0, percentForce, length_ms);
 					triggers->Constant(constants->DIRECTION_FROM_RIGHT, percentForce);
 				}
 
@@ -1689,23 +1697,20 @@ static void FFBGameEffects(EffectConstants* constants, Helpers* helpers, EffectT
 				if (stateFFB > 0xD0 && stateFFB < 0xE0)
 				{
 					double percentForce = (stateFFB - 208) / 15.0;
-					double percentLength = 100;
 					triggers->Friction(percentForce);
 				}
 
 				if (stateFFB > 0xE0 && stateFFB < 0xE9)
 				{
 					double percentForce = (stateFFB - 224) / 8.0;
-					double percentLength = 100;
-					triggers->Rumble(percentForce, 0, percentLength);
+					triggers->Rumble(percentForce, 0, length_ms);
 					triggers->Constant(constants->DIRECTION_FROM_LEFT, percentForce);
 				}
 
 				if (stateFFB > 0xE8 && stateFFB < 0xF0)
 				{
 					double percentForce = (stateFFB - 232) / 8.0;
-					double percentLength = 100;
-					triggers->Rumble(percentForce, 0, percentLength);
+					triggers->Rumble(percentForce, 0, length_ms);
 					triggers->Constant(constants->DIRECTION_FROM_RIGHT, percentForce);
 				}
 
@@ -1721,13 +1726,13 @@ static void FFBGameEffects(EffectConstants* constants, Helpers* helpers, EffectT
 
 					double percentForce = (SineEffectState - 176) / 15.0;
 					triggers->Rumble(percentForce, percentForce, 100);
-					triggers->Sine(60, 0, percentForce);
+					triggers->Sine(60, 0, percentForce, 100);
 				}
 
 				if (stateFFB == 0xC0)
 				{
 					triggers->Rumble(0, 0, 100);
-					triggers->Sine(60, 0, 0);
+					triggers->Sine(60, 0, 0, 100);
 					triggers->Friction(0);
 					triggers->Constant(constants->DIRECTION_FROM_RIGHT, 0);
 					triggers->Constant(constants->DIRECTION_FROM_LEFT, 0);
@@ -1746,6 +1751,7 @@ static void FFBGameEffects(EffectConstants* constants, Helpers* helpers, EffectT
 			helpers->log((char*)ffs.c_str());
 
 			BYTE* ffb = reinterpret_cast<BYTE*>(&stateFFB);
+			UINT32 length_ms = 100;
 
 			if (ffb[2] == 0x80 && ffb[0] == 0x01)
 				triggers->Spring(1.0);
@@ -1754,15 +1760,13 @@ static void FFBGameEffects(EffectConstants* constants, Helpers* helpers, EffectT
 			{
 				double percentForce = ffb[0] / 127.0;
 				double Period = ffb[1] / 127.0 * 120.0;
-				double percentLength = 100;
-				triggers->Rumble(percentForce, percentForce, percentLength);
-				triggers->Sine(static_cast<int>(Period), 0, percentForce);
+				triggers->Rumble(percentForce, percentForce, length_ms);
+				triggers->Sine(static_cast<int>(Period), 0, percentForce, length_ms);
 			}
 
 			if (ffb[2] == 0x86 && ffb[0] > 0x00 && ffb[0] < 0x80)
 			{
 				double percentForce = ffb[0] / 127.0;
-				double percentLength = 100;
 				triggers->Spring(percentForce);
 			}
 
@@ -1771,15 +1775,13 @@ static void FFBGameEffects(EffectConstants* constants, Helpers* helpers, EffectT
 				if (ffb[1] == 0x00)
 				{
 					double percentForce = (128 - ffb[0]) / 127.0;
-					double percentLength = 100;
-					triggers->Rumble(percentForce, 0, percentLength);
+					triggers->Rumble(percentForce, 0, length_ms);
 					triggers->Constant(constants->DIRECTION_FROM_LEFT, percentForce);
 				}
 				else if (ffb[1] == 0x01)
 				{
 					double percentForce = (ffb[0] / 127.0);
-					double percentLength = 100;
-					triggers->Rumble(0, percentForce, percentLength);
+					triggers->Rumble(0, percentForce, length_ms);
 					triggers->Constant(constants->DIRECTION_FROM_RIGHT, percentForce);
 				}
 			}
@@ -1822,19 +1824,18 @@ static void FFBGameEffects(EffectConstants* constants, Helpers* helpers, EffectT
 			if (HardDrivinFFB < -100)
 				HardDrivinFFB = -100;
 
+			UINT32 length_ms = 100;
 			if (HardDrivinFFB >= 0)
 			{
 				double percentForce = HardDrivinFFB / 100.0;
-				double percentLength = 100;
-				triggers->Rumble(percentForce, 0, percentLength);
+				triggers->Rumble(percentForce, 0, length_ms);
 				triggers->Constant(constants->DIRECTION_FROM_LEFT, percentForce);
 			}
 			else if (HardDrivinFFB < 0)
 			{
 				HardDrivinFFB = -HardDrivinFFB;
 				double percentForce = HardDrivinFFB / 100.0;
-				double percentLength = 100;
-				triggers->Rumble(0, percentForce, percentLength);
+				triggers->Rumble(0, percentForce, length_ms);
 				triggers->Constant(constants->DIRECTION_FROM_RIGHT, percentForce);
 			}
 		}
@@ -1963,7 +1964,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 		DispatchMessage(&msg);
 	}
 
-	return msg.wParam;
+	return (int)msg.wParam;
 }
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
@@ -2057,8 +2058,8 @@ static void removeWord(char* str, char* toRemove)
 	int i, j, stringLen, toRemoveLen;
 	int found;
 
-	stringLen = strlen(str);
-	toRemoveLen = strlen(toRemove);
+	stringLen = (int)strlen(str);
+	toRemoveLen = (int)strlen(toRemove);
 
 
 	for (i = 0; i <= stringLen - toRemoveLen; i++)
@@ -2105,9 +2106,9 @@ int __stdcall mame_copydata(int id, const char* name)
 
 		removeWord(GameName, "game =");
 
-		int whitespace = 0;
+		UINT whitespace = 0;
 
-		for (int i = 0; i < strlen(GameName); i++)
+		for (UINT i = 0; i < strlen(GameName); i++)
 		{
 			if (GameName[i] == ' ' || GameName[i] == '\t')
 				whitespace++;
@@ -2115,7 +2116,7 @@ int __stdcall mame_copydata(int id, const char* name)
 				break;
 		}
 
-		for (int i = 0; i < strlen(GameName); i++)
+		for (UINT i = 0; i < strlen(GameName); i++)
 		{
 			if (i + whitespace < strlen(GameName))
 				GameName[i] = GameName[i + whitespace];
@@ -2138,7 +2139,7 @@ int __stdcall mame_updatestate(const char* id, int state)
 	if (name == NULL)
 		name = id;
 
-	wsprintf(buf, L"updatestate: id=%d (%S) state=%d\r\n", id, name, state);
+	wsprintf(buf, L"updatestate: id=%ld (%S) state=%d\r\n", (INT_PTR)id, name, state);
 	AppendTextToEditCtrl(hEdit, buf);
 
 	CStringA stringName(name);
@@ -2499,6 +2500,7 @@ static int raveracer(int ffRaw) {
 		//case 0xFC:
 			//return 1;
 	}
+	return 0;
 }
 
 DWORD WINAPI ThreadForOutputs(LPVOID lpParam)
@@ -2526,7 +2528,7 @@ void MAMESupermodel::FFBLoop(EffectConstants* constants, Helpers* helpers, Effec
 		int Device2GUID = GetPrivateProfileString(TEXT("Settings"), TEXT("Device2GUID"), NULL, deviceGUIDString2, 256, settingsFilename);
 		char joystick_guid[256];
 		sprintf(joystick_guid, "%S", deviceGUIDString2);
-		SDL_JoystickGUID guid, dev_guid;
+		SDL_JoystickGUID dev_guid;
 		int numJoysticks = SDL_NumJoysticks();
 		std::string njs = std::to_string(numJoysticks);
 		for (int i = 0; i < SDL_NumJoysticks(); i++)
@@ -2557,7 +2559,7 @@ void MAMESupermodel::FFBLoop(EffectConstants* constants, Helpers* helpers, Effec
 		haptic2 = ControllerHaptic2;
 		if ((SDL_HapticRumbleSupported(haptic2) == SDL_TRUE))
 		{
-			SDL_HapticRumbleInit;
+			//SDL_HapticRumbleInit;
 			SDL_HapticRumbleInit(ControllerHaptic2);
 		}
 		SDL_HapticSetGain(haptic2, 100);
@@ -2566,7 +2568,7 @@ void MAMESupermodel::FFBLoop(EffectConstants* constants, Helpers* helpers, Effec
 		int Device3GUID = GetPrivateProfileString(TEXT("Settings"), TEXT("Device3GUID"), NULL, deviceGUIDString3, 256, settingsFilename);
 		char joystick_guid2[256];
 		sprintf(joystick_guid2, "%S", deviceGUIDString3);
-		SDL_JoystickGUID guid2, dev_guid2;
+		SDL_JoystickGUID dev_guid2;
 		for (int i = 0; i < SDL_NumJoysticks(); i++)
 		{
 			extern int joystick1Index;
@@ -2595,7 +2597,7 @@ void MAMESupermodel::FFBLoop(EffectConstants* constants, Helpers* helpers, Effec
 		haptic3 = ControllerHaptic3;
 		if ((SDL_HapticRumbleSupported(haptic3) == SDL_TRUE))
 		{
-			SDL_HapticRumbleInit;
+			//SDL_HapticRumbleInit;
 			SDL_HapticRumbleInit(ControllerHaptic3);
 		}
 		SDL_HapticSetGain(haptic3, 100);
@@ -2697,24 +2699,6 @@ void MAMESupermodel::FFBLoop(EffectConstants* constants, Helpers* helpers, Effec
 				RunningFFB = "ScudRaceActive";
 			}
 
-			if (romname == srally2 || romname == srally2x || romname == srally2dx || romname == srally2p || romname == srally2pa)
-			{
-				configMinForce = configMinForceSRally2;
-				configMaxForce = configMaxForceSRally2;
-				configAlternativeMinForceLeft = configAlternativeMinForceLeftSRally2;
-				configAlternativeMaxForceLeft = configAlternativeMaxForceLeftSRally2;
-				configAlternativeMinForceRight = configAlternativeMinForceRightSRally2;
-				configAlternativeMaxForceRight = configAlternativeMaxForceRightSRally2;
-				configFeedbackLength = configFeedbackLengthSRally2;
-				PowerMode = PowerModeSRally2;
-				EnableForceSpringEffect = EnableForceSpringEffectSRally2;
-				ForceSpringStrength = ForceSpringStrengthSRally2;
-				EnableDamper = EnableDamperSRally2;
-				DamperStrength = DamperStrengthSRally2;
-
-				RunningFFB = "Srally2Active";
-			}
-
 			if (romname == ecau || romname == eca || romname == ecap || romname == ecaj)
 			{
 				configMinForce = configMinForceECA;
@@ -2731,6 +2715,24 @@ void MAMESupermodel::FFBLoop(EffectConstants* constants, Helpers* helpers, Effec
 				DamperStrength = DamperStrengthECA;
 
 				RunningFFB = "ScudRaceActive";
+			}
+			
+			if (romname == srally2 || romname == srally2x || romname == srally2dx || romname == srally2p || romname == srally2pa)
+			{
+				configMinForce = configMinForceSRally2;
+				configMaxForce = configMaxForceSRally2;
+				configAlternativeMinForceLeft = configAlternativeMinForceLeftSRally2;
+				configAlternativeMaxForceLeft = configAlternativeMaxForceLeftSRally2;
+				configAlternativeMinForceRight = configAlternativeMinForceRightSRally2;
+				configAlternativeMaxForceRight = configAlternativeMaxForceRightSRally2;
+				configFeedbackLength = configFeedbackLengthSRally2;
+				PowerMode = PowerModeSRally2;
+				EnableForceSpringEffect = EnableForceSpringEffectSRally2;
+				ForceSpringStrength = ForceSpringStrengthSRally2;
+				EnableDamper = EnableDamperSRally2;
+				DamperStrength = DamperStrengthSRally2;
+
+				RunningFFB = "Srally2Active";
 			}
 
 			if (romname == vr)
@@ -3682,10 +3684,15 @@ void MAMESupermodel::FFBLoop(EffectConstants* constants, Helpers* helpers, Effec
 			CurrentTime_ms += 16;
 
 			if ((DriveboardSequence_starttime_ms - CurrentTime_ms) > DriveboardSequence_duration_ms) {
+				helpers->log("sequence done ");
+				std::string ffs = std::to_string(DriveboardSequenceRunning);
+				helpers->log((char*)ffs.c_str());
+				
 				// Sequence done, stop it
 				DriveboardSequenceRunning = 0;
 			}
-			// Now play a sequence effect each 16ms
+
+			// Now depending on the game, play a sequence effect each 16ms
 			if (RunningFFB == ScudRaceActive) {
 				switch (DriveboardSequenceRunning) {
 				case 0:
@@ -3708,23 +3715,28 @@ void MAMESupermodel::FFBLoop(EffectConstants* constants, Helpers* helpers, Effec
 					}
 					break;
 				case 2: {
-					// Sequence: light random direction shocks (very short impulse of torque) in the steering wheel, like driving on gravel
-					double intensity = 0.5;
-					const int frequency = 200;
-					bool randShock = (rand() % frequency) == 0;
-					if (randShock) {
-						bool direction = (rand() % 2) == 0;
-						if (direction) {
-							triggers->Constant(constants->DIRECTION_FROM_LEFT, intensity);
-						}
-						else {
-							triggers->Constant(constants->DIRECTION_FROM_RIGHT, intensity);
+						// Sequence: light random direction shocks (very short impulse of torque) in the steering wheel, like driving on gravel
+						double intensity = 0.5;
+						const int frequency = 200;
+						bool randShock = (rand() % frequency) == 0;
+						if (randShock) {
+							bool direction = (rand() % 2) == 0;
+							if (direction) {
+								triggers->Constant(constants->DIRECTION_FROM_LEFT, intensity);
+							}
+							else {
+								triggers->Constant(constants->DIRECTION_FROM_RIGHT, intensity);
+							}
 						}
 					}
-				}
-					  break;
+					break;
 				}
 			}
+			
+			if (RunningFFB == Daytona2Active) {
+				// No yet done
+			}
+
 		}
 
 		if (RunningFFB == LightGunActive) //LightGun Games
@@ -3879,25 +3891,25 @@ void MAMESupermodel::FFBLoop(EffectConstants* constants, Helpers* helpers, Effec
 
 			if (Effect1)
 			{
-				triggers->Sine(SinePeriod, SineFadePeriod, SineStrength / 100.0);
+				triggers->Sine(SinePeriod, SineFadePeriod, SineStrength / 100.0, 100);
 				triggers->Rumble(RumbleStrengthLeftMotor / 100.0, RumbleStrengthRightMotor / 100.0, 100);
 			}
 
 			if (!Effect1)
 			{
-				triggers->Sine(0, 0, 0);
+				triggers->Sine(0, 0, 0, 0);
 				triggers->Rumble(0, 0, 0);
 			}
 
 			if (Effect2)
 			{
-				triggers->SineDevice2(SinePeriod, SineFadePeriod, SineStrength / 100.0);
+				triggers->SineDevice2(SinePeriod, SineFadePeriod, SineStrength / 100.0, 100);
 				triggers->RumbleDevice2(RumbleStrengthLeftMotor / 100.0, RumbleStrengthRightMotor / 100.0, 100);
 			}
 
 			if (!Effect2)
 			{
-				triggers->SineDevice2(0, 0, 0);
+				triggers->SineDevice2(0, 0, 0, 0);
 				triggers->RumbleDevice2(0, 0, 0);
 			}
 		}
@@ -3929,13 +3941,13 @@ void MAMESupermodel::FFBLoop(EffectConstants* constants, Helpers* helpers, Effec
 
 			if (Effect1)
 			{
-				triggers->Sine(SinePeriod, SineFadePeriod, SineStrength / 100.0);
+				triggers->Sine(SinePeriod, SineFadePeriod, SineStrength / 100.0, 100);
 				triggers->Rumble(RumbleStrengthLeftMotor / 100.0, RumbleStrengthRightMotor / 100.0, 100);
 			}
 
 			if (!Effect1)
 			{
-				triggers->Sine(0, 0, 0);
+				triggers->Sine(0, 0, 0, 0);
 				triggers->Rumble(0, 0, 0);
 			}
 		}
@@ -4066,13 +4078,13 @@ void MAMESupermodel::FFBLoop(EffectConstants* constants, Helpers* helpers, Effec
 
 				if (Effect1)
 				{
-					triggers->Sine(SinePeriod, SineFadePeriod, SineStrength / 100.0);
+					triggers->Sine(SinePeriod, SineFadePeriod, SineStrength / 100.0, 100);
 					triggers->Rumble(RumbleStrengthLeftMotor / 100.0, RumbleStrengthRightMotor / 100.0, 100);
 				}
 
 				if (!Effect1)
 				{
-					triggers->Sine(0, 0, 0);
+					triggers->Sine(0, 0, 0, 0);
 					triggers->Rumble(0, 0, 0);
 				}
 			}
@@ -4124,7 +4136,7 @@ void MAMESupermodel::FFBLoop(EffectConstants* constants, Helpers* helpers, Effec
 				if (stateFFB2 >= 0)
 				{
 					double percentForce = stateFFB2 / 7.0;
-					triggers->Sine(60, 0, percentForce / 3.0);
+					triggers->Sine(60, 0, percentForce / 3.0, 100);
 				}
 			}
 
@@ -4166,13 +4178,13 @@ void MAMESupermodel::FFBLoop(EffectConstants* constants, Helpers* helpers, Effec
 
 				if (Effect1)
 				{
-					triggers->Sine(SinePeriod, SineFadePeriod, SineStrength / 100.0);
+					triggers->Sine(SinePeriod, SineFadePeriod, SineStrength / 100.0, 100);
 					triggers->Rumble(RumbleStrengthLeftMotor / 100.0, RumbleStrengthRightMotor / 100.0, 100);
 				}
 
 				if (!Effect1)
 				{
-					triggers->Sine(0, 0, 0);
+					triggers->Sine(0, 0, 0, 0);
 					triggers->Rumble(0, 0, 0);
 				}
 			}
@@ -4218,18 +4230,17 @@ void MAMESupermodel::FFBLoop(EffectConstants* constants, Helpers* helpers, Effec
 				std::string ffs = std::to_string(ffrave);
 				helpers->log((char*)ffs.c_str());
 
+				UINT32 length_ms = 100;
 				if ((ffrave > 0x3D) && (ffrave < 0x7C))
 				{
 					double percentForce = (124 - ffrave) / 61.0;
-					double percentLength = 100;
-					triggers->Rumble(percentForce, 0, percentLength);
+					triggers->Rumble(percentForce, 0, length_ms);
 					triggers->Constant(constants->DIRECTION_FROM_LEFT, percentForce);
 				}
 				else if ((ffrave > 0x00) && (ffrave < 0x3E))
 				{
 					double percentForce = (ffrave) / 61.0;
-					double percentLength = 100;
-					triggers->Rumble(0, percentForce, percentLength);
+					triggers->Rumble(0, percentForce, length_ms);
 					triggers->Constant(constants->DIRECTION_FROM_RIGHT, percentForce);
 				}
 			}
@@ -4281,7 +4292,7 @@ void MAMESupermodel::FFBLoop(EffectConstants* constants, Helpers* helpers, Effec
 
 						if ((UINT8)aAddy2 == 0x05)
 						{
-							FFBAddress = (int)aAddy2 + 0x3D;
+							FFBAddress = (INT_PTR)aAddy2 + 0x3D;
 							PatternFind = true;
 						}
 					}
@@ -4326,11 +4337,11 @@ void MAMESupermodel::FFBLoop(EffectConstants* constants, Helpers* helpers, Effec
 				std::string ffs = std::to_string(ff);
 				helpers->log((char*)ffs.c_str());
 
+				UINT32 length_ms = 100;
 				if ((ff > 0x09) && (ff < 0x18))
 				{
 					//Spring
 					double percentForce = (ff - 15) / 8.0;
-					double percentLength = 100;
 					triggers->Spring(percentForce);
 				}
 
@@ -4338,7 +4349,6 @@ void MAMESupermodel::FFBLoop(EffectConstants* constants, Helpers* helpers, Effec
 				{
 					//Clutch
 					double percentForce = (ff - 31) / 8.0;
-					double percentLength = 100;
 					triggers->Friction(percentForce);
 				}
 
@@ -4346,7 +4356,6 @@ void MAMESupermodel::FFBLoop(EffectConstants* constants, Helpers* helpers, Effec
 				{
 					//Centering
 					double percentForce = (ff - 47) / 13.0;
-					double percentLength = 100;
 					triggers->Spring(percentForce);
 				}
 
@@ -4354,25 +4363,22 @@ void MAMESupermodel::FFBLoop(EffectConstants* constants, Helpers* helpers, Effec
 				{
 					//Uncentering
 					double percentForce = (ff - 63) / 8.0;
-					double percentLength = 100;
-					triggers->Sine(40, 0, percentForce);
-					triggers->Rumble(percentForce, percentForce, percentLength);
+					triggers->Sine(40, 0, percentForce, length_ms);
+					triggers->Rumble(percentForce, percentForce, length_ms);
 				}
 
 				if ((ff > 0x4F) && (ff < 0x58))
 				{
 					//Roll Left
 					double percentForce = (ff - 79) / 8.0;
-					double percentLength = 100;
-					triggers->Rumble(0, percentForce, percentLength);
+					triggers->Rumble(0, percentForce, length_ms);
 					triggers->Constant(constants->DIRECTION_FROM_RIGHT, percentForce);
 				}
 				else if ((ff > 0x5F) && (ff < 0x68))
 				{
 					//Roll Right
 					double percentForce = (ff - 95) / 8.0;
-					double percentLength = 100;
-					triggers->Rumble(percentForce, 0, percentLength);
+					triggers->Rumble(percentForce, 0, length_ms);
 					triggers->Constant(constants->DIRECTION_FROM_LEFT, percentForce);
 				}
 			}
@@ -4413,18 +4419,18 @@ void MAMESupermodel::FFBLoop(EffectConstants* constants, Helpers* helpers, Effec
 				std::string ffs = std::to_string(ff);
 				helpers->log((char*)ffs.c_str());
 
+				UINT32 length_ms = 100;
 				if ((ff > 0xBF) && (ff < 0xDF))
 				{
 					double percentForce = (ff - 191) / 31.0;
-					double percentLength = 100;
-					triggers->Rumble(0, percentForce, percentLength);
+					
+					triggers->Rumble(0, percentForce, length_ms);
 					triggers->Constant(constants->DIRECTION_FROM_RIGHT, percentForce);
 				}
 				else if ((ff > 0x7F) && (ff < 0x9F))
 				{
 					double percentForce = (ff - 127) / 31.0;
-					double percentLength = 100;
-					triggers->Rumble(percentForce, 0, percentLength);
+					triggers->Rumble(percentForce, 0, length_ms);
 					triggers->Constant(constants->DIRECTION_FROM_LEFT, percentForce);
 				}
 			}
@@ -4461,19 +4467,18 @@ void MAMESupermodel::FFBLoop(EffectConstants* constants, Helpers* helpers, Effec
 				std::string ffs = std::to_string(ff);
 				helpers->log((char*)ffs.c_str());
 
+				UINT32 length_ms = 100;
 				if (ff & 0x01)
 				{
 					double percentForce = 1.0;
-					double percentLength = 100;
-					triggers->Rumble(percentForce, 0, percentLength);
+					triggers->Rumble(percentForce, 0, length_ms);
 					triggers->Constant(constants->DIRECTION_FROM_LEFT, percentForce);
 				}
 
 				if (ff & 0x02)
 				{
 					double percentForce = 1.0;
-					double percentLength = 100;
-					triggers->Rumble(0, percentForce, percentLength);
+					triggers->Rumble(0, percentForce, length_ms);
 					triggers->Constant(constants->DIRECTION_FROM_RIGHT, percentForce);
 				}
 			}
@@ -4521,26 +4526,25 @@ void MAMESupermodel::FFBLoop(EffectConstants* constants, Helpers* helpers, Effec
 				std::string ffs = std::to_string(FFBNamco);
 				helpers->log((char*)ffs.c_str());
 
+				UINT32 length_ms = 100;
 				if ((FFBNamco >= 0x00) && (FFBNamco < 0x77A))
 				{
 					double percentForce = (FFBNamco / Divide);
-					double percentLength = 100;
 					if (percentForce > 1.0)
 					{
 						percentForce = 1.0;
 					}
-					triggers->Rumble(0, percentForce, percentLength);
+					triggers->Rumble(0, percentForce, length_ms);
 					triggers->Constant(constants->DIRECTION_FROM_RIGHT, percentForce);
 				}
 				else if ((FFBNamco > 0xF886) && (FFBNamco < 0x10000))
 				{
 					double percentForce = ((65536 - FFBNamco) / Divide);
-					double percentLength = 100;
 					if (percentForce > 1.0)
 					{
 						percentForce = 1.0;
 					}
-					triggers->Rumble(percentForce, 0, percentLength);
+					triggers->Rumble(percentForce, 0, length_ms);
 					triggers->Constant(constants->DIRECTION_FROM_LEFT, percentForce);
 				}
 			}

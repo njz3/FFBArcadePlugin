@@ -40,6 +40,8 @@ void Helpers::info(const char* format, ...)
 	int len = _vsnprintf(buffer, sizeof(buffer), format, args);
 	va_end(args);
 
+	if (len < 0) 
+		len = 0;
 	buffer[len] = '\n';
 	buffer[len + 1] = '\0';
 

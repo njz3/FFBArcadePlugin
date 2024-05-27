@@ -48,33 +48,30 @@ void DeadHeatRiders::FFBLoop(EffectConstants* constants, Helpers* helpers, Effec
 	}
 	else
 	{
+		UINT32 length_ms = 100;
 		if (setReflect > 0x00 && setReflect <= 0x3F)
 		{
 			double percentForce = setReflect / 63.0;
-			double percentLength = 100;
-			triggers->Rumble(percentForce, 0, percentLength);
+			triggers->Rumble(percentForce, 0, length_ms);
 			triggers->Constant(constants->DIRECTION_FROM_RIGHT, percentForce);
 		}
 		else if (setReflect > 0x3F)
 		{
 			double percentForce = (0xFF - setReflect) / 63.0;
-			double percentLength = 100;
-			triggers->Rumble(0, percentForce, percentLength);
+			triggers->Rumble(0, percentForce, length_ms);
 			triggers->Constant(constants->DIRECTION_FROM_LEFT, percentForce);
 		}
 
 		if (setCenterOffset > 0x00 && setCenterOffset <= 0x3F)
 		{
 			double percentForce = setCenterOffset / 63.0;
-			double percentLength = 100;
-			triggers->Rumble(percentForce, 0, percentLength);
+			triggers->Rumble(percentForce, 0, length_ms);
 			triggers->Constant(constants->DIRECTION_FROM_LEFT, percentForce);
 		}
 		else if (setCenterOffset < 0x00)
 		{
 			double percentForce = ((0xFFFFFFFF - setCenterOffset) + 1) / 63.0;
-			double percentLength = 100;
-			triggers->Rumble(0, percentForce, percentLength);
+			triggers->Rumble(0, percentForce, length_ms);
 			triggers->Constant(constants->DIRECTION_FROM_RIGHT, percentForce);
 		}
 	}

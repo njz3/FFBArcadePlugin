@@ -47,9 +47,9 @@ static int ThreadLoop()
 	UINT8 gear = myHelpers->ReadByte(0x0827A160, /* isRelativeOffset */ false); // gear address
 	float ffspeed = myHelpers->ReadFloat32(0x08273DF0, /* isRelativeOffset */ false); //speedo
 	UINT8 static oldgear = 0;
-	int static oldFloat = 0.0;
+	int static oldFloat = 0;
 	int newFloat = ff3;
-	int static oldFloat1 = 0.0;
+	int static oldFloat1 = 0;
 	int newFloat1 = ff4;
 	float newgear = gear;
 
@@ -103,20 +103,19 @@ static int ThreadLoop()
 		myTriggers->Damper(DamperStrength / 100.0);
 	}
 
+	UINT32 length_ms = 100;
 	if (ff8 == 1)
 	{
 		if ((ff6 >= 0x00) && (ff6 < 0x7F))
 		{
 			double percentForce = ((127 - ff6) / 127.0);
-			double percentLength = 100;
-			myTriggers->Rumble(percentForce, 0, percentLength);
+			myTriggers->Rumble(percentForce, 0, length_ms);
 			myTriggers->Constant(myConstants->DIRECTION_FROM_LEFT, percentForce);
 		}
 		if ((ff6 > 0x7F) && (ff6 < 0x100))
 		{
 			double percentForce = ((ff6 - 127) / 128.0);
-			double percentLength = 100;
-			myTriggers->Rumble(0, percentForce, percentLength);
+			myTriggers->Rumble(0, percentForce, length_ms);
 			myTriggers->Constant(myConstants->DIRECTION_FROM_RIGHT, percentForce);
 		}
 	}
@@ -125,15 +124,13 @@ static int ThreadLoop()
 		if ((ff6 >= 0x00) && (ff6 < 0x7F))
 		{
 			double percentForce = ((127 - ff6) / 127.0);
-			double percentLength = 100;
-			myTriggers->Rumble(percentForce, 0, percentLength);
+			myTriggers->Rumble(percentForce, 0, length_ms);
 			myTriggers->Constant(myConstants->DIRECTION_FROM_LEFT, percentForce);
 		}
 		if ((ff6 > 0x7F) && (ff6 < 0x100))
 		{
 			double percentForce = ((ff6 - 127) / 128.0);
-			double percentLength = 100;
-			myTriggers->Rumble(0, percentForce, percentLength);
+			myTriggers->Rumble(0, percentForce, length_ms);
 			myTriggers->Constant(myConstants->DIRECTION_FROM_RIGHT, percentForce);
 		}
 	}
@@ -142,8 +139,7 @@ static int ThreadLoop()
 		if (oldFloat != newFloat)
 		{
 			double percentForce = SpeedStrength / 100.0;
-			double percentLength = 100;
-			myTriggers->Rumble(0, percentForce, percentLength);
+			myTriggers->Rumble(0, percentForce, length_ms);
 			myTriggers->Constant(myConstants->DIRECTION_FROM_RIGHT, percentForce);
 		}
 	}
@@ -152,8 +148,7 @@ static int ThreadLoop()
 		if (oldFloat != newFloat)
 		{
 			double percentForce = SpeedStrength / 100.0;
-			double percentLength = 100;
-			myTriggers->Rumble(percentForce, 0, percentLength);
+			myTriggers->Rumble(percentForce, 0, length_ms);
 			myTriggers->Constant(myConstants->DIRECTION_FROM_LEFT, percentForce);
 		}
 	}
@@ -161,18 +156,16 @@ static int ThreadLoop()
 	if (oldFloat1 != newFloat1)
 	{
 		double percentForce = SpeedStrength / 100.0;
-		double percentLength = 100;
-		myTriggers->Rumble(percentForce, percentForce, percentLength);
-		myTriggers->Sine(200, 200, percentForce);
+		myTriggers->Rumble(percentForce, percentForce, length_ms);
+		myTriggers->Sine(200, 200, percentForce, length_ms);
 	}
 	else if (ff == 8)
 	{
 		if (SpeedStrength > 0)
 		{
 			double percentForce = 0.1;
-			double percentLength = 100;
-			myTriggers->Rumble(percentForce, percentForce, percentLength);
-			myTriggers->Sine(70, 70, percentForce);
+			myTriggers->Rumble(percentForce, percentForce, length_ms);
+			myTriggers->Sine(70, 70, percentForce, length_ms);
 		}
 	}
 	else if (ff == 4)
@@ -180,9 +173,8 @@ static int ThreadLoop()
 		if (SpeedStrength > 0)
 		{
 			double percentForce = 0.2;
-			double percentLength = 50;
-			myTriggers->Rumble(percentForce, percentForce, percentLength);
-			myTriggers->Sine(50, 50, percentForce);
+			myTriggers->Rumble(percentForce, percentForce, length_ms);
+			myTriggers->Sine(50, 50, percentForce, length_ms);
 		}
 	}
 	else if (ff == 16)
@@ -190,9 +182,9 @@ static int ThreadLoop()
 		if (SpeedStrength > 0)
 		{
 			double percentForce = 0.2;
-			double percentLength = 50;
-			myTriggers->Rumble(percentForce, percentForce, percentLength);
-			myTriggers->Sine(100, 50, percentForce);
+			length_ms = 50;
+			myTriggers->Rumble(percentForce, percentForce, length_ms);
+			myTriggers->Sine(100, 50, percentForce, length_ms);
 		}
 	}
 

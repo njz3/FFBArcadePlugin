@@ -111,14 +111,14 @@ void WackyRaces::FFBLoop(EffectConstants *constants, Helpers *helpers, EffectTri
 		triggers->Damper(DamperStrength / 100.0);
 	}
 
+	UINT32 length_ms = 100;
 	if (ff > 15)
 	{
 		helpers->log("moving wheel left");
 		// assume that 30 is the weakest and 16 is the strongest
 		double percentForce = (31 - ff) / 15.0;
-		double percentLength = 100;
 		// direction from left => makes wheel turn right
-		triggers->Rumble(0, percentForce, percentLength);
+		triggers->Rumble(0, percentForce, length_ms);
 		triggers->Constant(constants->DIRECTION_FROM_RIGHT, percentForce); // old logic: 31 - ff
 	}
 	else if (ff > 0)
@@ -126,9 +126,8 @@ void WackyRaces::FFBLoop(EffectConstants *constants, Helpers *helpers, EffectTri
 		helpers->log("moving wheel right");
 		// assume that 1 is the strongest and 15 is the weakest
 		double percentForce = (16 - ff) / 15.0;
-		double percentLength = 100;
 		// direction from right => makes wheel turn left
-		triggers->Rumble(percentForce, 0, percentLength);
+		triggers->Rumble(percentForce, 0, length_ms);
 		triggers->Constant(constants->DIRECTION_FROM_LEFT, percentForce); // old logic: 15 - ff
 	}
 }
