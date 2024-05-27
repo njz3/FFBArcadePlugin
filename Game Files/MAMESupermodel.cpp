@@ -1295,7 +1295,7 @@ static void FFBGameEffects(EffectConstants* constants, Helpers* helpers, EffectT
 			helpers->log((char*)ffs.c_str());
 
 			UINT32 length_ms = 100;
-			if (stateFFB >= 0x0 && stateFFB <= 0x09) // Sequences
+			if (stateFFB > 0x0 && stateFFB <= 0x09) // Sequences
 			{
 				// Mask: only 3 bits are relevant
 				int sequence = stateFFB & 0x7;
@@ -1306,25 +1306,32 @@ static void FFBGameEffects(EffectConstants* constants, Helpers* helpers, EffectT
 					DriveboardSequence_duration_ms = 1000;
 					break;
 				}
-				DriveboardSequence_starttime_ms = CurrentTime_ms;
 				DriveboardSequenceRunning = sequence;
+				if (sequence > 0) {
+					DriveboardSequence_starttime_ms = CurrentTime_ms;
 
-				helpers->log("scud: starts sequence");
-				std::string ffs = std::to_string(sequence);
-				helpers->log((char*)ffs.c_str());
-
+					helpers->log("start sequence");
+					std::string ffs = std::to_string(sequence);
+					helpers->log((char*)ffs.c_str());
+				} else {
+					helpers->log("sequence stopped");
+				}
 			}
 
 			if (stateFFB >= 0x10 && stateFFB < 0x20) //Spring
 			{
 				// Spring Effect. 0x10 to stop the effect. Intensity range from 0x11...0x17(strong). Values are duplicated on 0x18...0x1F
-				double percentForce = (stateFFB & 0x7) / 7.0;
-				triggers->Spring(percentForce);
+				int spring = stateFFB - 0x10;
+				if (spring > 0) {
+					double percentForce = (stateFFB & 0x7) / 7.0;
+					triggers->Spring(percentForce);
 
-				helpers->log("spring ");
-				std::string ffs = std::to_string(percentForce*100);
-				helpers->log((char*)ffs.c_str());
-
+					helpers->log("spring ");
+					std::string ffs = std::to_string(percentForce * 100);
+					helpers->log((char*)ffs.c_str());
+				} else {
+					helpers->log("spring stopped");
+				}
 			}
 
 			if (stateFFB >= 0x20 && stateFFB < 0x30) //Intensity
@@ -1343,13 +1350,19 @@ static void FFBGameEffects(EffectConstants* constants, Helpers* helpers, EffectT
 			{
 				// Vibration effect. 0x30 to stop the effect.
 				// Intensity range from 0x31...0x35(strong). Intensity seems to be modulated with 0x2X
-				double percentForce = (double)(stateFFB - 0x30) / 5.0 * ScudIntensityFactor;
-				triggers->Rumble(percentForce, percentForce, 100);
-				triggers->Sine(40, 0, percentForce, 100);
+				int vibration = stateFFB - 0x30;
+				if (vibration > 0) {
+					double percentForce = (double)(vibration) / 5.0 * ScudIntensityFactor;
 
-				helpers->log("vibration ");
-				std::string ffs = std::to_string(percentForce * 100);
-				helpers->log((char*)ffs.c_str());
+					triggers->Rumble(percentForce, percentForce, 100);
+					triggers->Sine(40, 0, percentForce, 100);
+
+					helpers->log("vibration ");
+					std::string ffs = std::to_string(percentForce * 100);
+					helpers->log((char*)ffs.c_str());
+				} else {
+					helpers->log("vibration stopped");
+				}
 			}
 
 			if (stateFFB >= 0x40 && stateFFB < 0x50) // Power slide
@@ -1367,6 +1380,9 @@ static void FFBGameEffects(EffectConstants* constants, Helpers* helpers, EffectT
 					percentForce *= -1.0;
 				// Make it 2 seconds, no fade
 				triggers->Sine(2000, 0, percentForce, 2000);
+				helpers->log("power slide ");
+				std::string ffs = std::to_string(percentForce * 100);
+				helpers->log((char*)ffs.c_str());
 			}
 
 			if (stateFFB >= 0x50 && stateFFB < 0x60) //Constant torque Right
@@ -1374,12 +1390,20 @@ static void FFBGameEffects(EffectConstants* constants, Helpers* helpers, EffectT
 				double percentForce = (double)(stateFFB - 0x4F) / 16.0 * ScudIntensityFactor;
 				triggers->Rumble(percentForce, 0, length_ms);
 				triggers->Constant(constants->DIRECTION_FROM_LEFT, percentForce);
+
+				helpers->log("torque Right");
+				std::string ffs = std::to_string(percentForce * 100);
+				helpers->log((char*)ffs.c_str());
 			}
 			else if (stateFFB >= 0x60 && stateFFB < 0x70) //Constant torque Left
 			{
 				double percentForce = (double)(stateFFB - 0x5F) / 16.0 * ScudIntensityFactor;
 				triggers->Rumble(0, percentForce, length_ms);
 				triggers->Constant(constants->DIRECTION_FROM_RIGHT, percentForce);
+
+				helpers->log("torque Left");
+				std::string ffs = std::to_string(percentForce * 100);
+				helpers->log((char*)ffs.c_str());
 			}
 
 			//Test Menu

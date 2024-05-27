@@ -18,7 +18,7 @@ static char* aAddy2;
 
 static char* InScan(char* pattern, char* mask, char* begin, unsigned int size)
 {
-	unsigned int patternLength = strlen(mask);
+	unsigned int patternLength = (unsigned int)strlen(mask);
 
 	for (unsigned int i = 0; i < size - patternLength; i++)
 	{
