@@ -6,3 +6,5 @@ Debug.x64/
 *.7z
 *.zip
 FFB Arcade Plugin v2.0.0.??
+/FFBPluginGUI/Release
+/FFBPluginGUI/x64
