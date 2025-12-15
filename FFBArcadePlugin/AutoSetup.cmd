@@ -24,43 +24,43 @@ set /p Build=<..\Version.txt
 
 
 :: Copy x64 files for specific games to releasex86_path
-xcopy ".\Release.x64\dinput8.dll" ".\Release.Win32\Button Rumble 64bit\" /Y
-xcopy ".\Release.x64\SDL2.dll" ".\Release.Win32\Button Rumble 64bit\" /Y
-xcopy ".\Release.x64\dinput8.dll" ".\Release.Win32\Initial D Zero v131\" /Y
-xcopy ".\Release.x64\SDL2.dll" ".\Release.Win32\Initial D Zero v131\" /Y
-xcopy ".\Release.x64\dinput8.dll" ".\Release.Win32\Initial D Zero v211\" /Y
-xcopy ".\Release.x64\SDL2.dll" ".\Release.Win32\Initial D Zero v211\" /Y
-xcopy ".\Release.x64\dinput8.dll" ".\Release.Win32\Initial D Zero v230\" /Y
-xcopy ".\Release.x64\SDL2.dll" ".\Release.Win32\Initial D Zero v230\" /Y
-xcopy ".\Release.x64\dinput8.dll" ".\Release.Win32\Sega World Drivers Championship 2018\" /Y
-xcopy ".\Release.x64\SDL2.dll" ".\Release.Win32\Sega World Drivers Championship 2018\" /Y
-xcopy ".\Release.x64\dinput8.dll" ".\Release.Win32\MAME 64bit Outputs\" /Y
-xcopy ".\Release.x64\SDL2.dll" ".\Release.Win32\MAME 64bit Outputs\" /Y
-xcopy ".\Release.x64\dinput8.dll" ".\Release.Win32\PokkenTournament\" /Y
-xcopy ".\Release.x64\SDL2.dll" ".\Release.Win32\PokkenTournament\" /Y
-xcopy ".\Release.x64\dinput8.dll" ".\Release.Win32\Supermodel 64bit Outputs\" /Y
-xcopy ".\Release.x64\SDL2.dll" ".\Release.Win32\Supermodel 64bit Outputs\" /Y
-xcopy ".\Release.x64\dinput8.dll" ".\Release.Win32\Spring Effect 64bit\" /Y
-xcopy ".\Release.x64\SDL2.dll" ".\Release.Win32\Spring Effect 64bit\" /Y
-xcopy ".\Release.x64\dinput8.dll" ".\Release.Win32\Flycast\" /Y
-xcopy ".\Release.x64\SDL2.dll" ".\Release.Win32\Flycast\" /Y
-xcopy ".\Release.x64\dinput8.dll" ".\Release.Win32\WMMT5\" /Y
-xcopy ".\Release.x64\SDL2.dll" ".\Release.Win32\WMMT5\" /Y
-xcopy ".\Release.x64\dinput8.dll" ".\Release.Win32\WMMT5DX\" /Y
-xcopy ".\Release.x64\SDL2.dll" ".\Release.Win32\WMMT5DX\" /Y
-xcopy ".\Release.x64\dinput8.dll" ".\Release.Win32\WMMT5DX+\" /Y
-xcopy ".\Release.x64\SDL2.dll" ".\Release.Win32\WMMT5DX+\" /Y
-xcopy ".\Release.x64\dinput8.dll" ".\Release.Win32\WMMT6\" /Y
-xcopy ".\Release.x64\SDL2.dll" ".\Release.Win32\WMMT6\" /Y
-xcopy ".\Release.x64\dinput8.dll" ".\Release.Win32\WMMT6R\" /Y
-xcopy ".\Release.x64\SDL2.dll" ".\Release.Win32\WMMT6R\" /Y
-xcopy ".\Release.x64\dinput8.dll" ".\Release.Win32\WMMT6RR\" /Y
-xcopy ".\Release.x64\SDL2.dll" ".\Release.Win32\WMMT6RR\" /Y
-xcopy ".\MAME32.dll" ".\Release.Win32\MAME 32bit Outputs\" /Y
-xcopy ".\MAME64.dll" ".\Release.Win32\MAME 64bit Outputs\" /Y
-xcopy ".\MAME32.dll" ".\Release.Win32\Supermodel 32bit Outputs\" /Y
-xcopy ".\MAME64.dll" ".\Release.Win32\Supermodel 64bit Outputs\" /Y
-xcopy ".\MAME64.dll" ".\Release.Win32\Flycast\" /Y
+xcopy "%releasex64_path%\dinput8.dll" "%releasex86_path%\Button Rumble 64bit\" /Y
+xcopy "%releasex64_path%\SDL2.dll" "%releasex86_path%\Button Rumble 64bit\" /Y
+xcopy "%releasex64_path%\dinput8.dll" "%releasex86_path%\Initial D Zero v131\" /Y
+xcopy "%releasex64_path%\SDL2.dll" "%releasex86_path%\Initial D Zero v131\" /Y
+xcopy "%releasex64_path%\dinput8.dll" "%releasex86_path%\Initial D Zero v211\" /Y
+xcopy "%releasex64_path%\SDL2.dll" "%releasex86_path%\Initial D Zero v211\" /Y
+xcopy "%releasex64_path%\dinput8.dll" "%releasex86_path%\Initial D Zero v230\" /Y
+xcopy "%releasex64_path%\SDL2.dll" "%releasex86_path%\Initial D Zero v230\" /Y
+xcopy "%releasex64_path%\dinput8.dll" "%releasex86_path%\Sega World Drivers Championship 2018\" /Y
+xcopy "%releasex64_path%\SDL2.dll" "%releasex86_path%\Sega World Drivers Championship 2018\" /Y
+xcopy "%releasex64_path%\dinput8.dll" "%releasex86_path%\MAME 64bit Outputs\" /Y
+xcopy "%releasex64_path%\SDL2.dll" "%releasex86_path%\MAME 64bit Outputs\" /Y
+xcopy "%releasex64_path%\dinput8.dll" "%releasex86_path%\PokkenTournament\" /Y
+xcopy "%releasex64_path%\SDL2.dll" "%releasex86_path%\PokkenTournament\" /Y
+xcopy "%releasex64_path%\dinput8.dll" "%releasex86_path%\Supermodel 64bit Outputs\" /Y
+xcopy "%releasex64_path%\SDL2.dll" "%releasex86_path%\Supermodel 64bit Outputs\" /Y
+xcopy "%releasex64_path%\dinput8.dll" "%releasex86_path%\Spring Effect 64bit\" /Y
+xcopy "%releasex64_path%\SDL2.dll" "%releasex86_path%\Spring Effect 64bit\" /Y
+xcopy "%releasex64_path%\dinput8.dll" "%releasex86_path%\Flycast\" /Y
+xcopy "%releasex64_path%\SDL2.dll" "%releasex86_path%\Flycast\" /Y
+xcopy "%releasex64_path%\dinput8.dll" "%releasex86_path%\WMMT5\" /Y
+xcopy "%releasex64_path%\SDL2.dll" "%releasex86_path%\WMMT5\" /Y
+xcopy "%releasex64_path%\dinput8.dll" "%releasex86_path%\WMMT5DX\" /Y
+xcopy "%releasex64_path%\SDL2.dll" "%releasex86_path%\WMMT5DX\" /Y
+xcopy "%releasex64_path%\dinput8.dll" "%releasex86_path%\WMMT5DX+\" /Y
+xcopy "%releasex64_path%\SDL2.dll" "%releasex86_path%\WMMT5DX+\" /Y
+xcopy "%releasex64_path%\dinput8.dll" "%releasex86_path%\WMMT6\" /Y
+xcopy "%releasex64_path%\SDL2.dll" "%releasex86_path%\WMMT6\" /Y
+xcopy "%releasex64_path%\dinput8.dll" "%releasex86_path%\WMMT6R\" /Y
+xcopy "%releasex64_path%\SDL2.dll" "%releasex86_path%\WMMT6R\" /Y
+xcopy "%releasex64_path%\dinput8.dll" "%releasex86_path%\WMMT6RR\" /Y
+xcopy "%releasex64_path%\SDL2.dll" "%releasex86_path%\WMMT6RR\" /Y
+xcopy ".\MAME32.dll" "%releasex86_path%\MAME 32bit Outputs\" /Y
+xcopy ".\MAME64.dll" "%releasex86_path%\MAME 64bit Outputs\" /Y
+xcopy ".\MAME32.dll" "%releasex86_path%\Supermodel 32bit Outputs\" /Y
+xcopy ".\MAME64.dll" "%releasex86_path%\Supermodel 64bit Outputs\" /Y
+xcopy ".\MAME64.dll" "%releasex86_path%\Flycast\" /Y
 
 :: Go back to root path
 cd %releasex86_path%
@@ -271,7 +271,5 @@ del dinput8.exp
 del dinput8.lib
 del SDL2.dll
 rd /s /q ".\DInput8Wrapper\"
-"C:\Program Files\7-Zip\7z.exe" a "..\..\FFB Arcade Plugin %Build%.zip" ".\*"
-"C:\Program Files\7-Zip\7z.exe" a "..\..\FFB Arcade Plugin %Build%.7z" ".\*"
 
 cd %start_path%

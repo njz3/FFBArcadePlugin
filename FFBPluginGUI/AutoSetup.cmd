@@ -1,7 +1,9 @@
 @echo on
-SET current_path="%CD%"
-SET releasex64_path=%current_path%\x64\Release
-SET releasex86_path=%current_path%\Release
+SET start_path="%CD%"
+SET releasex64_path=%start_path%\Release.x64
+SET releasex86_path=%start_path%\Release.Win32
+SET ffbpluginx64_path=%start_path%\..\FFBArcadePlugin\Release.x64
+SET ffbpluginx86_path=%start_path%\..\FFBArcadePlugin\Release.Win32
 SET VS=2022\Community
 SET BuildMode=Release
 SET BUILDER=%ProgramFiles%\Microsoft Visual Studio\%VS%\MSBuild\Current\Bin\MSBuild.exe
@@ -109,10 +111,10 @@ xcopy ".\Release\FFBPluginGUI.exe" "..\FFBArcadePlugin\Release.Win32\Ford Racing
 xcopy ".\Release\MetroFramework.dll" "..\FFBArcadePlugin\Release.Win32\Ford Racing Other" /Y
 xcopy ".\Release\FFBPluginGUI.exe" "..\FFBArcadePlugin\Release.Win32\FNF" /Y
 xcopy ".\Release\MetroFramework.dll" "..\FFBArcadePlugin\Release.Win32\FNF" /Y
-xcopy ".\Release\FFBPluginGUI.exe" "..\FFBArcadePlugin\Release.Win32\FNF Drift" /Y
-xcopy ".\Release\MetroFramework.dll" "..\FFBArcadePlugin\Release.Win32\FNF Drift" /Y
-xcopy ".\Release\FFBPluginGUI.exe" "..\FFBArcadePlugin\Release.Win32\FNF Supercars" /Y
-xcopy ".\Release\MetroFramework.dll" "..\FFBArcadePlugin\Release.Win32\FNF Supercars" /Y
+xcopy ".\Release\FFBPluginGUI.exe" "..\FFBArcadePlugin\Release.Win32\FNFDrift" /Y
+xcopy ".\Release\MetroFramework.dll" "..\FFBArcadePlugin\Release.Win32\FNFDrift" /Y
+xcopy ".\Release\FFBPluginGUI.exe" "..\FFBArcadePlugin\Release.Win32\FNFSupercars" /Y
+xcopy ".\Release\MetroFramework.dll" "..\FFBArcadePlugin\Release.Win32\FNFSupercars" /Y
 xcopy ".\Release\FFBPluginGUI.exe" "..\FFBArcadePlugin\Release.Win32\Golden Gun" /Y
 xcopy ".\Release\MetroFramework.dll" "..\FFBArcadePlugin\Release.Win32\Golden Gun" /Y
 xcopy ".\Release\FFBPluginGUI.exe" "..\FFBArcadePlugin\Release.Win32\Chase HQ 2" /Y
@@ -207,5 +209,12 @@ xcopy ".\Release\FFBPluginGUI.exe" "..\FFBArcadePlugin\Release.Win32\Wacky Races
 xcopy ".\Release\MetroFramework.dll" "..\FFBArcadePlugin\Release.Win32\Wacky Races" /Y
 xcopy ".\Release\FFBPluginGUI.exe" "..\FFBArcadePlugin\Release.Win32\Winter X Games SnoCross" /Y
 xcopy ".\Release\MetroFramework.dll" "..\FFBArcadePlugin\Release.Win32\Winter X Games SnoCross" /Y
-EXIT
 
+
+
+cd %ffbpluginx86_path%
+
+"C:\Program Files\7-Zip\7z.exe" a "..\..\FFB Arcade Plugin %Build%.zip" ".\*"
+"C:\Program Files\7-Zip\7z.exe" a "..\..\FFB Arcade Plugin %Build%.7z" ".\*"
+
+cd %start_path%
