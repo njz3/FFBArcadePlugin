@@ -9,8 +9,19 @@ This is a plugin to provide Force Feedback and Rumble to various arcade games.
 
 - Requires Visual Runtime Files https://www.techpowerup.com/download/visual-c-redistributable-runtime-package-all-in-one/
 
-- GUI Requires Visual Runtime 2019 and has to be in same folder with metroframework.dll & SDL2.dll
+- GUI Requires Visual Runtime 2022 and has to be in same folder with metroframework.dll & SDL2.dll
 
+## How to Build
+
+- Install VS 2022 Community edition with C++ desktop development package
+
+- Install Powershell (from command line: ```winget install --id Microsoft.PowerShell --source winget```)
+
+- Install Node.js (https://nodejs.org/en/download/current)
+
+- Install 7zip (https://www.7-zip.org/download.html) to C:\Program Files\7-Zip
+
+- Run the BuildAll.bat script
 
 ## How to Use
 
