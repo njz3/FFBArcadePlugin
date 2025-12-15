@@ -1,19 +1,12 @@
 @echo on
 SET current_path="%CD%"
-SET releasex86_path=%current_path%\Release.x64
-SET releasex64_path=%current_path%\Release.Win32
+SET releasex64_path=%current_path%\Release.x64
+SET releasex86_path=%current_path%\Release.Win32
 SET VS=2022\Community
 SET BuildMode=Release
 SET BUILDER=%ProgramFiles%\Microsoft Visual Studio\%VS%\MSBuild\Current\Bin\MSBuild.exe
 
-set /p Build=<Version.txt
-
-:build86
-:: Restore nuget packages
-"%BUILDER%" -t:restore Dinput8Wrapper.sln /p:Platform=x86;Configuration=%BuildMode% -p:RestorePackagesConfig=true 
-:: Build
-::"%BUILDER%"  Dinput8Wrapper.sln  /maxcpucount:1 /t:clean /p:Platform=x86;Configuration=%BuildMode%
-"%BUILDER%"  Dinput8Wrapper.sln  /maxcpucount:4  /p:Platform=x86;Configuration=%BuildMode%
+set /p Build=<..\Version.txt
 
 :build64
 :: Restore nuget packages
@@ -22,6 +15,15 @@ set /p Build=<Version.txt
 ::"%BUILDER%"  Dinput8Wrapper.sln  /maxcpucount:1 /t:clean /p:Platform=x64;Configuration=%BuildMode%
 "%BUILDER%"  Dinput8Wrapper.sln  /maxcpucount:4  /p:Platform=x64;Configuration=%BuildMode%
 
+:build86
+:: Restore nuget packages
+"%BUILDER%" -t:restore Dinput8Wrapper.sln /p:Platform=x86;Configuration=%BuildMode% -p:RestorePackagesConfig=true 
+:: Build
+::"%BUILDER%"  Dinput8Wrapper.sln  /maxcpucount:1 /t:clean /p:Platform=x86;Configuration=%BuildMode%
+"%BUILDER%"  Dinput8Wrapper.sln  /maxcpucount:4  /p:Platform=x86;Configuration=%BuildMode%
+
+
+:: Copy x64 files for specific games to releasex86_path
 xcopy ".\Release.x64\dinput8.dll" ".\Release.Win32\Button Rumble 64bit\" /Y
 xcopy ".\Release.x64\SDL2.dll" ".\Release.Win32\Button Rumble 64bit\" /Y
 xcopy ".\Release.x64\dinput8.dll" ".\Release.Win32\Initial D Zero v131\" /Y
@@ -60,10 +62,13 @@ xcopy ".\MAME32.dll" ".\Release.Win32\Supermodel 32bit Outputs\" /Y
 xcopy ".\MAME64.dll" ".\Release.Win32\Supermodel 64bit Outputs\" /Y
 xcopy ".\MAME64.dll" ".\Release.Win32\Flycast\" /Y
 
+:: Go back to root path
 cd %releasex86_path%
+
+:: Now copy all files to release x86 directory
 cd "Afterburner Climax"
 rename dinput8.dll opengl32.dll
-CD "%releasex86_path%"
+CD "%current_path%"
 
 cd "Aliens Extermination"
 rename dinput8.dll opengl32.dll

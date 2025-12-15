@@ -1,6 +1,6 @@
 # FFB Arcade Plugin
 
-Brought to you by Boomslangnz, Ducon2016, Spazzy, Adam_, jpb, Rocco & pinkimo.
+Brought to you by Boomslangnz, Ducon2016, Spazzy, Adam_, jpb, Rocco & pinkimo and a bit of Endprodukt.
 
 This is a plugin to provide Force Feedback and Rumble to various arcade games.
 
@@ -37,6 +37,7 @@ PowerMode is to raise the strength of low values to increase strength feel on ce
 
 Some games such as Road Fighters 3D have input support. Go to Input section and enable Input Support and set up axis/buttons
 
+Enable ConstantInf is an alternative way of providing effects to the wheel. Test it enabled and see if FFB becomes less erratic. 
 
 ## Output Support 
 
@@ -106,21 +107,27 @@ extremely generous.
 - F-1 Grand Prix Star
 - F-1 Grand Prix Star II
 - Ghoul Panic
+- GTI Club
 - Gun Buster
 - Hard Drivin'
 - Hyperdrive
 - Laser Ghost
-- Outrun
+- Midnight Run
 - Mechanized Attack
 - OffRoad Challenge
 - Operation Thunderbolt
 - Operation Wolf
+- Outrun
 - Outrunners
+- Overrev (need to change output mode in service)
 - Point Blank 2
 - Power Drift
 - Race Drivin'
 - Rail Chase
-- Rave Racer (TURN ON FEEDBACK STEERING IN GAME SETTINGS OR YOU WILL NOT RECIEVE FORCE FEEDBACK)
+- Racing Jam
+- Racing Jam 2
+- Rave Racer (Feedback needs to be activated in the service menu)(you can invert the ffb effect in the gui for standard/deluxe mode)
+- Roads Edge
 - Revolution X
 - San Francisco Rush
 - San Francisco Rush The Rock
@@ -128,14 +135,17 @@ extremely generous.
 - Sega Rally Championship
 - Sega Touring Car Championship
 - Super Chase - Criminal Termination
-- Super GT 24h
+- Super GT 24h (output works but analog input is broken)
 - Space gun
 - Terminator 2
+- Thrill Drive
 - Turbo Outrun
 - Turkey Shoot
 - Under Fire
 - Vapor TRX
 - Virtua Racing (CHANGE TO UPRIGHT CABINET)
+- Winding Heat
+- Xtreme Rally
 
 ### MODEL 2 EMULATOR:
 
