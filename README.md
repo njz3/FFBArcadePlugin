@@ -21,7 +21,7 @@ This is a plugin to provide Force Feedback and Rumble to various arcade games.
 
 - Install 7zip (https://www.7-zip.org/download.html) to C:\Program Files\7-Zip
 
-- Run the BuildAll.bat script
+- Run the BuildAll.cmd script
 
 ## How to Use
 
