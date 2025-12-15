@@ -6,8 +6,6 @@ cd FFBArcadePlugin
 call AutoSetup.cmd
 cd %root_path%
 
-pause
-
 echo Build GUI
 cd FFBPluginGUI
 call AutoSetup.cmd
