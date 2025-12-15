@@ -52,6 +52,8 @@ xcopy ".\Release.x64\dinput8.dll" ".\Release.Win32\WMMT6\" /Y
 xcopy ".\Release.x64\SDL2.dll" ".\Release.Win32\WMMT6\" /Y
 xcopy ".\Release.x64\dinput8.dll" ".\Release.Win32\WMMT6R\" /Y
 xcopy ".\Release.x64\SDL2.dll" ".\Release.Win32\WMMT6R\" /Y
+xcopy ".\Release.x64\dinput8.dll" ".\Release.Win32\WMMT6RR\" /Y
+xcopy ".\Release.x64\SDL2.dll" ".\Release.Win32\WMMT6RR\" /Y
 xcopy ".\MAME32.dll" ".\Release.Win32\MAME 32bit Outputs\" /Y
 xcopy ".\MAME64.dll" ".\Release.Win32\MAME 64bit Outputs\" /Y
 xcopy ".\MAME32.dll" ".\Release.Win32\Supermodel 32bit Outputs\" /Y
@@ -61,12 +63,12 @@ xcopy ".\MAME64.dll" ".\Release.Win32\Flycast\" /Y
 cd %releasex86_path%
 cd "Afterburner Climax"
 rename dinput8.dll opengl32.dll
-
 CD "%releasex86_path%"
+
 cd "Aliens Extermination"
 rename dinput8.dll opengl32.dll
-
 CD "%current_path%"
+
 cd "Arctic Thunder"
 rename dinput8.dll d3d9.dll
 CD "%current_path%"
@@ -139,6 +141,10 @@ cd H2Overdrive
 rename dinput8.dll d3d9.dll
 CD "%current_path%"
 
+cd "Hummer Extreme"
+rename dinput8.dll winmm.dll
+CD "%current_path%"
+
 cd HOTD4
 rename dinput8.dll opengl32.dll
 CD "%current_path%"
@@ -147,16 +153,20 @@ cd Flycast
 rename dinput8.dll winmm.dll
 CD "%current_path%"
 
-cd Initial D 4
+cd "Initial D 4"
 rename dinput8.dll opengl32.dll
 CD "%current_path%"
 
-cd Initial D 4 Japan
+cd "Initial D 4 Japan"
 rename dinput8.dll opengl32.dll
 CD "%current_path%"
 
-cd Initial D 5
+cd "Initial D 5"
 rename dinput8.dll opengl32.dll
+CD "%current_path%"
+
+cd "Initial D The Arcade v231"
+rename dinput8.dll d3d11.dll
 CD "%current_path%"
 
 cd KODrive
@@ -175,11 +185,11 @@ cd Machstorm
 rename dinput8.dll xinput1_3.dll
 CD "%current_path%"
 
-cd Outrun 2 Special Tours Deluxe Custom
+cd "Outrun 2 Special Tours Deluxe Custom"
 rename dinput8.dll opengl32.dll
 CD "%current_path%"
 
-cd Outrun 2 Special Tours Deluxe Real
+cd "Outrun 2 Special Tours Deluxe Real"
 rename dinput8.dll opengl32.dll
 CD "%current_path%"
 
@@ -188,6 +198,9 @@ rename dinput8.dll opengl32.dll
 CD "%current_path%"
 
 cd R-Tuned
+rename dinput8.dll opengl32.dll
+CD "%current_path%"
+cd "Sega Race TV"
 rename dinput8.dll opengl32.dll
 CD "%current_path%"
 
@@ -240,6 +253,10 @@ rename dinput8.dll d3d11.dll
 CD "%current_path%"
 
 cd WMMT6R
+rename dinput8.dll d3d11.dll
+CD "%current_path%"
+
+cd WMMT6RR
 rename dinput8.dll d3d11.dll
 CD "%current_path%"
 

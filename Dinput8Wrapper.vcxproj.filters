@@ -165,6 +165,12 @@
     <ClCompile Include="Game Files\FnFDrift.cpp" />
     <ClCompile Include="Game Files\FnFSuperCars.cpp" />
     <ClCompile Include="Game Files\SegaRaceTV.cpp" />
+    <ClCompile Include="Game Files\IDTAv231.cpp" />
+    <ClCompile Include="Game Files\HummerExtreme.cpp" />
+    <ClCompile Include="Game Files\WastelandRacers2071.cpp" />
+    <ClCompile Include="Game Files\Hummer.cpp" />
+    <ClCompile Include="Game Files\WMMT6RR.cpp" />
+    <ClCompile Include="Game Files\Cars.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Game Files\Daytona3.h">
@@ -336,6 +342,9 @@
     <ClInclude Include="Game Files\WMMT6R.h">
       <Filter>Common Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Game Files\WMMT6RR.h">
+      <Filter>Common Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="Game Files\InitialD0v131.h">
       <Filter>Common Header Files</Filter>
     </ClInclude>
@@ -421,6 +430,21 @@
       <Filter>Common Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Game Files\SegaRaceTV.h">
+      <Filter>Common Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Game Files\IDTAv231.h">
+      <Filter>Common Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Game Files\HummerExtreme.h">
+      <Filter>Common Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Game Files\WastelandRacers2071.h">
+      <Filter>Common Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Game Files\Hummer.h">
+      <Filter>Common Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Game Files\Cars.h">
       <Filter>Common Header Files</Filter>
     </ClInclude>
   </ItemGroup>

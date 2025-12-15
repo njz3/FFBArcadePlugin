@@ -12,7 +12,7 @@ along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
 */
 
 #include <string>
-#include "WMMT6R.h"
+#include "WMMT6RR.h"
 #include "SDL.h"
 
 extern int EnableDamper;
@@ -23,7 +23,7 @@ static Helpers* myHelpers;
 extern SDL_Event e;
 static UINT8 oldgear = 0;
 static bool init = false;
-static bool gameFfbStarted = false;
+// static bool gameFfbStarted = false;
 static wchar_t* settingsFilename = TEXT(".\\FFBPlugin.ini");
 static int SpringStrength = GetPrivateProfileInt(TEXT("Settings"), TEXT("SpringStrength"), 100, settingsFilename);
 static int FrictionStrength = GetPrivateProfileInt(TEXT("Settings"), TEXT("FrictionStrength"), 0, settingsFilename);
@@ -32,10 +32,13 @@ static int CollisionsStrength = GetPrivateProfileInt(TEXT("Settings"), TEXT("Col
 static int TiresSlipStrength = GetPrivateProfileInt(TEXT("Settings"), TEXT("TiresSlipStrength"), 100, settingsFilename);
 static int HighSpeedVibrationsStrength = GetPrivateProfileInt(TEXT("Settings"), TEXT("HighSpeedVibrationsStrength"), 100, settingsFilename);
 static int LimitBetweenHighSpeedVibrationsAndTiresSlip = GetPrivateProfileInt(TEXT("Settings"), TEXT("LimitBetweenHighSpeedVibrationsAndTiresSlip"), 75, settingsFilename);
-static int GearChangeStrength = GetPrivateProfileInt(TEXT("Settings"), TEXT("GearChangeStrength"), 20, settingsFilename);
-static int GearChangeDelay = GetPrivateProfileInt(TEXT("Settings"), TEXT("GearChangeDelay"), 250, settingsFilename);
-static int GearChangeLength = GetPrivateProfileInt(TEXT("Settings"), TEXT("GearChangeLength"), 200, settingsFilename);
-static int WheelSpinStrength = GetPrivateProfileInt(TEXT("Settings"), TEXT("WheelSpinStrength"), 100, settingsFilename);
+
+static int ReverseCollision = GetPrivateProfileInt(TEXT("Settings"), TEXT("ReverseCollision"), 0, settingsFilename);
+static int ReverseTiresSlip = GetPrivateProfileInt(TEXT("Settings"), TEXT("ReverseTiresSlip"), 0, settingsFilename);
+// static int GearChangeStrength = GetPrivateProfileInt(TEXT("Settings"), TEXT("GearChangeStrength"), 20, settingsFilename);
+// static int GearChangeDelay = GetPrivateProfileInt(TEXT("Settings"), TEXT("GearChangeDelay"), 250, settingsFilename);
+// static int GearChangeLength = GetPrivateProfileInt(TEXT("Settings"), TEXT("GearChangeLength"), 200, settingsFilename);
+// static int WheelSpinStrength = GetPrivateProfileInt(TEXT("Settings"), TEXT("WheelSpinStrength"), 100, settingsFilename);
 static int ShowButtonNumbersForSetup = GetPrivateProfileInt(TEXT("Settings"), TEXT("ShowButtonNumbersForSetup"), 0, settingsFilename);
 //static int ForceFullTune = GetPrivateProfileInt(TEXT("Settings"), TEXT("ForceFullTune"), 0, settingsFilename);
 //static int DisableRaceTimer = GetPrivateProfileInt(TEXT("Settings"), TEXT("DisableRaceTimer"), 0, settingsFilename);
@@ -125,20 +128,20 @@ static int ShowButtonNumbersForSetup = GetPrivateProfileInt(TEXT("Settings"), TE
 //	return 0;
 //}
 
-static int GearChangeThread(void* ptr)
-{
-	if (GearChangeDelay > 0)
-	{
-		Sleep(GearChangeDelay);
-	}
-	myHelpers->log("gear change");
-	double percentForce = GearChangeStrength / 100.0;
-	myTriggers->Sine(GearChangeLength, GearChangeLength, percentForce, 150);
-	myTriggers->Rumble(0, percentForce, 150);
-	return 0;
-}
+// static int GearChangeThread(void* ptr)
+// {
+// 	if (GearChangeDelay > 0)
+// 	{
+// 		Sleep(GearChangeDelay);
+// 	}
+// 	myHelpers->log("gear change");
+// 	double percentForce = GearChangeStrength / 100.0;
+// 	myTriggers->Sine(GearChangeLength, GearChangeLength, percentForce);
+// 	myTriggers->Rumble(0, percentForce, 150);
+// 	return 0;
+// }
 
-void WMMT6R::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTriggers* triggers)
+void WMMT6RR::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTriggers* triggers)
 {
 	if (!init)
 	{
@@ -150,23 +153,33 @@ void WMMT6R::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTrigger
 		//SDL_CreateThread(SpamThread, "SpamThread", (void*)NULL);
 	}
 
-	float spring = helpers->ReadFloat32(0x204712C, true);
-	float friction = helpers->ReadFloat32(0x2047130, true);
-	float collisions = helpers->ReadFloat32(0x2047134, true);
-	float tiresSlip = helpers->ReadFloat32(0x2047128, true);
-	int speed = helpers->ReadInt32(0x204809C, true);
+	float spring = helpers->ReadFloat32(0x1F25264, true);
+	float friction = helpers->ReadFloat32(0x1F25268, true);
+	float collisions = helpers->ReadFloat32(0x1F2526C, true);
+	float tiresSlip = helpers->ReadFloat32(0x1F25260, true);
+	int speed = helpers->ReadInt32(0x1F2612C, true);
+	int rpm = helpers->ReadInt32(0x1F2629C, true);
 	std::string msg = "spring: " + std::to_string(spring) + " | friction: " + std::to_string(friction)
 		+ " | collisions: " + std::to_string(collisions) + " | tires slip: " + std::to_string(tiresSlip)
-		+ " | speed: " + std::to_string(speed);
+		+ " | speed: " + std::to_string(speed)+ " | rpm: " +std::to_string(rpm);
 	helpers->log((char*)msg.c_str());
+	if(ReverseCollision)
+	{
+		collisions = -collisions;
+	}
+	if(ReverseTiresSlip)
+	{
+		tiresSlip = -tiresSlip;
+	}
 
 	if (EnableDamper == 1)
 	{
 		triggers->Damper(DamperStrength / 100.0);
 	}
+	UINT32 length_ms = 150;
 
 	double percentForce;
-	if (0.001 > spring && !gameFfbStarted)
+	if (!rpm && !speed)
 	{
 		helpers->log("fake spring+friction until game's FFB starts");
 		percentForce = 0.3 * SpringStrength / 100.0;
@@ -176,85 +189,81 @@ void WMMT6R::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTrigger
 	}
 	else
 	{
-		if (!gameFfbStarted)
-		{
-			helpers->log("game's FFB started");
-			gameFfbStarted = true;
-		}
+		helpers->log("game's FFB started");
 		percentForce = (1.0 * spring) * SpringStrength / 100.0;
 		triggers->Spring(percentForce);
 		percentForce = (1.0 * friction) * FrictionStrength / 100.0;
 		triggers->Friction(percentForce);
-	}
-
-    UINT32 length_ms = 150;
-	if (0 < collisions)
-	{
-		if (0.209 <= collisions && 0.311 >= collisions)
+		if (0 < collisions)
 		{
-			helpers->log("joint/stripe on the right");
-			percentForce = (1.0 * collisions) * JointsAndStripesStrength / 100.0;
-			triggers->Sine(80, 80, percentForce, length_ms);
-			triggers->Rumble(0, percentForce, length_ms);
+			if (0.209 <= collisions && 0.311 >= collisions)
+			{
+				helpers->log("joint/stripe on the right");
+				percentForce = (1.0 * collisions) * JointsAndStripesStrength / 100.0;
+				triggers->Sine(80, 80, percentForce, length_ms);
+				triggers->Rumble(0, percentForce, length_ms);
+			}
+			else
+			{
+				helpers->log("collision on the right");
+				percentForce = (1.0 * collisions) * CollisionsStrength / 100.0;
+				triggers->Constant(constants->DIRECTION_FROM_RIGHT, percentForce);
+				triggers->Rumble(0, percentForce, length_ms);
+			}
+		}
+		else if (0 > collisions)
+		{
+			if (-0.209 >= collisions && -0.311 <= collisions)
+			{
+				helpers->log("joint/stripe on the left");
+				percentForce = (1.0 * collisions) * JointsAndStripesStrength / 100.0;
+				triggers->Sine(80, 80, percentForce, length_ms);
+				triggers->Rumble(0, -1.0 * percentForce, length_ms);
+			}
+			else
+			{
+				helpers->log("collision on the left");
+				percentForce = (-1.0 * collisions) * CollisionsStrength / 100.0;
+				triggers->Constant(constants->DIRECTION_FROM_LEFT, percentForce);
+				triggers->Rumble(0, percentForce, length_ms);
+			}
 		}
 		else
 		{
-			helpers->log("collision on the right");
-			percentForce = (1.0 * collisions) * CollisionsStrength / 100.0;
-			triggers->Constant(constants->DIRECTION_FROM_RIGHT, percentForce);
-			triggers->Rumble(0, percentForce, length_ms);
+			helpers->log("resetting collision");
+			triggers->Constant(constants->DIRECTION_FROM_LEFT, 0);
 		}
-	}
-	else if (0 > collisions)
-	{
-		if (-0.209 >= collisions && -0.311 <= collisions)
+	
+		if (0 < tiresSlip)
 		{
-			helpers->log("joint/stripe on the left");
-			percentForce = (1.0 * collisions) * JointsAndStripesStrength / 100.0;
-			triggers->Sine(80, 80, percentForce, length_ms);
-			triggers->Rumble(0, -1.0 * percentForce, length_ms);
+			helpers->log("tires slip left");
+			bool highSpeedVibrations = (294 <= speed) && (1.0 * tiresSlip) < (LimitBetweenHighSpeedVibrationsAndTiresSlip / 1000.0);
+			percentForce = (-1.0 * tiresSlip) * (highSpeedVibrations ? HighSpeedVibrationsStrength : TiresSlipStrength) / 100.0;
+			triggers->Sine(100, 100, percentForce, length_ms);
+	
+			if (!highSpeedVibrations && ((0 == JointsAndStripesStrength && 0 == CollisionsStrength) || (0.001 > collisions && -0.001 < collisions)))
+			{
+				triggers->Rumble(0, -1.0 * percentForce, length_ms);
+			}
 		}
-		else
+		else if (0 > tiresSlip)
 		{
-			helpers->log("collision on the left");
-			percentForce = (-1.0 * collisions) * CollisionsStrength / 100.0;
-			triggers->Constant(constants->DIRECTION_FROM_LEFT, percentForce);
-			triggers->Rumble(0, percentForce, length_ms);
-		}
-	}
-	else
-	{
-		helpers->log("resetting collision");
-		triggers->Constant(constants->DIRECTION_FROM_LEFT, 0);
-	}
-
-	if (0 < tiresSlip)
-	{
-		helpers->log("tires slip left");
-		bool highSpeedVibrations = (294 <= speed) && (1.0 * tiresSlip) < (LimitBetweenHighSpeedVibrationsAndTiresSlip / 1000.0);
-		percentForce = (-1.0 * tiresSlip) * (highSpeedVibrations ? HighSpeedVibrationsStrength : TiresSlipStrength) / 100.0;
-		triggers->Sine(100, 100, percentForce, length_ms);
-
-		if (!highSpeedVibrations && ((0 == JointsAndStripesStrength && 0 == CollisionsStrength) || (0.001 > collisions && -0.001 < collisions)))
-		{
-			triggers->Rumble(0, -1.0 * percentForce, length_ms);
-		}
-	}
-	else if (0 > tiresSlip)
-	{
-		helpers->log("tires slip right");
-		bool highSpeedVibrations = (294 <= speed) && (-1.0 * tiresSlip) < (LimitBetweenHighSpeedVibrationsAndTiresSlip / 1000.0);
-		percentForce = (-1.0 * tiresSlip) * (highSpeedVibrations ? HighSpeedVibrationsStrength : TiresSlipStrength) / 100.0;
-		triggers->Sine(100, 100, percentForce, length_ms);
-
-		if (!highSpeedVibrations && ((0 == JointsAndStripesStrength && 0 == CollisionsStrength) || (0.001 > collisions && -0.001 < collisions)))
-		{
-			triggers->Rumble(0, percentForce, length_ms);
+			helpers->log("tires slip right");
+			bool highSpeedVibrations = (294 <= speed) && (-1.0 * tiresSlip) < (LimitBetweenHighSpeedVibrationsAndTiresSlip / 1000.0);
+			percentForce = (-1.0 * tiresSlip) * (highSpeedVibrations ? HighSpeedVibrationsStrength : TiresSlipStrength) / 100.0;
+			triggers->Sine(100, 100, percentForce, length_ms);
+	
+			if (!highSpeedVibrations && ((0 == JointsAndStripesStrength && 0 == CollisionsStrength) || (0.001 > collisions && -0.001 < collisions)))
+			{
+				triggers->Rumble(0, percentForce, 150);
+			}
 		}
 	}
 
-	INT_PTR ptr1 = helpers->ReadIntPtr(0x20681C0, true);
-	UINT8 gear = helpers->ReadByte(ptr1 + 0x3AC, false);
+	
+/* TODO
+	INT_PTR ptr1 = helpers->ReadIntPtr(0x20681C0, true);	//Wg6Enma_Release_IDL0.dll+29B3E0
+	UINT8 gear = helpers->ReadByte(ptr1 + 0x3AC, false);	//ptr1 + 0x3A8
 
 	if (0 < WheelSpinStrength)
 	{
@@ -262,7 +271,7 @@ void WMMT6R::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTrigger
 		//INT_PTR ptr2 = myHelpers->ReadIntPtr(ptr1 + 0x180 + 0xa8 + 0x18, false);
 		//UINT8 power = myHelpers->ReadByte(ptr2 + 0x98, false);
 		UINT8 power = 16;
-		int rpm = helpers->ReadInt32(0x204820C, true);
+		int rpm = helpers->ReadInt32(0x1F2629C, true);	//wmn6r.exe+1F2629C
 		int diff = 0x0A <= power ? 0 : 20;
 
 		if (
@@ -275,8 +284,8 @@ void WMMT6R::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTrigger
 			)
 		{
 			percentForce = (((100.0 - speed) / 100.0) * ((rpm * 100.0 / 8500.0) / 100.0)) * WheelSpinStrength / 100.0;
-			triggers->Sine(120, 120, percentForce, length_ms);
-			triggers->Rumble(0, percentForce, length_ms);
+			triggers->Sine(120, 120, percentForce);
+			triggers->Rumble(0, percentForce, 150);
 
 			msg = "tires spin: gear: " + std::to_string(gear) + " | speed: " + std::to_string(speed)
 				+ " | rpm: " + std::to_string(rpm) + " | force: " + std::to_string(percentForce);
@@ -292,8 +301,8 @@ void WMMT6R::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTrigger
 			)
 		{
 			percentForce = (((160.0 - speed) / 150.0) * ((rpm * 100.0 / 8500.0) / 100.0)) * WheelSpinStrength / 100.0;
-			triggers->Sine(120, 120, percentForce, length_ms);
-			triggers->Rumble(0, percentForce, length_ms);
+			triggers->Sine(120, 120, percentForce);
+			triggers->Rumble(0, percentForce, 150);
 
 			msg = "tires spin: gear: " + std::to_string(gear) + " | speed: " + std::to_string(speed)
 				+ " | rpm: " + std::to_string(rpm) + " | force: " + std::to_string(percentForce);
@@ -303,8 +312,8 @@ void WMMT6R::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTrigger
 
 	if (0 < GearChangeStrength)
 	{
-		INT_PTR ptrtime = helpers->ReadIntPtr(0x20681D8, true);
-		float time = helpers->ReadFloat32(ptrtime + 0x18, false);
+		INT_PTR ptrtime = helpers->ReadIntPtr(0x20681D8, true);		//Wg6Enma_Release_IDL0.dll+29B3F8
+		float time = helpers->ReadFloat32(ptrtime + 0x18, false);	//ptrtime + 0x18
 
 		if (oldgear != gear && 0 < gear && 0 < time)
 		{
@@ -319,4 +328,5 @@ void WMMT6R::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTrigger
 		}
 		oldgear = gear;
 	}
+*/
 }

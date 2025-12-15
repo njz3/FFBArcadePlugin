@@ -35,6 +35,7 @@ along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
 #include "Game Files/AliensExtermination.h"
 #include "Game Files/Batman.h"
 #include "Game Files/BG4JP.h"
+#include "Game Files/Cars.h"
 #include "Game Files/ChaseHQ2.h"
 #include "Game Files/CrazyTaxi.h"
 #include "Game Files/CruisnBlast.h"
@@ -53,6 +54,8 @@ along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
 #include "Game Files/GRIDReal.h"
 #include "Game Files/GRIDCustom.h"
 #include "Game Files/GoldenGun.h"
+#include "Game Files/Hummer.h"
+#include "Game Files/HummerExtreme.h"
 #include "Game Files/InitialD0v131.h"
 #include "Game Files/InitialD0v211.h"
 #include "Game Files/InitialD0v230.h"
@@ -62,6 +65,7 @@ along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
 #include "Game Files/InitialD6.h"
 #include "Game Files/InitialD7.h"
 #include "Game Files/InitialD8.h"
+#include "Game Files/IDTAv231.h"
 #include "Game Files/MarioKartGPDXCustom.h"
 #include "Game Files/MarioKartGPDX1.10Custom.h"
 #include "Game Files/MarioKartGPDX1.10Real.h"
@@ -79,12 +83,14 @@ along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
 #include "Game Files/Showdown.h"
 #include "Game Files/SnoCross.h"
 #include "Game Files/WackyRaces.h"
+#include "Game Files/WastelandRacers2071.h"
 #include "Game Files/WMMT3.h"
 #include "Game Files/WMMT5.h"
 #include "Game Files/WMMT5DX.h"
 #include "Game Files/WMMT5DX+.h"
 #include "Game Files/WMMT6.h"
 #include "Game Files/WMMT6R.h"
+#include "Game Files/WMMT6RR.h"
 #include "Game Files/Machstorm.h"
 #include "Game Files/AfterburnerClimax.h"
 #include "Game Files/PokkenTournament.h"
@@ -1078,6 +1084,12 @@ const int FNF = 77;
 const int FNF_DRIFT = 78;
 const int FNF_SUPERCARS = 79;
 const int SEGA_RACE_TV = 80;
+const int HUMMER_EXTREME = 81;
+const int INITIAL_D_THEARCADE_V231 = 82;
+const int WASTELAND_RACERS_2071 = 83;
+const int WMMT_6_RR = 84;
+const int HUMMER = 85;
+const int CARS = 86;
 
 HINSTANCE Get_hInstance()
 {
@@ -1189,11 +1201,6 @@ void Initialize(int device_index)
 	tempEffect.type = SDL_HAPTIC_SINE;
 	tempEffect.constant.direction.type = SDL_HAPTIC_CARTESIAN;
 	effects.effect_sine_id = SDL_HapticNewEffect(haptic, &tempEffect);
-
-	tempEffect = SDL_HapticEffect();
-	tempEffect.type = SDL_HAPTIC_SINE;
-	tempEffect.constant.direction.type = SDL_HAPTIC_CARTESIAN;
-	effects.effect_vibration_id = SDL_HapticNewEffect(haptic, &tempEffect);
 
 	tempEffect = SDL_HapticEffect();
 	tempEffect.type = SDL_HAPTIC_SPRING;
@@ -1571,6 +1578,10 @@ void TriggerSineEffect(UINT16 period_ms, UINT16 fadePeriod_ms, double strength, 
 	long long elapsedTime = (std::chrono::duration_cast<std::chrono::milliseconds>(now - timeOfLastSineEffect)).count();
 
 	int direction = 1;
+
+	if (period_ms < 1)
+		return;
+
 	if (strength < -0.001) {
 		strength *= -1;
 		direction = -1;
@@ -2401,6 +2412,9 @@ DWORD WINAPI FFBLoop(LPVOID lpParam)
 	case CHASE_HQ_2:
 		game = new ChaseHQ2;
 		break;
+	case CARS:
+		game = new Cars;
+		break;
 	case DAYTONA_3:
 		game = new Daytona3;
 		break;
@@ -2562,6 +2576,9 @@ DWORD WINAPI FFBLoop(LPVOID lpParam)
 	case WMMT_6_R:
 		game = new WMMT6R;
 		break;
+	case WMMT_6_RR:
+		game = new WMMT6RR;
+		break;
 	case SRG:
 		game = new StormRacerG;
 		break;
@@ -2624,6 +2641,18 @@ DWORD WINAPI FFBLoop(LPVOID lpParam)
 		break;
 	case SEGA_RACE_TV:
 		game = new SegaRaceTV;
+		break;
+	case HUMMER:
+		game = new Hummer;
+		break;
+	case HUMMER_EXTREME:
+		game = new HummerExtreme;
+		break;
+	case INITIAL_D_THEARCADE_V231:
+		game = new InitialDTA231;
+		break;
+	case WASTELAND_RACERS_2071:
+		game = new WasteLandRacers2071;
 		break;
 	case TEST_GAME_CONST:
 	case TEST_GAME_FRICTION:
@@ -2714,7 +2743,7 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ulReasonForCall, LPVOID lpReserved)
 		hlp.log("loading original library...");
 
 		GetPrivateProfileStringA("Settings", "ChainLoad", "", chainedDLL, 256, ".\\FFBplugin.ini");
-
+		OutputDebugStringA("FFBArcadePluginLoaded");
 		if (0 == strlen(chainedDLL))
 		{
 			char buffer[MAX_PATH];
