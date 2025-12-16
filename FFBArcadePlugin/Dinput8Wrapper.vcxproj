@@ -90,7 +90,6 @@
       <FileType>Document</FileType>
     </None>
     <None Include="Includes\SDL2.dll" />
-    <None Include="LICENSE" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
@@ -421,7 +420,8 @@
     <PostBuildEvent>
       <Command>xcopy /y "$(ProjectDir)Includes\*"  "$(OutDir)"
 pwsh.exe "$(ProjectDir)Post-Build\build.ps1" "$(ProjectDir)Config\FFBPlugin.ini" "$(OutDir)\" "$(OutDir)\"
-$(ProjectDir)Post-Build\copydlls.bat "$(OutDir)"</Command>
+$(ProjectDir)Post-Build\copydlls.bat "$(OutDir)"
+</Command>
     </PostBuildEvent>
     <CustomBuildStep>
       <Command>echo HELLO WORLD

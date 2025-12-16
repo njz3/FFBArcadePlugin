@@ -63,7 +63,7 @@ namespace FFBPluginGUI {
 
 			this->New2ColsPage();
 
-			this->AddTextBox(L"Set or remove axis/button configuration below", this->leftColX, this->minPosY, (3.035 * this->longWidth) + (3 * this->margin), this->textBoxHeight, L"Select Input then move or press Axis or Button");
+			this->AddTextBox(L"Set or remove axis/button configuration below", this->leftColX, this->minPosY, (int)(3.035 * (double)this->longWidth) + (3 * this->margin), this->textBoxHeight, L"Select Input then move or press Axis or Button");
 
 			this->leftColPosY = this->minPosY + this->textBoxOuterHeight;
 

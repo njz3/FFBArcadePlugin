@@ -35,8 +35,8 @@ static void __cdecl clSteerDualDeviceSetTRQCurveHalfPoint(void* thisParam, int p
 static void(__cdecl* clSteerDualDeviceSetVibrateOrig)(void* thisParam, int param_1, float param_2, float param_3);
 static void __cdecl clSteerDualDeviceSetVibrate(void* thisParam, int param_1, float param_2, float param_3) {
 	UINT32 length_ms = 100;
-	myTriggers->Sine(param_3 * 100, 1, param_2 * 60, length_ms);
-	myTriggers->Rumble(param_2 * 60, 0, (UINT32)(param_3 * 100));
+	myTriggers->Sine((UINT16)(param_3 * 100), 1, param_2 * 60.0, length_ms);
+	myTriggers->Rumble(param_2 * 60.0, 0.0, (UINT32)(param_3 * 100));
 	return clSteerDualDeviceSetVibrateOrig(thisParam, param_1, param_2, param_3);
 }
 

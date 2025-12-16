@@ -1970,16 +1970,23 @@ void TriggerRumbleEffect(double highfrequency, double lowfrequency, UINT32 lengt
 			LowMotor = (DWORD)(65535.0 * (Calculation / 100.0));
 		}
 
+		if (LowMotor > 0xFFFF)
+			LowMotor = 0xFFFF;
+		if (HighMotor > 0xFFFF)
+			HighMotor = 0xFFFF;
+		UINT16 LowMotor16 = (UINT16)(LowMotor);
+		UINT16 HighMotor16 = (UINT16)(HighMotor);
+
 		if (ReverseRumble)
 		{
-			int ReverseRumble = SDL_JoystickRumble(GameController, HighMotor, LowMotor, length_ms);
+			int ReverseRumble = SDL_JoystickRumble(GameController, HighMotor16, LowMotor16, length_ms);
 
 			if (ReverseRumble == -1)
 				EnableRumble = 0;
 		}
 		else
 		{
-			int Rumble = SDL_JoystickRumble(GameController, LowMotor, HighMotor, length_ms);
+			int Rumble = SDL_JoystickRumble(GameController, LowMotor16, HighMotor16, length_ms);
 
 			if (Rumble == -1)
 				EnableRumble = 0;
@@ -1998,17 +2005,23 @@ void TriggerRumbleEffectDevice2(double highfrequency, double lowfrequency, UINT3
 		DWORD rangeHigh = maxForce - minForceHigh;
 		DWORD LowMotor = (DWORD)(lowfrequency * rangeLow + minForceLow);
 		DWORD HighMotor = (DWORD)(highfrequency * rangeHigh + minForceHigh);
+		if (LowMotor > 0xFFFF)
+			LowMotor = 0xFFFF;
+		if (HighMotor > 0xFFFF)
+			HighMotor = 0xFFFF;
+		UINT16 LowMotor16 = (UINT16)(LowMotor);
+		UINT16 HighMotor16 = (UINT16)(HighMotor);
 
 		if (ReverseRumbleDevice2)
 		{
-			int ReverseRumble2 = SDL_JoystickRumble(GameController2, HighMotor, LowMotor, length_ms);
+			int ReverseRumble2 = SDL_JoystickRumble(GameController2, HighMotor16, LowMotor16, length_ms);
 
 			if (ReverseRumble2 == -1)
 				EnableRumbleDevice2 = 0;
 		}
 		else
 		{
-			int Rumble2 = SDL_JoystickRumble(GameController2, LowMotor, HighMotor, length_ms);
+			int Rumble2 = SDL_JoystickRumble(GameController2, LowMotor16, HighMotor16, length_ms);
 
 			if (Rumble2 == -1)
 				EnableRumbleDevice2 = 0;
@@ -2027,17 +2040,23 @@ void TriggerRumbleEffectDevice3(double highfrequency, double lowfrequency, UINT3
 		DWORD rangeHigh = maxForce - minForceHigh;
 		DWORD LowMotor = (DWORD)(lowfrequency * rangeLow + minForceLow);
 		DWORD HighMotor = (DWORD)(highfrequency * rangeHigh + minForceHigh);
+		if (LowMotor > 0xFFFF)
+			LowMotor = 0xFFFF;
+		if (HighMotor > 0xFFFF)
+			HighMotor = 0xFFFF;
+		UINT16 LowMotor16 = (UINT16)(LowMotor);
+		UINT16 HighMotor16 = (UINT16)(HighMotor);
 
 		if (ReverseRumbleDevice3)
 		{
-			int ReverseRumble3 = SDL_JoystickRumble(GameController3, HighMotor, LowMotor, length_ms);
+			int ReverseRumble3 = SDL_JoystickRumble(GameController3, HighMotor16, LowMotor16, length_ms);
 
 			if (ReverseRumble3 == -1)
 				EnableRumbleDevice3 = 0;
 		}
 		else
 		{
-			int Rumble3 = SDL_JoystickRumble(GameController3, LowMotor, HighMotor, length_ms);
+			int Rumble3 = SDL_JoystickRumble(GameController3, LowMotor16, HighMotor16, length_ms);
 
 			if (Rumble3 == -1)
 				EnableRumbleDevice3 = 0;
@@ -2056,8 +2075,14 @@ void TriggerRumbleTriggerEffect(double lefttrigger, double righttrigger, UINT32 
 		DWORD rangeHigh = maxForce - minForceHigh;
 		DWORD LeftMotor = (DWORD)(lefttrigger * rangeLow + minForceLow);
 		DWORD RightMotor = (DWORD)(righttrigger * rangeHigh + minForceHigh);
+		if (LeftMotor > 0xFFFF)
+			LeftMotor = 0xFFFF;
+		if (RightMotor > 0xFFFF)
+			RightMotor = 0xFFFF;
+		UINT16 LeftMotor16 = (UINT16)(LeftMotor);
+		UINT16 RightMotorMotor16 = (UINT16)(RightMotor);
 
-		int RumbleTriggers = SDL_JoystickRumbleTriggers(GameController, LeftMotor, RightMotor, length_ms);
+		int RumbleTriggers = SDL_JoystickRumbleTriggers(GameController, LeftMotor16, RightMotorMotor16, length_ms);
 
 		if (RumbleTriggers == -1)
 			EnableRumbleTriggers = 0;

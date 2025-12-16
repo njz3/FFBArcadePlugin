@@ -13,7 +13,6 @@
   <ItemGroup>
     <None Include="Config\FFBPlugin.ini" />
     <None Include="Includes\SDL2.dll" />
-    <None Include="LICENSE" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>

@@ -38,8 +38,8 @@ static void __cdecl clSteerDualDeviceSetVibrate(void* thisParam, int param_1, fl
 	std::string out = "Vibrate: " + std::to_string(param_2) + " " + std::to_string(param_3);
 	OutputDebugStringA(out.c_str());
 	UINT32 length_ms = 100;
-	myTriggers->Sine(param_3 * 100, 1, param_2 * 60, length_ms);
-	myTriggers->Rumble(param_2 * 60, 0, (UINT32)(param_3 * 100));
+	myTriggers->Sine((UINT16)(param_3 * 100), 1, param_2 * 60.0, length_ms);
+	myTriggers->Rumble(param_2 * 60.0, 0.0, (UINT32)(param_3 * 100));
 	return clSteerDualDeviceSetVibrateOrig(thisParam, param_1, param_2, param_3);
 }
 

@@ -860,10 +860,10 @@ namespace FFBPluginGUI {
 		tempEffect.condition.length = 5000;
 		tempEffect.condition.direction.dir[0] = 1;
 		tempEffect.constant.direction.dir[1] = 1; //Y Position
-		tempEffect.condition.left_coeff[0] = (short)(30000);
-		tempEffect.condition.right_coeff[0] = (short)(30000);
-		tempEffect.condition.left_sat[0] = (short)(30000) * 10; //Needed for Logitech G920 wheel
-		tempEffect.condition.right_sat[0] = (short)(30000) * 10; //Needed for Logitech G920 wheel
+		tempEffect.condition.left_coeff[0] = 32767;
+		tempEffect.condition.right_coeff[0] = 32767;
+		tempEffect.condition.left_sat[0] = 0xFFFF;// (short)(30000) * 10; //Needed for Logitech G920 wheel
+		tempEffect.condition.right_sat[0] = 0xFFFF;// (short)(30000) * 10; //Needed for Logitech G920 wheel
 		tempEffect.condition.center[0] = 0;
 		effect_id = SDL_HapticNewEffect(gControllerHaptic, &tempEffect);
 		SDL_HapticRunEffect(gControllerHaptic, effect_id, 1);
@@ -896,8 +896,8 @@ namespace FFBPluginGUI {
 		tempEffect.constant.direction.dir[1] = 0; //Y Position
 		tempEffect.condition.left_sat[0] = 0xFFFF;
 		tempEffect.condition.right_sat[0] = 0xFFFF;
-		tempEffect.condition.left_coeff[0] = 32767.0;
-		tempEffect.condition.right_coeff[0] = 32767.0;
+		tempEffect.condition.left_coeff[0] = 32767;
+		tempEffect.condition.right_coeff[0] = 32767;
 		effect_id = SDL_HapticNewEffect(gControllerHaptic, &tempEffect);
 		SDL_HapticRunEffect(gControllerHaptic, effect_id, 1);
 	}
@@ -1026,8 +1026,8 @@ namespace FFBPluginGUI {
 			tempEffect.constant.direction.dir[1] = 0; //Y Position
 			tempEffect.condition.left_sat[0] = 0xFFFF;
 			tempEffect.condition.right_sat[0] = 0xFFFF;
-			tempEffect.condition.left_coeff[0] = 32767.0;
-			tempEffect.condition.right_coeff[0] = 32767.0;
+			tempEffect.condition.left_coeff[0] = 32767;
+			tempEffect.condition.right_coeff[0] = 32767;
 			effect_id = SDL_HapticNewEffect(gControllerHaptic, &tempEffect);
 			SDL_HapticRunEffect(gControllerHaptic, effect_id, 1);
 	}
@@ -1059,8 +1059,8 @@ namespace FFBPluginGUI {
 			tempEffect.constant.direction.dir[1] = 0; //Y Position
 			tempEffect.condition.left_sat[0] = 0xFFFF;
 			tempEffect.condition.right_sat[0] = 0xFFFF;
-			tempEffect.condition.left_coeff[0] = 32767.0;
-			tempEffect.condition.right_coeff[0] = 32767.0;
+			tempEffect.condition.left_coeff[0] = 32767;
+			tempEffect.condition.right_coeff[0] = 32767;
 			effect_id = SDL_HapticNewEffect(gControllerHaptic, &tempEffect);
 			SDL_HapticRunEffect(gControllerHaptic, effect_id, 1);
 	}

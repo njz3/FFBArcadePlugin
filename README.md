@@ -17,8 +17,6 @@ This is a plugin to provide Force Feedback and Rumble to various arcade games.
 
 - Install Powershell (from command line: ```winget install --id Microsoft.PowerShell --source winget```)
 
-- Install Node.js (https://nodejs.org/en/download/current)
-
 - Install 7zip (https://www.7-zip.org/download.html) to C:\Program Files\7-Zip
 
 - Run the BuildAll.cmd script
@@ -72,6 +70,14 @@ If you wish to use FFB Plugin over Supermodel's FFB then disable Supermodel's FF
 When you launch game, ensure you have command -outputs=win for FFB Plugin to recieve Output Values etc
 
 Ensure either MAME32.dll or MAME64.dll is with FFB Plugin files in Supermodel folder depending on 32bit or 64bit Supermodel
+
+## For Lindbergh games
+
+1) Ensure visual studio c++ runtime files are up to date. If un-sure then download & install all in one visual runtime pack.
+
+2) Copy opengl32.dll & SDL2.dll to TeknoParrot folder inside main TeknoParrot folder eg C:\TeknoParrot\TeknoParrot\
+
+3) Copy remaining files (including SDL2.dll) in game folder from FFB Arcade Plugin to same folder as elf file
 
 
 ## CREDITS

@@ -249,7 +249,7 @@ namespace FFBPluginGUI {
 			if (AutoScrollGUI)
 			{
 				this->AutoScroll = true;
-				this->ClientSize = System::Drawing::Size(this->wIndowsWidth * 0.8, this->leftColPosY * 0.8);
+				this->ClientSize = System::Drawing::Size((int)((double)this->wIndowsWidth * 0.8), (int)((double)this->leftColPosY * 0.8));
 			}
 			else
 				this->ClientSize = System::Drawing::Size(this->wIndowsWidth, this->leftColPosY > this->maxPosY ? this->leftColPosY : this->maxPosY);
@@ -1221,7 +1221,7 @@ namespace FFBPluginGUI {
 			MetroComboBox^ comboBox = gcnew MetroComboBox();
 			   
 			comboBox->FormattingEnabled = true;
-			comboBox->ItemHeight = height * 0.8;
+			comboBox->ItemHeight = (int)((double)height * 0.8);
 			comboBox->Location = System::Drawing::Point(locX, locY);
 			comboBox->Name = L"";
 			comboBox->Size = System::Drawing::Size(width, height);

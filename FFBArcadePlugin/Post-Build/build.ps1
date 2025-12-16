@@ -50,9 +50,9 @@ if ($null -eq $o) {
 
 # 2. Vérification de la DLL
 if (Test-Path "$OutputDir\dinput8.dll") {
-    Write-Host "DINPUT8.DLL FOUND" -ForegroundColor Green
+    Write-Host "dinput8.dll found, build is ok" -ForegroundColor Green
 } else {
-    Write-Host "DINPUT8.DLL NOT FOUND!" -ForegroundColor Yellow
+    Write-Host "dinput8.dll NOT FOUND, ERROR IN BUILD!" -ForegroundColor Yellow
 }
 
 # 3. Récupération des paramètres globaux
