@@ -420,8 +420,7 @@
     </ManifestResourceCompile>
     <PostBuildEvent>
       <Command>xcopy /y "$(ProjectDir)Includes\*"  "$(OutDir)"
-if not exist "$(ProjectDir)Post-Build\node_modules" (cd "$(ProjectDir)Post-Build\" &amp;&amp; npm install)
-node "$(ProjectDir)Post-Build\build.js" "$(ProjectDir)Config\FFBPlugin.ini" "$(OutDir)\" "$(OutDir)\"
+pwsh.exe "$(ProjectDir)Post-Build\build.ps1" "$(ProjectDir)Config\FFBPlugin.ini" "$(OutDir)\" "$(OutDir)\"
 $(ProjectDir)Post-Build\copydlls.bat "$(OutDir)"</Command>
     </PostBuildEvent>
     <CustomBuildStep>
