@@ -39,6 +39,33 @@
     <ClCompile Include="GTIClub.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="CartFury.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GTIClubMame.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MidnightRun.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="RacingJam.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="RacingJam2.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="RoadsEdge.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ThrillDrive.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="WindingHeat.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="XtremeRally.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="InitialD4.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -525,6 +552,33 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="GTIClub.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CartFury.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GTIClubMame.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MidnightRun.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="RacingJam.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="RacingJam2.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="RoadsEdge.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ThrillDrive.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="WindingHeat.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="XtremeRally.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="InitialD4.h">

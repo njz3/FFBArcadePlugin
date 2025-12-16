@@ -290,7 +290,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
     <OutDir>$(SolutionDir)$(Configuration).$(Platform)\</OutDir>
-    <IntDir>$(SolutionDir)$(Configuration).$(Platform)\$(ProjectName)</IntDir>
+    <IntDir>$(SolutionDir)$(Configuration).$(Platform)\$(ProjectName)\</IntDir>
     <TargetName>dinput8</TargetName>
     <EmbedManifest>false</EmbedManifest>
   </PropertyGroup>

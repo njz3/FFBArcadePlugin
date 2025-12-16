@@ -214,6 +214,7 @@
     <ClCompile Include="ButtonRumble.cpp" />
     <ClCompile Include="ButtonRumbleInput.cpp" />
     <ClCompile Include="CaliforniaSpeed.cpp" />
+    <ClCompile Include="CartFury.cpp" />
     <ClCompile Include="ChaseBombers.cpp" />
     <ClCompile Include="ChaseHQ2.cpp" />
     <ClCompile Include="ChaseHQ2Input.cpp" />
@@ -235,6 +236,7 @@
     <ClCompile Include="GoldenGun.cpp" />
     <ClCompile Include="GRIDReal.cpp" />
     <ClCompile Include="GTIClub.cpp" />
+    <ClCompile Include="GTIClubMame.cpp" />
     <ClCompile Include="GunBuster.cpp" />
     <ClCompile Include="Helper.cpp" />
     <ClCompile Include="HOTD4.cpp" />
@@ -256,6 +258,7 @@
     <ClCompile Include="MameSelect.cpp" />
     <ClCompile Include="DemulMaximumSpeed.cpp" />
     <ClCompile Include="MechanizedAttack.cpp" />
+    <ClCompile Include="MidnightRun.cpp" />
     <ClCompile Include="MKGP100Custom.cpp" />
     <ClCompile Include="MKGP110Custom.cpp" />
     <ClCompile Include="MKGP110Real.cpp" />
@@ -275,11 +278,14 @@
     <ClCompile Include="PointBlank2.cpp" />
     <ClCompile Include="PokkenTournament.cpp" />
     <ClCompile Include="PowerDrift.cpp" />
+    <ClCompile Include="RacingJam.cpp" />
+    <ClCompile Include="RacingJam2.cpp" />
     <ClCompile Include="RailChase.cpp" />
     <ClCompile Include="Rambo.cpp" />
     <ClCompile Include="RaveRacer.cpp" />
     <ClCompile Include="RevolutionX.cpp" />
     <ClCompile Include="RingRiders.cpp" />
+    <ClCompile Include="RoadsEdge.cpp" />
     <ClCompile Include="RoadFighters3D.cpp" />
     <ClCompile Include="RoadFighters3DInput.cpp" />
     <ClCompile Include="R_Tuned.cpp" />
@@ -304,6 +310,7 @@
     <ClCompile Include="SWDC2018.cpp" />
     <ClCompile Include="Terminator2.cpp" />
     <ClCompile Include="TimeCrisis.cpp" />
+    <ClCompile Include="ThrillDrive.cpp" />
     <ClCompile Include="TokyoCop.cpp" />
     <ClCompile Include="Transformers.cpp" />
     <ClCompile Include="TurboOutrun.cpp" />
@@ -313,12 +320,14 @@
     <ClCompile Include="VirtuaRacing.cpp" />
     <ClCompile Include="WackyRaces.cpp" />
     <ClCompile Include="WastelandRacers2071.cpp" />
+    <ClCompile Include="WindingHeat.cpp" />
     <ClCompile Include="WMMT3.cpp" />
     <ClCompile Include="WMMT5.cpp" />
     <ClCompile Include="WMMT5Input.cpp" />
     <ClCompile Include="WMMT6.cpp" />
     <ClCompile Include="WMMT6R.cpp" />
     <ClCompile Include="WMMT6RR.cpp" />
+    <ClCompile Include="XtremeRally.cpp" />
     <ClCompile Include="ZombieRaid.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -394,6 +403,7 @@
     <ClInclude Include="ButtonRumbleInput.h">
       <FileType>CppHeader</FileType>
     </ClInclude>
+    <ClInclude Include="CartFury.h" />
     <ClInclude Include="CaliforniaSpeed.h" />
     <ClInclude Include="ChaseBombers.h" />
     <ClInclude Include="ChaseHQ2.h">
@@ -427,6 +437,7 @@
     <ClInclude Include="GhoulPanic.h" />
     <ClInclude Include="GoldenGun.h" />
     <ClInclude Include="GRIDReal.h" />
+    <ClInclude Include="GTIClubMame.h" />
     <ClInclude Include="GTIClub.h">
       <FileType>CppHeader</FileType>
     </ClInclude>
@@ -477,6 +488,7 @@
     </ClInclude>
     <ClInclude Include="DemulMaximumSpeed.h" />
     <ClInclude Include="MechanizedAttack.h" />
+    <ClInclude Include="MidnightRun.h" />
     <ClInclude Include="MKGP100Custom.h">
       <FileType>CppHeader</FileType>
     </ClInclude>
@@ -509,10 +521,13 @@
     <ClInclude Include="R-Tuned.h" />
     <ClInclude Include="RailChase.h" />
     <ClInclude Include="Rambo.h" />
+    <ClInclude Include="RacingJam.h" />
+    <ClInclude Include="RacingJam2.h" />
     <ClInclude Include="RaveRacer.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="RevolutionX.h" />
     <ClInclude Include="RingRiders.h" />
+    <ClInclude Include="RoadsEdge.h" />
     <ClInclude Include="RoadFighters3D.h">
       <FileType>CppHeader</FileType>
     </ClInclude>
@@ -548,6 +563,7 @@
     <ClInclude Include="SWDC2018.h" />
     <ClInclude Include="Terminator2.h" />
     <ClInclude Include="TimeCrisis.h" />
+    <ClInclude Include="ThrillDrive.h" />
     <ClInclude Include="TokyoCop.h" />
     <ClInclude Include="Transformers.h" />
     <ClInclude Include="TurboOutrun.h" />
@@ -560,6 +576,7 @@
       <FileType>CppHeader</FileType>
     </ClInclude>
     <ClInclude Include="WastelandRacers2071.h" />
+    <ClInclude Include="WindingHeat.h" />
     <ClInclude Include="WMMT3.h" />
     <ClInclude Include="WMMT5.h">
       <FileType>CppHeader</FileType>
@@ -571,6 +588,7 @@
     <ClInclude Include="WMMT6Input.h" />
     <ClInclude Include="WMMT6R.h" />
     <ClInclude Include="WMMT6RR.h" />
+    <ClInclude Include="XtremeRally.h" />
     <ClInclude Include="ZombieRaid.h" />
   </ItemGroup>
   <ItemGroup>

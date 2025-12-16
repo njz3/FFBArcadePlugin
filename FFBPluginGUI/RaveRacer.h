@@ -35,6 +35,8 @@ namespace FFBPluginGUI {
 			this->AutoAddShortCheckBox("PowerModeRaveRacer", L"Power Mode", L"Enable to raise strength of lower values");
 			this->AutoAddShortCheckBox("EnableDamperRaveRacer", L"Enable Damper", L"Enable damper to lower wheel oscillation");
 
+			this->AutoAddShortCheckBox("ReverseDirection", L"Reverse FFB Direction", L"Swap Left/Right steering direction");
+
 			this->AutoAddLongTrackBarBlock("DamperStrengthRaveRacer", L"Damper Strength", 0, 100, L"Strength of damper effect to lower oscillation");
 
 			this->AutoAddLongTrackBarBlock("FeedbackLengthRaveRacer", L"Feedback Length", 16, 10000, L"Length of a feedback command");
