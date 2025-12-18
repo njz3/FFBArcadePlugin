@@ -54,6 +54,21 @@ namespace FFBPluginGUI {
 			//
 			//TODO: Add the constructor code here
 			//
+			for (int i = 0; i < SDL_NumJoysticks(); i++)
+			{
+				SDL_Joystick* js1 = SDL_JoystickOpen(i);
+				char buff[300];
+				GetPrivateProfileStringA("Settings", "DeviceGUID", "No FFBPlugin.ini found", buff, _countof(buff), ".\\FFBPlugin.ini");
+				//String^ str = gcnew String(buff);
+				String^ bah1 = gcnew String(SDL_JoystickName(js1));
+				//this->metroComboBox1->Text = str;
+				this->metroComboBox1->Items->Add(bah1);
+			}
+			if (SDL_NumJoysticks() == 0)
+			{
+				this->metroComboBox1->Text = "SDL2 Cannot Detect Any Joystick";
+			}
+
 		}
 	private: MetroFramework::Controls::MetroButton^ metroButton14;
 	public:
@@ -220,20 +235,6 @@ namespace FFBPluginGUI {
 			// 
 			// metroComboBox1
 			// 
-			for (int i = 0; i < SDL_NumJoysticks(); i++)
-			{
-				SDL_Joystick* js1 = SDL_JoystickOpen(i);
-				char buff[300];
-				GetPrivateProfileStringA("Settings", "DeviceGUID", "No FFBPlugin.ini found", buff, _countof(buff), ".\\FFBPlugin.ini");
-				//String^ str = gcnew String(buff);
-				String^ bah1 = gcnew String(SDL_JoystickName(js1));
-				//this->metroComboBox1->Text = str;
-				this->metroComboBox1->Items->Add(bah1);
-			}
-			if (SDL_NumJoysticks() == 0)
-			{
-				this->metroComboBox1->Text = "SDL2 Cannot Detect Any Joystick";
-			}
 			this->metroComboBox1->FormattingEnabled = true;
 			this->metroComboBox1->ItemHeight = 23;
 			this->metroComboBox1->Location = System::Drawing::Point(23, 82);
