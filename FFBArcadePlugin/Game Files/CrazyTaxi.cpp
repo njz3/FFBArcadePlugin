@@ -13,34 +13,31 @@ along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
 
 #include <string>
 #include "CrazyTaxi.h"
-extern int EnableDamper;
-extern int DamperStrength;
 static UINT8 oldGroundEffect;
 static bool Collision;
 
-static wchar_t* settingsFilename = TEXT(".\\FFBPlugin.ini");
-static int SpringStrength = GetPrivateProfileInt(TEXT("Settings"), TEXT("SpringStrength"), 0, settingsFilename);
-static int DisableConstantEffects = GetPrivateProfileInt(TEXT("Settings"), TEXT("DisableConstantEffects"), 0, settingsFilename);
-static int EngineRumbleEffect = GetPrivateProfileInt(TEXT("Settings"), TEXT("EngineRumbleEffect"), 0, settingsFilename);
-static int OriginalRumbleEffect = GetPrivateProfileInt(TEXT("Settings"), TEXT("OriginalRumbleEffect"), 0, settingsFilename);
-static int EnableGroundEffects = GetPrivateProfileInt(TEXT("Settings"), TEXT("EnableGroundEffects"), 0, settingsFilename);
-static int FFBGrassSinePeriod = GetPrivateProfileInt(TEXT("Settings"), TEXT("FFBGrassSinePeriod"), 0, settingsFilename);
-static int FFBUnderwaterSinePeriod = GetPrivateProfileInt(TEXT("Settings"), TEXT("FFBUnderwaterSinePeriod"), 0, settingsFilename);
-static int FFBShorelineSinePeriod = GetPrivateProfileInt(TEXT("Settings"), TEXT("FFBShorelineSinePeriod"), 0, settingsFilename);
-static int FFBGrassFadeSinePeriod = GetPrivateProfileInt(TEXT("Settings"), TEXT("FFBGrassFadeSinePeriod"), 0, settingsFilename);
-static int FFBUnderwaterFadeSinePeriod = GetPrivateProfileInt(TEXT("Settings"), TEXT("FFBUnderwaterFadeSinePeriod"), 0, settingsFilename);
-static int FFBShorelineFadeSinePeriod = GetPrivateProfileInt(TEXT("Settings"), TEXT("FFBShorelineFadeSinePeriod"), 0, settingsFilename);
-static int FFBFootpathSinePeriod = GetPrivateProfileInt(TEXT("Settings"), TEXT("FFBFootpathSinePeriod"), 0, settingsFilename);
-static int FFBFootpathFadeSinePeriod = GetPrivateProfileInt(TEXT("Settings"), TEXT("FFBFootpathFadeSinePeriod"), 0, settingsFilename);
-static int FFBSandSinePeriod = GetPrivateProfileInt(TEXT("Settings"), TEXT("FFBSandSinePeriod"), 0, settingsFilename);
-static int FFBSandFadeSinePeriod = GetPrivateProfileInt(TEXT("Settings"), TEXT("FFBSandFadeSinePeriod"), 0, settingsFilename);
-static int FFBStairsSinePeriod = GetPrivateProfileInt(TEXT("Settings"), TEXT("FFBStairsSinePeriod"), 0, settingsFilename);
-static int FFBStairsFadeSinePeriod = GetPrivateProfileInt(TEXT("Settings"), TEXT("FFBStairsFadeSinePeriod"), 0, settingsFilename);
-static int FFBSubwaySinePeriod = GetPrivateProfileInt(TEXT("Settings"), TEXT("FFBSubwaySinePeriod"), 0, settingsFilename);
-static int FFBSubwayFadeSinePeriod = GetPrivateProfileInt(TEXT("Settings"), TEXT("FFBSubwayFadeSinePeriod"), 0, settingsFilename);
-static int FFBSandFriction = GetPrivateProfileInt(TEXT("Settings"), TEXT("FFBSandFriction"), 0, settingsFilename);
-static int FFBUnderwaterFriction = GetPrivateProfileInt(TEXT("Settings"), TEXT("FFBUnderwaterFriction"), 0, settingsFilename);
-static int FFBShorelineFriction = GetPrivateProfileInt(TEXT("Settings"), TEXT("FFBShorelineFriction"), 0, settingsFilename);
+static int SpringStrength = GetSettingInt(TEXT("SpringStrength"), 0);
+static int DisableConstantEffects = GetSettingInt(TEXT("DisableConstantEffects"), 0);
+static int EngineRumbleEffect = GetSettingInt(TEXT("EngineRumbleEffect"), 0);
+static int OriginalRumbleEffect = GetSettingInt(TEXT("OriginalRumbleEffect"), 0);
+static int EnableGroundEffects = GetSettingInt(TEXT("EnableGroundEffects"), 0);
+static int FFBGrassSinePeriod = GetSettingInt(TEXT("FFBGrassSinePeriod"), 0);
+static int FFBUnderwaterSinePeriod = GetSettingInt(TEXT("FFBUnderwaterSinePeriod"), 0);
+static int FFBShorelineSinePeriod = GetSettingInt(TEXT("FFBShorelineSinePeriod"), 0);
+static int FFBGrassFadeSinePeriod = GetSettingInt(TEXT("FFBGrassFadeSinePeriod"), 0);
+static int FFBUnderwaterFadeSinePeriod = GetSettingInt(TEXT("FFBUnderwaterFadeSinePeriod"), 0);
+static int FFBShorelineFadeSinePeriod = GetSettingInt(TEXT("FFBShorelineFadeSinePeriod"), 0);
+static int FFBFootpathSinePeriod = GetSettingInt(TEXT("FFBFootpathSinePeriod"), 0);
+static int FFBFootpathFadeSinePeriod = GetSettingInt(TEXT("FFBFootpathFadeSinePeriod"), 0);
+static int FFBSandSinePeriod = GetSettingInt(TEXT("FFBSandSinePeriod"), 0);
+static int FFBSandFadeSinePeriod = GetSettingInt(TEXT("FFBSandFadeSinePeriod"), 0);
+static int FFBStairsSinePeriod = GetSettingInt(TEXT("FFBStairsSinePeriod"), 0);
+static int FFBStairsFadeSinePeriod = GetSettingInt(TEXT("FFBStairsFadeSinePeriod"), 0);
+static int FFBSubwaySinePeriod = GetSettingInt(TEXT("FFBSubwaySinePeriod"), 0);
+static int FFBSubwayFadeSinePeriod = GetSettingInt(TEXT("FFBSubwayFadeSinePeriod"), 0);
+static int FFBSandFriction = GetSettingInt(TEXT("FFBSandFriction"), 0);
+static int FFBUnderwaterFriction = GetSettingInt(TEXT("FFBUnderwaterFriction"), 0);
+static int FFBShorelineFriction = GetSettingInt(TEXT("FFBShorelineFriction"), 0);
 
 void CrazyTaxi::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTriggers* triggers) {
 
@@ -58,8 +55,7 @@ void CrazyTaxi::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTrig
 	std::string ffs = std::to_string(GroundEffect);
 	helpers->log((char*)ffs.c_str());
 
-	if (EnableDamper)
-		triggers->Damper(DamperStrength / 100.0);
+	ApplyDamper(triggers);
 
 	if (!InGame && Timer)
 	{

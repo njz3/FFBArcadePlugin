@@ -13,27 +13,19 @@ along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
 
 #include <string>
 #include "GoldenGun.h"
+#include "../Common Files/Devices.h"
 #include "SDL.h"
-extern int joystick_index1;
-extern int joystick_index2;
-extern SDL_Joystick* GameController2;
-extern SDL_Haptic* ControllerHaptic2;
-extern SDL_Haptic* haptic2;
 static bool init = false;
 static bool health1pbool = false;
 static bool health2pbool = false;
 
-static wchar_t* settingsFilename = TEXT(".\\FFBPlugin.ini");
-static int configFeedbackLength = GetPrivateProfileInt(TEXT("Settings"), TEXT("FeedbackLength"), 120, settingsFilename);
-static int HowtoRumbleGunEffect = GetPrivateProfileInt(TEXT("Settings"), TEXT("HowtoRumbleGunEffect"), 0, settingsFilename);
-static int HowtoRumbleRageEffect = GetPrivateProfileInt(TEXT("Settings"), TEXT("HowtoRumbleRageEffect"), 0, settingsFilename);
-static int HowtoRumbleHealthEffect = GetPrivateProfileInt(TEXT("Settings"), TEXT("HowtoRumbleHealthEffect"), 0, settingsFilename);
-static int Gun1pStrength = GetPrivateProfileInt(TEXT("Settings"), TEXT("Gun1pStrength"), 0, settingsFilename);
-static int Rage1pStrength = GetPrivateProfileInt(TEXT("Settings"), TEXT("Rage1pStrength"), 0, settingsFilename);
-static int Health1pStrength = GetPrivateProfileInt(TEXT("Settings"), TEXT("Health1pStrength"), 0, settingsFilename);
-static int Gun2pStrength = GetPrivateProfileInt(TEXT("Settings"), TEXT("Gun2pStrength"), 0, settingsFilename);
-static int Rage2pStrength = GetPrivateProfileInt(TEXT("Settings"), TEXT("Rage2pStrength"), 0, settingsFilename);
-static int Health2pStrength = GetPrivateProfileInt(TEXT("Settings"), TEXT("Health2pStrength"), 0, settingsFilename);
+static int configFeedbackLength = GetSettingInt(TEXT("FeedbackLength"), 120);
+static int HowtoRumbleGunEffect = GetSettingInt(TEXT("HowtoRumbleGunEffect"), 0);
+static int HowtoRumbleHealthEffect = GetSettingInt(TEXT("HowtoRumbleHealthEffect"), 0);
+static int Gun1pStrength = GetSettingInt(TEXT("Gun1pStrength"), 0);
+static int Health1pStrength = GetSettingInt(TEXT("Health1pStrength"), 0);
+static int Gun2pStrength = GetSettingInt(TEXT("Gun2pStrength"), 0);
+static int Health2pStrength = GetSettingInt(TEXT("Health2pStrength"), 0);
 
 void GoldenGun::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTriggers* triggers) {
 
@@ -65,47 +57,7 @@ void GoldenGun::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTrig
 
 	if (!init)
 	{
-		for (int i = 0; i < SDL_NumJoysticks(); i++)
-		{
-			wchar_t* deviceGUIDString2 = new wchar_t[256];
-			int Device2GUID = GetPrivateProfileString(TEXT("Settings"), TEXT("Device2GUID"), NULL, deviceGUIDString2, 256, settingsFilename);
-			char joystick_guid[256];
-			sprintf(joystick_guid, "%S", deviceGUIDString2);
-			SDL_JoystickGUID dev_guid;
-			int numJoysticks = SDL_NumJoysticks();
-			//std::string njs = std::to_string(numJoysticks);
-			for (int i = 0; i < SDL_NumJoysticks(); i++)
-			{
-				extern int joystick1Index;
-				if (i == joystick1Index)
-				{
-					continue;
-				}
-				SDL_Joystick* js2 = SDL_JoystickOpen(i);
-				SDL_JoystickGUID guid = SDL_JoystickGetGUID(js2);
-				char guid_str[1024];
-				SDL_JoystickGetGUIDString(guid, guid_str, sizeof(guid_str));
-				const char* name = SDL_JoystickName(js2);
-				char text[256];
-				sprintf(text, "Joystick: %d / Name: %s / GUID: %s\n", i, name, guid_str);
-				guid = SDL_JoystickGetGUIDFromString(joystick_guid);
-				dev_guid = SDL_JoystickGetGUID(js2);
-				if (!memcmp(&guid, &dev_guid, sizeof(SDL_JoystickGUID)))
-				{
-					GameController2 = SDL_JoystickOpen(i);
-					joystick_index2 = SDL_JoystickInstanceID(GameController2);
-					ControllerHaptic2 = SDL_HapticOpenFromJoystick(GameController2);
-					break;
-				}
-				SDL_JoystickClose(js2);
-			}
-			haptic2 = ControllerHaptic2;
-			if ((SDL_HapticRumbleSupported(haptic2) == SDL_TRUE))
-			{
-				//SDL_HapticRumbleInit;
-				SDL_HapticRumbleInit(ControllerHaptic2);
-			}
-		}
+		OpenHapticDevice2();
 		init = true;
 	}
 
@@ -114,21 +66,7 @@ void GoldenGun::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTrig
 	{
 		if ((Health1p == 0) && (Ingame1p == 12 || Ingame1p == 14))
 		{
-			if (HowtoRumbleHealthEffect == 0)
-			{
-				double percentForce = ((Health1pStrength) / 100.0);
-				triggers->Rumble(percentForce, percentForce, length);
-			}
-			else if (HowtoRumbleHealthEffect == 1)
-			{
-				double percentForce = ((Health1pStrength) / 100.0);
-				triggers->Rumble(0, percentForce, length);
-			}
-			else if (HowtoRumbleHealthEffect == 2)
-			{
-				double percentForce = ((Health1pStrength) / 100.0);
-				triggers->Rumble(percentForce, 0, length);
-			}
+			RumbleWithMode(triggers->Rumble, HowtoRumbleHealthEffect, Health1pStrength / 100.0, length);
 			health1pbool = true;
 		}
 	}
@@ -139,42 +77,14 @@ void GoldenGun::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTrig
 		{
 			if (oldHealth1p != newHealth1p)
 			{
-				if (HowtoRumbleHealthEffect == 0)
-				{
-					double percentForce = ((Health1pStrength) / 100.0);
-					triggers->Rumble(percentForce, percentForce, length);
-				}
-				else if (HowtoRumbleHealthEffect == 1)
-				{
-					double percentForce = ((Health1pStrength) / 100.0);
-					triggers->Rumble(0, percentForce, length);
-				}
-				else if (HowtoRumbleHealthEffect == 2)
-				{
-					double percentForce = ((Health1pStrength) / 100.0);
-					triggers->Rumble(percentForce, 0, length);
-				}
+				RumbleWithMode(triggers->Rumble, HowtoRumbleHealthEffect, Health1pStrength / 100.0, length);
 				health1pbool = false;
 			}
 		}
 		
 		if (oldAmmo1p != newAmmo1p)
 		{
-			if (HowtoRumbleGunEffect == 0)
-			{
-				double percentForce = ((Gun1pStrength) / 100.0);
-				triggers->Rumble(percentForce, percentForce, length);
-			}
-			else if (HowtoRumbleGunEffect == 1)
-			{
-				double percentForce = ((Gun1pStrength) / 100.0);
-				triggers->Rumble(0, percentForce, length);
-			}
-			else if (HowtoRumbleGunEffect == 2)
-			{
-				double percentForce = ((Gun1pStrength) / 100.0);
-				triggers->Rumble(percentForce, 0, length);
-			}
+			RumbleWithMode(triggers->Rumble, HowtoRumbleGunEffect, Gun1pStrength / 100.0, length);
 		}
 	}
 
@@ -183,21 +93,7 @@ void GoldenGun::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTrig
 		if ((Health2p == 0) && (Ingame2p == 12 || Ingame2p == 14))
 		{
 			UINT32 length_ms = configFeedbackLength;
-			if (HowtoRumbleHealthEffect == 0)
-			{
-				double percentForce = ((Health2pStrength) / 100.0);
-				triggers->RumbleDevice2(percentForce, percentForce, length_ms);
-			}
-			else if (HowtoRumbleHealthEffect == 1)
-			{
-				double percentForce = ((Health2pStrength) / 100.0);
-				triggers->RumbleDevice2(0, percentForce, length_ms);
-			}
-			else if (HowtoRumbleHealthEffect == 2)
-			{
-				double percentForce = ((Health2pStrength) / 100.0);
-				triggers->RumbleDevice2(percentForce, 0, length_ms);
-			}
+			RumbleWithMode(triggers->RumbleDevice2, HowtoRumbleHealthEffect, Health2pStrength / 100.0, length_ms);
 			health2pbool = true;
 		}
 	}
@@ -208,41 +104,13 @@ void GoldenGun::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTrig
 		{
 			if (oldHealth2p != newHealth2p)
 			{
-				if (HowtoRumbleHealthEffect == 0)
-				{
-					double percentForce = ((Health2pStrength) / 100.0);
-					triggers->RumbleDevice2(percentForce, percentForce, length);
-				}
-				else if (HowtoRumbleHealthEffect == 1)
-				{
-					double percentForce = ((Health2pStrength) / 100.0);
-					triggers->RumbleDevice2(0, percentForce, length);
-				}
-				else if (HowtoRumbleHealthEffect == 2)
-				{
-					double percentForce = ((Health2pStrength) / 100.0);
-					triggers->RumbleDevice2(percentForce, 0, length);
-				}
+				RumbleWithMode(triggers->RumbleDevice2, HowtoRumbleHealthEffect, Health2pStrength / 100.0, length);
 			}
 		}
 		
 		if (oldAmmo2p != newAmmo2p)
 		{
-			if (HowtoRumbleGunEffect == 0)
-			{
-				double percentForce = ((Gun2pStrength) / 100.0);
-				triggers->RumbleDevice2(percentForce, percentForce, length);
-			}
-			else if (HowtoRumbleGunEffect == 1)
-			{
-				double percentForce = ((Gun2pStrength) / 100.0);
-				triggers->RumbleDevice2(0, percentForce, length);
-			}
-			else if (HowtoRumbleGunEffect == 2)
-			{
-				double percentForce = ((Gun2pStrength) / 100.0);
-				triggers->RumbleDevice2(percentForce, 0, length);
-			}
+			RumbleWithMode(triggers->RumbleDevice2, HowtoRumbleGunEffect, Gun2pStrength / 100.0, length);
 		}
 	}
 

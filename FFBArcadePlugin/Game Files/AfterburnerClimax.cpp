@@ -18,8 +18,7 @@ static bool NewVersion;
 static bool OldVersion;
 UINT8 Vibration;
 
-static wchar_t* settingsFilename = TEXT(".\\FFBPlugin.ini");
-static int RumbleStrength = GetPrivateProfileInt(TEXT("Settings"), TEXT("RumbleStrength"), 0, settingsFilename);
+static int RumbleStrength = GetSettingInt(TEXT("RumbleStrength"), 0);
 
 void AfterburnerClimax::FFBLoop(EffectConstants *constants, Helpers *helpers, EffectTriggers* triggers) {
 

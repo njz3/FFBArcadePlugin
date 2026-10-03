@@ -4,17 +4,12 @@
 static EffectTriggers* myTriggers;
 static EffectConstants* myConstants;
 static Helpers* myHelpers;
-extern int EnableDamper;
-extern int DamperStrength;
 
 static bool init = false;
 
 static int __stdcall Out32(DWORD device, DWORD data)
 {
-	if (EnableDamper == 1)
-	{
-		myTriggers->Damper(DamperStrength / 100.0);
-	}
+	ApplyDamper(myTriggers);
 
 	UINT32 length_ms = 100;
 	if (data > 15)

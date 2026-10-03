@@ -13,9 +13,6 @@ along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
 
 #include <string>
 #include "Cars.h"
-extern int EnableDamper;
-extern int DamperStrength;
-static wchar_t* settingsFilename = TEXT(".\\FFBPlugin.ini");
 
 static int ffbEnabled = 0;
 static bool init = false;

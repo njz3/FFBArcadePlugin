@@ -18,8 +18,6 @@ static bool init;
 static EffectTriggers* myTriggers;
 static EffectConstants* myConstants;
 static Helpers* myHelpers;
-extern int EnableDamper;
-extern int DamperStrength;
 
 static float lastFF = 0;
 static int currentScreen = 0;
@@ -80,8 +78,7 @@ void CruisnBlast::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTr
 	{
 		INT_PTR ImageBase = (INT_PTR)GetModuleHandleA(0);
 
-		if (EnableDamper)
-			triggers->Damper(DamperStrength / 100.0);
+		ApplyDamper(triggers);
 
 		myHelpers = helpers;
 		myTriggers = triggers;

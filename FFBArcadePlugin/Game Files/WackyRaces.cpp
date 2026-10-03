@@ -14,9 +14,6 @@ along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
 #include <string>
 #include "WackyRaces.h"
 
-extern int EnableDamper;
-extern int DamperStrength;
-
 int ttx2wr(int ffRaw) {
 	switch (ffRaw) {
 		// moving left, from weakest to strongest (30 => 16).
@@ -106,10 +103,7 @@ void WackyRaces::FFBLoop(EffectConstants *constants, Helpers *helpers, EffectTri
 	//std::string ffs = std::to_string(ff);
 	//helpers->log((char *)ffs.c_str());
 
-	if (EnableDamper == 1)
-	{
-		triggers->Damper(DamperStrength / 100.0);
-	}
+	ApplyDamper(triggers);
 
 	UINT32 length_ms = 100;
 	if (ff > 15)

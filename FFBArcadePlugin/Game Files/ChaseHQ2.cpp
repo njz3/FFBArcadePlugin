@@ -13,11 +13,8 @@ along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
 
 #include <string>
 #include "ChaseHQ2.h"
-extern int EnableDamper;
-extern int DamperStrength;
 static bool removecel = false;
-static wchar_t* settingsFilename = TEXT(".\\FFBPlugin.ini");
-static int RemoveCelShadedFilter = GetPrivateProfileInt(TEXT("Settings"), TEXT("RemoveCelShadedFilter"), 0, settingsFilename);
+static int RemoveCelShadedFilter = GetSettingInt(TEXT("RemoveCelShadedFilter"), 0);
 
 int ttx2chasehq2(int ffRaw) {
 	switch (ffRaw) {
@@ -113,8 +110,7 @@ void ChaseHQ2::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTrigg
 		helpers->WriteByte(0x130CB30, 0x00, true); // Remove Cel Shaded Filter
 	}
 
-	if (EnableDamper)
-		triggers->Damper(DamperStrength / 100.0);
+	ApplyDamper(triggers);
 
 	helpers->log("got value: ");
 	std::string ffs = std::to_string(ff);

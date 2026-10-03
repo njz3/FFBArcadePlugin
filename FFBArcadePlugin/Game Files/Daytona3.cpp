@@ -13,13 +13,10 @@ along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
 
 #include <string>
 #include "Daytona3.h"
-extern int EnableDamper;
-extern int DamperStrength;
 
-static wchar_t *settingsFilename = TEXT(".\\FFBPlugin.ini");
-static int EscapeKeyExitViaPlugin = GetPrivateProfileInt(TEXT("Settings"), TEXT("EscapeKeyExitViaPlugin"), 0, settingsFilename);
-static int HideCursor = GetPrivateProfileInt(TEXT("Settings"), TEXT("HideCursor"), 0, settingsFilename);
-static int OriginalFFB = GetPrivateProfileInt(TEXT("Settings"), TEXT("OriginalFFB"), 0, settingsFilename);
+static int EscapeKeyExitViaPlugin = GetSettingInt(TEXT("EscapeKeyExitViaPlugin"), 0);
+static int HideCursor = GetSettingInt(TEXT("HideCursor"), 0);
+static int OriginalFFB = GetSettingInt(TEXT("OriginalFFB"), 0);
 
 void Daytona3::FFBLoop(EffectConstants *constants, Helpers *helpers, EffectTriggers* triggers) {
 
@@ -37,8 +34,7 @@ void Daytona3::FFBLoop(EffectConstants *constants, Helpers *helpers, EffectTrigg
 		}
 	}
 
-	if (EnableDamper)
-		triggers->Damper(DamperStrength / 100.0);
+	ApplyDamper(triggers);
 
 	UINT32 length_ms = 100;
 	if (OriginalFFB)

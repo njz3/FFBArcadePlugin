@@ -20,8 +20,6 @@ static bool init;
 static EffectTriggers* myTriggers;
 static EffectConstants* myConstants;
 static Helpers* myHelpers;
-extern int EnableDamper;
-extern int DamperStrength;
 
 static int(__cdecl* FnFSendToLptOrig)(uint16_t addr, uint8_t FFB);
 static int __cdecl FnFSendToLpt(uint16_t addr, uint8_t FFB)
@@ -71,8 +69,7 @@ void FnFDrift::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTrigg
 		init = true;
 	}
 
-	if (EnableDamper)
-		triggers->Damper(DamperStrength / 100.0);
+	ApplyDamper(triggers);
 
 	myTriggers = triggers;
 	myConstants = constants;

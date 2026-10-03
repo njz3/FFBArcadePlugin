@@ -18,8 +18,6 @@ static bool init;
 static EffectTriggers* myTriggers;
 static EffectConstants* myConstants;
 static Helpers* myHelpers;
-extern int EnableDamper;
-extern int DamperStrength;
 
 static void(__cdecl* FUN_00402cf0Orig)(float param_1);
 static void __cdecl FUN_00402cf0(float param_1) {
@@ -62,8 +60,7 @@ void FnFSuperCars::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectT
 		init = true;
 	}
 
-	if (EnableDamper)
-		triggers->Damper(DamperStrength / 100.0);
+	ApplyDamper(triggers);
 
 	myTriggers = triggers;
 	myConstants = constants;

@@ -13,14 +13,10 @@ along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
 
 #include "SonicSegaAllStarsRacing.h"
 
-extern int EnableDamper;
-extern int DamperStrength;
-
 static UINT8 OLDFFB;
 
-static wchar_t* settingsFilename = TEXT(".\\FFBPlugin.ini");
-static int SpringEnable = GetPrivateProfileInt(TEXT("Settings"), TEXT("SpringEnable"), 0, settingsFilename);
-static int SpringStrength = GetPrivateProfileInt(TEXT("Settings"), TEXT("SpringStrength"), 0, settingsFilename);
+static int SpringEnable = GetSettingInt(TEXT("SpringEnable"), 0);
+static int SpringStrength = GetSettingInt(TEXT("SpringStrength"), 0);
 
 void SonicSegaAllStarsRacing::FFBLoop(EffectConstants *constants, Helpers *helpers, EffectTriggers* triggers) {
 
@@ -28,8 +24,7 @@ void SonicSegaAllStarsRacing::FFBLoop(EffectConstants *constants, Helpers *helpe
 
 	helpers->WriteByte(0x5CD858, 0x03, true);
 
-	if (EnableDamper)
-		triggers->Damper(DamperStrength / 100.0);
+	ApplyDamper(triggers);
 
 	if (SpringEnable)
 		triggers->Springi(SpringStrength / 100.0);

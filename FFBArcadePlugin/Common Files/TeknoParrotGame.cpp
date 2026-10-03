@@ -1,82 +1,59 @@
+#include <initializer_list>
 #include "TeknoParrotGame.h"
-static wchar_t* settingsFilename = TEXT(".\\FFBPlugin.ini");
-static int configGameId = GetPrivateProfileInt(TEXT("Settings"), TEXT("GameId"), 0, settingsFilename);
+#include "GameIds.h"
+
+extern int configGameId;
+
+// FFB values published by TeknoParrot in the JvsState shared memory
+static const int FFB_SLOT = 2;
+static const int FFB_EXTENDED_SLOT = 6; // followed by 3 more values in slots 7, 8 and 9
+
+// Games publishing their main FFB value in the extended slot instead of the standard one
+static bool UsesExtendedFFBSlot()
+{
+	return configGameId == POKKEN_TOURNAMENT || configGameId == SRG || configGameId == D1_GP || configGameId == WMMT_3 || configGameId == DEAD_HEAT;
+}
 
 TeknoParrotGame::TeknoParrotGame()
 {
-	secData = 0;
+	jvsState = nullptr;
 	hSection = CreateFileMapping(INVALID_HANDLE_VALUE, nullptr, PAGE_READWRITE, 0, 64, L"TeknoParrot_JvsState");
 	if (hSection)
-	secData = MapViewOfFile(hSection, FILE_MAP_ALL_ACCESS, 0, 0, 64);
+		jvsState = (int*)MapViewOfFile(hSection, FILE_MAP_ALL_ACCESS, 0, 0, 64);
 
-	if (secData)
+	if (jvsState)
 	{
-		if (*((int*)secData + 2) > 0)
-			*((int*)secData + 2) = 0;
-
-		if (*((int*)secData + 6) > 0)
-			*((int*)secData + 6) = 0;
-
-		if (*((int*)secData + 7) > 0)
-			*((int*)secData + 7) = 0;
-
-		if (*((int*)secData + 8) > 0)
-			*((int*)secData + 8) = 0;
-
-		if (*((int*)secData + 9) > 0)
-			*((int*)secData + 9) = 0;
-
-		if (configGameId == 61)
+		for (int slot : { FFB_SLOT, FFB_EXTENDED_SLOT, FFB_EXTENDED_SLOT + 1, FFB_EXTENDED_SLOT + 2, FFB_EXTENDED_SLOT + 3 })
 		{
-			ffbOffset = *((int*)secData + 6);
-			ffbOffset2 = *((int*)secData + 7);
-			ffbOffset3 = *((int*)secData + 8);
-			ffbOffset4 = *((int*)secData + 9);
+			if (jvsState[slot] > 0)
+				jvsState[slot] = 0;
 		}
-		else if (configGameId == 54 || configGameId == 55)
-		{
-			ffbOffset = *((int*)secData + 6);
-			ffbOffset2 = *((int*)secData + 7);
-			ffbOffset3 = *((int*)secData + 8);
-		}
-		else if (configGameId == 19)
-		{
-			ffbOffset = *((int*)secData + 6);
-			ffbOffset2 = *((int*)secData + 7);
-		}
-		else if (configGameId == 62)
-			ffbOffset = *((int*)secData + 6);
-		else
-			ffbOffset = *((int*)secData + 2);
 	}
+}
+
+int TeknoParrotGame::ReadSlot(int slot)
+{
+	return jvsState ? jvsState[slot] : 0;
 }
 
 int TeknoParrotGame::GetTeknoParrotFFB()
 {
-	if (configGameId == 19 || configGameId == 54 || configGameId == 55 || configGameId == 61 || configGameId == 62)
-		ffbOffset = *((int*)secData + 6);
-	else
-		ffbOffset = *((int*)secData + 2);
-	
-	return ffbOffset;
+	return ReadSlot(UsesExtendedFFBSlot() ? FFB_EXTENDED_SLOT : FFB_SLOT);
 }
 
 int TeknoParrotGame::GetTeknoParrotFFB2()
 {
-	ffbOffset2 = *((int*)secData + 7);
-	return ffbOffset2;
+	return ReadSlot(FFB_EXTENDED_SLOT + 1);
 }
 
 int TeknoParrotGame::GetTeknoParrotFFB3()
 {
-	ffbOffset3 = *((int*)secData + 8);
-	return ffbOffset3;
+	return ReadSlot(FFB_EXTENDED_SLOT + 2);
 }
 
 int TeknoParrotGame::GetTeknoParrotFFB4()
 {
-	ffbOffset4 = *((int*)secData + 9);
-	return ffbOffset4;
+	return ReadSlot(FFB_EXTENDED_SLOT + 3);
 }
 
 void TeknoParrotGame::FFBLoop(EffectConstants *constants, Helpers *helpers, EffectTriggers* triggers) {

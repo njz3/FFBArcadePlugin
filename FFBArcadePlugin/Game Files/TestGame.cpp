@@ -15,9 +15,7 @@ along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
 #include "TestGame.h"
 #include "SDL.h"
 
-wchar_t *settingsFN = TEXT(".\\FFBPlugin.ini");
-
-int configGameIdEffect = GetPrivateProfileInt(TEXT("Settings"), TEXT("GameId"), 1, settingsFN);
+int configGameIdEffect = GetSettingInt(TEXT("GameId"), 1);
 
 void TestGame::FFBLoop(EffectConstants *constants, Helpers *helpers, EffectTriggers* triggers) {
 	switch (configGameIdEffect) {

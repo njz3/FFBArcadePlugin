@@ -13,60 +13,23 @@ along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
 
 #include <string>
 #include "IDTAv231.h"
+#include "../Common Files/InitialDFFB.h"
 #include "math.h"
 
-extern int EnableDamper;
-extern int DamperStrength;
-
-static bool outputinit;
-
-static wchar_t* settingsFilename = TEXT(".\\FFBPlugin.ini");
-static int EnableForceSpringEffect = GetPrivateProfileInt(TEXT("Settings"), TEXT("EnableForceSpringEffect"), 0, settingsFilename);
-static int ForceSpringStrength = GetPrivateProfileInt(TEXT("Settings"), TEXT("ForceSpringStrength"), 0, settingsFilename);
+static const InitialDFFBSettings ffbSettings = { 32767.0, 32767, 127.0, 100, 0xFFFFFFFF };
 
 void InitialDTA231::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTriggers* triggers) {
 
-	if (EnableDamper)
-		triggers->Damper(DamperStrength / 100.0);
+	ApplyDamper(triggers);
 
 	DWORD FFB = helpers->ReadInt32(0x3D35838, true);
 	WORD FFBStr = helpers->ReadWord(0x3D3583A, true);
 
 	BYTE* ffb = reinterpret_cast<BYTE*>(&FFB);
 
+	// The centering command checks the strength low byte only
 	if (ffb[0] == 0x80 && ffb[2] == 0x01)
-	{
 		triggers->Spring(1.0);
-	}
-
-	UINT32 length_ms = 100;
-	if (ffb[0] == 0x85 && ffb[1] > 0x00 && FFBStr > 0x00)
-	{
-		double percentForce = FFBStr / 32767.0;
-		double Period = ffb[1] / 127.0 * 120.0;
-		triggers->Rumble(percentForce, percentForce, length_ms);
-		triggers->Sine(static_cast<int>(Period), 0, percentForce, length_ms);
-	}
-
-	if (ffb[0] == 0x86 && FFBStr)
-	{
-		double percentForce = FFBStr / 32767.0;
-		triggers->Spring(percentForce);
-	}
-
-	if (ffb[0] == 0x84 && FFBStr > 0x00)
-	{
-		if (ffb[1] == 0x00)
-		{
-			double percentForce = (32767.0 - FFBStr) / 32767.0;
-			triggers->Rumble(percentForce, 0, length_ms);
-			triggers->Constant(constants->DIRECTION_FROM_LEFT, percentForce);
-		}
-		else if (ffb[1] == 0x01)
-		{
-			double percentForce = (FFBStr / 32767.0);
-			triggers->Rumble(0, percentForce, length_ms);
-			triggers->Constant(constants->DIRECTION_FROM_RIGHT, percentForce);
-		}
-	}
+	else
+		PlayInitialDFFB(ffb[0], ffb[1], FFBStr, ffbSettings, constants, triggers);
 }

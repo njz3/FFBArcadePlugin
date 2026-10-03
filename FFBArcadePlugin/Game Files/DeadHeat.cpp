@@ -15,14 +15,10 @@ along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
 #include "DeadHeat.h"
 #include "../Common Files/Game.h"
 
-extern int EnableDamper;
-extern int DamperStrength;
-
-static wchar_t* settingsFilename = TEXT(".\\FFBPlugin.ini");
-static int CenterOffsetStrength = GetPrivateProfileInt(TEXT("Settings"), TEXT("CenterOffsetStrength"), 100, settingsFilename);
-static int ReflectStrength = GetPrivateProfileInt(TEXT("Settings"), TEXT("ReflectStrength"), 100, settingsFilename);
-static int SpringStrength = GetPrivateProfileInt(TEXT("Settings"), TEXT("SpringStrength"), 100, settingsFilename);
-static int ViosityStrength = GetPrivateProfileInt(TEXT("Settings"), TEXT("ViosityStrength"), 100, settingsFilename);
+static int CenterOffsetStrength = GetSettingInt(TEXT("CenterOffsetStrength"), 100);
+static int ReflectStrength = GetSettingInt(TEXT("ReflectStrength"), 100);
+static int SpringStrength = GetSettingInt(TEXT("SpringStrength"), 100);
+static int ViosityStrength = GetSettingInt(TEXT("ViosityStrength"), 100);
 
 void DeadHeat::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTriggers* triggers)
 {
@@ -31,8 +27,7 @@ void DeadHeat::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTrigg
 	int setCenterOffset = GetTeknoParrotFFB3();
 	int setReflect = GetTeknoParrotFFB4();
 
-	if (EnableDamper)
-		triggers->Damper(DamperStrength / 100.0);
+	ApplyDamper(triggers);
 
 	if (setSpring)
 	{

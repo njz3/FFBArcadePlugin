@@ -13,14 +13,9 @@ along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
 
 #include <string>
 #include "HOTD4.h"
+#include "../Common Files/Devices.h"
 #include "SDL.h"
 #include <Windows.h>
-static wchar_t* settingsFilename = TEXT(".\\FFBPlugin.ini");
-extern int joystick_index1;
-extern int joystick_index2;
-extern SDL_Joystick* GameController2;
-extern SDL_Haptic* ControllerHaptic2;
-extern SDL_Haptic* haptic2;
 static EffectTriggers *myTriggers;
 static EffectConstants *myConstants;
 static Helpers *myHelpers;
@@ -62,17 +57,16 @@ static int ThreadLoop()
 	UINT8 newHealth2p = Health2p;
 	UINT8 newBullet2p = Bullet2p;
 
-	wchar_t* settingsFilename = TEXT(".\\FFBPlugin.ini");
-	int configFeedbackLength = GetPrivateProfileInt(TEXT("Settings"), TEXT("FeedbackLength"), 120, settingsFilename);
-	int HowtoRumbleBulletEffect = GetPrivateProfileInt(TEXT("Settings"), TEXT("HowtoRumbleBulletEffect"), 0, settingsFilename);
-	int HowtoRumbleGrenadeEffect = GetPrivateProfileInt(TEXT("Settings"), TEXT("HowtoRumbleGrenadeEffect"), 0, settingsFilename);
-	int HowtoRumbleHealthEffect = GetPrivateProfileInt(TEXT("Settings"), TEXT("HowtoRumbleHealthEffect"), 0, settingsFilename);
-	int Bullet1pStrength = GetPrivateProfileInt(TEXT("Settings"), TEXT("Bullet1pStrength"), 0, settingsFilename);
-	int Grenade1pStrength = GetPrivateProfileInt(TEXT("Settings"), TEXT("Grenade1pStrength"), 0, settingsFilename);
-	int Health1pStrength = GetPrivateProfileInt(TEXT("Settings"), TEXT("Health1pStrength"), 0, settingsFilename);
-	int Bullet2pStrength = GetPrivateProfileInt(TEXT("Settings"), TEXT("Bullet2pStrength"), 0, settingsFilename);
-	int Grenade2pStrength = GetPrivateProfileInt(TEXT("Settings"), TEXT("Grenade2pStrength"), 0, settingsFilename);
-	int Health2pStrength = GetPrivateProfileInt(TEXT("Settings"), TEXT("Health2pStrength"), 0, settingsFilename);
+	int configFeedbackLength = GetSettingInt(TEXT("FeedbackLength"), 120);
+	int HowtoRumbleBulletEffect = GetSettingInt(TEXT("HowtoRumbleBulletEffect"), 0);
+	int HowtoRumbleGrenadeEffect = GetSettingInt(TEXT("HowtoRumbleGrenadeEffect"), 0);
+	int HowtoRumbleHealthEffect = GetSettingInt(TEXT("HowtoRumbleHealthEffect"), 0);
+	int Bullet1pStrength = GetSettingInt(TEXT("Bullet1pStrength"), 0);
+	int Grenade1pStrength = GetSettingInt(TEXT("Grenade1pStrength"), 0);
+	int Health1pStrength = GetSettingInt(TEXT("Health1pStrength"), 0);
+	int Bullet2pStrength = GetSettingInt(TEXT("Bullet2pStrength"), 0);
+	int Grenade2pStrength = GetSettingInt(TEXT("Grenade2pStrength"), 0);
+	int Health2pStrength = GetSettingInt(TEXT("Health2pStrength"), 0);
 
 	UINT32 length_ms = configFeedbackLength;
 	if ((Health1p == 0) && (IngameValue1p == 11))
@@ -80,18 +74,7 @@ static int ThreadLoop()
 		if (!HealthA)
 		{
 			double percentForce = ((Health1pStrength) / 100.0);
-			if (HowtoRumbleHealthEffect == 0)
-			{
-				myTriggers->Rumble(percentForce, percentForce, length_ms);
-			}
-			else if (HowtoRumbleHealthEffect == 1)
-			{
-				myTriggers->Rumble(0, percentForce, length_ms);
-			}
-			else if (HowtoRumbleHealthEffect == 2)
-			{
-				myTriggers->Rumble(percentForce, 0, length_ms);
-			}
+			RumbleWithMode(myTriggers->Rumble, HowtoRumbleHealthEffect, percentForce, length_ms);
 			HealthA = true;
 		}
 	}
@@ -101,18 +84,7 @@ static int ThreadLoop()
 		if (!HealthB)
 		{
 			double percentForce = ((Health2pStrength) / 100.0);
-			if (HowtoRumbleHealthEffect == 0)
-			{
-				myTriggers->RumbleDevice2(percentForce, percentForce, length_ms);
-			}
-			else if (HowtoRumbleHealthEffect == 1)
-			{
-				myTriggers->RumbleDevice2(0, percentForce, length_ms);
-			}
-			else if (HowtoRumbleHealthEffect == 2)
-			{
-				myTriggers->RumbleDevice2(percentForce, 0, length_ms);
-			}
+			RumbleWithMode(myTriggers->RumbleDevice2, HowtoRumbleHealthEffect, percentForce, length_ms);
 			HealthB = true;
 		}
 	}
@@ -122,50 +94,17 @@ static int ThreadLoop()
 		if (oldHealth1p != newHealth1p)
 		{
 			double percentForce = ((Health1pStrength) / 100.0);
-			if (HowtoRumbleHealthEffect == 0)
-			{
-				myTriggers->Rumble(percentForce, percentForce, length_ms);
-			}
-			else if (HowtoRumbleHealthEffect == 1)
-			{
-				myTriggers->Rumble(0, percentForce, length_ms);
-			}
-			else if (HowtoRumbleHealthEffect == 2)
-			{
-				myTriggers->Rumble(percentForce, 0, length_ms);
-			}
+			RumbleWithMode(myTriggers->Rumble, HowtoRumbleHealthEffect, percentForce, length_ms);
 		}
 		if (oldBullet1p != newBullet1p)
 		{
 			double percentForce = ((Bullet1pStrength) / 100.0);
-			if (HowtoRumbleBulletEffect == 0)
-			{
-				myTriggers->Rumble(percentForce, percentForce, length_ms);
-			}
-			else if (HowtoRumbleBulletEffect == 1)
-			{
-				myTriggers->Rumble(0, percentForce, length_ms);
-			}
-			else if (HowtoRumbleBulletEffect == 2)
-			{
-				myTriggers->Rumble(percentForce, 0, length_ms);
-			}
+			RumbleWithMode(myTriggers->Rumble, HowtoRumbleBulletEffect, percentForce, length_ms);
 		}
 		if (GrenadeExplode1p == 0x42)
 		{
 			double percentForce = ((Grenade1pStrength) / 100.0);
-			if (HowtoRumbleGrenadeEffect == 0)
-			{
-				myTriggers->Rumble(percentForce, percentForce, length_ms);
-			}
-			else if (HowtoRumbleGrenadeEffect == 1)
-			{
-				myTriggers->Rumble(0, percentForce, length_ms);
-			}
-			else if (HowtoRumbleGrenadeEffect == 2)
-			{
-				myTriggers->Rumble(percentForce, 0, length_ms);
-			}
+			RumbleWithMode(myTriggers->Rumble, HowtoRumbleGrenadeEffect, percentForce, length_ms);
 		}
 		HealthA = false;
 	}
@@ -175,50 +114,17 @@ static int ThreadLoop()
 		if (oldHealth2p != newHealth2p)
 		{
 			double percentForce = ((Health2pStrength) / 100.0);
-			if (HowtoRumbleHealthEffect == 0)
-			{
-				myTriggers->RumbleDevice2(percentForce, percentForce, length_ms);
-			}
-			else if (HowtoRumbleHealthEffect == 1)
-			{
-				myTriggers->RumbleDevice2(0, percentForce, length_ms);
-			}
-			else if (HowtoRumbleHealthEffect == 2)
-			{
-				myTriggers->RumbleDevice2(percentForce, 0, length_ms);
-			}
+			RumbleWithMode(myTriggers->RumbleDevice2, HowtoRumbleHealthEffect, percentForce, length_ms);
 		}
 		if (oldBullet2p != newBullet2p)
 		{
 			double percentForce = ((Bullet2pStrength) / 100.0);
-			if (HowtoRumbleBulletEffect == 0)
-			{
-				myTriggers->RumbleDevice2(percentForce, percentForce, length_ms);
-			}
-			else if (HowtoRumbleBulletEffect == 1)
-			{
-				myTriggers->RumbleDevice2(0, percentForce, length_ms);
-			}
-			else if (HowtoRumbleBulletEffect == 2)
-			{
-				myTriggers->RumbleDevice2(percentForce, 0, length_ms);
-			}
+			RumbleWithMode(myTriggers->RumbleDevice2, HowtoRumbleBulletEffect, percentForce, length_ms);
 		}
 		if (GrenadeExplode2p == 0x42)
 		{
 			double percentForce = ((Grenade2pStrength) / 100.0);
-			if (HowtoRumbleGrenadeEffect == 0)
-			{
-				myTriggers->RumbleDevice2(percentForce, percentForce, length_ms);
-			}
-			else if (HowtoRumbleGrenadeEffect == 1)
-			{
-				myTriggers->RumbleDevice2(0, percentForce, length_ms);
-			}
-			else if (HowtoRumbleGrenadeEffect == 2)
-			{
-				myTriggers->RumbleDevice2(percentForce, 0, length_ms);
-			}
+			RumbleWithMode(myTriggers->RumbleDevice2, HowtoRumbleGrenadeEffect, percentForce, length_ms);
 		}
 		HealthB = false;
 	}
@@ -248,48 +154,7 @@ void HOTD4::FFBLoop(EffectConstants *constants, Helpers *helpers, EffectTriggers
 		myHelpers = helpers;
 		CreateThread(NULL, 0, RunningLoop, NULL, 0, NULL);
 
-		for (int i = 0; i < SDL_NumJoysticks(); i++)
-		{
-			wchar_t* deviceGUIDString2 = new wchar_t[256];
-			int Device2GUID = GetPrivateProfileString(TEXT("Settings"), TEXT("Device2GUID"), NULL, deviceGUIDString2, 256, settingsFilename);
-			char joystick_guid[256];
-			sprintf(joystick_guid, "%S", deviceGUIDString2);
-			SDL_JoystickGUID  dev_guid;
-			int numJoysticks = SDL_NumJoysticks();
-			/*std::string njs = std::to_string(numJoysticks);
-			((char)njs.c_str());*/
-			for (int i = 0; i < SDL_NumJoysticks(); i++)
-			{
-				extern int joystick1Index;
-				if (i == joystick1Index)
-				{
-					continue;
-				}
-				SDL_Joystick* js2 = SDL_JoystickOpen(i);
-				SDL_JoystickGUID guid = SDL_JoystickGetGUID(js2);
-				char guid_str[1024];
-				SDL_JoystickGetGUIDString(guid, guid_str, sizeof(guid_str));
-				const char* name = SDL_JoystickName(js2);
-				char text[256];
-				sprintf(text, "Joystick: %d / Name: %s / GUID: %s\n", i, name, guid_str);
-				guid = SDL_JoystickGetGUIDFromString(joystick_guid);
-				dev_guid = SDL_JoystickGetGUID(js2);
-				if (!memcmp(&guid, &dev_guid, sizeof(SDL_JoystickGUID)))
-				{
-					GameController2 = SDL_JoystickOpen(i);
-					joystick_index2 = SDL_JoystickInstanceID(GameController2);
-					ControllerHaptic2 = SDL_HapticOpenFromJoystick(GameController2);
-					break;
-				}
-				SDL_JoystickClose(js2);
-			}
-			haptic2 = ControllerHaptic2;
-			if ((SDL_HapticRumbleSupported(haptic2) == SDL_TRUE))
-			{
-				//SDL_HapticRumbleInit;
-				SDL_HapticRumbleInit(ControllerHaptic2);
-			}
-		}
+		OpenHapticDevice2();
 		init = true;
 	}
 	

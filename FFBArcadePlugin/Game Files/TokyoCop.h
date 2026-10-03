@@ -12,9 +12,9 @@ along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
 */
 
 #pragma once
-#include "../Common Files/Game.h"
-class TokyoCop : public Game {
+#include "Gaelco.h"
 
-public:
-	void FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTriggers* triggers);
+class TokyoCop : public GaelcoGame {
+protected:
+	void HookSetMotor();
 };

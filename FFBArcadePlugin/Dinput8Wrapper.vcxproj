@@ -19,6 +19,12 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Game Files\Gaelco.h" />
+    <ClInclude Include="Common Files\InitialDFFB.h" />
+    <ClInclude Include="Game Files\WMMT.h" />
+    <ClInclude Include="Common Files\Devices.h" />
+    <ClInclude Include="WrapperExports.h" />
+    <ClInclude Include="Common Files\GameIds.h" />
     <ClInclude Include="Common Files\CRCCheck.h" />
     <ClInclude Include="Common Files\MinHook.h" />
     <ClInclude Include="Common Files\SignatureScanning.h" />
@@ -93,6 +99,11 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Game Files\Gaelco.cpp" />
+    <ClCompile Include="Common Files\InitialDFFB.cpp" />
+    <ClCompile Include="Game Files\WMMT.cpp" />
+    <ClCompile Include="Common Files\Devices.cpp" />
+    <ClCompile Include="Config\PersistentValues.cpp" />
     <ClCompile Include="Game Files\AliensExtermination.cpp" />
     <ClCompile Include="Game Files\ArcticThunder.cpp" />
     <ClCompile Include="Game Files\Batman.cpp" />

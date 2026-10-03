@@ -20,9 +20,6 @@ static EffectTriggers* myTriggers;
 static EffectConstants* myConstants;
 static Helpers* myHelpers;
 
-extern int EnableDamper;
-extern int DamperStrength;
-
 static bool init;
 static double ffb = 1;
 
@@ -67,8 +64,7 @@ void WasteLandRacers2071::FFBLoop(EffectConstants* constants, Helpers* helpers, 
 		MH_EnableHook(MH_ALL_HOOKS);
 	}
 
-	if (EnableDamper)
-		triggers->Damper(DamperStrength / 100.0);
+	ApplyDamper(triggers);
 
 	triggers->Spring(ffb);
 

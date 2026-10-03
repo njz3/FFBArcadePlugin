@@ -14,8 +14,6 @@ along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
 #include <string>
 #include "GTIClub3.h"
 #include "math.h"
-extern int EnableDamper;
-extern int DamperStrength;
 
 void GTIClub3::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTriggers* triggers) {
 
@@ -27,10 +25,7 @@ void GTIClub3::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTrigg
 	std::string ffs = std::to_string(ff2);
 	helpers->log((char*)ffs.c_str());
 
-	if (EnableDamper == 1)
-	{
-		triggers->Damper(DamperStrength / 100.0);
-	}
+	ApplyDamper(triggers);
 
 	if (!menu)
 	{

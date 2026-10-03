@@ -16,45 +16,41 @@ along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
 
 static bool init;
 
-extern int EnableDamper;
-extern int DamperStrength;
-
-static wchar_t* settingsFilename = TEXT(".\\FFBPlugin.ini");
-static int ConstantEffectForSteering = GetPrivateProfileInt(TEXT("Settings"), TEXT("ConstantEffectForSteering"), 0, settingsFilename);
-static int ConstantEffectForSteeringStrength = GetPrivateProfileInt(TEXT("Settings"), TEXT("ConstantEffectForSteeringStrength"), 0, settingsFilename);
-static int WeaponRumble = GetPrivateProfileInt(TEXT("Settings"), TEXT("WeaponRumble"), 0, settingsFilename);
-static int WeaponRumbleStrength = GetPrivateProfileInt(TEXT("Settings"), TEXT("WeaponRumbleStrength"), 0, settingsFilename);
-static int CoinRumble = GetPrivateProfileInt(TEXT("Settings"), TEXT("CoinRumble"), 0, settingsFilename);
-static int CoinRumbleStrength = GetPrivateProfileInt(TEXT("Settings"), TEXT("CoinRumbleStrength"), 0, settingsFilename);
-static int DriftRumble = GetPrivateProfileInt(TEXT("Settings"), TEXT("DriftRumble"), 0, settingsFilename);
-static int DriftRumbleControllerStrengthMultiplier = GetPrivateProfileInt(TEXT("Settings"), TEXT("DriftRumbleControllerStrengthMultiplier"), 0, settingsFilename);
-static int HitGroundRumble = GetPrivateProfileInt(TEXT("Settings"), TEXT("HitGroundRumble"), 0, settingsFilename);
-static int HitGroundRumbleStrength = GetPrivateProfileInt(TEXT("Settings"), TEXT("HitGroundRumbleStrength"), 0, settingsFilename);
-static int BoostRumble = GetPrivateProfileInt(TEXT("Settings"), TEXT("BoostRumble"), 0, settingsFilename);
-static int BoostRumbleStrength = GetPrivateProfileInt(TEXT("Settings"), TEXT("BoostRumbleStrength"), 0, settingsFilename);
-static int MainShakeRumble = GetPrivateProfileInt(TEXT("Settings"), TEXT("MainShakeRumble"), 0, settingsFilename);
-static int MainShakeRumbleStrength = GetPrivateProfileInt(TEXT("Settings"), TEXT("MainShakeRumbleStrength"), 0, settingsFilename);
-static int DirtRumble = GetPrivateProfileInt(TEXT("Settings"), TEXT("DirtRumble"), 0, settingsFilename);
-static int DirtRumbleStrength = GetPrivateProfileInt(TEXT("Settings"), TEXT("DirtRumbleStrength"), 0, settingsFilename);
-static int GrassRumble = GetPrivateProfileInt(TEXT("Settings"), TEXT("GrassRumble"), 0, settingsFilename);
-static int GrassRumbleStrength = GetPrivateProfileInt(TEXT("Settings"), TEXT("GrassRumbleStrength"), 0, settingsFilename);
-static int SandRumble = GetPrivateProfileInt(TEXT("Settings"), TEXT("SandRumble"), 0, settingsFilename);
-static int SandRumbleStrength = GetPrivateProfileInt(TEXT("Settings"), TEXT("SandRumbleStrength"), 0, settingsFilename);
-static int WaterRumble = GetPrivateProfileInt(TEXT("Settings"), TEXT("WaterRumble"), 0, settingsFilename);
-static int WaterRumbleWheelStrength = GetPrivateProfileInt(TEXT("Settings"), TEXT("WaterRumbleWheelStrength"), 0, settingsFilename);
-static int WaterRumbleControllerStrengthMultiplier = GetPrivateProfileInt(TEXT("Settings"), TEXT("WaterRumbleControllerStrengthMultiplier"), 0, settingsFilename);
-static int TileRumble = GetPrivateProfileInt(TEXT("Settings"), TEXT("TileRumble"), 0, settingsFilename);
-static int TileRumbleStrength = GetPrivateProfileInt(TEXT("Settings"), TEXT("TileRumbleStrength"), 0, settingsFilename);
-static int CarpetRumble = GetPrivateProfileInt(TEXT("Settings"), TEXT("CarpetRumble"), 0, settingsFilename);
-static int CarpetRumbleStrength = GetPrivateProfileInt(TEXT("Settings"), TEXT("CarpetRumbleStrength"), 0, settingsFilename);
-static int SpeedBumpRumble = GetPrivateProfileInt(TEXT("Settings"), TEXT("SmallBumpRumble"), 0, settingsFilename);
-static int SpeedBumpRumbleStrength = GetPrivateProfileInt(TEXT("Settings"), TEXT("SmallBumpRumbleStrength"), 0, settingsFilename);
-static int RoughTrackRumble = GetPrivateProfileInt(TEXT("Settings"), TEXT("RoughTrackRumble"), 0, settingsFilename);
-static int RoughTrackRumbleStrength = GetPrivateProfileInt(TEXT("Settings"), TEXT("RoughTrackRumbleStrength"), 0, settingsFilename);
-static int BridgeRumble = GetPrivateProfileInt(TEXT("Settings"), TEXT("BridgeRumble"), 0, settingsFilename);
-static int BridgeRumbleStrength = GetPrivateProfileInt(TEXT("Settings"), TEXT("BridgeRumbleStrength"), 0, settingsFilename);
-static int MenuRumble = GetPrivateProfileInt(TEXT("Settings"), TEXT("MenuRumble"), 0, settingsFilename);
-static int MenuRumbleStrength = GetPrivateProfileInt(TEXT("Settings"), TEXT("MenuRumbleStrength"), 0, settingsFilename);
+static int ConstantEffectForSteering = GetSettingInt(TEXT("ConstantEffectForSteering"), 0);
+static int ConstantEffectForSteeringStrength = GetSettingInt(TEXT("ConstantEffectForSteeringStrength"), 0);
+static int WeaponRumble = GetSettingInt(TEXT("WeaponRumble"), 0);
+static int WeaponRumbleStrength = GetSettingInt(TEXT("WeaponRumbleStrength"), 0);
+static int CoinRumble = GetSettingInt(TEXT("CoinRumble"), 0);
+static int CoinRumbleStrength = GetSettingInt(TEXT("CoinRumbleStrength"), 0);
+static int DriftRumble = GetSettingInt(TEXT("DriftRumble"), 0);
+static int DriftRumbleControllerStrengthMultiplier = GetSettingInt(TEXT("DriftRumbleControllerStrengthMultiplier"), 0);
+static int HitGroundRumble = GetSettingInt(TEXT("HitGroundRumble"), 0);
+static int HitGroundRumbleStrength = GetSettingInt(TEXT("HitGroundRumbleStrength"), 0);
+static int BoostRumble = GetSettingInt(TEXT("BoostRumble"), 0);
+static int BoostRumbleStrength = GetSettingInt(TEXT("BoostRumbleStrength"), 0);
+static int MainShakeRumble = GetSettingInt(TEXT("MainShakeRumble"), 0);
+static int MainShakeRumbleStrength = GetSettingInt(TEXT("MainShakeRumbleStrength"), 0);
+static int DirtRumble = GetSettingInt(TEXT("DirtRumble"), 0);
+static int DirtRumbleStrength = GetSettingInt(TEXT("DirtRumbleStrength"), 0);
+static int GrassRumble = GetSettingInt(TEXT("GrassRumble"), 0);
+static int GrassRumbleStrength = GetSettingInt(TEXT("GrassRumbleStrength"), 0);
+static int SandRumble = GetSettingInt(TEXT("SandRumble"), 0);
+static int SandRumbleStrength = GetSettingInt(TEXT("SandRumbleStrength"), 0);
+static int WaterRumble = GetSettingInt(TEXT("WaterRumble"), 0);
+static int WaterRumbleWheelStrength = GetSettingInt(TEXT("WaterRumbleWheelStrength"), 0);
+static int WaterRumbleControllerStrengthMultiplier = GetSettingInt(TEXT("WaterRumbleControllerStrengthMultiplier"), 0);
+static int TileRumble = GetSettingInt(TEXT("TileRumble"), 0);
+static int TileRumbleStrength = GetSettingInt(TEXT("TileRumbleStrength"), 0);
+static int CarpetRumble = GetSettingInt(TEXT("CarpetRumble"), 0);
+static int CarpetRumbleStrength = GetSettingInt(TEXT("CarpetRumbleStrength"), 0);
+static int SpeedBumpRumble = GetSettingInt(TEXT("SmallBumpRumble"), 0);
+static int SpeedBumpRumbleStrength = GetSettingInt(TEXT("SmallBumpRumbleStrength"), 0);
+static int RoughTrackRumble = GetSettingInt(TEXT("RoughTrackRumble"), 0);
+static int RoughTrackRumbleStrength = GetSettingInt(TEXT("RoughTrackRumbleStrength"), 0);
+static int BridgeRumble = GetSettingInt(TEXT("BridgeRumble"), 0);
+static int BridgeRumbleStrength = GetSettingInt(TEXT("BridgeRumbleStrength"), 0);
+static int MenuRumble = GetSettingInt(TEXT("MenuRumble"), 0);
+static int MenuRumbleStrength = GetSettingInt(TEXT("MenuRumbleStrength"), 0);
 
 static UINT8 MenuPosition;
 static UINT8 oldMenuPosition;
@@ -254,8 +250,7 @@ void MarioKartGPDX118Custom::FFBLoop(EffectConstants* constants, Helpers* helper
 		MH_EnableHook(MH_ALL_HOOKS);
 	}
 
-	if (EnableDamper)
-		triggers->Damper(DamperStrength / 100.0);
+	ApplyDamper(triggers);
 
 	if (MenuRumble && !ff11)
 	{

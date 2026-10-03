@@ -14,17 +14,12 @@ along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
 #include <string>
 #include "MarioKartGPDX1.18Real.h"
 
-extern int EnableDamper;
-extern int DamperStrength;
-
-static wchar_t* settingsFilename = TEXT(".\\FFBPlugin.ini");
-static int SpringEnable = GetPrivateProfileInt(TEXT("Settings"), TEXT("SpringEnable"), 0, settingsFilename);
-static int SpringStrength = GetPrivateProfileInt(TEXT("Settings"), TEXT("SpringStrength"), 0, settingsFilename);
+static int SpringEnable = GetSettingInt(TEXT("SpringEnable"), 0);
+static int SpringStrength = GetSettingInt(TEXT("SpringStrength"), 0);
 
 void MarioKartGPDX118Real::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTriggers* triggers) {
 
-	if (EnableDamper)
-		triggers->Damper(DamperStrength / 100.0);
+	ApplyDamper(triggers);
 
 	if (SpringEnable)
 		triggers->Springi(SpringStrength / 100.0);

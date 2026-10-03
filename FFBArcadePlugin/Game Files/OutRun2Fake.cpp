@@ -19,18 +19,15 @@ static EffectTriggers *myTriggers;
 static EffectConstants *myConstants;
 static Helpers *myHelpers;
 extern SDL_Event e;
-extern int EnableDamper;
-extern int DamperStrength;
 static bool init = false;
-static wchar_t *settingsFilename = TEXT(".\\FFBPlugin.ini");
-static int ShowButtonNumbersForSetup = GetPrivateProfileInt(TEXT("Settings"), TEXT("ShowButtonNumbersForSetup"), 0, settingsFilename);
-static int ChangeGearsViaPlugin = GetPrivateProfileInt(TEXT("Settings"), TEXT("ChangeGearsViaPlugin"), 0, settingsFilename);
-static int Gear1 = GetPrivateProfileInt(TEXT("Settings"), TEXT("Gear1"), 0, settingsFilename);
-static int Gear2 = GetPrivateProfileInt(TEXT("Settings"), TEXT("Gear2"), 0, settingsFilename);
-static int Gear3 = GetPrivateProfileInt(TEXT("Settings"), TEXT("Gear3"), 0, settingsFilename);
-static int Gear4 = GetPrivateProfileInt(TEXT("Settings"), TEXT("Gear4"), 0, settingsFilename);
-static int Gear5 = GetPrivateProfileInt(TEXT("Settings"), TEXT("Gear5"), 0, settingsFilename);
-static int Gear6 = GetPrivateProfileInt(TEXT("Settings"), TEXT("Gear6"), 0, settingsFilename);
+static int ShowButtonNumbersForSetup = GetSettingInt(TEXT("ShowButtonNumbersForSetup"), 0);
+static int ChangeGearsViaPlugin = GetSettingInt(TEXT("ChangeGearsViaPlugin"), 0);
+static int Gear1 = GetSettingInt(TEXT("Gear1"), 0);
+static int Gear2 = GetSettingInt(TEXT("Gear2"), 0);
+static int Gear3 = GetSettingInt(TEXT("Gear3"), 0);
+static int Gear4 = GetSettingInt(TEXT("Gear4"), 0);
+static int Gear5 = GetSettingInt(TEXT("Gear5"), 0);
+static int Gear6 = GetSettingInt(TEXT("Gear6"), 0);
 static int SpeedStrength;
 
 static int ThreadLoop()
@@ -98,10 +95,7 @@ static int ThreadLoop()
 		SpeedStrength = 0;
 	}
 
-	if (EnableDamper == 1)
-	{
-		myTriggers->Damper(DamperStrength / 100.0);
-	}
+	ApplyDamper(myTriggers);
 
 	UINT32 length_ms = 100;
 	if (ff8 == 1)

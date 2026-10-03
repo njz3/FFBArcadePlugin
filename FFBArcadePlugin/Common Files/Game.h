@@ -92,29 +92,59 @@ public:
 #define SDL_HAT_LEFTUP      (SDL_HAT_LEFT|SDL_HAT_UP)
 #define SDL_HAT_LEFTDOWN    (SDL_HAT_LEFT|SDL_HAT_DOWN)
 
+// Reads an integer from the [Settings] section of FFBPlugin.ini
+int GetSettingInt(LPCWSTR name, int defaultValue);
+
+// Rumble selected by a HowtoRumbleXxxEffect setting: 0 both motors, 1 left motor only, 2 right motor only
+void RumbleWithMode(void(*rumble)(double lowfrequency, double highfrequency, UINT32 length_ms), int mode, double strength, UINT32 length_ms);
+
+// Plays the damper effect set by the EnableDamper and DamperStrength settings
+void ApplyDamper(EffectTriggers* triggers);
+
 class Helpers {
 public:
 	int enableLogging = 0;
-	// helper functions
-	bool fileExists(char *filename);
 	// logging
-	void log(char *msg);
+	void log(const char *msg);
 	void logInt(int value);
-	void logInit(char *msg);
-	void info(const char* format, ...);
 	// reading memory
 	LPVOID GetTranslatedOffset(INT_PTR offset);
-	int ReadInt32(INT_PTR offset, bool isRelativeOffset);
-	UINT8 ReadByte(INT_PTR offset, bool isRelativeOffset);
-	WORD ReadWord(INT_PTR offset, bool isRelativeOffset);
-	float WriteFloat32(INT_PTR offset, float val, bool isRelativeOffset);
-	UINT8 WriteByte(INT_PTR offset, UINT8 val, bool isRelativeOffset);
-	INT_PTR WriteIntPtr(INT_PTR offset, INT_PTR val, bool isRelativeOffset);
+
+	// isRelativeOffset: offset is relative to the main module base address instead of absolute.
+	template <typename T>
+	T Read(INT_PTR offset, bool isRelativeOffset)
+	{
+		T val{};
+		SIZE_T read;
+		ReadProcessMemory(GetCurrentProcess(), ResolveOffset(offset, isRelativeOffset), &val, sizeof(T), &read);
+		return val;
+	}
+
+	template <typename T>
+	T Write(INT_PTR offset, T val, bool isRelativeOffset)
+	{
+		SIZE_T written;
+		WriteProcessMemory(GetCurrentProcess(), ResolveOffset(offset, isRelativeOffset), &val, sizeof(T), &written);
+		return val;
+	}
+
+	int ReadInt32(INT_PTR offset, bool isRelativeOffset) { return Read<int>(offset, isRelativeOffset); }
+	UINT8 ReadByte(INT_PTR offset, bool isRelativeOffset) { return Read<UINT8>(offset, isRelativeOffset); }
+	WORD ReadWord(INT_PTR offset, bool isRelativeOffset) { return Read<WORD>(offset, isRelativeOffset); }
+	INT_PTR ReadIntPtr(INT_PTR offset, bool isRelativeOffset) { return Read<INT_PTR>(offset, isRelativeOffset); }
+	long long ReadLong(INT_PTR offset, bool isRelativeOffset) { return Read<long long>(offset, isRelativeOffset); }
+	float ReadFloat32(INT_PTR offset, bool isRelativeOffset) { return Read<float>(offset, isRelativeOffset); }
+	float WriteFloat32(INT_PTR offset, float val, bool isRelativeOffset) { return Write<float>(offset, val, isRelativeOffset); }
+	UINT8 WriteByte(INT_PTR offset, UINT8 val, bool isRelativeOffset) { return Write<UINT8>(offset, val, isRelativeOffset); }
+	INT_PTR WriteIntPtr(INT_PTR offset, INT_PTR val, bool isRelativeOffset) { return Write<INT_PTR>(offset, val, isRelativeOffset); }
+	WORD WriteWord(INT_PTR offset, WORD val, bool isRelativeOffset) { return Write<WORD>(offset, val, isRelativeOffset); }
 	UINT8 WriteNop(INT_PTR offset, int countBytes, bool isRelativeOffset);
-	WORD WriteWord(INT_PTR offset, WORD val, bool isRelativeOffset);
-	INT_PTR ReadIntPtr(INT_PTR offset, bool isRelativeOffset);
-	long long ReadLong(INT_PTR offset, bool isRelativeOffset);
-	float ReadFloat32(INT_PTR offset, bool isRelativeOffset);
+
+private:
+	LPVOID ResolveOffset(INT_PTR offset, bool isRelativeOffset)
+	{
+		return isRelativeOffset ? GetTranslatedOffset(offset) : (LPVOID)offset;
+	}
 };
 
 class Game {

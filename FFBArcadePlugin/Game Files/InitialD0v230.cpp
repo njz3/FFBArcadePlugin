@@ -13,18 +13,15 @@ along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
 
 #include <string>
 #include "InitialD0v230.h"
+#include "../Common Files/InitialDFFB.h"
 #include "math.h"
 
-extern int EnableDamper;
-extern int DamperStrength;
+static const InitialDFFBSettings ffbSettings = { 127.0, 128, 127.0, 200, 0xFFFFFFFF };
 
 static bool outputinit;
 
-static wchar_t* settingsFilename = TEXT(".\\FFBPlugin.ini");
-static int EnableForceSpringEffect = GetPrivateProfileInt(TEXT("Settings"), TEXT("EnableForceSpringEffect"), 0, settingsFilename);
-static int ForceSpringStrength = GetPrivateProfileInt(TEXT("Settings"), TEXT("ForceSpringStrength"), 0, settingsFilename);
-static int EscapeKeyExitViaPlugin = GetPrivateProfileInt(TEXT("Settings"), TEXT("EscapeKeyExitViaPlugin"), 0, settingsFilename);
-static int EnableOutputs = GetPrivateProfileInt(TEXT("Settings"), TEXT("EnableOutputs"), 0, settingsFilename);
+static int EscapeKeyExitViaPlugin = GetSettingInt(TEXT("EscapeKeyExitViaPlugin"), 0);
+static int EnableOutputs = GetSettingInt(TEXT("EnableOutputs"), 0);
 
 void InitialD0v230::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTriggers* triggers) {
 
@@ -40,52 +37,11 @@ void InitialD0v230::FFBLoop(EffectConstants* constants, Helpers* helpers, Effect
 	if (GetAsyncKeyState((VK_ESCAPE)) && (EscapeKeyExitViaPlugin == 1))
 		ExitProcess(0);
 
-	if (EnableDamper)
-		triggers->Damper(DamperStrength / 100.0);
+	ApplyDamper(triggers);
 
 	DWORD FFB = helpers->ReadInt32(0x18B54DC, true);
 
 	BYTE* ffb = reinterpret_cast<BYTE*>(&FFB);
 
-	if (ffb[0] == 0x80 && ffb[2] == 0x01)
-	{
-		triggers->Spring(1.0);
-	}
-
-	UINT32 length_ms = 100;
-	if (ffb[0] == 0x85 && ffb[1] > 0x00 && ffb[2] > 0x00)
-	{
-		double percentForce = ffb[2] / 127.0;
-		double Period = ffb[1] / 127.0 * 120.0;
-		triggers->Rumble(percentForce, percentForce, length_ms);
-		triggers->Sine(static_cast<int>(Period), 0, percentForce, 200);
-	}
-
-	if (ffb[0] == 0x86 && ffb[2] > 0x00)
-	{
-		double percentForce = ffb[2] / 127.0;
-		triggers->Spring(percentForce);
-	}
-
-	if (ffb[0] == 0x86 && ffb[2] > 0x00)
-	{
-		double percentForce = ffb[2] / 127.0;
-		triggers->Spring(percentForce);
-	}
-
-	if (ffb[0] == 0x84 && ffb[2] > 0x00)
-	{
-		if (ffb[1] == 0x00)
-		{
-			double percentForce = (128 - ffb[2]) / 127.0;
-			triggers->Rumble(percentForce, 0, length_ms);
-			triggers->Constant(constants->DIRECTION_FROM_LEFT, percentForce);
-		}
-		else if (ffb[1] == 0x01)
-		{
-			double percentForce = (ffb[2] / 127.0);
-			triggers->Rumble(0, percentForce, length_ms);
-			triggers->Constant(constants->DIRECTION_FROM_RIGHT, percentForce);
-		}
-	}
+	PlayInitialDFFB(ffb[0], ffb[1], ffb[2], ffbSettings, constants, triggers);
 }

@@ -16,6 +16,15 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Game Files\Gaelco.cpp">
+      <Filter>Game Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Common Files\InitialDFFB.cpp" />
+    <ClCompile Include="Game Files\WMMT.cpp">
+      <Filter>Game Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Common Files\Devices.cpp" />
+    <ClCompile Include="Config\PersistentValues.cpp" />
     <ClCompile Include="DllMain.cpp" />
     <ClCompile Include="Game Files\Daytona3.cpp">
       <Filter>Game Files</Filter>
@@ -172,6 +181,24 @@
     <ClCompile Include="Game Files\Cars.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Game Files\Gaelco.h">
+      <Filter>Common Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Common Files\InitialDFFB.h">
+      <Filter>Common Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Game Files\WMMT.h">
+      <Filter>Common Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Common Files\Devices.h">
+      <Filter>Common Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="WrapperExports.h">
+      <Filter>Common Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Common Files\GameIds.h">
+      <Filter>Common Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="Game Files\Daytona3.h">
       <Filter>Game Files</Filter>
     </ClInclude>

@@ -5,13 +5,10 @@ class TeknoParrotGame : public Game {
 
 	// TP-related
 	HANDLE hSection;
-	LPVOID secData;
+	int* jvsState; // TeknoParrot_JvsState shared memory, seen as an array of int slots
+	int ReadSlot(int slot);
 
 protected:
-	int ffbOffset = 0;
-	int ffbOffset2 = 0;
-	int ffbOffset3 = 0;
-	int ffbOffset4 = 0;
 	int GetTeknoParrotFFB();
 	int GetTeknoParrotFFB2();
 	int GetTeknoParrotFFB3();

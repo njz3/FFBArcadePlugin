@@ -14,15 +14,12 @@ along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
 #include <string>
 #include "ArcticThunder.h"
 
-extern int EnableDamper;
-extern int DamperStrength;
 extern int EnableForceSpringEffect;
 extern int ForceSpringStrength;
 
 void ArcticThunder::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTriggers* triggers) {
 
-	if (EnableDamper)
-		triggers->Damper(DamperStrength / 100.0);
+	ApplyDamper(triggers);
 
 	if (EnableForceSpringEffect)
 		triggers->Springi(ForceSpringStrength / 100.0);

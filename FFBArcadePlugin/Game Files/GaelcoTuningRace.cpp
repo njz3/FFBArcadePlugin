@@ -11,60 +11,18 @@ You should have received a copy of the GNU General Public License
 along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
 */
 
-#include <string>
 #include "GaelcoTuningRace.h"
 
-static EffectTriggers* myTriggers;
-static EffectConstants* myConstants;
-static Helpers* myHelpers;
-
-extern int EnableDamper;
-extern int DamperStrength;
-static bool init;
-
+// The motor force (a float) is passed in the place of the first argument
 static int(__stdcall* SetMotorOri)(DWORD* a1);
 static int __stdcall SetMotorHook(DWORD* a1)
 {
-	long double v1 = *(float*)&a1;
-	UINT32 length = 100;
-
-	if (v1 > 0)
-	{
-		double percentForce = v1;
-
-		if (percentForce > 1.0)
-			percentForce = 1.0;
-
-		myTriggers->Rumble(percentForce, 0, length);
-		myTriggers->Constant(myConstants->DIRECTION_FROM_LEFT, percentForce);
-	}
-	else if (v1 < 0)
-	{
-		double percentForce = -v1;
-
-		if (percentForce > 1.0)
-			percentForce = 1.0;
-
-		myTriggers->Rumble(0, percentForce, length);
-		myTriggers->Constant(myConstants->DIRECTION_FROM_RIGHT, percentForce);
-	}
+	long double force = *(float*)&a1;
+	GaelcoGame::PlayMotorForce(force);
 	return SetMotorOri(a1);
 }
 
-void GaelcoTuningRace::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTriggers* triggers) {
-
-	if (!init)
-	{
-		init = true;
-		MH_Initialize();
-		MH_CreateHook((void*)0x8188ABC, SetMotorHook, (void**)&SetMotorOri);
-		MH_EnableHook(MH_ALL_HOOKS);
-	}
-
-	if (EnableDamper)
-		triggers->Damper(DamperStrength / 100.0);
-
-	myTriggers = triggers;
-	myConstants = constants;
-	myHelpers = helpers;
+void GaelcoTuningRace::HookSetMotor()
+{
+	MH_CreateHook((void*)0x8188ABC, SetMotorHook, (void**)&SetMotorOri);
 }

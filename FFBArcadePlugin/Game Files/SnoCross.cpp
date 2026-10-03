@@ -14,9 +14,6 @@ along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
 #include <string>
 #include "SnoCross.h"
 
-extern int EnableDamper;
-extern int DamperStrength;
-
 void SnoCross::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTriggers* triggers) {
 
 	float ff = helpers->ReadFloat32(0x99AB6C, false);
@@ -27,10 +24,7 @@ void SnoCross::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTrigg
 	std::string ffs = std::to_string(ff);
 	helpers->log((char*)ffs.c_str());
 
-	if (EnableDamper == 1)
-	{
-		triggers->Damper(DamperStrength / 100.0);
-	}
+	ApplyDamper(triggers);
 
 	if (oldff != newff)
 	{

@@ -13,89 +13,46 @@ along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
 
 #include <string>
 #include "ButtonRumble.h"
+#include "../Common Files/Devices.h"
 #include "SDL.h"
 #include <Windows.h>
 static bool init = false;
 extern int joystick_index1;
 extern int joystick_index2;
-extern SDL_Joystick* GameController2;
-extern SDL_Haptic* ControllerHaptic2;
-extern SDL_Haptic* haptic2;
 extern SDL_Event e;
 
-static wchar_t *settingsFilename = TEXT(".\\FFBPlugin.ini");
-static int ShowButtonNumbersForSetup = GetPrivateProfileInt(TEXT("Settings"), TEXT("ShowButtonNumbersForSetup"), 0, settingsFilename);
-static int BothRumbleMotor = GetPrivateProfileInt(TEXT("Settings"), TEXT("BothRumbleMotor"), 0, settingsFilename);
-static int LeftRumbleMotor = GetPrivateProfileInt(TEXT("Settings"), TEXT("LeftRumbleMotor"), 0, settingsFilename);
-static int RightRumbleMotor = GetPrivateProfileInt(TEXT("Settings"), TEXT("RightRumbleMotor"), 0, settingsFilename);
-static int RumbleStrength = GetPrivateProfileInt(TEXT("Settings"), TEXT("RumbleStrength"), 0, settingsFilename);
-static int RumbleLength = GetPrivateProfileInt(TEXT("Settings"), TEXT("RumbleLength"), 0, settingsFilename);
-static int Button1Rumble = GetPrivateProfileInt(TEXT("Settings"), TEXT("Button1Rumble"), 0, settingsFilename);
-static int Button2Rumble = GetPrivateProfileInt(TEXT("Settings"), TEXT("Button2Rumble"), 0, settingsFilename);
-static int Button3Rumble = GetPrivateProfileInt(TEXT("Settings"), TEXT("Button3Rumble"), 0, settingsFilename);
-static int Button4Rumble = GetPrivateProfileInt(TEXT("Settings"), TEXT("Button4Rumble"), 0, settingsFilename);
-static int Button5Rumble = GetPrivateProfileInt(TEXT("Settings"), TEXT("Button5Rumble"), 0, settingsFilename);
-static int Button6Rumble = GetPrivateProfileInt(TEXT("Settings"), TEXT("Button6Rumble"), 0, settingsFilename);
-static int Button7Rumble = GetPrivateProfileInt(TEXT("Settings"), TEXT("Button7Rumble"), 0, settingsFilename);
-static int Button8Rumble = GetPrivateProfileInt(TEXT("Settings"), TEXT("Button8Rumble"), 0, settingsFilename);
-static int Button9Rumble = GetPrivateProfileInt(TEXT("Settings"), TEXT("Button9Rumble"), 0, settingsFilename);
-static int Button10Rumble = GetPrivateProfileInt(TEXT("Settings"), TEXT("Button10Rumble"), 0, settingsFilename);
-static int Button1Device2Rumble = GetPrivateProfileInt(TEXT("Settings"), TEXT("Button1Device2Rumble"), 0, settingsFilename);
-static int Button2Device2Rumble = GetPrivateProfileInt(TEXT("Settings"), TEXT("Button2Device2Rumble"), 0, settingsFilename);
-static int Button3Device2Rumble = GetPrivateProfileInt(TEXT("Settings"), TEXT("Button3Device2Rumble"), 0, settingsFilename);
-static int Button4Device2Rumble = GetPrivateProfileInt(TEXT("Settings"), TEXT("Button4Device2Rumble"), 0, settingsFilename);
-static int Button5Device2Rumble = GetPrivateProfileInt(TEXT("Settings"), TEXT("Button5Device2Rumble"), 0, settingsFilename);
-static int Button6Device2Rumble = GetPrivateProfileInt(TEXT("Settings"), TEXT("Button6Device2Rumble"), 0, settingsFilename);
-static int Button7Device2Rumble = GetPrivateProfileInt(TEXT("Settings"), TEXT("Button7Device2Rumble"), 0, settingsFilename);
-static int Button8Device2Rumble = GetPrivateProfileInt(TEXT("Settings"), TEXT("Button8Device2Rumble"), 0, settingsFilename);
-static int Button9Device2Rumble = GetPrivateProfileInt(TEXT("Settings"), TEXT("Button9Device2Rumble"), 0, settingsFilename);
-static int Button10Device2Rumble = GetPrivateProfileInt(TEXT("Settings"), TEXT("Button10Device2Rumble"), 0, settingsFilename);
+static int ShowButtonNumbersForSetup = GetSettingInt(TEXT("ShowButtonNumbersForSetup"), 0);
+static int BothRumbleMotor = GetSettingInt(TEXT("BothRumbleMotor"), 0);
+static int LeftRumbleMotor = GetSettingInt(TEXT("LeftRumbleMotor"), 0);
+static int RightRumbleMotor = GetSettingInt(TEXT("RightRumbleMotor"), 0);
+static int RumbleStrength = GetSettingInt(TEXT("RumbleStrength"), 0);
+static int RumbleLength = GetSettingInt(TEXT("RumbleLength"), 0);
+static int Button1Rumble = GetSettingInt(TEXT("Button1Rumble"), 0);
+static int Button2Rumble = GetSettingInt(TEXT("Button2Rumble"), 0);
+static int Button3Rumble = GetSettingInt(TEXT("Button3Rumble"), 0);
+static int Button4Rumble = GetSettingInt(TEXT("Button4Rumble"), 0);
+static int Button5Rumble = GetSettingInt(TEXT("Button5Rumble"), 0);
+static int Button6Rumble = GetSettingInt(TEXT("Button6Rumble"), 0);
+static int Button7Rumble = GetSettingInt(TEXT("Button7Rumble"), 0);
+static int Button8Rumble = GetSettingInt(TEXT("Button8Rumble"), 0);
+static int Button9Rumble = GetSettingInt(TEXT("Button9Rumble"), 0);
+static int Button10Rumble = GetSettingInt(TEXT("Button10Rumble"), 0);
+static int Button1Device2Rumble = GetSettingInt(TEXT("Button1Device2Rumble"), 0);
+static int Button2Device2Rumble = GetSettingInt(TEXT("Button2Device2Rumble"), 0);
+static int Button3Device2Rumble = GetSettingInt(TEXT("Button3Device2Rumble"), 0);
+static int Button4Device2Rumble = GetSettingInt(TEXT("Button4Device2Rumble"), 0);
+static int Button5Device2Rumble = GetSettingInt(TEXT("Button5Device2Rumble"), 0);
+static int Button6Device2Rumble = GetSettingInt(TEXT("Button6Device2Rumble"), 0);
+static int Button7Device2Rumble = GetSettingInt(TEXT("Button7Device2Rumble"), 0);
+static int Button8Device2Rumble = GetSettingInt(TEXT("Button8Device2Rumble"), 0);
+static int Button9Device2Rumble = GetSettingInt(TEXT("Button9Device2Rumble"), 0);
+static int Button10Device2Rumble = GetSettingInt(TEXT("Button10Device2Rumble"), 0);
 
 void ButtonRumble::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTriggers* triggers) {
 
 	if (!init)
 	{
-		for (int i = 0; i < SDL_NumJoysticks(); i++)
-		{
-			wchar_t* deviceGUIDString2 = new wchar_t[256];
-			int Device2GUID = GetPrivateProfileString(TEXT("Settings"), TEXT("Device2GUID"), NULL, deviceGUIDString2, 256, settingsFilename);
-			char joystick_guid[256];
-			sprintf(joystick_guid, "%S", deviceGUIDString2);
-			SDL_JoystickGUID dev_guid;
-			int numJoysticks = SDL_NumJoysticks();
-			//std::string njs = std::to_string(numJoysticks);
-			for (int i = 0; i < SDL_NumJoysticks(); i++)
-			{
-				extern int joystick1Index;
-				if (i == joystick1Index)
-				{
-					continue;
-				}
-				SDL_Joystick* js2 = SDL_JoystickOpen(i);
-				SDL_JoystickGUID guid = SDL_JoystickGetGUID(js2);
-				char guid_str[1024];
-				SDL_JoystickGetGUIDString(guid, guid_str, sizeof(guid_str));
-				const char* name = SDL_JoystickName(js2);
-				char text[256];
-				sprintf(text, "Joystick: %d / Name: %s / GUID: %s\n", i, name, guid_str);
-				guid = SDL_JoystickGetGUIDFromString(joystick_guid);
-				dev_guid = SDL_JoystickGetGUID(js2);
-				if (!memcmp(&guid, &dev_guid, sizeof(SDL_JoystickGUID)))
-				{
-					GameController2 = SDL_JoystickOpen(i);
-					joystick_index2 = SDL_JoystickInstanceID(GameController2);
-					ControllerHaptic2 = SDL_HapticOpenFromJoystick(GameController2);
-					break;
-				}
-				SDL_JoystickClose(js2);
-			}
-			haptic2 = ControllerHaptic2;
-			if ((SDL_HapticRumbleSupported(haptic2) == SDL_TRUE))
-			{
-				//SDL_HapticRumbleInit;
-				SDL_HapticRumbleInit(ControllerHaptic2);
-			}
-		}
+		OpenHapticDevice2();
 		init = true;
 	}
 	

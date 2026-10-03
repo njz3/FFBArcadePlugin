@@ -13,8 +13,6 @@ along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
 
 #include <string>
 #include "Daytona3NSE.h"
-extern int EnableDamper;
-extern int DamperStrength;
 
 void Daytona3NSE::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTriggers* triggers) {
 

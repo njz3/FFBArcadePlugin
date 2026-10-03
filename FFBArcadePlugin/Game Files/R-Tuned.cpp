@@ -14,10 +14,7 @@ along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
 #include <string>
 #include "R-Tuned.h"
 
-extern int EnableDamper;
-extern int DamperStrength;
-static wchar_t* settingsFilename = TEXT(".\\FFBPlugin.ini");
-static int SpringStrength = GetPrivateProfileInt(TEXT("Settings"), TEXT("SpringStrength"), 0, settingsFilename);
+static int SpringStrength = GetSettingInt(TEXT("SpringStrength"), 0);
 
 void RTuned::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTriggers* triggers) {
 
@@ -29,10 +26,7 @@ void RTuned::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTrigger
 	std::string ffs = std::to_string(BoostEffect);
 	helpers->log((char*)ffs.c_str());
 
-	if (EnableDamper == 1)
-	{
-		triggers->Damper(DamperStrength / 100.0);
-	}
+	ApplyDamper(triggers);
 
 	UINT8 LetsEnableFFB = helpers->ReadByte(0x8519C58, /* isRelativeOffset */ false);
 

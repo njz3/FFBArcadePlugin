@@ -15,18 +15,15 @@ along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
 #include "D1GP.h"
 #include "SDL.h"
 
-extern int EnableDamper;
-extern int DamperStrength;
 static int ShakeCount;
 static bool LetsShake;
 static UINT8 oldEffect;
 
-static wchar_t* settingsFilename = TEXT(".\\FFBPlugin.ini");
-static int EnableGroundEffects = GetPrivateProfileInt(TEXT("Settings"), TEXT("EnableGroundEffects"), 0, settingsFilename);
-static int FFBGrassSinePeriod = GetPrivateProfileInt(TEXT("Settings"), TEXT("FFBGrassSinePeriod"), 0, settingsFilename);
-static int FFBGrassFadeSinePeriod = GetPrivateProfileInt(TEXT("Settings"), TEXT("FFBGrassFadeSinePeriod"), 0, settingsFilename);
-static int FFBRumbleStripSinePeriod = GetPrivateProfileInt(TEXT("Settings"), TEXT("FFBRumbleStripSinePeriod"), 0, settingsFilename);
-static int FFBRumbleStripFadeSinePeriod = GetPrivateProfileInt(TEXT("Settings"), TEXT("FFBRumbleStripFadeSinePeriod"), 0, settingsFilename);
+static int EnableGroundEffects = GetSettingInt(TEXT("EnableGroundEffects"), 0);
+static int FFBGrassSinePeriod = GetSettingInt(TEXT("FFBGrassSinePeriod"), 0);
+static int FFBGrassFadeSinePeriod = GetSettingInt(TEXT("FFBGrassFadeSinePeriod"), 0);
+static int FFBRumbleStripSinePeriod = GetSettingInt(TEXT("FFBRumbleStripSinePeriod"), 0);
+static int FFBRumbleStripFadeSinePeriod = GetSettingInt(TEXT("FFBRumbleStripFadeSinePeriod"), 0);
 
 void D1GP::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTriggers* triggers)
 {
@@ -36,8 +33,7 @@ void D1GP::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTriggers*
 
 	UINT length = 100;
 
-	if (EnableDamper)
-		triggers->Damper(DamperStrength / 100.0);
+	ApplyDamper(triggers);
 
 	if (FFBConstant > 0)
 	{

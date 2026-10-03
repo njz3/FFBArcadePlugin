@@ -17,8 +17,6 @@ along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
 #include <sstream>
 
 static bool init;
-extern int EnableDamper;
-extern int DamperStrength;
 extern int EnableForceSpringEffect;
 extern int ForceSpringStrength;
 
@@ -33,8 +31,7 @@ void SegaRaceTV::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTri
 
 	int ff = helpers->ReadInt32(0x8b44210, false);
 	
-	if (EnableDamper)
-		triggers->Damper(DamperStrength / 100.0);
+	ApplyDamper(triggers);
 	if (EnableForceSpringEffect)
 		triggers->Springi(ForceSpringStrength / 100.0);
 

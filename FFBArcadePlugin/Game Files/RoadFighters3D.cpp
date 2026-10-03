@@ -13,6 +13,7 @@ along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
 
 #include <string>
 #include "SDL.h"
+#include "../Common Files/Devices.h"
 #include "RoadFighters3D.h"
 #include <Windows.h>
 static EffectTriggers *myTriggers;
@@ -23,8 +24,6 @@ extern HINSTANCE gl_hlibavs;
 extern int joystick_index1;
 extern int joystick_index2;
 extern SDL_Joystick* GameController2;
-extern int EnableDamper;
-extern int DamperStrength;
 static bool avoiderror = true;
 static bool testbuttonA;
 static bool servicebuttonA;
@@ -34,7 +33,6 @@ static bool leverupA;
 static bool leverdownA;
 static bool leverleftA;
 static bool leverrightA;
-static bool stophack;
 static bool init = false;
 extern SDL_Event e;
 
@@ -46,54 +44,53 @@ static void MEMwrite(void *adr, void *ptr, int size)
 	VirtualProtect(adr, size, OldProtection, &OldProtection);
 }
 
-static wchar_t *settingsFilename = TEXT(".\\FFBPlugin.ini");
-static int CabinetID = GetPrivateProfileInt(TEXT("Settings"), TEXT("CabinetID"), 0, settingsFilename);
-static int Only2D = GetPrivateProfileInt(TEXT("Settings"), TEXT("Only2D"), 0, settingsFilename);
-static int HackToSkipMenuError = GetPrivateProfileInt(TEXT("Settings"), TEXT("HackToSkipMenuError"), 0, settingsFilename);
-static int HackToCloseLibmovieErrorAuto = GetPrivateProfileInt(TEXT("Settings"), TEXT("HackToCloseLibmovieErrorAuto"), 0, settingsFilename);
-static int InputDeviceWheelEnable = GetPrivateProfileInt(TEXT("Settings"), TEXT("InputDeviceWheelEnable"), 0, settingsFilename);
-static int InputDeviceWheelSteeringAxis = GetPrivateProfileInt(TEXT("Settings"), TEXT("InputDeviceWheelSteeringAxis"), 0, settingsFilename);
-static int InputDeviceWheelAcclAxis = GetPrivateProfileInt(TEXT("Settings"), TEXT("InputDeviceWheelAcclAxis"), 0, settingsFilename);
-static int InputDeviceWheelBrakeAxis = GetPrivateProfileInt(TEXT("Settings"), TEXT("InputDeviceWheelBrakeAxis"), 0, settingsFilename);
-static int InputDeviceWheelReverseAxis = GetPrivateProfileInt(TEXT("Settings"), TEXT("InputDeviceWheelReverseAxis"), 0, settingsFilename);
-static int InputDeviceCombinedPedals = GetPrivateProfileInt(TEXT("Settings"), TEXT("InputDeviceCombinedPedals"), 0, settingsFilename);
-static int SteeringDeadzone = GetPrivateProfileInt(TEXT("Settings"), TEXT("SteeringDeadzone"), 0, settingsFilename);
-static int PedalDeadzone = GetPrivateProfileInt(TEXT("Settings"), TEXT("PedalDeadzone"), 0, settingsFilename);
-static int SequentialGears = GetPrivateProfileInt(TEXT("Settings"), TEXT("SequentialGears"), 0, settingsFilename);
-static int ShowButtonNumbersForSetup = GetPrivateProfileInt(TEXT("Settings"), TEXT("ShowButtonNumbersForSetup"), 0, settingsFilename);
-static int ShowAxisForSetup = GetPrivateProfileInt(TEXT("Settings"), TEXT("ShowAxisForSetup"), 0, settingsFilename);
-static int ExitButton = GetPrivateProfileInt(TEXT("Settings"), TEXT("ExitButton"), 0, settingsFilename);
-static int TestButton = GetPrivateProfileInt(TEXT("Settings"), TEXT("TestButton"), 0, settingsFilename);
-static int ServiceButton = GetPrivateProfileInt(TEXT("Settings"), TEXT("ServiceButton"), 0, settingsFilename);
-static int CreditButton = GetPrivateProfileInt(TEXT("Settings"), TEXT("CreditButton"), 0, settingsFilename);
-static int ViewButton = GetPrivateProfileInt(TEXT("Settings"), TEXT("ViewButton"), 0, settingsFilename);
-static int ThreeDimensionalButton = GetPrivateProfileInt(TEXT("Settings"), TEXT("ThreeDimensionalButton"), 0, settingsFilename);
-static int leverUp = GetPrivateProfileInt(TEXT("Settings"), TEXT("leverUp"), 0, settingsFilename);
-static int leverDown = GetPrivateProfileInt(TEXT("Settings"), TEXT("leverDown"), 0, settingsFilename);
-static int leverLeft = GetPrivateProfileInt(TEXT("Settings"), TEXT("leverLeft"), 0, settingsFilename);
-static int leverRight = GetPrivateProfileInt(TEXT("Settings"), TEXT("leverRight"), 0, settingsFilename);
-static int Gear1Button = GetPrivateProfileInt(TEXT("Settings"), TEXT("Gear1Button"), 0, settingsFilename);
-static int Gear2Button = GetPrivateProfileInt(TEXT("Settings"), TEXT("Gear2Button"), 0, settingsFilename);
-static int Gear3Button = GetPrivateProfileInt(TEXT("Settings"), TEXT("Gear3Button"), 0, settingsFilename);
-static int Gear4Button = GetPrivateProfileInt(TEXT("Settings"), TEXT("Gear4Button"), 0, settingsFilename);
-static int Gear5Button = GetPrivateProfileInt(TEXT("Settings"), TEXT("Gear5Button"), 0, settingsFilename);
-static int Gear6Button = GetPrivateProfileInt(TEXT("Settings"), TEXT("Gear6Button"), 0, settingsFilename);
-static int ExitButtonDevice2 = GetPrivateProfileInt(TEXT("Settings"), TEXT("ExitButtonDevice2"), 0, settingsFilename);
-static int TestButtonDevice2 = GetPrivateProfileInt(TEXT("Settings"), TEXT("TestButtonDevice2"), 0, settingsFilename);
-static int ServiceButtonDevice2 = GetPrivateProfileInt(TEXT("Settings"), TEXT("ServiceButtonDevice2"), 0, settingsFilename);
-static int CreditButtonDevice2 = GetPrivateProfileInt(TEXT("Settings"), TEXT("CreditButtonDevice2"), 0, settingsFilename);
-static int ViewButtonDevice2 = GetPrivateProfileInt(TEXT("Settings"), TEXT("ViewButtonDevice2"), 0, settingsFilename);
-static int ThreeDimensionalButtonDevice2 = GetPrivateProfileInt(TEXT("Settings"), TEXT("ThreeDimensionalButtonDevice2"), 0, settingsFilename);
-static int leverUpDevice2 = GetPrivateProfileInt(TEXT("Settings"), TEXT("leverUpDevice2"), 0, settingsFilename);
-static int leverDownDevice2 = GetPrivateProfileInt(TEXT("Settings"), TEXT("leverDownDevice2"), 0, settingsFilename);
-static int leverLeftDevice2 = GetPrivateProfileInt(TEXT("Settings"), TEXT("leverLeftDevice2"), 0, settingsFilename);
-static int leverRightDevice2 = GetPrivateProfileInt(TEXT("Settings"), TEXT("leverRightDevice2"), 0, settingsFilename);
-static int Gear1ButtonDevice2 = GetPrivateProfileInt(TEXT("Settings"), TEXT("Gear1ButtonDevice2"), 0, settingsFilename);
-static int Gear2ButtonDevice2 = GetPrivateProfileInt(TEXT("Settings"), TEXT("Gear2ButtonDevice2"), 0, settingsFilename);
-static int Gear3ButtonDevice2 = GetPrivateProfileInt(TEXT("Settings"), TEXT("Gear3ButtonDevice2"), 0, settingsFilename);
-static int Gear4ButtonDevice2 = GetPrivateProfileInt(TEXT("Settings"), TEXT("Gear4ButtonDevice2"), 0, settingsFilename);
-static int Gear5ButtonDevice2 = GetPrivateProfileInt(TEXT("Settings"), TEXT("Gear5ButtonDevice2"), 0, settingsFilename);
-static int Gear6ButtonDevice2 = GetPrivateProfileInt(TEXT("Settings"), TEXT("Gear6ButtonDevice2"), 0, settingsFilename);
+static int CabinetID = GetSettingInt(TEXT("CabinetID"), 0);
+static int Only2D = GetSettingInt(TEXT("Only2D"), 0);
+static int HackToSkipMenuError = GetSettingInt(TEXT("HackToSkipMenuError"), 0);
+static int HackToCloseLibmovieErrorAuto = GetSettingInt(TEXT("HackToCloseLibmovieErrorAuto"), 0);
+static int InputDeviceWheelEnable = GetSettingInt(TEXT("InputDeviceWheelEnable"), 0);
+static int InputDeviceWheelSteeringAxis = GetSettingInt(TEXT("InputDeviceWheelSteeringAxis"), 0);
+static int InputDeviceWheelAcclAxis = GetSettingInt(TEXT("InputDeviceWheelAcclAxis"), 0);
+static int InputDeviceWheelBrakeAxis = GetSettingInt(TEXT("InputDeviceWheelBrakeAxis"), 0);
+static int InputDeviceWheelReverseAxis = GetSettingInt(TEXT("InputDeviceWheelReverseAxis"), 0);
+static int InputDeviceCombinedPedals = GetSettingInt(TEXT("InputDeviceCombinedPedals"), 0);
+static int SteeringDeadzone = GetSettingInt(TEXT("SteeringDeadzone"), 0);
+static int PedalDeadzone = GetSettingInt(TEXT("PedalDeadzone"), 0);
+static int SequentialGears = GetSettingInt(TEXT("SequentialGears"), 0);
+static int ShowButtonNumbersForSetup = GetSettingInt(TEXT("ShowButtonNumbersForSetup"), 0);
+static int ShowAxisForSetup = GetSettingInt(TEXT("ShowAxisForSetup"), 0);
+static int ExitButton = GetSettingInt(TEXT("ExitButton"), 0);
+static int TestButton = GetSettingInt(TEXT("TestButton"), 0);
+static int ServiceButton = GetSettingInt(TEXT("ServiceButton"), 0);
+static int CreditButton = GetSettingInt(TEXT("CreditButton"), 0);
+static int ViewButton = GetSettingInt(TEXT("ViewButton"), 0);
+static int ThreeDimensionalButton = GetSettingInt(TEXT("ThreeDimensionalButton"), 0);
+static int leverUp = GetSettingInt(TEXT("leverUp"), 0);
+static int leverDown = GetSettingInt(TEXT("leverDown"), 0);
+static int leverLeft = GetSettingInt(TEXT("leverLeft"), 0);
+static int leverRight = GetSettingInt(TEXT("leverRight"), 0);
+static int Gear1Button = GetSettingInt(TEXT("Gear1Button"), 0);
+static int Gear2Button = GetSettingInt(TEXT("Gear2Button"), 0);
+static int Gear3Button = GetSettingInt(TEXT("Gear3Button"), 0);
+static int Gear4Button = GetSettingInt(TEXT("Gear4Button"), 0);
+static int Gear5Button = GetSettingInt(TEXT("Gear5Button"), 0);
+static int Gear6Button = GetSettingInt(TEXT("Gear6Button"), 0);
+static int ExitButtonDevice2 = GetSettingInt(TEXT("ExitButtonDevice2"), 0);
+static int TestButtonDevice2 = GetSettingInt(TEXT("TestButtonDevice2"), 0);
+static int ServiceButtonDevice2 = GetSettingInt(TEXT("ServiceButtonDevice2"), 0);
+static int CreditButtonDevice2 = GetSettingInt(TEXT("CreditButtonDevice2"), 0);
+static int ViewButtonDevice2 = GetSettingInt(TEXT("ViewButtonDevice2"), 0);
+static int ThreeDimensionalButtonDevice2 = GetSettingInt(TEXT("ThreeDimensionalButtonDevice2"), 0);
+static int leverUpDevice2 = GetSettingInt(TEXT("leverUpDevice2"), 0);
+static int leverDownDevice2 = GetSettingInt(TEXT("leverDownDevice2"), 0);
+static int leverLeftDevice2 = GetSettingInt(TEXT("leverLeftDevice2"), 0);
+static int leverRightDevice2 = GetSettingInt(TEXT("leverRightDevice2"), 0);
+static int Gear1ButtonDevice2 = GetSettingInt(TEXT("Gear1ButtonDevice2"), 0);
+static int Gear2ButtonDevice2 = GetSettingInt(TEXT("Gear2ButtonDevice2"), 0);
+static int Gear3ButtonDevice2 = GetSettingInt(TEXT("Gear3ButtonDevice2"), 0);
+static int Gear4ButtonDevice2 = GetSettingInt(TEXT("Gear4ButtonDevice2"), 0);
+static int Gear5ButtonDevice2 = GetSettingInt(TEXT("Gear5ButtonDevice2"), 0);
+static int Gear6ButtonDevice2 = GetSettingInt(TEXT("Gear6ButtonDevice2"), 0);
 
 static int ThreadLoop()
 {
@@ -225,10 +222,7 @@ static int ThreadLoop()
 			myHelpers->WriteFloat32((INT_PTR)gl_hjgtDll + 0x954394, 0, false);
 		}
 
-		if (EnableDamper == 1)
-		{
-			myTriggers->Damper(DamperStrength / 100.0);
-		}
+		ApplyDamper(myTriggers);
 
 		if ((ff3 != 0x00) && (ff4 != 0x00))
 		{
@@ -280,34 +274,14 @@ void RoadFighters3D::FFBLoop(EffectConstants *constants, Helpers *helpers, Effec
 
 			CreateThread(NULL, 0, RunningLoop, NULL, 0, NULL);
 
-			//Added 2nd device stuff from here
-			wchar_t* deviceGUIDString2 = new wchar_t[256];
-			int Device2GUID = GetPrivateProfileString(TEXT("Settings"), TEXT("Device2GUID"), NULL, deviceGUIDString2, 256, settingsFilename);
-			char joystick_guid[256];
-			sprintf(joystick_guid, "%S", deviceGUIDString2);
-			SDL_JoystickGUID dev_guid;
-			int numJoysticks = SDL_NumJoysticks();
-			/*std::string njs = std::to_string(numJoysticks);
-			((char)njs.c_str());
-			*/
-			for (int i = 0; i < SDL_NumJoysticks(); i++)
+			OpenInputDevice2();
+
+			// Without a joystick matching Device2GUID, the last joystick is used as the second device
+			if (GameController2 == NULL && SDL_NumJoysticks() > 0)
 			{
-				SDL_Joystick* js2 = SDL_JoystickOpen(i);
-				joystick_index2 = SDL_JoystickInstanceID(js2);
-				SDL_JoystickGUID guid = SDL_JoystickGetGUID(js2);
-				char guid_str[1024];
-				SDL_JoystickGetGUIDString(guid, guid_str, sizeof(guid_str));
-				const char* name = SDL_JoystickName(js2);
-				char text[256];
-				sprintf(text, "Joystick: %d / Name: %s / GUID: %s\n", i, name, guid_str);
-				guid = SDL_JoystickGetGUIDFromString(joystick_guid);
-				dev_guid = SDL_JoystickGetGUID(js2);
-				SDL_JoystickClose(js2);
-				if (!memcmp(&guid, &dev_guid, sizeof(SDL_JoystickGUID)))
-				{
-					GameController2 = SDL_JoystickOpen(i);
-					break;
-				}
+				SDL_Joystick* lastJoystick = SDL_JoystickOpen(SDL_NumJoysticks() - 1);
+				joystick_index2 = SDL_JoystickInstanceID(lastJoystick);
+				SDL_JoystickClose(lastJoystick);
 			}
 			init = true;
 		}

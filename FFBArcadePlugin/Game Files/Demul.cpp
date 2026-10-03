@@ -14,6 +14,7 @@ along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
 #include <string>
 #include <tchar.h>
 #include "Demul.h"
+#include "../Common Files/InitialDFFB.h"
 #include "math.h"
 #include <stdlib.h>
 #include <string.h>
@@ -42,17 +43,7 @@ static EffectConstants* myConstants;
 static Helpers* myHelpers;
 static HINSTANCE gl_padDemul;
 
-extern int joystick_index1;
-extern int joystick_index2;
-extern SDL_Joystick* GameController2;
 extern bool WaitForGame;
-static bool testbuttonA;
-static bool servicebuttonA;
-static bool startbuttonA;
-static bool viewbuttonA;
-static bool shiftupA;
-static bool shiftdownA;
-static bool coinA;
 static bool VolumeMute = false;
 static bool CRCinit = false;
 static bool NOPinit = false;
@@ -74,15 +65,10 @@ static HWND hWnd;
 static bool Demul180428 = false;
 static bool Demul111117 = false;
 
-extern wchar_t* settingsFilename;
-extern int DeviceGUID;
 extern int configFeedbackLength;
-extern int configGameId;
 extern int configMinForce;
 extern int configMaxForce;
 extern int PowerMode;
-extern int EnableRumble;
-extern int ReverseRumble;
 extern int configFeedbackLength;
 extern int configAlternativeMinForceLeft;
 extern int configAlternativeMaxForceLeft;
@@ -96,87 +82,87 @@ extern int DamperStrength;
 extern int DoubleConstant;
 extern int DoubleSine;
 
-static int InputDeviceWheelEnable = GetPrivateProfileInt(TEXT("Settings"), TEXT("InputDeviceWheelEnable"), 0, settingsFilename);
+static int InputDeviceWheelEnable = GetSettingInt(TEXT("InputDeviceWheelEnable"), 0);
 
-static int configMinForceInitialDDemul = GetPrivateProfileInt(TEXT("Settings"), TEXT("MinForceInitialDDemul"), 0, settingsFilename);
-static int configMaxForceInitialDDemul = GetPrivateProfileInt(TEXT("Settings"), TEXT("MaxForceInitialDDemul"), 100, settingsFilename);
-static int configAlternativeMinForceLeftInitialDDemul = GetPrivateProfileInt(TEXT("Settings"), TEXT("AlternativeMinForceLeftInitialDDemul"), 0, settingsFilename);
-static int configAlternativeMaxForceLeftInitialDDemul = GetPrivateProfileInt(TEXT("Settings"), TEXT("AlternativeMaxForceLeftInitialDDemul"), 100, settingsFilename);
-static int configAlternativeMinForceRightInitialDDemul = GetPrivateProfileInt(TEXT("Settings"), TEXT("AlternativeMinForceRightInitialDDemul"), 0, settingsFilename);
-static int configAlternativeMaxForceRightInitialDDemul = GetPrivateProfileInt(TEXT("Settings"), TEXT("AlternativeMaxForceRightInitialDDemul"), 100, settingsFilename);
-static int PowerModeInitialDDemul = GetPrivateProfileInt(TEXT("Settings"), TEXT("PowerModeInitialDDemul"), 0, settingsFilename);
-static int configFeedbackLengthInitialDDemul = GetPrivateProfileInt(TEXT("Settings"), TEXT("FeedbackLengthInitialDDemul"), 120, settingsFilename);
-static int EnableForceSpringEffectInitialDDemul = GetPrivateProfileInt(TEXT("Settings"), TEXT("EnableForceSpringEffectInitialDDemul"), 0, settingsFilename);
-static int ForceSpringStrengthInitialDDemul = GetPrivateProfileInt(TEXT("Settings"), TEXT("ForceSpringStrengthInitialDDemul"), 0, settingsFilename);
-static int EnableDamperInitialDDemul = GetPrivateProfileInt(TEXT("Settings"), TEXT("EnableDamperInitialDDemul"), 0, settingsFilename);
-static int DamperStrengthInitialDDemul = GetPrivateProfileInt(TEXT("Settings"), TEXT("DamperStrengthInitialDDemul"), 100, settingsFilename);
-static int DoubleSineInitialDDemul = GetPrivateProfileInt(TEXT("Settings"), TEXT("DoubleSineInitialDDemul"), 0, settingsFilename);
-static int DoubleConstantInitialDDemul = GetPrivateProfileInt(TEXT("Settings"), TEXT("DoubleConstantInitialDDemul"), 0, settingsFilename);
+static int configMinForceInitialDDemul = GetSettingInt(TEXT("MinForceInitialDDemul"), 0);
+static int configMaxForceInitialDDemul = GetSettingInt(TEXT("MaxForceInitialDDemul"), 100);
+static int configAlternativeMinForceLeftInitialDDemul = GetSettingInt(TEXT("AlternativeMinForceLeftInitialDDemul"), 0);
+static int configAlternativeMaxForceLeftInitialDDemul = GetSettingInt(TEXT("AlternativeMaxForceLeftInitialDDemul"), 100);
+static int configAlternativeMinForceRightInitialDDemul = GetSettingInt(TEXT("AlternativeMinForceRightInitialDDemul"), 0);
+static int configAlternativeMaxForceRightInitialDDemul = GetSettingInt(TEXT("AlternativeMaxForceRightInitialDDemul"), 100);
+static int PowerModeInitialDDemul = GetSettingInt(TEXT("PowerModeInitialDDemul"), 0);
+static int configFeedbackLengthInitialDDemul = GetSettingInt(TEXT("FeedbackLengthInitialDDemul"), 120);
+static int EnableForceSpringEffectInitialDDemul = GetSettingInt(TEXT("EnableForceSpringEffectInitialDDemul"), 0);
+static int ForceSpringStrengthInitialDDemul = GetSettingInt(TEXT("ForceSpringStrengthInitialDDemul"), 0);
+static int EnableDamperInitialDDemul = GetSettingInt(TEXT("EnableDamperInitialDDemul"), 0);
+static int DamperStrengthInitialDDemul = GetSettingInt(TEXT("DamperStrengthInitialDDemul"), 100);
+static int DoubleSineInitialDDemul = GetSettingInt(TEXT("DoubleSineInitialDDemul"), 0);
+static int DoubleConstantInitialDDemul = GetSettingInt(TEXT("DoubleConstantInitialDDemul"), 0);
 
-static int configMinForceNascarRacing = GetPrivateProfileInt(TEXT("Settings"), TEXT("MinForceNascarRacing"), 0, settingsFilename);
-static int configMaxForceNascarRacing = GetPrivateProfileInt(TEXT("Settings"), TEXT("MaxForceNascarRacing"), 100, settingsFilename);
-static int configAlternativeMinForceLeftNascarRacing = GetPrivateProfileInt(TEXT("Settings"), TEXT("AlternativeMinForceLeftNascarRacing"), 0, settingsFilename);
-static int configAlternativeMaxForceLeftNascarRacing = GetPrivateProfileInt(TEXT("Settings"), TEXT("AlternativeMaxForceLeftNascarRacing"), 100, settingsFilename);
-static int configAlternativeMinForceRightNascarRacing = GetPrivateProfileInt(TEXT("Settings"), TEXT("AlternativeMinForceRightNascarRacing"), 0, settingsFilename);
-static int configAlternativeMaxForceRightNascarRacing = GetPrivateProfileInt(TEXT("Settings"), TEXT("AlternativeMaxForceRightNascarRacing"), 100, settingsFilename);
-static int PowerModeNascarRacing = GetPrivateProfileInt(TEXT("Settings"), TEXT("PowerModeNascarRacing"), 0, settingsFilename);
-static int configFeedbackLengthNascarRacing = GetPrivateProfileInt(TEXT("Settings"), TEXT("FeedbackLengthNascarRacing"), 120, settingsFilename);
-static int EnableForceSpringEffectNascarRacing = GetPrivateProfileInt(TEXT("Settings"), TEXT("EnableForceSpringEffectNascarRacing"), 0, settingsFilename);
-static int ForceSpringStrengthNascarRacing = GetPrivateProfileInt(TEXT("Settings"), TEXT("ForceSpringStrengthNascarRacing"), 0, settingsFilename);
-static int EnableDamperNascarRacing = GetPrivateProfileInt(TEXT("Settings"), TEXT("EnableDamperNascarRacing"), 0, settingsFilename);
-static int DamperStrengthNascarRacing = GetPrivateProfileInt(TEXT("Settings"), TEXT("DamperStrengthNascarRacing"), 100, settingsFilename);
+static int configMinForceNascarRacing = GetSettingInt(TEXT("MinForceNascarRacing"), 0);
+static int configMaxForceNascarRacing = GetSettingInt(TEXT("MaxForceNascarRacing"), 100);
+static int configAlternativeMinForceLeftNascarRacing = GetSettingInt(TEXT("AlternativeMinForceLeftNascarRacing"), 0);
+static int configAlternativeMaxForceLeftNascarRacing = GetSettingInt(TEXT("AlternativeMaxForceLeftNascarRacing"), 100);
+static int configAlternativeMinForceRightNascarRacing = GetSettingInt(TEXT("AlternativeMinForceRightNascarRacing"), 0);
+static int configAlternativeMaxForceRightNascarRacing = GetSettingInt(TEXT("AlternativeMaxForceRightNascarRacing"), 100);
+static int PowerModeNascarRacing = GetSettingInt(TEXT("PowerModeNascarRacing"), 0);
+static int configFeedbackLengthNascarRacing = GetSettingInt(TEXT("FeedbackLengthNascarRacing"), 120);
+static int EnableForceSpringEffectNascarRacing = GetSettingInt(TEXT("EnableForceSpringEffectNascarRacing"), 0);
+static int ForceSpringStrengthNascarRacing = GetSettingInt(TEXT("ForceSpringStrengthNascarRacing"), 0);
+static int EnableDamperNascarRacing = GetSettingInt(TEXT("EnableDamperNascarRacing"), 0);
+static int DamperStrengthNascarRacing = GetSettingInt(TEXT("DamperStrengthNascarRacing"), 100);
 
-static int configMinForceSmashingDrive = GetPrivateProfileInt(TEXT("Settings"), TEXT("MinForceSmashingDrive"), 0, settingsFilename);
-static int configMaxForceSmashingDrive = GetPrivateProfileInt(TEXT("Settings"), TEXT("MaxForceSmashingDrive"), 100, settingsFilename);
-static int configAlternativeMinForceLeftSmashingDrive = GetPrivateProfileInt(TEXT("Settings"), TEXT("AlternativeMinForceLeftSmashingDrive"), 0, settingsFilename);
-static int configAlternativeMaxForceLeftSmashingDrive = GetPrivateProfileInt(TEXT("Settings"), TEXT("AlternativeMaxForceLeftSmashingDrive"), 100, settingsFilename);
-static int configAlternativeMinForceRightSmashingDrive = GetPrivateProfileInt(TEXT("Settings"), TEXT("AlternativeMinForceRightSmashingDrive"), 0, settingsFilename);
-static int configAlternativeMaxForceRightSmashingDrive = GetPrivateProfileInt(TEXT("Settings"), TEXT("AlternativeMaxForceRightSmashingDrive"), 100, settingsFilename);
-static int PowerModeSmashingDrive = GetPrivateProfileInt(TEXT("Settings"), TEXT("PowerModeSmashingDrive"), 0, settingsFilename);
-static int configFeedbackLengthSmashingDrive = GetPrivateProfileInt(TEXT("Settings"), TEXT("FeedbackLengthSmashingDrive"), 120, settingsFilename);
-static int EnableForceSpringEffectSmashingDrive = GetPrivateProfileInt(TEXT("Settings"), TEXT("EnableForceSpringEffectSmashingDrive"), 0, settingsFilename);
-static int ForceSpringStrengthSmashingDrive = GetPrivateProfileInt(TEXT("Settings"), TEXT("ForceSpringStrengthSmashingDrive"), 0, settingsFilename);
-static int EnableDamperSmashingDrive = GetPrivateProfileInt(TEXT("Settings"), TEXT("EnableDamperSmashingDrive"), 0, settingsFilename);
-static int DamperStrengthSmashingDrive = GetPrivateProfileInt(TEXT("Settings"), TEXT("DamperStrengthSmashingDrive"), 100, settingsFilename);
+static int configMinForceSmashingDrive = GetSettingInt(TEXT("MinForceSmashingDrive"), 0);
+static int configMaxForceSmashingDrive = GetSettingInt(TEXT("MaxForceSmashingDrive"), 100);
+static int configAlternativeMinForceLeftSmashingDrive = GetSettingInt(TEXT("AlternativeMinForceLeftSmashingDrive"), 0);
+static int configAlternativeMaxForceLeftSmashingDrive = GetSettingInt(TEXT("AlternativeMaxForceLeftSmashingDrive"), 100);
+static int configAlternativeMinForceRightSmashingDrive = GetSettingInt(TEXT("AlternativeMinForceRightSmashingDrive"), 0);
+static int configAlternativeMaxForceRightSmashingDrive = GetSettingInt(TEXT("AlternativeMaxForceRightSmashingDrive"), 100);
+static int PowerModeSmashingDrive = GetSettingInt(TEXT("PowerModeSmashingDrive"), 0);
+static int configFeedbackLengthSmashingDrive = GetSettingInt(TEXT("FeedbackLengthSmashingDrive"), 120);
+static int EnableForceSpringEffectSmashingDrive = GetSettingInt(TEXT("EnableForceSpringEffectSmashingDrive"), 0);
+static int ForceSpringStrengthSmashingDrive = GetSettingInt(TEXT("ForceSpringStrengthSmashingDrive"), 0);
+static int EnableDamperSmashingDrive = GetSettingInt(TEXT("EnableDamperSmashingDrive"), 0);
+static int DamperStrengthSmashingDrive = GetSettingInt(TEXT("DamperStrengthSmashingDrive"), 100);
 
-static int configMinForceMaximumSpeed = GetPrivateProfileInt(TEXT("Settings"), TEXT("MinForceMaximumSpeed"), 0, settingsFilename);
-static int configMaxForceMaximumSpeed = GetPrivateProfileInt(TEXT("Settings"), TEXT("MaxForceMaximumSpeed"), 100, settingsFilename);
-static int configAlternativeMinForceLeftMaximumSpeed = GetPrivateProfileInt(TEXT("Settings"), TEXT("AlternativeMinForceLeftMaximumSpeed"), 0, settingsFilename);
-static int configAlternativeMaxForceLeftMaximumSpeed = GetPrivateProfileInt(TEXT("Settings"), TEXT("AlternativeMaxForceLeftMaximumSpeed"), 100, settingsFilename);
-static int configAlternativeMinForceRightMaximumSpeed = GetPrivateProfileInt(TEXT("Settings"), TEXT("AlternativeMinForceRightMaximumSpeed"), 0, settingsFilename);
-static int configAlternativeMaxForceRightMaximumSpeed = GetPrivateProfileInt(TEXT("Settings"), TEXT("AlternativeMaxForceRightMaximumSpeed"), 100, settingsFilename);
-static int PowerModeMaximumSpeed = GetPrivateProfileInt(TEXT("Settings"), TEXT("PowerModeMaximumSpeed"), 0, settingsFilename);
-static int configFeedbackLengthMaximumSpeed = GetPrivateProfileInt(TEXT("Settings"), TEXT("FeedbackLengthMaximumSpeed"), 120, settingsFilename);
-static int EnableForceSpringEffectMaximumSpeed = GetPrivateProfileInt(TEXT("Settings"), TEXT("EnableForceSpringEffectMaximumSpeed"), 0, settingsFilename);
-static int ForceSpringStrengthMaximumSpeed = GetPrivateProfileInt(TEXT("Settings"), TEXT("ForceSpringStrengthMaximumSpeed"), 0, settingsFilename);
-static int EnableDamperMaximumSpeed = GetPrivateProfileInt(TEXT("Settings"), TEXT("EnableDamperMaximumSpeed"), 0, settingsFilename);
-static int DamperStrengthMaximumSpeed = GetPrivateProfileInt(TEXT("Settings"), TEXT("DamperStrengthMaximumSpeed"), 100, settingsFilename);
+static int configMinForceMaximumSpeed = GetSettingInt(TEXT("MinForceMaximumSpeed"), 0);
+static int configMaxForceMaximumSpeed = GetSettingInt(TEXT("MaxForceMaximumSpeed"), 100);
+static int configAlternativeMinForceLeftMaximumSpeed = GetSettingInt(TEXT("AlternativeMinForceLeftMaximumSpeed"), 0);
+static int configAlternativeMaxForceLeftMaximumSpeed = GetSettingInt(TEXT("AlternativeMaxForceLeftMaximumSpeed"), 100);
+static int configAlternativeMinForceRightMaximumSpeed = GetSettingInt(TEXT("AlternativeMinForceRightMaximumSpeed"), 0);
+static int configAlternativeMaxForceRightMaximumSpeed = GetSettingInt(TEXT("AlternativeMaxForceRightMaximumSpeed"), 100);
+static int PowerModeMaximumSpeed = GetSettingInt(TEXT("PowerModeMaximumSpeed"), 0);
+static int configFeedbackLengthMaximumSpeed = GetSettingInt(TEXT("FeedbackLengthMaximumSpeed"), 120);
+static int EnableForceSpringEffectMaximumSpeed = GetSettingInt(TEXT("EnableForceSpringEffectMaximumSpeed"), 0);
+static int ForceSpringStrengthMaximumSpeed = GetSettingInt(TEXT("ForceSpringStrengthMaximumSpeed"), 0);
+static int EnableDamperMaximumSpeed = GetSettingInt(TEXT("EnableDamperMaximumSpeed"), 0);
+static int DamperStrengthMaximumSpeed = GetSettingInt(TEXT("DamperStrengthMaximumSpeed"), 100);
 
-static int configMinForceFasterSpeed = GetPrivateProfileInt(TEXT("Settings"), TEXT("MinForceFasterSpeed"), 0, settingsFilename);
-static int configMaxForceFasterSpeed = GetPrivateProfileInt(TEXT("Settings"), TEXT("MaxForceFasterSpeed"), 100, settingsFilename);
-static int configAlternativeMinForceLeftFasterSpeed = GetPrivateProfileInt(TEXT("Settings"), TEXT("AlternativeMinForceLeftFasterSpeed"), 0, settingsFilename);
-static int configAlternativeMaxForceLeftFasterSpeed = GetPrivateProfileInt(TEXT("Settings"), TEXT("AlternativeMaxForceLeftFasterSpeed"), 100, settingsFilename);
-static int configAlternativeMinForceRightFasterSpeed = GetPrivateProfileInt(TEXT("Settings"), TEXT("AlternativeMinForceRightFasterSpeed"), 0, settingsFilename);
-static int configAlternativeMaxForceRightFasterSpeed = GetPrivateProfileInt(TEXT("Settings"), TEXT("AlternativeMaxForceRightFasterSpeed"), 100, settingsFilename);
-static int PowerModeFasterSpeed = GetPrivateProfileInt(TEXT("Settings"), TEXT("PowerModeFasterSpeed"), 0, settingsFilename);
-static int configFeedbackLengthFasterSpeed = GetPrivateProfileInt(TEXT("Settings"), TEXT("FeedbackLengthFasterSpeed"), 120, settingsFilename);
-static int EnableForceSpringEffectFasterSpeed = GetPrivateProfileInt(TEXT("Settings"), TEXT("EnableForceSpringEffectFasterSpeed"), 0, settingsFilename);
-static int ForceSpringStrengthFasterSpeed = GetPrivateProfileInt(TEXT("Settings"), TEXT("ForceSpringStrengthFasterSpeed"), 0, settingsFilename);
-static int EnableDamperFasterSpeed = GetPrivateProfileInt(TEXT("Settings"), TEXT("EnableDamperFasterSpeed"), 0, settingsFilename);
-static int DamperStrengthFasterSpeed = GetPrivateProfileInt(TEXT("Settings"), TEXT("DamperStrengthFasterSpeed"), 100, settingsFilename);
+static int configMinForceFasterSpeed = GetSettingInt(TEXT("MinForceFasterSpeed"), 0);
+static int configMaxForceFasterSpeed = GetSettingInt(TEXT("MaxForceFasterSpeed"), 100);
+static int configAlternativeMinForceLeftFasterSpeed = GetSettingInt(TEXT("AlternativeMinForceLeftFasterSpeed"), 0);
+static int configAlternativeMaxForceLeftFasterSpeed = GetSettingInt(TEXT("AlternativeMaxForceLeftFasterSpeed"), 100);
+static int configAlternativeMinForceRightFasterSpeed = GetSettingInt(TEXT("AlternativeMinForceRightFasterSpeed"), 0);
+static int configAlternativeMaxForceRightFasterSpeed = GetSettingInt(TEXT("AlternativeMaxForceRightFasterSpeed"), 100);
+static int PowerModeFasterSpeed = GetSettingInt(TEXT("PowerModeFasterSpeed"), 0);
+static int configFeedbackLengthFasterSpeed = GetSettingInt(TEXT("FeedbackLengthFasterSpeed"), 120);
+static int EnableForceSpringEffectFasterSpeed = GetSettingInt(TEXT("EnableForceSpringEffectFasterSpeed"), 0);
+static int ForceSpringStrengthFasterSpeed = GetSettingInt(TEXT("ForceSpringStrengthFasterSpeed"), 0);
+static int EnableDamperFasterSpeed = GetSettingInt(TEXT("EnableDamperFasterSpeed"), 0);
+static int DamperStrengthFasterSpeed = GetSettingInt(TEXT("DamperStrengthFasterSpeed"), 100);
 
-static int configMinForceATVTrack = GetPrivateProfileInt(TEXT("Settings"), TEXT("MinForceATVTrack"), 0, settingsFilename);
-static int configMaxForceATVTrack = GetPrivateProfileInt(TEXT("Settings"), TEXT("MaxForceATVTrack"), 100, settingsFilename);
-static int configAlternativeMinForceLeftATVTrack = GetPrivateProfileInt(TEXT("Settings"), TEXT("AlternativeMinForceLeftATVTrack"), 0, settingsFilename);
-static int configAlternativeMaxForceLeftATVTrack = GetPrivateProfileInt(TEXT("Settings"), TEXT("AlternativeMaxForceLeftATVTrack"), 100, settingsFilename);
-static int configAlternativeMinForceRightATVTrack = GetPrivateProfileInt(TEXT("Settings"), TEXT("AlternativeMinForceRightATVTrack"), 0, settingsFilename);
-static int configAlternativeMaxForceRightATVTrack = GetPrivateProfileInt(TEXT("Settings"), TEXT("AlternativeMaxForceRightATVTrack"), 100, settingsFilename);
-static int PowerModeATVTrack = GetPrivateProfileInt(TEXT("Settings"), TEXT("PowerModeATVTrack"), 0, settingsFilename);
-static int configFeedbackLengthATVTrack = GetPrivateProfileInt(TEXT("Settings"), TEXT("FeedbackLengthATVTrack"), 120, settingsFilename);
-static int EnableForceSpringEffectATVTrack = GetPrivateProfileInt(TEXT("Settings"), TEXT("EnableForceSpringEffectATVTrack"), 0, settingsFilename);
-static int ForceSpringStrengthATVTrack = GetPrivateProfileInt(TEXT("Settings"), TEXT("ForceSpringStrengthATVTrack"), 0, settingsFilename);
-static int EnableDamperATVTrack = GetPrivateProfileInt(TEXT("Settings"), TEXT("EnableDamperATVTrack"), 0, settingsFilename);
-static int DamperStrengthATVTrack = GetPrivateProfileInt(TEXT("Settings"), TEXT("DamperStrengthATVTrack"), 100, settingsFilename);
+static int configMinForceATVTrack = GetSettingInt(TEXT("MinForceATVTrack"), 0);
+static int configMaxForceATVTrack = GetSettingInt(TEXT("MaxForceATVTrack"), 100);
+static int configAlternativeMinForceLeftATVTrack = GetSettingInt(TEXT("AlternativeMinForceLeftATVTrack"), 0);
+static int configAlternativeMaxForceLeftATVTrack = GetSettingInt(TEXT("AlternativeMaxForceLeftATVTrack"), 100);
+static int configAlternativeMinForceRightATVTrack = GetSettingInt(TEXT("AlternativeMinForceRightATVTrack"), 0);
+static int configAlternativeMaxForceRightATVTrack = GetSettingInt(TEXT("AlternativeMaxForceRightATVTrack"), 100);
+static int PowerModeATVTrack = GetSettingInt(TEXT("PowerModeATVTrack"), 0);
+static int configFeedbackLengthATVTrack = GetSettingInt(TEXT("FeedbackLengthATVTrack"), 120);
+static int EnableForceSpringEffectATVTrack = GetSettingInt(TEXT("EnableForceSpringEffectATVTrack"), 0);
+static int ForceSpringStrengthATVTrack = GetSettingInt(TEXT("ForceSpringStrengthATVTrack"), 0);
+static int EnableDamperATVTrack = GetSettingInt(TEXT("EnableDamperATVTrack"), 0);
+static int DamperStrengthATVTrack = GetSettingInt(TEXT("DamperStrengthATVTrack"), 100);
 
 static bool NascarRunning = false;
 static bool InitialDRunning = false;
@@ -325,43 +311,9 @@ static int InitialDFFBLoop()
 
 	BYTE* ffb = reinterpret_cast<BYTE*>(&FFB);
 
-	UINT32 length_ms = 100;
 	if (KickStartWait)
 	{
-		if (ffb[0] == 0x80 && ffb[2] == 0x01)
-		{
-			myTriggers->Spring(1.0);
-		}
-
-		if (ffb[0] == 0x85 && ffb[1] > 0x00 && ffb[2] > 0x00)
-		{
-			double percentForce = ffb[2] / 127.0;
-			double Period = ffb[1] / 127.0 * 120.0;
-			myTriggers->Rumble(percentForce, percentForce, length_ms);
-			myTriggers->Sine(static_cast<int>(Period), 0, percentForce, length_ms);
-		}
-
-		if (ffb[0] == 0x86 && ffb[2] > 0x00)
-		{
-			double percentForce = ffb[2] / 127.0;
-			myTriggers->Spring(percentForce);
-		}
-
-		if (ffb[0] == 0x84 && ffb[2] > 0x00)
-		{
-			if (ffb[1] == 0x00)
-			{
-				double percentForce = (128 - ffb[2]) / 127.0;
-				myTriggers->Rumble(percentForce, 0, length_ms);
-				myTriggers->Constant(myConstants->DIRECTION_FROM_LEFT, percentForce);
-			}
-			else if (ffb[1] == 0x01)
-			{
-				double percentForce = (ffb[2] / 127.0);
-				myTriggers->Rumble(0, percentForce, length_ms);
-				myTriggers->Constant(myConstants->DIRECTION_FROM_RIGHT, percentForce);
-			}
-		}
+		PlayInitialDFFB(ffb[0], ffb[1], ffb[2], InitialDFFBDefaultSettings, myConstants, myTriggers);
 	}
 	return 0;
 }

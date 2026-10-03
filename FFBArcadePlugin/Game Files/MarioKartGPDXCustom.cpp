@@ -14,9 +14,6 @@ along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
 #include <string>
 #include "MarioKartGPDXCustom.h"
 
-extern int EnableDamper;
-extern int DamperStrength;
-
 void MarioKartGPDX100Custom::FFBLoop(EffectConstants *constants, Helpers *helpers, EffectTriggers* triggers) {
 	helpers->log("in MKDX Ffbloop");
 	
@@ -35,10 +32,7 @@ void MarioKartGPDX100Custom::FFBLoop(EffectConstants *constants, Helpers *helper
 	std::string ffs = std::to_string(ff1);
 	helpers->log((char *)ffs.c_str()); helpers->log("got value: ");
 
-	if (EnableDamper == 1)
-	{
-		triggers->Damper(DamperStrength / 100.0);
-	}
+	ApplyDamper(triggers);
 
 	UINT32 length_ms = 100;
 	// Large Shake when hitting walls, other karts or getting hit by items

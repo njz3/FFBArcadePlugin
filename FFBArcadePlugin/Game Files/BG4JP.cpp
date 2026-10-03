@@ -14,21 +14,16 @@ along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
 #include <string>
 #include "BG4JP.h"
 
-extern int EnableDamper;
-extern int DamperStrength;
-static bool GearShift;
-static bool WeAreRacing;
 static UINT8 oldgear;
 static UINT8 newgear;
 
-static wchar_t* settingsFilename = TEXT(".\\FFBPlugin.ini");
-static int SpringStrength = GetPrivateProfileInt(TEXT("Settings"), TEXT("SpringStrength"), 100, settingsFilename);
-static int GearChangeStrength = GetPrivateProfileInt(TEXT("Settings"), TEXT("GearChangeStrength"), 100, settingsFilename);
-static int GearChangeSinePeriod = GetPrivateProfileInt(TEXT("Settings"), TEXT("GearSinePeriod"), 100, settingsFilename);
-static int EnableBoostEffect = GetPrivateProfileInt(TEXT("Settings"), TEXT("EnableBoostEffect"), 0, settingsFilename);
-static int EnableGearShiftEffect = GetPrivateProfileInt(TEXT("Settings"), TEXT("EnableGearShiftEffect"), 0, settingsFilename);
-static int BoostSinePeriod = GetPrivateProfileInt(TEXT("Settings"), TEXT("BoostSinePeriod"), 0, settingsFilename);
-static int BoostFadeSinePeriod = GetPrivateProfileInt(TEXT("Settings"), TEXT("BoostFadeSinePeriod"), 0, settingsFilename);
+static int SpringStrength = GetSettingInt(TEXT("SpringStrength"), 100);
+static int GearChangeStrength = GetSettingInt(TEXT("GearChangeStrength"), 100);
+static int GearChangeSinePeriod = GetSettingInt(TEXT("GearSinePeriod"), 100);
+static int EnableBoostEffect = GetSettingInt(TEXT("EnableBoostEffect"), 0);
+static int EnableGearShiftEffect = GetSettingInt(TEXT("EnableGearShiftEffect"), 0);
+static int BoostSinePeriod = GetSettingInt(TEXT("BoostSinePeriod"), 0);
+static int BoostFadeSinePeriod = GetSettingInt(TEXT("BoostFadeSinePeriod"), 0);
 
 void BG4JP::FFBLoop(EffectConstants *constants, Helpers *helpers, EffectTriggers* triggers) {
 
@@ -45,8 +40,7 @@ void BG4JP::FFBLoop(EffectConstants *constants, Helpers *helpers, EffectTriggers
 	std::string ffs = std::to_string(WallContact);
 	helpers->log((char *)ffs.c_str());
 
-	if (EnableDamper)
-		triggers->Damper(DamperStrength / 100.0);
+	ApplyDamper(triggers);
 
 	double percentForce = ffspeed / 180.00;
 	UINT32 length_ms = 100;

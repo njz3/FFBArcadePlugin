@@ -12,9 +12,10 @@ along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
 */
 
 #pragma once
-#include "../Common Files/Game.h"
-class WMMT6RR : public Game {
+#include "WMMT.h"
 
+class WMMT6RR : public WMMT {
 public:
+	WMMT6RR();
 	void FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTriggers* triggers);
 };

@@ -13,8 +13,6 @@ along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
 
 #include <string>
 #include "H2Overdrive.h"
-extern int EnableDamper;
-extern int DamperStrength;
 
 void H2Overdrive::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTriggers* triggers) {
 
@@ -26,10 +24,7 @@ void H2Overdrive::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTr
 	helpers->log((char*)ffs.c_str());
 
 	UINT32 length_ms = 100;
-	if (EnableDamper == 1)
-	{
-		triggers->Damper(DamperStrength / 100.0);
-	}
+	ApplyDamper(triggers);
 
 	if (ffstiffness > 0)
 	{

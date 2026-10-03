@@ -18,13 +18,10 @@ static EffectTriggers* myTriggers;
 static EffectConstants* myConstants;
 static Helpers* myHelpers;
 static bool gearshift = false;
-extern int EnableDamper;
-extern int DamperStrength;
 
-static wchar_t* settingsFilename = TEXT(".\\FFBPlugin.ini");
-static int SpringStrength = GetPrivateProfileInt(TEXT("Settings"), TEXT("SpringStrength"), 0, settingsFilename);
-static int GearChangeStrength = GetPrivateProfileInt(TEXT("Settings"), TEXT("GearChangeStrength"), 20, settingsFilename);
-static int GearChangeLength = GetPrivateProfileInt(TEXT("Settings"), TEXT("GearChangeLength"), 200, settingsFilename);
+static int SpringStrength = GetSettingInt(TEXT("SpringStrength"), 0);
+static int GearChangeStrength = GetSettingInt(TEXT("GearChangeStrength"), 20);
+static int GearChangeLength = GetSettingInt(TEXT("GearChangeLength"), 200);
 
 void GRIDCustom::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTriggers* triggers) {
 
@@ -53,10 +50,7 @@ void GRIDCustom::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTri
 
 	triggers->Springi(SpringStrength / 100.0);
 
-	if (EnableDamper == 1)
-	{
-		triggers->Damper(DamperStrength / 100.0);
-	}
+	ApplyDamper(triggers);
 
 	if ((oldgear != newgear) && (speedo > 0))
 	{

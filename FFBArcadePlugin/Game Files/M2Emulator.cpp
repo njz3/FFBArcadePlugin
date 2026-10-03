@@ -44,15 +44,10 @@ std::string SegaTouringCarChampionshipRevA("Sega Touring Car Championship (Rev A
 std::string SegaTouringCarChampionshipRevB("Sega Touring Car Championship (Rev B)");
 
 //Config Settings
-extern wchar_t* settingsFilename;
-extern int DeviceGUID;
 extern int configFeedbackLength;
-extern int configGameId;
 extern int configMinForce;
 extern int configMaxForce;
 extern int PowerMode;
-extern int EnableRumble;
-extern int ReverseRumble;
 extern int configFeedbackLength;
 extern int configAlternativeMinForceLeft;
 extern int configAlternativeMaxForceLeft;
@@ -67,88 +62,88 @@ static INT_PTR hookAddressM2B;
 static INT_PTR hookAddressM2C;
 static UINT8 OldFFB;
 
-static int InputDeviceWheelEnable = GetPrivateProfileInt(TEXT("Settings"), TEXT("InputDeviceWheelEnable"), 0, settingsFilename);
-static int DaytonaAIMultiplayerHack = GetPrivateProfileInt(TEXT("Settings"), TEXT("DaytonaAIMultiplayerHack"), 0, settingsFilename);
-static int DaytonaForcePanoramicAttract = GetPrivateProfileInt(TEXT("Settings"), TEXT("DaytonaForcePanoramicAttract"), 0, settingsFilename);
-static int EnableOutputs = GetPrivateProfileInt(TEXT("Settings"), TEXT("EnableOutputs"), 0, settingsFilename);
+static int InputDeviceWheelEnable = GetSettingInt(TEXT("InputDeviceWheelEnable"), 0);
+static int DaytonaAIMultiplayerHack = GetSettingInt(TEXT("DaytonaAIMultiplayerHack"), 0);
+static int DaytonaForcePanoramicAttract = GetSettingInt(TEXT("DaytonaForcePanoramicAttract"), 0);
+static int EnableOutputs = GetSettingInt(TEXT("EnableOutputs"), 0);
 
-static int configMinForceDaytona = GetPrivateProfileInt(TEXT("Settings"), TEXT("MinForceDaytona"), 0, settingsFilename);
-static int configMaxForceDaytona = GetPrivateProfileInt(TEXT("Settings"), TEXT("MaxForceDaytona"), 100, settingsFilename);
-static int configAlternativeMinForceLeftDaytona = GetPrivateProfileInt(TEXT("Settings"), TEXT("AlternativeMinForceLeftDaytona"), 0, settingsFilename);
-static int configAlternativeMaxForceLeftDaytona = GetPrivateProfileInt(TEXT("Settings"), TEXT("AlternativeMaxForceLeftDaytona"), 100, settingsFilename);
-static int configAlternativeMinForceRightDaytona = GetPrivateProfileInt(TEXT("Settings"), TEXT("AlternativeMinForceRightDaytona"), 0, settingsFilename);
-static int configAlternativeMaxForceRightDaytona = GetPrivateProfileInt(TEXT("Settings"), TEXT("AlternativeMaxForceRightDaytona"), 100, settingsFilename);
-static int configFeedbackLengthDaytona = GetPrivateProfileInt(TEXT("Settings"), TEXT("FeedbackLengthDaytona"), 120, settingsFilename);
-static int PowerModeDaytona = GetPrivateProfileInt(TEXT("Settings"), TEXT("PowerModeDaytona"), 0, settingsFilename);
-static int EnableForceSpringEffectDaytona = GetPrivateProfileInt(TEXT("Settings"), TEXT("EnableForceSpringEffectDaytona"), 0, settingsFilename);
-static int ForceSpringStrengthDaytona = GetPrivateProfileInt(TEXT("Settings"), TEXT("ForceSpringStrengthDaytona"), 0, settingsFilename);
-static int EnableDamperDaytona = GetPrivateProfileInt(TEXT("Settings"), TEXT("EnableDamperDaytona"), 0, settingsFilename);
-static int DamperStrengthDaytona = GetPrivateProfileInt(TEXT("Settings"), TEXT("DamperStrengthDaytona"), 100, settingsFilename);
+static int configMinForceDaytona = GetSettingInt(TEXT("MinForceDaytona"), 0);
+static int configMaxForceDaytona = GetSettingInt(TEXT("MaxForceDaytona"), 100);
+static int configAlternativeMinForceLeftDaytona = GetSettingInt(TEXT("AlternativeMinForceLeftDaytona"), 0);
+static int configAlternativeMaxForceLeftDaytona = GetSettingInt(TEXT("AlternativeMaxForceLeftDaytona"), 100);
+static int configAlternativeMinForceRightDaytona = GetSettingInt(TEXT("AlternativeMinForceRightDaytona"), 0);
+static int configAlternativeMaxForceRightDaytona = GetSettingInt(TEXT("AlternativeMaxForceRightDaytona"), 100);
+static int configFeedbackLengthDaytona = GetSettingInt(TEXT("FeedbackLengthDaytona"), 120);
+static int PowerModeDaytona = GetSettingInt(TEXT("PowerModeDaytona"), 0);
+static int EnableForceSpringEffectDaytona = GetSettingInt(TEXT("EnableForceSpringEffectDaytona"), 0);
+static int ForceSpringStrengthDaytona = GetSettingInt(TEXT("ForceSpringStrengthDaytona"), 0);
+static int EnableDamperDaytona = GetSettingInt(TEXT("EnableDamperDaytona"), 0);
+static int DamperStrengthDaytona = GetSettingInt(TEXT("DamperStrengthDaytona"), 100);
 
-static int configMinForceSRally = GetPrivateProfileInt(TEXT("Settings"), TEXT("MinForceSRally"), 0, settingsFilename);
-static int configMaxForceSRally = GetPrivateProfileInt(TEXT("Settings"), TEXT("MaxForceSRally"), 100, settingsFilename);
-static int configAlternativeMinForceLeftSRally = GetPrivateProfileInt(TEXT("Settings"), TEXT("AlternativeMinForceLeftSRally"), 0, settingsFilename);
-static int configAlternativeMaxForceLeftSRally = GetPrivateProfileInt(TEXT("Settings"), TEXT("AlternativeMaxForceLeftSRally"), 100, settingsFilename);
-static int configAlternativeMinForceRightSRally = GetPrivateProfileInt(TEXT("Settings"), TEXT("AlternativeMinForceRightSRally"), 0, settingsFilename);
-static int configAlternativeMaxForceRightSRally = GetPrivateProfileInt(TEXT("Settings"), TEXT("AlternativeMaxForceRightSRally"), 100, settingsFilename);
-static int configFeedbackLengthSRally = GetPrivateProfileInt(TEXT("Settings"), TEXT("FeedbackLengthSRally"), 120, settingsFilename);
-static int PowerModeSRally = GetPrivateProfileInt(TEXT("Settings"), TEXT("PowerModeSRally"), 0, settingsFilename);
-static int EnableForceSpringEffectSRally = GetPrivateProfileInt(TEXT("Settings"), TEXT("EnableForceSpringEffectSRally"), 0, settingsFilename);
-static int ForceSpringStrengthSRally = GetPrivateProfileInt(TEXT("Settings"), TEXT("ForceSpringStrengthSRally"), 0, settingsFilename);
-static int EnableDamperSRally = GetPrivateProfileInt(TEXT("Settings"), TEXT("EnableDamperSRally"), 0, settingsFilename);
-static int DamperStrengthSRally = GetPrivateProfileInt(TEXT("Settings"), TEXT("DamperStrengthSRally"), 100, settingsFilename);
+static int configMinForceSRally = GetSettingInt(TEXT("MinForceSRally"), 0);
+static int configMaxForceSRally = GetSettingInt(TEXT("MaxForceSRally"), 100);
+static int configAlternativeMinForceLeftSRally = GetSettingInt(TEXT("AlternativeMinForceLeftSRally"), 0);
+static int configAlternativeMaxForceLeftSRally = GetSettingInt(TEXT("AlternativeMaxForceLeftSRally"), 100);
+static int configAlternativeMinForceRightSRally = GetSettingInt(TEXT("AlternativeMinForceRightSRally"), 0);
+static int configAlternativeMaxForceRightSRally = GetSettingInt(TEXT("AlternativeMaxForceRightSRally"), 100);
+static int configFeedbackLengthSRally = GetSettingInt(TEXT("FeedbackLengthSRally"), 120);
+static int PowerModeSRally = GetSettingInt(TEXT("PowerModeSRally"), 0);
+static int EnableForceSpringEffectSRally = GetSettingInt(TEXT("EnableForceSpringEffectSRally"), 0);
+static int ForceSpringStrengthSRally = GetSettingInt(TEXT("ForceSpringStrengthSRally"), 0);
+static int EnableDamperSRally = GetSettingInt(TEXT("EnableDamperSRally"), 0);
+static int DamperStrengthSRally = GetSettingInt(TEXT("DamperStrengthSRally"), 100);
 
-static int configMinForceIndy500 = GetPrivateProfileInt(TEXT("Settings"), TEXT("MinForceIndy500"), 0, settingsFilename);
-static int configMaxForceIndy500 = GetPrivateProfileInt(TEXT("Settings"), TEXT("MaxForceIndy500"), 100, settingsFilename);
-static int configAlternativeMinForceLeftIndy500 = GetPrivateProfileInt(TEXT("Settings"), TEXT("AlternativeMinForceLeftIndy500"), 0, settingsFilename);
-static int configAlternativeMaxForceLeftIndy500 = GetPrivateProfileInt(TEXT("Settings"), TEXT("AlternativeMaxForceLeftIndy500"), 100, settingsFilename);
-static int configAlternativeMinForceRightIndy500 = GetPrivateProfileInt(TEXT("Settings"), TEXT("AlternativeMinForceRightIndy500"), 0, settingsFilename);
-static int configAlternativeMaxForceRightIndy500 = GetPrivateProfileInt(TEXT("Settings"), TEXT("AlternativeMaxForceRightIndy500"), 100, settingsFilename);
-static int configFeedbackLengthIndy500 = GetPrivateProfileInt(TEXT("Settings"), TEXT("FeedbackLengthIndy500"), 120, settingsFilename);
-static int PowerModeIndy500 = GetPrivateProfileInt(TEXT("Settings"), TEXT("PowerModeIndy500"), 0, settingsFilename);
-static int EnableForceSpringEffectIndy500 = GetPrivateProfileInt(TEXT("Settings"), TEXT("EnableForceSpringEffectIndy500"), 0, settingsFilename);
-static int ForceSpringStrengthIndy500 = GetPrivateProfileInt(TEXT("Settings"), TEXT("ForceSpringStrengthIndy500"), 0, settingsFilename);
-static int EnableDamperIndy500 = GetPrivateProfileInt(TEXT("Settings"), TEXT("EnableDamperIndy500"), 0, settingsFilename);
-static int DamperStrengthIndy500 = GetPrivateProfileInt(TEXT("Settings"), TEXT("DamperStrengthIndy500"), 100, settingsFilename);
+static int configMinForceIndy500 = GetSettingInt(TEXT("MinForceIndy500"), 0);
+static int configMaxForceIndy500 = GetSettingInt(TEXT("MaxForceIndy500"), 100);
+static int configAlternativeMinForceLeftIndy500 = GetSettingInt(TEXT("AlternativeMinForceLeftIndy500"), 0);
+static int configAlternativeMaxForceLeftIndy500 = GetSettingInt(TEXT("AlternativeMaxForceLeftIndy500"), 100);
+static int configAlternativeMinForceRightIndy500 = GetSettingInt(TEXT("AlternativeMinForceRightIndy500"), 0);
+static int configAlternativeMaxForceRightIndy500 = GetSettingInt(TEXT("AlternativeMaxForceRightIndy500"), 100);
+static int configFeedbackLengthIndy500 = GetSettingInt(TEXT("FeedbackLengthIndy500"), 120);
+static int PowerModeIndy500 = GetSettingInt(TEXT("PowerModeIndy500"), 0);
+static int EnableForceSpringEffectIndy500 = GetSettingInt(TEXT("EnableForceSpringEffectIndy500"), 0);
+static int ForceSpringStrengthIndy500 = GetSettingInt(TEXT("ForceSpringStrengthIndy500"), 0);
+static int EnableDamperIndy500 = GetSettingInt(TEXT("EnableDamperIndy500"), 0);
+static int DamperStrengthIndy500 = GetSettingInt(TEXT("DamperStrengthIndy500"), 100);
 
-static int configMinForceSTCC = GetPrivateProfileInt(TEXT("Settings"), TEXT("MinForceSTCC"), 0, settingsFilename);
-static int configMaxForceSTCC = GetPrivateProfileInt(TEXT("Settings"), TEXT("MaxForceSTCC"), 100, settingsFilename);
-static int configAlternativeMinForceLeftSTCC = GetPrivateProfileInt(TEXT("Settings"), TEXT("AlternativeMinForceLeftSTCC"), 0, settingsFilename);
-static int configAlternativeMaxForceLeftSTCC = GetPrivateProfileInt(TEXT("Settings"), TEXT("AlternativeMaxForceLeftSTCC"), 100, settingsFilename);
-static int configAlternativeMinForceRightSTCC = GetPrivateProfileInt(TEXT("Settings"), TEXT("AlternativeMinForceRightSTCC"), 0, settingsFilename);
-static int configAlternativeMaxForceRightSTCC = GetPrivateProfileInt(TEXT("Settings"), TEXT("AlternativeMaxForceRightSTCC"), 100, settingsFilename);
-static int configFeedbackLengthSTCC = GetPrivateProfileInt(TEXT("Settings"), TEXT("FeedbackLengthSTCC"), 120, settingsFilename);
-static int PowerModeSTCC = GetPrivateProfileInt(TEXT("Settings"), TEXT("PowerModeSTCC"), 0, settingsFilename);
-static int EnableForceSpringEffectSTCC = GetPrivateProfileInt(TEXT("Settings"), TEXT("EnableForceSpringEffectSTCC"), 0, settingsFilename);
-static int ForceSpringStrengthSTCC = GetPrivateProfileInt(TEXT("Settings"), TEXT("ForceSpringStrengthSTCC"), 0, settingsFilename);
-static int EnableDamperSTCC = GetPrivateProfileInt(TEXT("Settings"), TEXT("EnableDamperSTCC"), 0, settingsFilename);
-static int DamperStrengthSTCC = GetPrivateProfileInt(TEXT("Settings"), TEXT("DamperStrengthSTCC"), 100, settingsFilename);
+static int configMinForceSTCC = GetSettingInt(TEXT("MinForceSTCC"), 0);
+static int configMaxForceSTCC = GetSettingInt(TEXT("MaxForceSTCC"), 100);
+static int configAlternativeMinForceLeftSTCC = GetSettingInt(TEXT("AlternativeMinForceLeftSTCC"), 0);
+static int configAlternativeMaxForceLeftSTCC = GetSettingInt(TEXT("AlternativeMaxForceLeftSTCC"), 100);
+static int configAlternativeMinForceRightSTCC = GetSettingInt(TEXT("AlternativeMinForceRightSTCC"), 0);
+static int configAlternativeMaxForceRightSTCC = GetSettingInt(TEXT("AlternativeMaxForceRightSTCC"), 100);
+static int configFeedbackLengthSTCC = GetSettingInt(TEXT("FeedbackLengthSTCC"), 120);
+static int PowerModeSTCC = GetSettingInt(TEXT("PowerModeSTCC"), 0);
+static int EnableForceSpringEffectSTCC = GetSettingInt(TEXT("EnableForceSpringEffectSTCC"), 0);
+static int ForceSpringStrengthSTCC = GetSettingInt(TEXT("ForceSpringStrengthSTCC"), 0);
+static int EnableDamperSTCC = GetSettingInt(TEXT("EnableDamperSTCC"), 0);
+static int DamperStrengthSTCC = GetSettingInt(TEXT("DamperStrengthSTCC"), 100);
 
-static int configMinForceOverRev = GetPrivateProfileInt(TEXT("Settings"), TEXT("MinForceOverRev"), 0, settingsFilename);
-static int configMaxForceOverRev = GetPrivateProfileInt(TEXT("Settings"), TEXT("MaxForceOverRev"), 100, settingsFilename);
-static int configAlternativeMinForceLeftOverRev = GetPrivateProfileInt(TEXT("Settings"), TEXT("AlternativeMinForceLeftOverRev"), 0, settingsFilename);
-static int configAlternativeMaxForceLeftOverRev = GetPrivateProfileInt(TEXT("Settings"), TEXT("AlternativeMaxForceLeftOverRev"), 100, settingsFilename);
-static int configAlternativeMinForceRightOverRev = GetPrivateProfileInt(TEXT("Settings"), TEXT("AlternativeMinForceRightOverRev"), 0, settingsFilename);
-static int configAlternativeMaxForceRightOverRev = GetPrivateProfileInt(TEXT("Settings"), TEXT("AlternativeMaxForceRightOverRev"), 100, settingsFilename);
-static int configFeedbackLengthOverRev = GetPrivateProfileInt(TEXT("Settings"), TEXT("FeedbackLengthOverRev"), 120, settingsFilename);
-static int PowerModeOverRev = GetPrivateProfileInt(TEXT("Settings"), TEXT("PowerModeOverRev"), 0, settingsFilename);
-static int EnableForceSpringEffectOverRev = GetPrivateProfileInt(TEXT("Settings"), TEXT("EnableForceSpringEffectOverRev"), 0, settingsFilename);
-static int ForceSpringStrengthOverRev = GetPrivateProfileInt(TEXT("Settings"), TEXT("ForceSpringStrengthOverRev"), 0, settingsFilename);
-static int EnableDamperOverRev = GetPrivateProfileInt(TEXT("Settings"), TEXT("EnableDamperOverRev"), 0, settingsFilename);
-static int DamperStrengthOverRev = GetPrivateProfileInt(TEXT("Settings"), TEXT("DamperStrengthOverRev"), 100, settingsFilename);
+static int configMinForceOverRev = GetSettingInt(TEXT("MinForceOverRev"), 0);
+static int configMaxForceOverRev = GetSettingInt(TEXT("MaxForceOverRev"), 100);
+static int configAlternativeMinForceLeftOverRev = GetSettingInt(TEXT("AlternativeMinForceLeftOverRev"), 0);
+static int configAlternativeMaxForceLeftOverRev = GetSettingInt(TEXT("AlternativeMaxForceLeftOverRev"), 100);
+static int configAlternativeMinForceRightOverRev = GetSettingInt(TEXT("AlternativeMinForceRightOverRev"), 0);
+static int configAlternativeMaxForceRightOverRev = GetSettingInt(TEXT("AlternativeMaxForceRightOverRev"), 100);
+static int configFeedbackLengthOverRev = GetSettingInt(TEXT("FeedbackLengthOverRev"), 120);
+static int PowerModeOverRev = GetSettingInt(TEXT("PowerModeOverRev"), 0);
+static int EnableForceSpringEffectOverRev = GetSettingInt(TEXT("EnableForceSpringEffectOverRev"), 0);
+static int ForceSpringStrengthOverRev = GetSettingInt(TEXT("ForceSpringStrengthOverRev"), 0);
+static int EnableDamperOverRev = GetSettingInt(TEXT("EnableDamperOverRev"), 0);
+static int DamperStrengthOverRev = GetSettingInt(TEXT("DamperStrengthOverRev"), 100);
 
-static int configMinForceSuperGT = GetPrivateProfileInt(TEXT("Settings"), TEXT("MinForceSuperGT"), 0, settingsFilename);
-static int configMaxForceSuperGT = GetPrivateProfileInt(TEXT("Settings"), TEXT("MaxForceSuperGT"), 100, settingsFilename);
-static int configAlternativeMinForceLeftSuperGT = GetPrivateProfileInt(TEXT("Settings"), TEXT("AlternativeMinForceLeftSuperGT"), 0, settingsFilename);
-static int configAlternativeMaxForceLeftSuperGT = GetPrivateProfileInt(TEXT("Settings"), TEXT("AlternativeMaxForceLeftSuperGT"), 100, settingsFilename);
-static int configAlternativeMinForceRightSuperGT = GetPrivateProfileInt(TEXT("Settings"), TEXT("AlternativeMinForceRightSuperGT"), 0, settingsFilename);
-static int configAlternativeMaxForceRightSuperGT = GetPrivateProfileInt(TEXT("Settings"), TEXT("AlternativeMaxForceRightSuperGT"), 100, settingsFilename);
-static int configFeedbackLengthSuperGT = GetPrivateProfileInt(TEXT("Settings"), TEXT("FeedbackLengthSuperGT"), 120, settingsFilename);
-static int PowerModeSuperGT = GetPrivateProfileInt(TEXT("Settings"), TEXT("PowerModeSuperGT"), 0, settingsFilename);
-static int EnableForceSpringEffectSuperGT = GetPrivateProfileInt(TEXT("Settings"), TEXT("EnableForceSpringEffectSuperGT"), 0, settingsFilename);
-static int ForceSpringStrengthSuperGT = GetPrivateProfileInt(TEXT("Settings"), TEXT("ForceSpringStrengthSuperGT"), 0, settingsFilename);
-static int EnableDamperSuperGT = GetPrivateProfileInt(TEXT("Settings"), TEXT("EnableDamperSuperGT"), 0, settingsFilename);
-static int DamperStrengthSuperGT = GetPrivateProfileInt(TEXT("Settings"), TEXT("DamperStrengthSuperGT"), 100, settingsFilename);
+static int configMinForceSuperGT = GetSettingInt(TEXT("MinForceSuperGT"), 0);
+static int configMaxForceSuperGT = GetSettingInt(TEXT("MaxForceSuperGT"), 100);
+static int configAlternativeMinForceLeftSuperGT = GetSettingInt(TEXT("AlternativeMinForceLeftSuperGT"), 0);
+static int configAlternativeMaxForceLeftSuperGT = GetSettingInt(TEXT("AlternativeMaxForceLeftSuperGT"), 100);
+static int configAlternativeMinForceRightSuperGT = GetSettingInt(TEXT("AlternativeMinForceRightSuperGT"), 0);
+static int configAlternativeMaxForceRightSuperGT = GetSettingInt(TEXT("AlternativeMaxForceRightSuperGT"), 100);
+static int configFeedbackLengthSuperGT = GetSettingInt(TEXT("FeedbackLengthSuperGT"), 120);
+static int PowerModeSuperGT = GetSettingInt(TEXT("PowerModeSuperGT"), 0);
+static int EnableForceSpringEffectSuperGT = GetSettingInt(TEXT("EnableForceSpringEffectSuperGT"), 0);
+static int ForceSpringStrengthSuperGT = GetSettingInt(TEXT("ForceSpringStrengthSuperGT"), 0);
+static int EnableDamperSuperGT = GetSettingInt(TEXT("EnableDamperSuperGT"), 0);
+static int DamperStrengthSuperGT = GetSettingInt(TEXT("DamperStrengthSuperGT"), 100);
 
 static HWND hWnd1;
 static HWND hWnd2;
@@ -406,10 +401,7 @@ void M2Emulator::FFBLoop(EffectConstants * constants, Helpers * helpers, EffectT
 		triggers->Springi(ForceSpringStrength / 100.0);
 	}
 
-	if (EnableDamper == 1)
-	{
-		triggers->Damper(DamperStrength / 100.0);
-	}
+	ApplyDamper(triggers);
 
 	if (!outputinit)
 	{

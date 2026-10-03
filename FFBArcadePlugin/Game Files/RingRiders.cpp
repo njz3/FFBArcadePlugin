@@ -11,56 +11,9 @@ You should have received a copy of the GNU General Public License
 along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
 */
 
-#include <string>
 #include "RingRiders.h"
-static EffectTriggers* myTriggers;
-static EffectConstants* myConstants;
-static Helpers* myHelpers;
-extern int EnableDamper;
-extern int DamperStrength;
-static bool init;
 
-static int(__stdcall* SetMotorOri)(DWORD* a1, float a2);
-static int __stdcall SetMotorHook(DWORD* a1, float a2)
+void RingRiders::HookSetMotor()
 {
-	UINT32 length_ms = 100;
-	if (a2 > 0)
-	{
-		double percentForce = a2;
-
-		if (percentForce > 1.0)
-			percentForce = 1.0;
-
-		myTriggers->Rumble(percentForce, 0, length_ms);
-		myTriggers->Constant(myConstants->DIRECTION_FROM_LEFT, percentForce);
-	}
-	else if (a2 < 0)
-	{
-		double percentForce = -a2;
-
-		if (percentForce > 1.0)
-			percentForce = 1.0;
-
-		myTriggers->Rumble(0, percentForce, length_ms);
-		myTriggers->Constant(myConstants->DIRECTION_FROM_RIGHT, percentForce);
-	}
-	return SetMotorOri(a1, a2);
-}
-
-void RingRiders::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTriggers* triggers) {
-
-	if (!init)
-	{
-		init = true;
-		MH_Initialize();
-		MH_CreateHook((void*)0x8107568, SetMotorHook, (void**)&SetMotorOri);
-		MH_EnableHook(MH_ALL_HOOKS);
-	}
-
-	if (EnableDamper)
-		triggers->Damper(DamperStrength / 100.0);
-
-	myTriggers = triggers;
-	myConstants = constants;
-	myHelpers = helpers;
+	HookFloatSetMotor(0x8107568);
 }

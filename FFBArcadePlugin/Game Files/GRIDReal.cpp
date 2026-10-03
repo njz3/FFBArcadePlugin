@@ -20,8 +20,6 @@ static EffectTriggers* myTriggers;
 static EffectConstants* myConstants;
 static Helpers* myHelpers;
 
-extern int EnableDamper;
-extern int DamperStrength;
 extern int FFBOrRumble;
 
 static bool init;

@@ -13,52 +13,17 @@ along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
 
 #include <string>
 #include "KODrive.h"
+#include "../Common Files/InitialDFFB.h"
 
-extern int EnableDamper;
-extern int DamperStrength;
+static const InitialDFFBSettings ffbSettings = { 24.0, 128, 128.0, 200, 0xFFFFFFFF };
 
 void KODrive::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTriggers* triggers) {
 
-	if (EnableDamper)
-		triggers->Damper(DamperStrength / 100.0);
+	ApplyDamper(triggers);
 
 	DWORD FFB = helpers->ReadInt32(0x7261F4, true);
 
 	BYTE* ffb = reinterpret_cast<BYTE*>(&FFB);
 
-	if (ffb[0] == 0x80 && ffb[2] == 0x01)
-	{
-		triggers->Spring(1.0);
-	}
-
-	UINT32 length_ms = 100;
-	if (ffb[0] == 0x85 && ffb[1] > 0x00 && ffb[2] > 0x00)
-	{
-		double percentForce = ffb[2] / 24.0;
-		double Period = ffb[1] / 128.0 * 120.0;
-		triggers->Rumble(percentForce, percentForce, length_ms);
-		triggers->Sine(static_cast<int>(Period), 0, percentForce, 200);
-	}
-
-	if (ffb[0] == 0x86 && ffb[2] > 0x00)
-	{
-		double percentForce = ffb[2] / 24.0;
-		triggers->Spring(percentForce);
-	}
-
-	if (ffb[0] == 0x84 && ffb[2] > 0x00)
-	{
-		if (ffb[1] == 0x00)
-		{
-			double percentForce = (128 - ffb[2]) / 24.0;
-			triggers->Rumble(percentForce, 0, length_ms);
-			triggers->Constant(constants->DIRECTION_FROM_LEFT, percentForce);
-		}
-		else if (ffb[1] == 0x01)
-		{
-			double percentForce = (ffb[2] / 24.0);
-			triggers->Rumble(0, percentForce, length_ms);
-			triggers->Constant(constants->DIRECTION_FROM_RIGHT, percentForce);
-		}
-	}
+	PlayInitialDFFB(ffb[0], ffb[1], ffb[2], ffbSettings, constants, triggers);
 }

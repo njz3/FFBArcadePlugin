@@ -13,13 +13,9 @@ along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
 
 #include <string>
 #include "LGI3D.h"
+#include "../Common Files/Devices.h"
 #include "SDL.h"
 #include <Windows.h>
-extern int joystick_index1;
-extern int joystick_index2;
-extern SDL_Haptic* haptic2;
-extern SDL_Joystick* GameController2;
-extern SDL_Haptic* ControllerHaptic2;
 static bool init = false;
 
 void LGI3D::FFBLoop(EffectConstants *constants, Helpers *helpers, EffectTriggers* triggers) {
@@ -40,178 +36,52 @@ void LGI3D::FFBLoop(EffectConstants *constants, Helpers *helpers, EffectTriggers
 	float newFloat1 = health1p;
 	float newFloat2 = health2p;
 
-	wchar_t *settingsFilename = TEXT(".\\FFBPlugin.ini");
-	int configFeedbackLength = GetPrivateProfileInt(TEXT("Settings"), TEXT("FeedbackLength"), 120, settingsFilename);
-	int HowtoRumbleKnockEffect = GetPrivateProfileInt(TEXT("Settings"), TEXT("HowtoRumbleKnockEffect"), 0, settingsFilename);
-	int HowtoRumbleMotorEffect = GetPrivateProfileInt(TEXT("Settings"), TEXT("HowtoRumbleMotorEffect"), 0, settingsFilename);
-	int HowtoRumbleHealthEffect = GetPrivateProfileInt(TEXT("Settings"), TEXT("HowtoRumbleHealthEffect"), 0, settingsFilename);
-	int Knock1pStrength = GetPrivateProfileInt(TEXT("Settings"), TEXT("Knock1pStrength"), 0, settingsFilename);
-	int Motor1pStrength = GetPrivateProfileInt(TEXT("Settings"), TEXT("Motor1pStrength"), 0, settingsFilename);
-	int Health1pStrength = GetPrivateProfileInt(TEXT("Settings"), TEXT("Health1pStrength"), 0, settingsFilename);
-	int Knock2pStrength = GetPrivateProfileInt(TEXT("Settings"), TEXT("Knock2pStrength"), 0, settingsFilename);
-	int Motor2pStrength = GetPrivateProfileInt(TEXT("Settings"), TEXT("Motor2pStrength"), 0, settingsFilename);
-	int Health2pStrength = GetPrivateProfileInt(TEXT("Settings"), TEXT("Health2pStrength"), 0, settingsFilename);
+	int configFeedbackLength = GetSettingInt(TEXT("FeedbackLength"), 120);
+	int HowtoRumbleKnockEffect = GetSettingInt(TEXT("HowtoRumbleKnockEffect"), 0);
+	int HowtoRumbleMotorEffect = GetSettingInt(TEXT("HowtoRumbleMotorEffect"), 0);
+	int HowtoRumbleHealthEffect = GetSettingInt(TEXT("HowtoRumbleHealthEffect"), 0);
+	int Knock1pStrength = GetSettingInt(TEXT("Knock1pStrength"), 0);
+	int Motor1pStrength = GetSettingInt(TEXT("Motor1pStrength"), 0);
+	int Health1pStrength = GetSettingInt(TEXT("Health1pStrength"), 0);
+	int Knock2pStrength = GetSettingInt(TEXT("Knock2pStrength"), 0);
+	int Motor2pStrength = GetSettingInt(TEXT("Motor2pStrength"), 0);
+	int Health2pStrength = GetSettingInt(TEXT("Health2pStrength"), 0);
 
 	if (!init)
 	{
-		for (int i = 0; i < SDL_NumJoysticks(); i++)
-		{
-			wchar_t* deviceGUIDString2 = new wchar_t[256];
-			int Device2GUID = GetPrivateProfileString(TEXT("Settings"), TEXT("Device2GUID"), NULL, deviceGUIDString2, 256, settingsFilename);
-			char joystick_guid[256];
-			sprintf(joystick_guid, "%S", deviceGUIDString2);
-			SDL_JoystickGUID dev_guid;
-			int numJoysticks = SDL_NumJoysticks();
-			/*std::string njs = std::to_string(numJoysticks);
-			((char)njs.c_str());*/
-			for (int i = 0; i < SDL_NumJoysticks(); i++)
-			{
-				extern int joystick1Index;
-				if (i == joystick1Index)
-				{
-					continue;
-				}
-				SDL_Joystick* js2 = SDL_JoystickOpen(i);
-				SDL_JoystickGUID guid = SDL_JoystickGetGUID(js2);
-				char guid_str[1024];
-				SDL_JoystickGetGUIDString(guid, guid_str, sizeof(guid_str));
-				const char* name = SDL_JoystickName(js2);
-				char text[256];
-				sprintf(text, "Joystick: %d / Name: %s / GUID: %s\n", i, name, guid_str);
-				guid = SDL_JoystickGetGUIDFromString(joystick_guid);
-				dev_guid = SDL_JoystickGetGUID(js2);
-				if (!memcmp(&guid, &dev_guid, sizeof(SDL_JoystickGUID)))
-				{
-					GameController2 = SDL_JoystickOpen(i);
-					joystick_index2 = SDL_JoystickInstanceID(GameController2);
-					ControllerHaptic2 = SDL_HapticOpenFromJoystick(GameController2);
-					break;
-				}
-				SDL_JoystickClose(js2);
-			}
-			haptic2 = ControllerHaptic2;
-			if ((SDL_HapticRumbleSupported(haptic2) == SDL_TRUE))
-			{
-				//SDL_HapticRumbleInit;
-				SDL_HapticRumbleInit(ControllerHaptic2);
-			}
-		}
+		OpenHapticDevice2();
 		init = true;
 	}
 
 	UINT32 length_ms = configFeedbackLength;
 	if ((oldFloat1 != newFloat1) && (health1p != 0x01))
 	{
-		if (HowtoRumbleHealthEffect == 0)
-		{
-			double percentForce = ((Health1pStrength) / 100.0);
-			triggers->Rumble(percentForce, percentForce, length_ms);
-		}
-		else if (HowtoRumbleHealthEffect == 1)
-		{
-			double percentForce = ((Health1pStrength) / 100.0);
-			triggers->Rumble(0, percentForce, length_ms);
-		}
-		else if (HowtoRumbleHealthEffect == 2)
-		{
-			double percentForce = ((Health1pStrength) / 100.0);
-			triggers->Rumble(percentForce, 0, length_ms);
-		}
+		RumbleWithMode(triggers->Rumble, HowtoRumbleHealthEffect, Health1pStrength / 100.0, length_ms);
 	}
 
 	if ((oldFloat2 != newFloat2) && (health2p != 0x01))
 	{
-		if (HowtoRumbleHealthEffect == 0)
-		{
-			double percentForce = ((Health2pStrength) / 100.0);
-			triggers->RumbleDevice2(percentForce, percentForce, length_ms);
-		}
-		else if (HowtoRumbleHealthEffect == 1)
-		{
-			double percentForce = ((Health2pStrength) / 100.0);
-			triggers->RumbleDevice2(0, percentForce, length_ms);
-		}
-		else if (HowtoRumbleHealthEffect == 2)
-		{
-			double percentForce = ((Health2pStrength) / 100.0);
-			triggers->RumbleDevice2(percentForce, 0, length_ms);
-		}
+		RumbleWithMode(triggers->RumbleDevice2, HowtoRumbleHealthEffect, Health2pStrength / 100.0, length_ms);
 	}
 
 	if (ff1 & 0x20)
 	{
-		if (HowtoRumbleKnockEffect == 0)
-		{
-			double percentForce = ((Knock1pStrength) / 100.0);
-			triggers->Rumble(percentForce, percentForce, length_ms);
-		}
-		else if (HowtoRumbleKnockEffect == 1)
-		{
-			double percentForce = ((Knock1pStrength) / 100.0);
-			triggers->Rumble(0, percentForce, length_ms);
-		}
-		else if (HowtoRumbleKnockEffect == 2)
-		{
-			double percentForce = ((Knock1pStrength) / 100.0);
-			triggers->Rumble(percentForce, 0, length_ms);
-		}
+		RumbleWithMode(triggers->Rumble, HowtoRumbleKnockEffect, Knock1pStrength / 100.0, length_ms);
 	}
 
 	if (ff1 & 0x40)
 	{
-		if (HowtoRumbleMotorEffect == 0)
-		{
-			double percentForce = ((Motor1pStrength) / 100.0);
-			triggers->Rumble(percentForce, percentForce, length_ms);
-		}
-		else if (HowtoRumbleMotorEffect == 1)
-		{
-			double percentForce = ((Motor1pStrength) / 100.0);
-			triggers->Rumble(0, percentForce, length_ms);
-		}
-		else if (HowtoRumbleMotorEffect == 2)
-		{
-			double percentForce = ((Motor1pStrength) / 100.0);
-			triggers->Rumble(percentForce, 0, length_ms);
-		}
+		RumbleWithMode(triggers->Rumble, HowtoRumbleMotorEffect, Motor1pStrength / 100.0, length_ms);
 	}
 
 	if (ff1 & 0x04)
 	{
-		if (HowtoRumbleKnockEffect == 0)
-		{
-			double percentForce = ((Knock2pStrength) / 100.0);
-			triggers->RumbleDevice2(percentForce, percentForce, length_ms);
-		}
-		else if (HowtoRumbleKnockEffect == 1)
-		{
-			double percentForce = ((Knock2pStrength) / 100.0);
-			triggers->RumbleDevice2(0, percentForce, length_ms);
-		}
-		else if (HowtoRumbleKnockEffect == 2)
-		{
-			double percentForce = ((Knock2pStrength) / 100.0);
-			triggers->RumbleDevice2(percentForce, 0, length_ms);
-		}
+		RumbleWithMode(triggers->RumbleDevice2, HowtoRumbleKnockEffect, Knock2pStrength / 100.0, length_ms);
 	}
 
 	if (ff1 & 0x08)
 	{
-		if (HowtoRumbleMotorEffect == 0)
-		{
-			double percentForce = ((Motor2pStrength) / 100.0);
-			triggers->RumbleDevice2(percentForce, percentForce, length_ms);
-		}
-		else if (HowtoRumbleMotorEffect == 1)
-		{
-			double percentForce = ((Motor2pStrength) / 100.0);
-			triggers->RumbleDevice2(0, percentForce, length_ms);
-		}
-		else if (HowtoRumbleMotorEffect == 2)
-		{
-			double percentForce = ((Motor2pStrength) / 100.0);
-			triggers->RumbleDevice2(percentForce, 0, length_ms);
-		}
+		RumbleWithMode(triggers->RumbleDevice2, HowtoRumbleMotorEffect, Motor2pStrength / 100.0, length_ms);
 	}
 	oldFloat1 = newFloat1;
 	oldFloat2 = newFloat2;

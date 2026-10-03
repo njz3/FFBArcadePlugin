@@ -14,28 +14,24 @@ along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
 #include <string>
 #include "StormRacerG.h"
 
-extern int EnableDamper;
-extern int DamperStrength;
-
-static wchar_t* settingsFilename = TEXT(".\\FFBPlugin.ini");
-static int EnableShakeEffectsWhileRacing = GetPrivateProfileInt(TEXT("Settings"), TEXT("EnableShakeEffectsWhileRacing"), 0, settingsFilename);
-static int EnableShakeEffectsinMenu = GetPrivateProfileInt(TEXT("Settings"), TEXT("EnableShakeEffectsinMenu"), 0, settingsFilename);
-static int EnableGroundEffects = GetPrivateProfileInt(TEXT("Settings"), TEXT("EnableGroundEffects"), 0, settingsFilename);
-static int EnableForceSpringEffect = GetPrivateProfileInt(TEXT("Settings"), TEXT("EnableForceSpringEffect"), 0, settingsFilename);
-static int ForceSpringStrength = GetPrivateProfileInt(TEXT("Settings"), TEXT("ForceSpringStrength"), 0, settingsFilename);
-static int MinFFBConstantStrength = GetPrivateProfileInt(TEXT("Settings"), TEXT("MinFFBConstantStrength"), 0, settingsFilename);
-static int FFBShakeSineStrength = GetPrivateProfileInt(TEXT("Settings"), TEXT("FFBShakeSineStrength"), 0, settingsFilename);
-static int FFBShakeSinePeriod = GetPrivateProfileInt(TEXT("Settings"), TEXT("FFBShakeSinePeriod"), 0, settingsFilename);
-static int FFBShakeFadeSinePeriod = GetPrivateProfileInt(TEXT("Settings"), TEXT("FFBShakeFadeSinePeriod"), 0, settingsFilename);
-static int FFBGrassSinePeriod = GetPrivateProfileInt(TEXT("Settings"), TEXT("FFBGrassSinePeriod"), 0, settingsFilename);
-static int FFBGrassSineStrength = GetPrivateProfileInt(TEXT("Settings"), TEXT("FFBGrassSineStrength"), 0, settingsFilename);
-static int FFBGrassFadeSinePeriod = GetPrivateProfileInt(TEXT("Settings"), TEXT("FFBGrassFadeSinePeriod"), 0, settingsFilename);
-static int FFBRoughTerrainSineStrength = GetPrivateProfileInt(TEXT("Settings"), TEXT("FFBRoughTerrainSineStrength"), 0, settingsFilename);
-static int FFBRoughTerrainSinePeriod = GetPrivateProfileInt(TEXT("Settings"), TEXT("FFBRoughTerrainSinePeriod"), 0, settingsFilename);
-static int FFBRoughTerrainFadeSinePeriod = GetPrivateProfileInt(TEXT("Settings"), TEXT("FFBRoughTerrainFadeSinePeriod"), 0, settingsFilename);
-static int FFBRumbleStripSineStrength = GetPrivateProfileInt(TEXT("Settings"), TEXT("FFBRumbleStripSineStrength"), 0, settingsFilename);
-static int FFBRumbleStripSinePeriod = GetPrivateProfileInt(TEXT("Settings"), TEXT("FFBRumbleStripSinePeriod"), 0, settingsFilename);
-static int FFBRumbleStripFadeSinePeriod = GetPrivateProfileInt(TEXT("Settings"), TEXT("FFBRumbleStripFadeSinePeriod"), 0, settingsFilename);
+static int EnableShakeEffectsWhileRacing = GetSettingInt(TEXT("EnableShakeEffectsWhileRacing"), 0);
+static int EnableShakeEffectsinMenu = GetSettingInt(TEXT("EnableShakeEffectsinMenu"), 0);
+static int EnableGroundEffects = GetSettingInt(TEXT("EnableGroundEffects"), 0);
+static int EnableForceSpringEffect = GetSettingInt(TEXT("EnableForceSpringEffect"), 0);
+static int ForceSpringStrength = GetSettingInt(TEXT("ForceSpringStrength"), 0);
+static int MinFFBConstantStrength = GetSettingInt(TEXT("MinFFBConstantStrength"), 0);
+static int FFBShakeSineStrength = GetSettingInt(TEXT("FFBShakeSineStrength"), 0);
+static int FFBShakeSinePeriod = GetSettingInt(TEXT("FFBShakeSinePeriod"), 0);
+static int FFBShakeFadeSinePeriod = GetSettingInt(TEXT("FFBShakeFadeSinePeriod"), 0);
+static int FFBGrassSinePeriod = GetSettingInt(TEXT("FFBGrassSinePeriod"), 0);
+static int FFBGrassSineStrength = GetSettingInt(TEXT("FFBGrassSineStrength"), 0);
+static int FFBGrassFadeSinePeriod = GetSettingInt(TEXT("FFBGrassFadeSinePeriod"), 0);
+static int FFBRoughTerrainSineStrength = GetSettingInt(TEXT("FFBRoughTerrainSineStrength"), 0);
+static int FFBRoughTerrainSinePeriod = GetSettingInt(TEXT("FFBRoughTerrainSinePeriod"), 0);
+static int FFBRoughTerrainFadeSinePeriod = GetSettingInt(TEXT("FFBRoughTerrainFadeSinePeriod"), 0);
+static int FFBRumbleStripSineStrength = GetSettingInt(TEXT("FFBRumbleStripSineStrength"), 0);
+static int FFBRumbleStripSinePeriod = GetSettingInt(TEXT("FFBRumbleStripSinePeriod"), 0);
+static int FFBRumbleStripFadeSinePeriod = GetSettingInt(TEXT("FFBRumbleStripFadeSinePeriod"), 0);
 
 void StormRacerG::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTriggers* triggers)
 {
@@ -45,10 +41,7 @@ void StormRacerG::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTr
 	float Speedo = helpers->ReadFloat32(0x10BE22D8, true);
 	UINT8 Racing = helpers->ReadByte(0x10BD5B20, true);
 
-	if (EnableDamper == 1)
-	{
-		triggers->Damper(DamperStrength / 100.0);
-	}
+	ApplyDamper(triggers);
 
 	if (EnableForceSpringEffect == 1)
 	{

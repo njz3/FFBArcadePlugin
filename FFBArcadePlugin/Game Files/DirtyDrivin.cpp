@@ -13,8 +13,6 @@ along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
 
 #include <string>
 #include "DirtyDrivin.h"
-extern int EnableDamper;
-extern int DamperStrength;
 static bool ReverseFFB;
 
 void DirtyDrivin::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTriggers* triggers) {
@@ -49,8 +47,7 @@ void DirtyDrivin::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTr
 		break;
 	}
 
-	if (EnableDamper)
-		triggers->Damper(DamperStrength / 100.0);
+	ApplyDamper(triggers);
 
 	if (ff > 0)
 	{

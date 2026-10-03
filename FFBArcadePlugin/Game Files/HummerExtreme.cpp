@@ -18,15 +18,10 @@ static EffectTriggers* myTriggers;
 static EffectConstants* myConstants;
 static Helpers* myHelpers;
 
-extern int EnableDamper;
-extern int DamperStrength;
-
 static bool init = false;
 
-static wchar_t* settingsFilename = TEXT(".\\FFBPlugin.ini");
-static int ViosityStrength = GetPrivateProfileInt(TEXT("Settings"), TEXT("ViosityStrength"), 100, settingsFilename);
-static int SpringStrength = GetPrivateProfileInt(TEXT("Settings"), TEXT("SpringStrength"), 100, settingsFilename);
-
+static int ViosityStrength = GetSettingInt(TEXT("ViosityStrength"), 100);
+static int SpringStrength = GetSettingInt(TEXT("SpringStrength"), 100);
 
 static void(__cdecl* clSteerDualDeviceSetTRQCurveHalfPointOrig)(void* thisParam, int param_1, float param_2, float param_3);
 static void __cdecl clSteerDualDeviceSetTRQCurveHalfPoint(void* thisParam, int param_1, float param_2, float param_3) {

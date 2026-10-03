@@ -2,10 +2,10 @@
 #include <string>
 #include <windows.h>
 #include "SDL.h"
+#include "../Common Files/Devices.h"
 static INT_PTR imageBase;
 extern int joystick_index1;
 extern int joystick_index2;
-extern SDL_Joystick* GameController2;
 static bool testA;
 static bool serviceA;
 static bool startA;
@@ -35,80 +35,51 @@ static int AcclValue;
 static int BrakeValue;
 static int GearValue;
 
-extern wchar_t* settingsFilename;
-static int InputDeviceWheelEnable = GetPrivateProfileInt(TEXT("Settings"), TEXT("InputDeviceWheelEnable"), 0, settingsFilename);
-static int InputDeviceWheelSteeringAxis = GetPrivateProfileInt(TEXT("Settings"), TEXT("InputDeviceWheelSteeringAxis"), 0, settingsFilename);
-static int InputDeviceWheelAcclAxis = GetPrivateProfileInt(TEXT("Settings"), TEXT("InputDeviceWheelAcclAxis"), 0, settingsFilename);
-static int InputDeviceWheelBrakeAxis = GetPrivateProfileInt(TEXT("Settings"), TEXT("InputDeviceWheelBrakeAxis"), 0, settingsFilename);
-static int InputDeviceWheelSteeringAxisDevice2 = GetPrivateProfileInt(TEXT("Settings"), TEXT("InputDeviceWheelSteeringAxisDevice2"), 0, settingsFilename);
-static int InputDeviceWheelAcclAxisDevice2 = GetPrivateProfileInt(TEXT("Settings"), TEXT("InputDeviceWheelAcclAxisDevice2"), 0, settingsFilename);
-static int InputDeviceWheelBrakeAxisDevice2 = GetPrivateProfileInt(TEXT("Settings"), TEXT("InputDeviceWheelBrakeAxisDevice2"), 0, settingsFilename);
-static int InputDeviceWheelReverseAxis = GetPrivateProfileInt(TEXT("Settings"), TEXT("InputDeviceWheelReverseAxis"), 0, settingsFilename);
-static int InputDeviceCombinedPedals = GetPrivateProfileInt(TEXT("Settings"), TEXT("InputDeviceCombinedPedals"), 0, settingsFilename);
-static int SteeringDeadzone = GetPrivateProfileInt(TEXT("Settings"), TEXT("SteeringDeadzone"), 0, settingsFilename);
-static int PedalDeadzone = GetPrivateProfileInt(TEXT("Settings"), TEXT("PedalDeadzone"), 0, settingsFilename);
-static int ShowButtonNumbersForSetup = GetPrivateProfileInt(TEXT("Settings"), TEXT("ShowButtonNumbersForSetup"), 0, settingsFilename);
-static int ShowKeyBoardNameForSetup = GetPrivateProfileInt(TEXT("Settings"), TEXT("ShowKeyBoardNameForSetup"), 0, settingsFilename);
-static int ShowAxisForSetup = GetPrivateProfileInt(TEXT("Settings"), TEXT("ShowAxisForSetup"), 0, settingsFilename);
-static int ExitButton = GetPrivateProfileInt(TEXT("Settings"), TEXT("ExitButton"), 0, settingsFilename);
-static int TestButton = GetPrivateProfileInt(TEXT("Settings"), TEXT("TestButton"), 0, settingsFilename);
-static int ServiceButton = GetPrivateProfileInt(TEXT("Settings"), TEXT("ServiceButton"), 0, settingsFilename);
-static int Coin1Button = GetPrivateProfileInt(TEXT("Settings"), TEXT("Coin1Button"), 0, settingsFilename);
-static int Coin2Button = GetPrivateProfileInt(TEXT("Settings"), TEXT("Coin2Button"), 0, settingsFilename);
-static int VR1Button = GetPrivateProfileInt(TEXT("Settings"), TEXT("VR1Button"), 0, settingsFilename);
-static int StartButton = GetPrivateProfileInt(TEXT("Settings"), TEXT("StartButton"), 0, settingsFilename);
-static int Shift1Button = GetPrivateProfileInt(TEXT("Settings"), TEXT("Shift1Button"), 0, settingsFilename);
-static int Shift2Button = GetPrivateProfileInt(TEXT("Settings"), TEXT("Shift2Button"), 0, settingsFilename);
-static int Shift3Button = GetPrivateProfileInt(TEXT("Settings"), TEXT("Shift3Button"), 0, settingsFilename);
-static int Shift4Button = GetPrivateProfileInt(TEXT("Settings"), TEXT("Shift4Button"), 0, settingsFilename);
-static int ShiftUpButton = GetPrivateProfileInt(TEXT("Settings"), TEXT("ShiftUpButton"), 0, settingsFilename);
-static int ShiftDownButton = GetPrivateProfileInt(TEXT("Settings"), TEXT("ShiftDownButton"), 0, settingsFilename);
-static int ExitButtonDevice2 = GetPrivateProfileInt(TEXT("Settings"), TEXT("ExitButtonDevice2"), 0, settingsFilename);
-static int TestButtonDevice2 = GetPrivateProfileInt(TEXT("Settings"), TEXT("TestButtonDevice2"), 0, settingsFilename);
-static int ServiceButtonDevice2 = GetPrivateProfileInt(TEXT("Settings"), TEXT("ServiceButtonDevice2"), 0, settingsFilename);
-static int Coin1ButtonDevice2 = GetPrivateProfileInt(TEXT("Settings"), TEXT("Coin1ButtonDevice2"), 0, settingsFilename);
-static int Coin2ButtonDevice2 = GetPrivateProfileInt(TEXT("Settings"), TEXT("Coin2ButtonDevice2"), 0, settingsFilename);
-static int VR1ButtonDevice2 = GetPrivateProfileInt(TEXT("Settings"), TEXT("VR1ButtonDevice2"), 0, settingsFilename);
-static int StartButtonDevice2 = GetPrivateProfileInt(TEXT("Settings"), TEXT("StartButtonDevice2"), 0, settingsFilename);
-static int Shift1ButtonDevice2 = GetPrivateProfileInt(TEXT("Settings"), TEXT("Shift1ButtonDevice2"), 0, settingsFilename);
-static int Shift2ButtonDevice2 = GetPrivateProfileInt(TEXT("Settings"), TEXT("Shift2ButtonDevice2"), 0, settingsFilename);
-static int Shift3ButtonDevice2 = GetPrivateProfileInt(TEXT("Settings"), TEXT("Shift3ButtonDevice2"), 0, settingsFilename);
-static int Shift4ButtonDevice2 = GetPrivateProfileInt(TEXT("Settings"), TEXT("Shift4ButtonDevice2"), 0, settingsFilename);
-static int ShiftUpButtonDevice2 = GetPrivateProfileInt(TEXT("Settings"), TEXT("ShiftUpButtonDevice2"), 0, settingsFilename);
-static int ShiftDownButtonDevice2 = GetPrivateProfileInt(TEXT("Settings"), TEXT("ShiftDownButtonDevice2"), 0, settingsFilename);
+static int InputDeviceWheelSteeringAxis = GetSettingInt(TEXT("InputDeviceWheelSteeringAxis"), 0);
+static int InputDeviceWheelAcclAxis = GetSettingInt(TEXT("InputDeviceWheelAcclAxis"), 0);
+static int InputDeviceWheelBrakeAxis = GetSettingInt(TEXT("InputDeviceWheelBrakeAxis"), 0);
+static int InputDeviceWheelSteeringAxisDevice2 = GetSettingInt(TEXT("InputDeviceWheelSteeringAxisDevice2"), 0);
+static int InputDeviceWheelAcclAxisDevice2 = GetSettingInt(TEXT("InputDeviceWheelAcclAxisDevice2"), 0);
+static int InputDeviceWheelBrakeAxisDevice2 = GetSettingInt(TEXT("InputDeviceWheelBrakeAxisDevice2"), 0);
+static int InputDeviceWheelReverseAxis = GetSettingInt(TEXT("InputDeviceWheelReverseAxis"), 0);
+static int InputDeviceCombinedPedals = GetSettingInt(TEXT("InputDeviceCombinedPedals"), 0);
+static int SteeringDeadzone = GetSettingInt(TEXT("SteeringDeadzone"), 0);
+static int PedalDeadzone = GetSettingInt(TEXT("PedalDeadzone"), 0);
+static int ShowButtonNumbersForSetup = GetSettingInt(TEXT("ShowButtonNumbersForSetup"), 0);
+static int ShowKeyBoardNameForSetup = GetSettingInt(TEXT("ShowKeyBoardNameForSetup"), 0);
+static int ShowAxisForSetup = GetSettingInt(TEXT("ShowAxisForSetup"), 0);
+static int ExitButton = GetSettingInt(TEXT("ExitButton"), 0);
+static int TestButton = GetSettingInt(TEXT("TestButton"), 0);
+static int ServiceButton = GetSettingInt(TEXT("ServiceButton"), 0);
+static int Coin1Button = GetSettingInt(TEXT("Coin1Button"), 0);
+static int Coin2Button = GetSettingInt(TEXT("Coin2Button"), 0);
+static int VR1Button = GetSettingInt(TEXT("VR1Button"), 0);
+static int StartButton = GetSettingInt(TEXT("StartButton"), 0);
+static int Shift1Button = GetSettingInt(TEXT("Shift1Button"), 0);
+static int Shift2Button = GetSettingInt(TEXT("Shift2Button"), 0);
+static int Shift3Button = GetSettingInt(TEXT("Shift3Button"), 0);
+static int Shift4Button = GetSettingInt(TEXT("Shift4Button"), 0);
+static int ShiftUpButton = GetSettingInt(TEXT("ShiftUpButton"), 0);
+static int ShiftDownButton = GetSettingInt(TEXT("ShiftDownButton"), 0);
+static int ExitButtonDevice2 = GetSettingInt(TEXT("ExitButtonDevice2"), 0);
+static int TestButtonDevice2 = GetSettingInt(TEXT("TestButtonDevice2"), 0);
+static int ServiceButtonDevice2 = GetSettingInt(TEXT("ServiceButtonDevice2"), 0);
+static int Coin1ButtonDevice2 = GetSettingInt(TEXT("Coin1ButtonDevice2"), 0);
+static int Coin2ButtonDevice2 = GetSettingInt(TEXT("Coin2ButtonDevice2"), 0);
+static int VR1ButtonDevice2 = GetSettingInt(TEXT("VR1ButtonDevice2"), 0);
+static int StartButtonDevice2 = GetSettingInt(TEXT("StartButtonDevice2"), 0);
+static int Shift1ButtonDevice2 = GetSettingInt(TEXT("Shift1ButtonDevice2"), 0);
+static int Shift2ButtonDevice2 = GetSettingInt(TEXT("Shift2ButtonDevice2"), 0);
+static int Shift3ButtonDevice2 = GetSettingInt(TEXT("Shift3ButtonDevice2"), 0);
+static int Shift4ButtonDevice2 = GetSettingInt(TEXT("Shift4ButtonDevice2"), 0);
+static int ShiftUpButtonDevice2 = GetSettingInt(TEXT("ShiftUpButtonDevice2"), 0);
+static int ShiftDownButtonDevice2 = GetSettingInt(TEXT("ShiftDownButtonDevice2"), 0);
 
 void M2EmulatorSegaRallyInputsEnabled(Helpers* helpers)
 {
 	if (!Inputsinit)
 	{
-		//Added 2nd device stuff from here
-		wchar_t* deviceGUIDString2 = new wchar_t[256];
-		int Device2GUID = GetPrivateProfileString(TEXT("Settings"), TEXT("Device2GUID"), NULL, deviceGUIDString2, 256, settingsFilename);
-		char joystick_guid[256];
-		sprintf(joystick_guid, "%S", deviceGUIDString2);
-		SDL_JoystickGUID dev_guid;
-		int numJoysticks = SDL_NumJoysticks();
-		/*std::string njs = std::to_string(numJoysticks);
-		((char)njs.c_str());*/
-		for (int i = 0; i < SDL_NumJoysticks(); i++)
-		{
-			SDL_Joystick* js2 = SDL_JoystickOpen(i);
-			SDL_JoystickGUID guid = SDL_JoystickGetGUID(js2);
-			char guid_str[1024];
-			SDL_JoystickGetGUIDString(guid, guid_str, sizeof(guid_str));
-			const char* name = SDL_JoystickName(js2);
-			char text[256];
-			sprintf(text, "Joystick: %d / Name: %s / GUID: %s\n", i, name, guid_str);
-			guid = SDL_JoystickGetGUIDFromString(joystick_guid);
-			dev_guid = SDL_JoystickGetGUID(js2);
-			SDL_JoystickClose(js2);
-			if (!memcmp(&guid, &dev_guid, sizeof(SDL_JoystickGUID)))
-			{
-				GameController2 = SDL_JoystickOpen(i);
-				joystick_index2 = SDL_JoystickInstanceID(GameController2);
-				break;
-			}
-		}
+		OpenInputDevice2();
 
 		imageBase = (INT_PTR)GetModuleHandleA(0);
 		SteeringAddress = imageBase + 0x1AA70C;

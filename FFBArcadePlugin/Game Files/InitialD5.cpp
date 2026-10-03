@@ -13,53 +13,16 @@ along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
 
 #include <string>
 #include "InitialD5.h"
+#include "../Common Files/InitialDFFB.h"
 #include "math.h"
-
-extern int EnableDamper;
-extern int DamperStrength;
 
 void InitialD5::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTriggers* triggers) {
 
-	if (EnableDamper)
-		triggers->Damper(DamperStrength / 100.0);
+	ApplyDamper(triggers);
 
 	DWORD FFB = helpers->ReadInt32(0x8CB6120, false);
 
 	BYTE* ffb = reinterpret_cast<BYTE*>(&FFB);
 
-	if (ffb[0] == 0x80 && ffb[2] == 0x01)
-	{
-		triggers->Spring(1.0);
-	}
-
-	UINT32 length_ms = 100;
-	if (ffb[0] == 0x85 && ffb[1] > 0x00 && ffb[2] > 0x00)
-	{
-		double percentForce = ffb[2] / 127.0;
-		double Period = ffb[1] / 127.0 * 120.0;
-		triggers->Rumble(percentForce, percentForce, length_ms);
-		triggers->Sine(static_cast<int>(Period), 0, percentForce, length_ms);
-	}
-
-	if (ffb[0] == 0x86 && ffb[2] > 0x00)
-	{
-		double percentForce = ffb[2] / 127.0;
-		triggers->Spring(percentForce);
-	}
-
-	if (ffb[0] == 0x84 && ffb[2] > 0x00)
-	{
-		if (ffb[1] == 0x00)
-		{
-			double percentForce = (128 - ffb[2]) / 127.0;
-			triggers->Rumble(percentForce, 0, length_ms);
-			triggers->Constant(constants->DIRECTION_FROM_LEFT, percentForce);
-		}
-		else if (ffb[1] == 0x01)
-		{
-			double percentForce = (ffb[2] / 127.0);
-			triggers->Rumble(0, percentForce, length_ms);
-			triggers->Constant(constants->DIRECTION_FROM_RIGHT, percentForce);
-		}
-	}
+	PlayInitialDFFB(ffb[0], ffb[1], ffb[2], InitialDFFBDefaultSettings, constants, triggers);
 }

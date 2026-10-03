@@ -13,9 +13,9 @@ along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
 
 #include <string>
 #include "InitialD6.h"
+#include "../Common Files/InitialDFFB.h"
 
-extern int EnableDamper;
-extern int DamperStrength;
+static const InitialDFFBSettings ffbSettings = { 127.0, 128, 127.0, 100, 0x7F };
 
 void InitialD6::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTriggers* triggers)
 {
@@ -23,42 +23,8 @@ void InitialD6::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTrig
 
 	BYTE* ffb = reinterpret_cast<BYTE*>(&FFB);
 
-	if (EnableDamper)
-		triggers->Damper(DamperStrength / 100.0);
+	ApplyDamper(triggers);
 
-	if (ffb[2] == 0x00 && ffb[0] == 0x01)
-	{
-		triggers->Spring(1.0);
-	}
-
-	UINT32 length_ms = 100;
-	if (ffb[2] == 0x05 && ffb[1] > 0x00 && ffb[0] > 0x00)
-	{
-		double percentForce = ffb[0] / 127.0;
-		double Period = ffb[1] / 127.0 * 120.0;
-		triggers->Rumble(percentForce, percentForce, length_ms);
-		triggers->Sine(static_cast<int>(Period), 0, percentForce, length_ms);
-	}
-
-	if (ffb[2] == 0x06 && ffb[0] > 0x00 && ffb[0] < 0x80)
-	{
-		double percentForce = ffb[0] / 127.0;
-		triggers->Spring(percentForce);
-	}
-
-	if (ffb[2] == 0x04 && ffb[0] > 0x00 && ffb[0] < 0x80)
-	{
-		if (ffb[1] == 0x00)
-		{
-			double percentForce = (128 - ffb[0]) / 127.0;
-			triggers->Rumble(percentForce, 0, length_ms);
-			triggers->Constant(constants->DIRECTION_FROM_LEFT, percentForce);
-		}
-		else if (ffb[1] == 0x01)
-		{
-			double percentForce = (ffb[0] / 127.0);
-			triggers->Rumble(0, percentForce, length_ms);
-			triggers->Constant(constants->DIRECTION_FROM_RIGHT, percentForce);
-		}
-	}
+	// TeknoParrot gives the bytes in reverse order, the command without its 0x80 flag
+	PlayInitialDFFB(ffb[2] ^ 0x80, ffb[1], ffb[0], ffbSettings, constants, triggers);
 }

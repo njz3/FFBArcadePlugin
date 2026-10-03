@@ -14,8 +14,7 @@ along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
 #include <string>
 #include "PokkenTournament.h"
 
-static wchar_t* settingsFilename = TEXT(".\\FFBPlugin.ini");
-static int configFeedbackLength = GetPrivateProfileInt(TEXT("Settings"), TEXT("FeedbackLength"), 120, settingsFilename);
+static int configFeedbackLength = GetSettingInt(TEXT("FeedbackLength"), 120);
 
 void PokkenTournament::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTriggers* triggers)
 {
