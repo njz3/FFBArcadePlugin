@@ -315,6 +315,13 @@ int IncreaseFFBStrength = GetSettingInt(TEXT("IncreaseFFBStrength"), NULL);
 int DecreaseFFBStrength = GetSettingInt(TEXT("DecreaseFFBStrength"), NULL);
 int ResetFFBStrength = GetSettingInt(TEXT("ResetFFBStrength"), NULL);
 int StepFFBStrength = GetSettingInt(TEXT("StepFFBStrength"), 5);
+// Keyboard keys doing the same as the 3 buttons above, named as in the GUI (e.g. "F5", "Keypad +"), empty if not used
+static wchar_t increaseFFBStrengthKey[64];
+static wchar_t decreaseFFBStrengthKey[64];
+static wchar_t resetFFBStrengthKey[64];
+static int increaseFFBStrengthKeyLength = GetPrivateProfileString(TEXT("Settings"), TEXT("IncreaseFFBStrengthKey"), TEXT(""), increaseFFBStrengthKey, 64, settingsFilename);
+static int decreaseFFBStrengthKeyLength = GetPrivateProfileString(TEXT("Settings"), TEXT("DecreaseFFBStrengthKey"), TEXT(""), decreaseFFBStrengthKey, 64, settingsFilename);
+static int resetFFBStrengthKeyLength = GetPrivateProfileString(TEXT("Settings"), TEXT("ResetFFBStrengthKey"), TEXT(""), resetFFBStrengthKey, 64, settingsFilename);
 int EnableFFBStrengthPersistence = GetSettingInt(TEXT("EnableFFBStrengthPersistence"), 0);
 int EnableFFBStrengthTextToSpeech = GetSettingInt(TEXT("EnableFFBStrengthTextToSpeech"), 0);
 int InputDeviceWheelEnable = GetSettingInt(TEXT("InputDeviceWheelEnable"), 0);
@@ -935,6 +942,16 @@ int WorkaroundToFixRumble(void* ptr)
 
 // FFB STRENGTH ADJUSTMENT WITH JOYSTICK BUTTONS
 
+static std::string FullPath(const char* fileName)
+{
+	char path[MAX_PATH];
+	DWORD length = GetFullPathNameA(fileName, MAX_PATH, path, nullptr);
+	return (length == 0 || length >= MAX_PATH) ? fileName : path;
+}
+
+// FFBPlugin.ini resolved when the plugin is loaded, like the settings read above: the game may change its current directory later.
+static const std::string settingsFullPath = FullPath(".\\FFBPlugin.ini");
+
 void WritePersistentMaxForce()
 {
 	if (!EnableFFBStrengthPersistence)
@@ -945,12 +962,12 @@ void WritePersistentMaxForce()
 	{
 		if (CustomAlternativeMaxForceLeft && CustomAlternativeMaxForceRight)
 		{
-			WritePrivateProfileStringA("Settings", CustomAlternativeMaxForceLeft, std::to_string(configAlternativeMaxForceLeft).c_str(), ".\\FFBPlugin.ini");
-			WritePrivateProfileStringA("Settings", CustomAlternativeMaxForceRight, std::to_string(configAlternativeMaxForceRight).c_str(), ".\\FFBPlugin.ini");
+			WritePrivateProfileStringA("Settings", CustomAlternativeMaxForceLeft, std::to_string(configAlternativeMaxForceLeft).c_str(), settingsFullPath.c_str());
+			WritePrivateProfileStringA("Settings", CustomAlternativeMaxForceRight, std::to_string(configAlternativeMaxForceRight).c_str(), settingsFullPath.c_str());
 		}
 	}
 	else if (CustomMaxForce)
-		WritePrivateProfileStringA("Settings", CustomMaxForce, std::to_string(configMaxForce).c_str(), ".\\FFBPlugin.ini");
+		WritePrivateProfileStringA("Settings", CustomMaxForce, std::to_string(configMaxForce).c_str(), settingsFullPath.c_str());
 }
 
 // Moves maxForce by delta, unless it is out of [lowest, highest] or already at the bound it moves to.
@@ -1061,6 +1078,102 @@ DWORD WINAPI AdjustFFBStrengthLoopNoWaitEvent(LPVOID lpParam)
 	{
 		if (ReadyToAdjustFFBStrength())
 			HandleFFBStrengthButton(e);
+		Sleep(16);
+	}
+}
+
+// FFB STRENGTH ADJUSTMENT WITH KEYBOARD KEYS
+
+// Virtual key of a key named as by SDL_GetKeyName (the GUI stores these names), 0 if unknown
+static int VirtualKeyFromName(const wchar_t* keyName)
+{
+	if (keyName[0] == L'\0')
+		return 0;
+
+	if (keyName[1] == L'\0') // single character key (A-Z, 0-9, punctuation)
+	{
+		SHORT vk = VkKeyScanW(keyName[0]);
+		if (vk != -1)
+			return LOBYTE(vk);
+	}
+
+	int functionKey = 0;
+	if ((keyName[0] == L'F' || keyName[0] == L'f') && swscanf_s(keyName + 1, L"%d", &functionKey) == 1 && functionKey >= 1 && functionKey <= 24)
+		return VK_F1 + functionKey - 1;
+
+	static const struct
+	{
+		const wchar_t* name;
+		int vk;
+	} keys[] = {
+		{ L"Return", VK_RETURN }, { L"Enter", VK_RETURN }, { L"Escape", VK_ESCAPE }, { L"Esc", VK_ESCAPE },
+		{ L"Space", VK_SPACE }, { L"Tab", VK_TAB }, { L"Backspace", VK_BACK }, { L"Delete", VK_DELETE },
+		{ L"Insert", VK_INSERT }, { L"Home", VK_HOME }, { L"End", VK_END },
+		{ L"PageUp", VK_PRIOR }, { L"Page Up", VK_PRIOR }, { L"PageDown", VK_NEXT }, { L"Page Down", VK_NEXT },
+		{ L"Up", VK_UP }, { L"Down", VK_DOWN }, { L"Left", VK_LEFT }, { L"Right", VK_RIGHT },
+		{ L"Left Shift", VK_LSHIFT }, { L"Right Shift", VK_RSHIFT }, { L"Left Ctrl", VK_LCONTROL }, { L"Right Ctrl", VK_RCONTROL },
+		{ L"Left Alt", VK_LMENU }, { L"Right Alt", VK_RMENU }, { L"Left GUI", VK_LWIN }, { L"Right GUI", VK_RWIN },
+		{ L"CapsLock", VK_CAPITAL }, { L"NumLock", VK_NUMLOCK }, { L"ScrollLock", VK_SCROLL },
+		{ L"Pause", VK_PAUSE }, { L"PrintScreen", VK_SNAPSHOT },
+		{ L"Keypad 0", VK_NUMPAD0 }, { L"Keypad 1", VK_NUMPAD1 }, { L"Keypad 2", VK_NUMPAD2 }, { L"Keypad 3", VK_NUMPAD3 },
+		{ L"Keypad 4", VK_NUMPAD4 }, { L"Keypad 5", VK_NUMPAD5 }, { L"Keypad 6", VK_NUMPAD6 }, { L"Keypad 7", VK_NUMPAD7 },
+		{ L"Keypad 8", VK_NUMPAD8 }, { L"Keypad 9", VK_NUMPAD9 }, { L"Keypad +", VK_ADD }, { L"Keypad -", VK_SUBTRACT },
+		{ L"Keypad *", VK_MULTIPLY }, { L"Keypad /", VK_DIVIDE }, { L"Keypad .", VK_DECIMAL }, { L"Keypad Enter", VK_RETURN },
+	};
+
+	for (const auto& key : keys)
+	{
+		if (lstrcmpiW(keyName, key.name) == 0)
+			return key.vk;
+	}
+	return 0;
+}
+
+// Returns true when the key has just been pressed. The keys are read even when the game is not in the foreground.
+static bool KeyPressed(int virtualKey, bool& wasDown)
+{
+	if (virtualKey == 0)
+		return false;
+
+	bool isDown = (GetAsyncKeyState(virtualKey) & 0x8000) != 0;
+	bool pressed = isDown && !wasDown;
+	wasDown = isDown;
+	return pressed;
+}
+
+// Polls the keys once the joystick buttons loop has set up the persistent max force keys
+DWORD WINAPI AdjustFFBStrengthLoopKeyboard(LPVOID lpParam)
+{
+	int increaseKey = VirtualKeyFromName(increaseFFBStrengthKey);
+	int decreaseKey = VirtualKeyFromName(decreaseFFBStrengthKey);
+	int resetKey = VirtualKeyFromName(resetFFBStrengthKey);
+	bool increaseDown = false;
+	bool decreaseDown = false;
+	bool resetDown = false;
+
+	while (true)
+	{
+		if (CustomStrength)
+		{
+			bool increase = KeyPressed(increaseKey, increaseDown);
+			bool decrease = KeyPressed(decreaseKey, decreaseDown);
+			bool reset = KeyPressed(resetKey, resetDown);
+
+			if (increase)
+				ChangeMaxForce(true);
+
+			if (decrease)
+				ChangeMaxForce(false);
+
+			if (reset)
+			{
+				DefaultConfigValues();
+				WritePersistentMaxForce();
+			}
+
+			if (EnableFFBStrengthTextToSpeech && (increase || decrease || reset))
+				SpeakMaxForce();
+		}
 		Sleep(16);
 	}
 }
@@ -1344,6 +1457,9 @@ DWORD WINAPI FFBLoop(LPVOID lpParam)
 			CreateThread(NULL, 0, AdjustFFBStrengthLoopNoWaitEvent, NULL, 0, NULL);
 		else
 			CreateThread(NULL, 0, AdjustFFBStrengthLoopWaitEvent, NULL, 0, NULL);
+
+		if (increaseFFBStrengthKey[0] || decreaseFFBStrengthKey[0] || resetFFBStrengthKey[0])
+			CreateThread(NULL, 0, AdjustFFBStrengthLoopKeyboard, NULL, 0, NULL);
 	}
 
 	hlp.log("Entering Game's FFBLoop loop");
