@@ -59,6 +59,21 @@ std::string acedrive("acedrive");
 std::string acedrvrw("acedrvrw");
 std::string vformula("vformula");
 std::string vr("vr");
+std::string smgp("smgp");
+std::string smgp6("smgp6");
+std::string smgp5("smgp5");
+std::string smgpu("smgpu");
+std::string smgpu1("smgpu1");
+std::string smgpu2("smgpu2");
+std::string smgpj("smgpj");
+std::string smgpja("smgpja");
+std::string smgpd("smgpd");
+std::string smgp6d("smgp6d");
+std::string smgp5d("smgp5d");
+std::string smgpud("smgpud");
+std::string smgpu1d("smgpu1d");
+std::string smgpu2d("smgpu2d");
+std::string smgpjd("smgpjd");
 std::string sfrush("sfrush");
 std::string sfrushrk("sfrushrk");
 std::string sfrushrkwo("sfrushrkwo");
@@ -76,6 +91,7 @@ std::string daytonase("daytonase");
 std::string dirtdash("dirtdash");
 std::string dirtdasha("dirtdasha");
 std::string dirtdashj("dirtdashj");
+std::string drivedge("drivedge");
 std::string offroadc("offroadc");
 std::string offroadc4("offroadc4");
 std::string offroadc3("offroadc3");
@@ -83,6 +99,7 @@ std::string offroadc1("offroadc1");
 std::string crusnusa("crusnusa");
 std::string crusnusa40("crusnusa40");
 std::string crusnusa21("crusnusa21");
+std::string crusnexo("crusnexo");
 std::string calspeed("calspeed");
 std::string calspeeda("calspeeda");
 std::string calspeedb("calspeedb");
@@ -146,6 +163,8 @@ std::string raverace("raverace");
 std::string raveracw("raveracw");
 std::string raveracj("raveracj");
 std::string raveracja("raveracja");
+std::string raveracej("raveracej");
+std::string raveraceja("raveraceja");
 std::string othunder("othunder");
 std::string othundero("othundero");
 std::string othunderuo("othunderuo");
@@ -192,6 +211,12 @@ std::string srallycdx("srallycdx");
 std::string spacegun("spacegun");
 std::string spacegunu("spacegunu");
 std::string spacegunj("spacegunj");
+std::string speedup("speedup");
+std::string speedup21("speedup21");
+std::string speedup20a("speedup20a");
+std::string speedup20("speedup20");
+std::string speedup12("speedup12");
+std::string speedup10("speedup10");
 std::string superchs("superchs");
 std::string superchsp("superchsp");
 std::string superchsj("superchsj");
@@ -225,6 +250,50 @@ std::string victlapw("victlapw");
 std::string victlap("victlap");
 std::string dblaxle("dblaxle");
 std::string dblaxleu("dblaxleu");
+std::string windheat("windheat");
+std::string windheatj("windheatj");
+std::string windheatu("windheatu");
+std::string windheata("windheata");
+std::string gticlub("gticlub");
+std::string gticlubj("gticlubj");
+std::string gticlubu("gticlubu");
+std::string gticluba("gticluba");
+std::string midnrun("midnrun");
+std::string midnruna("midnruna");
+std::string midnruna2("midnruna2");
+std::string midnrunj("midnrunj");
+std::string roadedge("roadedge");
+std::string xrally("xrally");
+std::string cartfury("cartfury");
+std::string thrilld("thrilld");
+std::string thrillda("thrillda");
+std::string thrillde("thrillde");
+std::string thrilldj("thrilldj");
+std::string thrilldgej("thrilldgej");
+std::string thrilldgeu("thrilldgeu");
+std::string thrilldgke("thrilldgke");
+std::string thrilldgkk("thrilldgkk");
+std::string thrilldgmj("thrilldgmj");
+std::string thrilldgnj("thrilldgnj");
+std::string thrilldgpj("thrilldgpj");
+std::string thrilldgkee("thrilldgkee");
+std::string racingj("racingj");
+std::string racingja("racingja");
+std::string racingje("racingje");
+std::string racingju("racingju");
+std::string racingjj("racingjj");
+std::string racingj2("racingj2");
+std::string racingj2a("racingj2a");
+std::string racingj2e("racingj2e");
+std::string racingj2u("racingj2u");
+std::string racingj2j("racingj2j");
+std::string overrev("overrev");
+std::string overrevb("overrevb");
+std::string overrevba("overrevba");
+std::string sidebs("sidebs");
+std::string sidebs2("sidebs2");
+std::string sidebs2j("sidebs2j");
+std::string sidebs2ja("sidebs2ja");
 
 //Flycast Below
 std::string InitialDVer1("INITIAL D\n");
@@ -240,21 +309,21 @@ std::string SegaDrivingSimulator("SEGA DRIVING SIMULATOR\n");
 
 //Our string to load game from
 std::string M2Active("M2Active");
-std::string M2PatternActive("M2PatternActive");
 std::string Daytona2Active("Daytona2Active");
 std::string ScudRaceActive("ScudRaceActive");
 std::string DirtDevilsActive("DirtDevilsActive");
-std::string SrallyActive("SrallyActive");
 std::string Srally2Active("Srally2Active");
 std::string VirtuaRacingActive("VirtuaRacingActive");
+std::string SuperMonacoGPActive("SuperMonacoGPActive");
 std::string HardDrivinActive("HardDrivinActive");
 std::string LightGunActive("LightGunActive");
-std::string NamcoFFBActive("NamcoFFBActive");
+std::string DirtDashFFB("DirtDashFFB");
+std::string NamcoFFBNew("NamcoFFBNew");
 std::string RacingFullValueActive1("RacingFullValueActive1");
 std::string RacingFullValueActive2("RacingFullValueActive2");
+std::string RacingFullValueExotica("RacingFullValueExotica");
 std::string RacingActive1("RacingActive1");
 std::string RacingActive2("RacingActive2");
-std::string RaveRacerActive("RaveRacerActive");
 std::string AfterburnerActive("AfterburnerActive");
 std::string OutrunActive("OutrunActive");
 std::string PDriftActive("PDriftActive");
@@ -262,14 +331,28 @@ std::string SuperChaseActive("SuperChaseActive");
 std::string MaximumSpeedActive("MaximumSpeedActive");
 std::string InitialDActive("InitialDActive");
 std::string NaomiFFBActive("NaomiFFBActive");
+std::string srallynew("srallynew");
+std::string m2new("m2new");
+std::string RaveRacerNew("RaveRacerNew");
+std::string Konami("Konami");
+std::string hng64("hng64");
+std::string SideBSActive("SideBSActive");
+std::string DriversEdgeActive("DriversEdgeActive");
 
 //Names of FFB Outputs
 std::string RawDrive("RawDrive");
 std::string digit0("digit0");
-std::string digit1("digit1");
 std::string wheel("wheel");
+std::string wheel0("wheel0");
+std::string pcboutput0("pcboutput0");
+std::string output0("output0");
 std::string wheel_motor("wheel_motor");
+std::string m_wheel_motor("m_wheel_motor");
 std::string lamp1("lamp1");
+// Recent MAME versions name the outputs of the X-Board and Multi 32 games after the main PCB device
+std::string mainpcb_lamp0("mainpcb:lamp0");
+std::string mainpcb_lamp1("mainpcb:lamp1");
+std::string mainpcb_lamp2("mainpcb:lamp2");
 std::string led2("led2");
 std::string cpuled6("cpuled6");
 std::string Vibration_motor("Vibration_motor");
@@ -279,6 +362,8 @@ std::string Wheel_Vibration("Wheel_Vibration");
 std::string upright_wheel_motor("upright_wheel_motor");
 std::string MA_Steering_Wheel_motor("MA_Steering_Wheel_motor");
 std::string MB_Steering_Wheel_motor("MB_Steering_Wheel_motor");
+std::string mainpcb_MA_Steering_Wheel_motor("mainpcb:MA_Steering_Wheel_motor");
+std::string mainpcb_MB_Steering_Wheel_motor("mainpcb:MB_Steering_Wheel_motor");
 std::string Left_Gun_Recoil("Left_Gun_Recoil");
 std::string Right_Gun_Recoil("Right_Gun_Recoil");
 std::string Player1_Recoil_Piston("Player1_Recoil_Piston");
@@ -292,9 +377,11 @@ std::string P3_Gun_Recoil("P3_Gun_Recoil");
 std::string P1_gun_recoil("P1_gun_recoil");
 std::string P2_gun_recoil("P2_gun_recoil");
 std::string mcuout1("mcuout1");
+std::string mcuout3("mcuout3");
 std::string Bank_Motor_Speed("Bank_Motor_Speed");
 std::string Bank_Motor_Direction("Bank_Motor_Direction");
 std::string bank_motor_position("bank_motor_position");
+std::string genout2("genout2");
 
 //Flycast
 std::string awffb("awffb");
@@ -336,6 +423,12 @@ extern int EnableDamper;
 extern int DamperStrength;
 extern int DoubleConstant;
 extern int DoubleSine;
+extern bool ConstantInfHoldsAtZero;
+
+// Use the ConstantInf effect (infinite constant force updated in place) instead of Constant
+static int UseConstantInf = GetSettingInt(TEXT("UseConstantInf"), 1);
+// Swaps the force direction for the games whose wheel pulls the wrong way
+static int ReverseDirection = GetSettingInt(TEXT("ReverseDirection"), 0);
 
 static int configMinForceDaytona2 = GetSettingInt(TEXT("MinForceDaytona2"), 0);
 static int configMaxForceDaytona2 = GetSettingInt(TEXT("MaxForceDaytona2"), 100);
@@ -427,6 +520,19 @@ static int ForceSpringStrengthVirtuaRacing = GetSettingInt(TEXT("ForceSpringStre
 static int EnableDamperVirtuaRacing = GetSettingInt(TEXT("EnableDamperVirtuaRacing"), 0);
 static int DamperStrengthVirtuaRacing = GetSettingInt(TEXT("DamperStrengthVirtuaRacing"), 100);
 
+static int configMinForceSuperMonacoGP = GetSettingInt(TEXT("MinForceSuperMonacoGP"), 0);
+static int configMaxForceSuperMonacoGP = GetSettingInt(TEXT("MaxForceSuperMonacoGP"), 100);
+static int configAlternativeMinForceLeftSuperMonacoGP = GetSettingInt(TEXT("AlternativeMinForceLeftSuperMonacoGP"), 0);
+static int configAlternativeMaxForceLeftSuperMonacoGP = GetSettingInt(TEXT("AlternativeMaxForceLeftSuperMonacoGP"), 100);
+static int configAlternativeMinForceRightSuperMonacoGP = GetSettingInt(TEXT("AlternativeMinForceRightSuperMonacoGP"), 0);
+static int configAlternativeMaxForceRightSuperMonacoGP = GetSettingInt(TEXT("AlternativeMaxForceRightSuperMonacoGP"), 100);
+static int configFeedbackLengthSuperMonacoGP = GetSettingInt(TEXT("FeedbackLengthSuperMonacoGP"), 120);
+static int EnableForceSpringEffectSuperMonacoGP = GetSettingInt(TEXT("EnableForceSpringEffectSuperMonacoGP"), 0);
+static int ForceSpringStrengthSuperMonacoGP = GetSettingInt(TEXT("ForceSpringStrengthSuperMonacoGP"), 0);
+static int SinePeriodSuperMonacoGP = GetSettingInt(TEXT("SinePeriodSuperMonacoGP"), 100);
+static int SineFadePeriodSuperMonacoGP = GetSettingInt(TEXT("SineFadePeriodSuperMonacoGP"), 0);
+static int SineStrengthSuperMonacoGP = GetSettingInt(TEXT("SineStrengthSuperMonacoGP"), 100);
+
 static int configMinForceSFRush = GetSettingInt(TEXT("MinForceSFRush"), 0);
 static int configMaxForceSFRush = GetSettingInt(TEXT("MaxForceSFRush"), 100);
 static int configAlternativeMinForceLeftSFRush = GetSettingInt(TEXT("AlternativeMinForceLeftSFRush"), 0);
@@ -491,6 +597,23 @@ static int EnableForceSpringEffectCrusnUSA = GetSettingInt(TEXT("EnableForceSpri
 static int ForceSpringStrengthCrusnUSA = GetSettingInt(TEXT("ForceSpringStrengthCrusnUSA"), 0);
 static int EnableDamperCrusnUSA = GetSettingInt(TEXT("EnableDamperCrusnUSA"), 0);
 static int DamperStrengthCrusnUSA = GetSettingInt(TEXT("DamperStrengthCrusnUSA"), 100);
+
+// Cruis'n Exotica (Zeus): accept both "wheel" and "wheel_motor" outputs.
+// The raw game signal is much weaker than the V-Unit games, so use a separate
+// configurable gain. 400% matches the measured Exotica signal range closely.
+static int configFeedbackLengthCrusnExotica = GetSettingInt(TEXT("FeedbackLengthCrusnExotica"), 120);
+static int configMinForceCrusnExotica = GetSettingInt(TEXT("MinForceCrusnExotica"), 0);
+static int configMaxForceCrusnExotica = GetSettingInt(TEXT("MaxForceCrusnExotica"), 100);
+static int configAlternativeMinForceLeftCrusnExotica = GetSettingInt(TEXT("AlternativeMinForceLeftCrusnExotica"), 0);
+static int configAlternativeMaxForceLeftCrusnExotica = GetSettingInt(TEXT("AlternativeMaxForceLeftCrusnExotica"), 100);
+static int configAlternativeMinForceRightCrusnExotica = GetSettingInt(TEXT("AlternativeMinForceRightCrusnExotica"), 0);
+static int configAlternativeMaxForceRightCrusnExotica = GetSettingInt(TEXT("AlternativeMaxForceRightCrusnExotica"), 100);
+static int PowerModeCrusnExotica = GetSettingInt(TEXT("PowerModeCrusnExotica"), 0);
+static int EnableForceSpringEffectCrusnExotica = GetSettingInt(TEXT("EnableForceSpringEffectCrusnExotica"), 0);
+static int ForceSpringStrengthCrusnExotica = GetSettingInt(TEXT("ForceSpringStrengthCrusnExotica"), 0);
+static int EnableDamperCrusnExotica = GetSettingInt(TEXT("EnableDamperCrusnExotica"), 0);
+static int DamperStrengthCrusnExotica = GetSettingInt(TEXT("DamperStrengthCrusnExotica"), 100);
+static int configFFBGainCrusnExotica = GetSettingInt(TEXT("FFBGainCrusnExotica"), 400);
 
 static int configMinForceCalSpeed = GetSettingInt(TEXT("MinForceCalSpeed"), 0);
 static int configMaxForceCalSpeed = GetSettingInt(TEXT("MaxForceCalSpeed"), 100);
@@ -889,6 +1012,19 @@ static int ForceSpringStrengthSuperGTMAME = GetSettingInt(TEXT("ForceSpringStren
 static int EnableDamperSuperGTMAME = GetSettingInt(TEXT("EnableDamperSuperGT"), 0);
 static int DamperStrengthSuperGTMAME = GetSettingInt(TEXT("DamperStrengthSuperGT"), 100);
 
+static int configMinForceSTCCMAME = GetSettingInt(TEXT("MinForceSTCC"), 0);
+static int configMaxForceSTCCMAME = GetSettingInt(TEXT("MaxForceSTCC"), 100);
+static int configAlternativeMinForceLeftSTCCMAME = GetSettingInt(TEXT("AlternativeMinForceLeftSTCC"), 0);
+static int configAlternativeMaxForceLeftSTCCMAME = GetSettingInt(TEXT("AlternativeMaxForceLeftSTCC"), 100);
+static int configAlternativeMinForceRightSTCCMAME = GetSettingInt(TEXT("AlternativeMinForceRightSTCC"), 0);
+static int configAlternativeMaxForceRightSTCCMAME = GetSettingInt(TEXT("AlternativeMaxForceRightSTCC"), 100);
+static int PowerModeSTCCMAME = GetSettingInt(TEXT("PowerModeSTCC"), 0);
+static int configFeedbackLengthSTCCMAME = GetSettingInt(TEXT("FeedbackLengthSTCC"), 120);
+static int EnableForceSpringEffectSTCCMAME = GetSettingInt(TEXT("EnableForceSpringEffectSTCC"), 0);
+static int ForceSpringStrengthSTCCMAME = GetSettingInt(TEXT("ForceSpringStrengthSTCC"), 0);
+static int EnableDamperSTCCMAME = GetSettingInt(TEXT("EnableDamperSTCC"), 0);
+static int DamperStrengthSTCCMAME = GetSettingInt(TEXT("DamperStrengthSTCC"), 100);
+
 static int configMinForceSuperChase = GetSettingInt(TEXT("MinForceSuperChase"), 0);
 static int configMaxForceSuperChase = GetSettingInt(TEXT("MaxForceSuperChase"), 100);
 static int configAlternativeMinForceLeftSuperChase = GetSettingInt(TEXT("AlternativeMinForceLeftSuperChase"), 0);
@@ -943,6 +1079,188 @@ static int ForceSpringStrengthAceDriver = GetSettingInt(TEXT("ForceSpringStrengt
 static int FFBDivideAceDriver = GetSettingInt(TEXT("FFBDivideAceDriver"), 0);
 static int EnableDamperAceDriver = GetSettingInt(TEXT("EnableDamperAceDriver"), 0);
 static int DamperStrengthAceDriver = GetSettingInt(TEXT("DamperStrengthAceDriver"), 100);
+
+static int configMinForceOverRev = GetSettingInt(TEXT("MinForceOverRev"), 0);
+static int configMaxForceOverRev = GetSettingInt(TEXT("MaxForceOverRev"), 100);
+static int configAlternativeMinForceLeftOverRev = GetSettingInt(TEXT("AlternativeMinForceLeftOverRev"), 0);
+static int configAlternativeMaxForceLeftOverRev = GetSettingInt(TEXT("AlternativeMaxForceLeftOverRev"), 100);
+static int configAlternativeMinForceRightOverRev = GetSettingInt(TEXT("AlternativeMinForceRightOverRev"), 0);
+static int configAlternativeMaxForceRightOverRev = GetSettingInt(TEXT("AlternativeMaxForceRightOverRev"), 100);
+static int configFeedbackLengthOverRev = GetSettingInt(TEXT("FeedbackLengthOverRev"), 120);
+static int PowerModeOverRev = GetSettingInt(TEXT("PowerModeOverRev"), 0);
+static int EnableForceSpringEffectOverRev = GetSettingInt(TEXT("EnableForceSpringEffectOverRev"), 0);
+static int ForceSpringStrengthOverRev = GetSettingInt(TEXT("ForceSpringStrengthOverRev"), 0);
+static int EnableDamperOverRev = GetSettingInt(TEXT("EnableDamperOverRev"), 0);
+static int DamperStrengthOverRev = GetSettingInt(TEXT("DamperStrengthOverRev"), 100);
+
+static int configMinForceCartFury = GetSettingInt(TEXT("MinForceCartFury"), 0);
+static int configMaxForceCartFury = GetSettingInt(TEXT("MaxForceCartFury"), 100);
+static int configAlternativeMinForceLeftCartFury = GetSettingInt(TEXT("AlternativeMinForceLeftCartFury"), 0);
+static int configAlternativeMaxForceLeftCartFury = GetSettingInt(TEXT("AlternativeMaxForceLeftCartFury"), 100);
+static int configAlternativeMinForceRightCartFury = GetSettingInt(TEXT("AlternativeMinForceRightCartFury"), 0);
+static int configAlternativeMaxForceRightCartFury = GetSettingInt(TEXT("AlternativeMaxForceRightCartFury"), 100);
+static int configFeedbackLengthCartFury = GetSettingInt(TEXT("FeedbackLengthCartFury"), 120);
+static int PowerModeCartFury = GetSettingInt(TEXT("PowerModeCartFury"), 0);
+static int EnableForceSpringEffectCartFury = GetSettingInt(TEXT("EnableForceSpringEffectCartFury"), 0);
+static int ForceSpringStrengthCartFury = GetSettingInt(TEXT("ForceSpringStrengthCartFury"), 0);
+static int EnableDamperCartFury = GetSettingInt(TEXT("EnableDamperCartFury"), 0);
+static int DamperStrengthCartFury = GetSettingInt(TEXT("DamperStrengthCartFury"), 100);
+
+static int configMinForceThrillD = GetSettingInt(TEXT("MinForceThrillD"), 0);
+static int configMaxForceThrillD = GetSettingInt(TEXT("MaxForceThrillD"), 100);
+static int configAlternativeMinForceLeftThrillD = GetSettingInt(TEXT("AlternativeMinForceLeftThrillD"), 0);
+static int configAlternativeMaxForceLeftThrillD = GetSettingInt(TEXT("AlternativeMaxForceLeftThrillD"), 100);
+static int configAlternativeMinForceRightThrillD = GetSettingInt(TEXT("AlternativeMinForceRightThrillD"), 0);
+static int configAlternativeMaxForceRightThrillD = GetSettingInt(TEXT("AlternativeMaxForceRightThrillD"), 100);
+static int configFeedbackLengthThrillD = GetSettingInt(TEXT("FeedbackLengthThrillD"), 120);
+static int PowerModeThrillD = GetSettingInt(TEXT("PowerModeThrillD"), 0);
+static int EnableForceSpringEffectThrillD = GetSettingInt(TEXT("EnableForceSpringEffectThrillD"), 0);
+static int ForceSpringStrengthThrillD = GetSettingInt(TEXT("ForceSpringStrengthThrillD"), 0);
+static int EnableDamperThrillD = GetSettingInt(TEXT("EnableDamperThrillD"), 0);
+static int DamperStrengthThrillD = GetSettingInt(TEXT("DamperStrengthThrillD"), 100);
+
+static int configMinForceWindheat = GetSettingInt(TEXT("MinForceWindheat"), 0);
+static int configMaxForceWindheat = GetSettingInt(TEXT("MaxForceWindheat"), 100);
+static int configAlternativeMinForceLeftWindheat = GetSettingInt(TEXT("AlternativeMinForceLeftWindheat"), 0);
+static int configAlternativeMaxForceLeftWindheat = GetSettingInt(TEXT("AlternativeMaxForceLeftWindheat"), 100);
+static int configAlternativeMinForceRightWindheat = GetSettingInt(TEXT("AlternativeMinForceRightWindheat"), 0);
+static int configAlternativeMaxForceRightWindheat = GetSettingInt(TEXT("AlternativeMaxForceRightWindheat"), 100);
+static int configFeedbackLengthWindheat = GetSettingInt(TEXT("FeedbackLengthWindheat"), 120);
+static int PowerModeWindheat = GetSettingInt(TEXT("PowerModeWindheat"), 0);
+static int EnableForceSpringEffectWindheat = GetSettingInt(TEXT("EnableForceSpringEffectWindheat"), 0);
+static int ForceSpringStrengthWindheat = GetSettingInt(TEXT("ForceSpringStrengthWindheat"), 0);
+static int EnableDamperWindheat = GetSettingInt(TEXT("EnableDamperWindheat"), 0);
+static int DamperStrengthWindheat = GetSettingInt(TEXT("DamperStrengthWindheat"), 100);
+
+static int configMinForceMidnRun = GetSettingInt(TEXT("MinForceMidnRun"), 0);
+static int configMaxForceMidnRun = GetSettingInt(TEXT("MaxForceMidnRun"), 100);
+static int configAlternativeMinForceLeftMidnRun = GetSettingInt(TEXT("AlternativeMinForceLeftMidnRun"), 0);
+static int configAlternativeMaxForceLeftMidnRun = GetSettingInt(TEXT("AlternativeMaxForceLeftMidnRun"), 100);
+static int configAlternativeMinForceRightMidnRun = GetSettingInt(TEXT("AlternativeMinForceRightMidnRun"), 0);
+static int configAlternativeMaxForceRightMidnRun = GetSettingInt(TEXT("AlternativeMaxForceRightMidnRun"), 100);
+static int configFeedbackLengthMidnRun = GetSettingInt(TEXT("FeedbackLengthMidnRun"), 120);
+static int PowerModeMidnRun = GetSettingInt(TEXT("PowerModeMidnRun"), 0);
+static int EnableForceSpringEffectMidnRun = GetSettingInt(TEXT("EnableForceSpringEffectMidnRun"), 0);
+static int ForceSpringStrengthMidnRun = GetSettingInt(TEXT("ForceSpringStrengthMidnRun"), 0);
+static int EnableDamperMidnRun = GetSettingInt(TEXT("EnableDamperMidnRun"), 0);
+static int DamperStrengthMidnRun = GetSettingInt(TEXT("DamperStrengthMidnRun"), 100);
+
+static int configMinForceRacingJ = GetSettingInt(TEXT("MinForceRacingJ"), 0);
+static int configMaxForceRacingJ = GetSettingInt(TEXT("MaxForceRacingJ"), 100);
+static int configAlternativeMinForceLeftRacingJ = GetSettingInt(TEXT("AlternativeMinForceLeftRacingJ"), 0);
+static int configAlternativeMaxForceLeftRacingJ = GetSettingInt(TEXT("AlternativeMaxForceLeftRacingJ"), 100);
+static int configAlternativeMinForceRightRacingJ = GetSettingInt(TEXT("AlternativeMinForceRightRacingJ"), 0);
+static int configAlternativeMaxForceRightRacingJ = GetSettingInt(TEXT("AlternativeMaxForceRightRacingJ"), 100);
+static int configFeedbackLengthRacingJ = GetSettingInt(TEXT("FeedbackLengthRacingJ"), 120);
+static int PowerModeRacingJ = GetSettingInt(TEXT("PowerModeRacingJ"), 0);
+static int EnableForceSpringEffectRacingJ = GetSettingInt(TEXT("EnableForceSpringEffectRacingJ"), 0);
+static int ForceSpringStrengthRacingJ = GetSettingInt(TEXT("ForceSpringStrengthRacingJ"), 0);
+static int EnableDamperRacingJ = GetSettingInt(TEXT("EnableDamperRacingJ"), 0);
+static int DamperStrengthRacingJ = GetSettingInt(TEXT("DamperStrengthRacingJ"), 100);
+
+static int configMinForceRacingJ2 = GetSettingInt(TEXT("MinForceRacingJ2"), 0);
+static int configMaxForceRacingJ2 = GetSettingInt(TEXT("MaxForceRacingJ2"), 100);
+static int configAlternativeMinForceLeftRacingJ2 = GetSettingInt(TEXT("AlternativeMinForceLeftRacingJ2"), 0);
+static int configAlternativeMaxForceLeftRacingJ2 = GetSettingInt(TEXT("AlternativeMaxForceLeftRacingJ2"), 100);
+static int configAlternativeMinForceRightRacingJ2 = GetSettingInt(TEXT("AlternativeMinForceRightRacingJ2"), 0);
+static int configAlternativeMaxForceRightRacingJ2 = GetSettingInt(TEXT("AlternativeMaxForceRightRacingJ2"), 100);
+static int configFeedbackLengthRacingJ2 = GetSettingInt(TEXT("FeedbackLengthRacingJ2"), 120);
+static int PowerModeRacingJ2 = GetSettingInt(TEXT("PowerModeRacingJ2"), 0);
+static int EnableForceSpringEffectRacingJ2 = GetSettingInt(TEXT("EnableForceSpringEffectRacingJ2"), 0);
+static int ForceSpringStrengthRacingJ2 = GetSettingInt(TEXT("ForceSpringStrengthRacingJ2"), 0);
+static int EnableDamperRacingJ2 = GetSettingInt(TEXT("EnableDamperRacingJ2"), 0);
+static int DamperStrengthRacingJ2 = GetSettingInt(TEXT("DamperStrengthRacingJ2"), 100);
+
+static int configMinForceGTIClub = GetSettingInt(TEXT("MinForceGTIClub"), 0);
+static int configMaxForceGTIClub = GetSettingInt(TEXT("MaxForceGTIClub"), 100);
+static int configAlternativeMinForceLeftGTIClub = GetSettingInt(TEXT("AlternativeMinForceLeftGTIClub"), 0);
+static int configAlternativeMaxForceLeftGTIClub = GetSettingInt(TEXT("AlternativeMaxForceLeftGTIClub"), 100);
+static int configAlternativeMinForceRightGTIClub = GetSettingInt(TEXT("AlternativeMinForceRightGTIClub"), 0);
+static int configAlternativeMaxForceRightGTIClub = GetSettingInt(TEXT("AlternativeMaxForceRightGTIClub"), 100);
+static int configFeedbackLengthGTIClub = GetSettingInt(TEXT("FeedbackLengthGTIClub"), 120);
+static int PowerModeGTIClub = GetSettingInt(TEXT("PowerModeGTIClub"), 0);
+static int EnableForceSpringEffectGTIClub = GetSettingInt(TEXT("EnableForceSpringEffectGTIClub"), 0);
+static int ForceSpringStrengthGTIClub = GetSettingInt(TEXT("ForceSpringStrengthGTIClub"), 0);
+static int EnableDamperGTIClub = GetSettingInt(TEXT("EnableDamperGTIClub"), 0);
+static int DamperStrengthGTIClub = GetSettingInt(TEXT("DamperStrengthGTIClub"), 100);
+
+static int configMinForceRoadEdge = GetSettingInt(TEXT("MinForceRoadEdge"), 0);
+static int configMaxForceRoadEdge = GetSettingInt(TEXT("MaxForceRoadEdge"), 100);
+static int configAlternativeMinForceLeftRoadEdge = GetSettingInt(TEXT("AlternativeMinForceLeftRoadEdge"), 0);
+static int configAlternativeMaxForceLeftRoadEdge = GetSettingInt(TEXT("AlternativeMaxForceLeftRoadEdge"), 100);
+static int configAlternativeMinForceRightRoadEdge = GetSettingInt(TEXT("AlternativeMinForceRightRoadEdge"), 0);
+static int configAlternativeMaxForceRightRoadEdge = GetSettingInt(TEXT("AlternativeMaxForceRightRoadEdge"), 100);
+static int PowerModeRoadEdge = GetSettingInt(TEXT("PowerModeRoadEdge"), 0);
+static int configFeedbackLengthRoadEdge = GetSettingInt(TEXT("FeedbackLengthRoadEdge"), 120);
+static int EnableForceSpringEffectRoadEdge = GetSettingInt(TEXT("EnableForceSpringEffectRoadEdge"), 0);
+static int ForceSpringStrengthRoadEdge = GetSettingInt(TEXT("ForceSpringStrengthRoadEdge"), 0);
+static int EnableDamperRoadEdge = GetSettingInt(TEXT("EnableDamperRoadEdge"), 0);
+static int DamperStrengthRoadEdge = GetSettingInt(TEXT("DamperStrengthRoadEdge"), 100);
+
+static int configMinForceXRally = GetSettingInt(TEXT("MinForceXRally"), 0);
+static int configMaxForceXRally = GetSettingInt(TEXT("MaxForceXRally"), 100);
+static int configAlternativeMinForceLeftXRally = GetSettingInt(TEXT("AlternativeMinForceLeftXRally"), 0);
+static int configAlternativeMaxForceLeftXRally = GetSettingInt(TEXT("AlternativeMaxForceLeftXRally"), 100);
+static int configAlternativeMinForceRightXRally = GetSettingInt(TEXT("AlternativeMinForceRightXRally"), 0);
+static int configAlternativeMaxForceRightXRally = GetSettingInt(TEXT("AlternativeMaxForceRightXRally"), 100);
+static int PowerModeXRally = GetSettingInt(TEXT("PowerModeXRally"), 0);
+static int configFeedbackLengthXRally = GetSettingInt(TEXT("FeedbackLengthXRally"), 120);
+static int EnableForceSpringEffectXRally = GetSettingInt(TEXT("EnableForceSpringEffectXRally"), 0);
+static int ForceSpringStrengthXRally = GetSettingInt(TEXT("ForceSpringStrengthXRally"), 0);
+static int EnableDamperXRally = GetSettingInt(TEXT("EnableDamperXRally"), 0);
+static int DamperStrengthXRally = GetSettingInt(TEXT("DamperStrengthXRally"), 100);
+
+static int configMinForceSideBS = GetSettingInt(TEXT("MinForceSideBS"), 0);
+static int configMaxForceSideBS = GetSettingInt(TEXT("MaxForceSideBS"), 100);
+static int configAlternativeMinForceLeftSideBS = GetSettingInt(TEXT("AlternativeMinForceLeftSideBS"), 0);
+static int configAlternativeMaxForceLeftSideBS = GetSettingInt(TEXT("AlternativeMaxForceLeftSideBS"), 100);
+static int configAlternativeMinForceRightSideBS = GetSettingInt(TEXT("AlternativeMinForceRightSideBS"), 0);
+static int configAlternativeMaxForceRightSideBS = GetSettingInt(TEXT("AlternativeMaxForceRightSideBS"), 100);
+static int configFeedbackLengthSideBS = GetSettingInt(TEXT("FeedbackLengthSideBS"), 120);
+static int PowerModeSideBS = GetSettingInt(TEXT("PowerModeSideBS"), 0);
+static int EnableForceSpringEffectSideBS = GetSettingInt(TEXT("EnableForceSpringEffectSideBS"), 0);
+static int ForceSpringStrengthSideBS = GetSettingInt(TEXT("ForceSpringStrengthSideBS"), 0);
+static int EnableDamperSideBS = GetSettingInt(TEXT("EnableDamperSideBS"), 0);
+static int DamperStrengthSideBS = GetSettingInt(TEXT("DamperStrengthSideBS"), 100);
+
+static int configMinForceSideBS2 = GetSettingInt(TEXT("MinForceSideBS2"), 0);
+static int configMaxForceSideBS2 = GetSettingInt(TEXT("MaxForceSideBS2"), 100);
+static int configAlternativeMinForceLeftSideBS2 = GetSettingInt(TEXT("AlternativeMinForceLeftSideBS2"), 0);
+static int configAlternativeMaxForceLeftSideBS2 = GetSettingInt(TEXT("AlternativeMaxForceLeftSideBS2"), 100);
+static int configAlternativeMinForceRightSideBS2 = GetSettingInt(TEXT("AlternativeMinForceRightSideBS2"), 0);
+static int configAlternativeMaxForceRightSideBS2 = GetSettingInt(TEXT("AlternativeMaxForceRightSideBS2"), 100);
+static int configFeedbackLengthSideBS2 = GetSettingInt(TEXT("FeedbackLengthSideBS2"), 120);
+static int PowerModeSideBS2 = GetSettingInt(TEXT("PowerModeSideBS2"), 0);
+static int EnableForceSpringEffectSideBS2 = GetSettingInt(TEXT("EnableForceSpringEffectSideBS2"), 0);
+static int ForceSpringStrengthSideBS2 = GetSettingInt(TEXT("ForceSpringStrengthSideBS2"), 0);
+static int EnableDamperSideBS2 = GetSettingInt(TEXT("EnableDamperSideBS2"), 0);
+static int DamperStrengthSideBS2 = GetSettingInt(TEXT("DamperStrengthSideBS2"), 100);
+
+static int configMinForceSpeedUp = GetSettingInt(TEXT("MinForceSpeedUp"), 0);
+static int configMaxForceSpeedUp = GetSettingInt(TEXT("MaxForceSpeedUp"), 100);
+static int configAlternativeMinForceLeftSpeedUp = GetSettingInt(TEXT("AlternativeMinForceLeftSpeedUp"), 0);
+static int configAlternativeMaxForceLeftSpeedUp = GetSettingInt(TEXT("AlternativeMaxForceLeftSpeedUp"), 100);
+static int configAlternativeMinForceRightSpeedUp = GetSettingInt(TEXT("AlternativeMinForceRightSpeedUp"), 0);
+static int configAlternativeMaxForceRightSpeedUp = GetSettingInt(TEXT("AlternativeMaxForceRightSpeedUp"), 100);
+static int configFeedbackLengthSpeedUp = GetSettingInt(TEXT("FeedbackLengthSpeedUp"), 120);
+static int PowerModeSpeedUp = GetSettingInt(TEXT("PowerModeSpeedUp"), 0);
+static int EnableForceSpringEffectSpeedUp = GetSettingInt(TEXT("EnableForceSpringEffectSpeedUp"), 0);
+static int ForceSpringStrengthSpeedUp = GetSettingInt(TEXT("ForceSpringStrengthSpeedUp"), 0);
+static int EnableDamperSpeedUp = GetSettingInt(TEXT("EnableDamperSpeedUp"), 0);
+static int DamperStrengthSpeedUp = GetSettingInt(TEXT("DamperStrengthSpeedUp"), 100);
+
+static int configMinForceDriversEdge = GetSettingInt(TEXT("MinForceDriversEdge"), 0);
+static int configMaxForceDriversEdge = GetSettingInt(TEXT("MaxForceDriversEdge"), 100);
+static int configAlternativeMinForceLeftDriversEdge = GetSettingInt(TEXT("AlternativeMinForceLeftDriversEdge"), 0);
+static int configAlternativeMaxForceLeftDriversEdge = GetSettingInt(TEXT("AlternativeMaxForceLeftDriversEdge"), 100);
+static int configAlternativeMinForceRightDriversEdge = GetSettingInt(TEXT("AlternativeMinForceRightDriversEdge"), 0);
+static int configAlternativeMaxForceRightDriversEdge = GetSettingInt(TEXT("AlternativeMaxForceRightDriversEdge"), 100);
+static int configFeedbackLengthDriversEdge = GetSettingInt(TEXT("FeedbackLengthDriversEdge"), 120);
+static int PowerModeDriversEdge = GetSettingInt(TEXT("PowerModeDriversEdge"), 0);
+static int EnableForceSpringEffectDriversEdge = GetSettingInt(TEXT("EnableForceSpringEffectDriversEdge"), 0);
+static int ForceSpringStrengthDriversEdge = GetSettingInt(TEXT("ForceSpringStrengthDriversEdge"), 0);
+static int EnableDamperDriversEdge = GetSettingInt(TEXT("EnableDamperDriversEdge"), 0);
+static int DamperStrengthDriversEdge = GetSettingInt(TEXT("DamperStrengthDriversEdge"), 100);
 
 static int configMinForceInitialD = GetSettingInt(TEXT("MinForceInitialD"), 0);
 static int configMaxForceInitialD = GetSettingInt(TEXT("MaxForceInitialD"), 100);
@@ -1100,6 +1418,9 @@ int stateFFB3;
 int stateFFBDevice2;
 int stateFFBDevice3;
 int SineEffectState;
+int smgpLamp0 = 0;
+int smgpLamp1 = 0;
+int smgpLamp2 = 0;
 double Divide;
 static INT_PTR FFBAddress;
 static UINT8 ff;
@@ -1173,6 +1494,151 @@ static int speedffb(int ffRaw) {
 		return 1;
 	}
 	return 0;
+}
+
+// Rave Racer wheel_motor output to force (1..123), -1 when the value is not a force
+static int raveracer(int ffRaw)
+{
+	static const int map[256] = {
+		/* 0x00 */ -1, -1, 62, -1, 30, -1, 94, -1,
+		/* 0x08 */ 46, -1, 78, -1, 14, -1, 110, -1,
+		/* 0x10 */ 54, -1, 70, -1, 22, -1, 102, -1,
+		/* 0x18 */ 38, -1, 86, -1, 6,  -1, 118, -1,
+		/* 0x20 */ 59, -1, 65, -1, 27, -1, 97, -1,
+		/* 0x28 */ 43, -1, 81, -1, 11, -1, 113, -1,
+		/* 0x30 */ 50, -1, 74, -1, 18, -1, 106, -1,
+		/* 0x38 */ 34, -1, 90, -1, 2,  -1, 122, -1,
+		/* 0x40 */ 60, -1, 64, -1, 28, -1, 96, -1,
+		/* 0x48 */ 44, -1, 80, -1, 12, -1, 112, -1,
+		/* 0x50 */ 52, -1, 72, -1, 20, -1, 104, -1,
+		/* 0x58 */ 36, -1, 88, -1, 4,  -1, 120, -1,
+		/* 0x60 */ 56, -1, 68, -1, 24, -1, 100, -1,
+		/* 0x68 */ 40, -1, 84, -1, 8,  -1, 116, -1,
+		/* 0x70 */ 48, -1, 76, -1, 16, -1, 108, -1,
+		/* 0x78 */ 32, -1, 92, -1, 1,  -1, 123, -1,
+		/* 0x80 */ 61, -1, 63, -1, 29, -1, 95, -1,
+		/* 0x88 */ 45, -1, 79, -1, 13, -1, 111, -1,
+		/* 0x90 */ 53, -1, 71, -1, 21, -1, 103, -1,
+		/* 0x98 */ 37, -1, 87, -1, 5,  -1, 119, -1,
+		/* 0xA0 */ 57, -1, 67, -1, 25, -1, 99,  -1,
+		/* 0xA8 */ 41, -1, 83, -1, 9,  -1, 115, -1,
+		/* 0xB0 */ 49, -1, 75, -1, 17, -1, 107, -1,
+		/* 0xB8 */ 33, -1, 91, -1, -1, -1, -1, -1,
+		/* 0xC0 */ 58, -1, 66, -1, 26, -1, 98,  -1,
+		/* 0xC8 */ 42, -1, 82, -1, 10, -1, 114, -1,
+		/* 0xD0 */ 51, -1, 73, -1, 19, -1, 105, -1,
+		/* 0xD8 */ 35, -1, 89, -1, 3,  -1, 121, -1,
+		/* 0xE0 */ 55, -1, 69, -1, 23, -1, 101, -1,
+		/* 0xE8 */ 39, -1, 85, -1, 7,  -1, 117, -1,
+		/* 0xF0 */ 47, -1, 77, -1, 15, -1, 109, -1,
+		/* 0xF8 */ 31, -1, 93, -1, -1, -1, -1, -1
+	};
+
+	return map[ffRaw & 0xFF];
+}
+
+// Ace Driver wheel_motor output to signed force (-62..62)
+static int acedrivertable(int ffRaw)
+{
+	static const int map[256] = {
+		/* 0x00 */  0,   62,  0,  -62,  0,   31,  0,  -31,
+		/* 0x08 */  0,   47,  0,  -47,  0,   15,  0,  -15,
+		/* 0x10 */  0,   55,  0,  -55,  0,   23,  0,  -23,
+		/* 0x18 */  0,   39,  0,  -39,  0,    7,  0,   -7,
+		/* 0x20 */  0,   59,  0,  -59,  0,   27,  0,  -27,
+		/* 0x28 */  0,   43,  0,  -43,  0,   11,  0,  -11,
+		/* 0x30 */  0,   51,  0,  -51,  0,   19,  0,  -19,
+		/* 0x38 */  0,   35,  0,  -35,  0,    3,  0,   -3,
+
+		/* 0x40 */  0,   61,  0,  -61,  0,   29,  0,  -29,
+		/* 0x48 */  0,   45,  0,  -45,  0,   13,  0,  -13,
+		/* 0x50 */  0,   53,  0,  -53,  0,   21,  0,  -21,
+		/* 0x58 */  0,   37,  0,  -37,  0,    5,  0,   -5,
+		/* 0x60 */  0,   57,  0,  -57,  0,   25,  0,  -25,
+		/* 0x68 */  0,   41,  0,  -41,  0,    9,  0,   -9,
+		/* 0x70 */  0,   49,  0,  -49,  0,   17,  0,  -17,
+		/* 0x78 */  0,   33,  0,  -33,  0,    1,  0,   -1,
+
+		/* 0x80 */  0,   62,  0,  -62,  0,   30,  0,  -30,
+		/* 0x88 */  0,   46,  0,  -46,  0,   14,  0,  -14,
+		/* 0x90 */  0,   54,  0,  -54,  0,   22,  0,  -22,
+		/* 0x98 */  0,   38,  0,  -38,  0,    6,  0,   -6,
+		/* 0xA0 */  0,   58,  0,  -58,  0,   26,  0,  -26,
+		/* 0xA8 */  0,   42,  0,  -42,  0,   10,  0,  -10,
+		/* 0xB0 */  0,   50,  0,  -50,  0,   18,  0,  -18,
+		/* 0xB8 */  0,   34,  0,  -34,  0,    2,  0,   -2,
+
+		/* 0xC0 */  0,   60,  0,  -60,  0,   28,  0,  -28,
+		/* 0xC8 */  0,   44,  0,  -44,  0,   12,  0,  -12,
+		/* 0xD0 */  0,   52,  0,  -52,  0,   20,  0,  -20,
+		/* 0xD8 */  0,   36,  0,  -36,  0,    4,  0,   -4,
+		/* 0xE0 */  0,   56,  0,  -56,  0,   24,  0,  -24,
+		/* 0xE8 */  0,   40,  0,  -40,  0,    8,  0,   -8,
+		/* 0xF0 */  0,   48,  0,  -48,  0,   16,  0,  -16,
+		/* 0xF8 */  0,   32,  0,  -32,  0,    0,  0,    0  // 0xFF = true neutral
+	};
+	return map[ffRaw & 0xFF];
+}
+
+// Swaps left and right when the ReverseDirection setting is enabled
+static int SwapDirection(int direction)
+{
+	if (!ReverseDirection || !myconstants)
+		return direction;
+
+	if (direction == myconstants->DIRECTION_FROM_LEFT)
+		return myconstants->DIRECTION_FROM_RIGHT;
+
+	if (direction == myconstants->DIRECTION_FROM_RIGHT)
+		return myconstants->DIRECTION_FROM_LEFT;
+
+	return direction;
+}
+
+struct DriversEdgeMotor
+{
+	int direction;
+	double strength;
+};
+
+static DriversEdgeMotor decode_driversedge_motor(int raw)
+{
+	// MAME Driver's Edge wheel_motor output is signed -31..+31.
+	if (raw > 31)
+		raw = 31;
+	else if (raw < -31)
+		raw = -31;
+
+	DriversEdgeMotor motor{ 0, 0.0 };
+
+	if (raw > 0)
+	{
+		motor.direction = 1;
+		motor.strength = raw / 31.0;
+	}
+	else if (raw < 0)
+	{
+		motor.direction = -1;
+		motor.strength = (-raw) / 31.0;
+	}
+
+	return motor;
+}
+
+// Constant force of the games driven by MAME outputs, played as ConstantInf when UseConstantInf is set
+static void SendConstant(EffectTriggers* triggers, int direction, double strength)
+{
+	if (UseConstantInf)
+		triggers->ConstantInf(direction, strength);
+	else
+		triggers->Constant(direction, strength);
+}
+
+// Stops the constant force in both directions
+static void StopConstantForce(EffectTriggers* triggers, EffectConstants* constants)
+{
+	SendConstant(triggers, constants->DIRECTION_FROM_LEFT, 0.0);
+	SendConstant(triggers, constants->DIRECTION_FROM_RIGHT, 0.0);
 }
 
 static int DriveboardSequenceRunning = 0; // 0 = no sequence
@@ -1475,18 +1941,21 @@ static void FFBGameEffects(EffectConstants* constants, Helpers* helpers, EffectT
 				//Spring
 				double percentForce = 0.8;
 				triggers->Spring(percentForce);
+				SendConstant(triggers, constants->DIRECTION_FROM_LEFT, 0.0);
 			}
 
 			if (stateFFB == 0x20 || stateFFB == 0x28) //Clutch
 			{
 				double percentForce = 0.4;
 				triggers->Friction(percentForce);
+				SendConstant(triggers, constants->DIRECTION_FROM_LEFT, 0.0);
 			}
 
 			if (stateFFB > 0x2F && stateFFB < 0x40) //Centering
 			{
 				double percentForce = (stateFFB - 47) / 11.0;
 				triggers->Spring(percentForce);
+				SendConstant(triggers, constants->DIRECTION_FROM_LEFT, 0.0);
 			}
 
 			if (stateFFB == 0x40 || stateFFB == 0x46 || stateFFB == 0x4A) //Uncentering
@@ -1506,43 +1975,153 @@ static void FFBGameEffects(EffectConstants* constants, Helpers* helpers, EffectT
 						triggers->Sine(70, 30, percentForce, 100);
 					}
 				}
+				SendConstant(triggers, constants->DIRECTION_FROM_LEFT, 0.0);
 			}
 
 			if (stateFFB == 0x50 || stateFFB == 0x5F) //Roll Left
 			{
 				double percentForce = 0.5;
 				triggers->Rumble(0, percentForce, length_ms);
-				triggers->Constant(constants->DIRECTION_FROM_RIGHT, percentForce);
+				SendConstant(triggers, constants->DIRECTION_FROM_RIGHT, percentForce);
 			}
 			else if (stateFFB == 0x60 || stateFFB == 0x6F) //Roll Right
 			{
 				double percentForce = 0.5;
 				triggers->Rumble(percentForce, 0, length_ms);
-				triggers->Constant(constants->DIRECTION_FROM_LEFT, percentForce);
+				SendConstant(triggers, constants->DIRECTION_FROM_LEFT, percentForce);
+			}
+			else
+			{
+				SendConstant(triggers, constants->DIRECTION_FROM_LEFT, 0.0);
 			}
 		}
 	}
 
-	if (RunningFFB == RacingFullValueActive1) //Mame games using all values 
+	if (RunningFFB == SuperMonacoGPActive)
 	{
-		if (name == wheel || name == wheel_motor)
+		// MAME output callbacks only update the current 3-bit shaker stage.
+		// FFBLoop keeps the periodic effect running continuously.
+		if (name == mainpcb_lamp0)
+			smgpLamp0 = stateFFB ? 1 : 0;
+		else if (name == mainpcb_lamp1)
+			smgpLamp1 = stateFFB ? 1 : 0;
+		else if (name == mainpcb_lamp2)
+			smgpLamp2 = stateFFB ? 1 : 0;
+	}
+
+	if (RunningFFB == NamcoFFBNew) //Ace Driver, Ace Driver Victory Lap
+	{
+		if (name == mcuout3)
+		{
+			if (newstateFFB == 0)
+				StopConstantForce(triggers, constants);
+		}
+
+		if (name == wheel_motor)
+		{
+			int fface = acedrivertable((UINT8)stateFFB);
+
+			if (fface > 0)
+			{
+				double percentForce = fface / 62.0;
+				triggers->Rumble(percentForce, 0.0, 100);
+				SendConstant(triggers, constants->DIRECTION_FROM_RIGHT, percentForce);
+			}
+			else if (fface < 0)
+			{
+				double percentForce = (-fface) / 62.0;
+				triggers->Rumble(0.0, percentForce, 100);
+				SendConstant(triggers, constants->DIRECTION_FROM_LEFT, percentForce);
+			}
+			else
+			{
+				StopConstantForce(triggers, constants);
+			}
+		}
+	}
+
+	if (RunningFFB == RaveRacerNew) //Rave Racer
+	{
+		if (name == mcuout3)
+		{
+			if (newstateFFB == 0)
+				StopConstantForce(triggers, constants);
+		}
+
+		if (name == wheel_motor)
+		{
+			UINT8 ffrave = raveracer((UINT8)stateFFB);
+
+			if ((ffrave > 0x3D) && (ffrave < 0x7C))
+			{
+				double percentForce = (124 - ffrave) / 61.0;
+				triggers->Rumble(percentForce, 0.0, 100);
+				SendConstant(triggers, SwapDirection(constants->DIRECTION_FROM_LEFT), percentForce);
+			}
+			else if ((ffrave > 0x00) && (ffrave < 0x3E))
+			{
+				double percentForce = ffrave / 61.0;
+				triggers->Rumble(0.0, percentForce, 100);
+				SendConstant(triggers, SwapDirection(constants->DIRECTION_FROM_RIGHT), percentForce);
+			}
+		}
+	}
+
+	if (RunningFFB == DriversEdgeActive) //Driver's Edge
+	{
+		if (name == wheel_motor)
+		{
+			const DriversEdgeMotor motor = decode_driversedge_motor(stateFFB);
+
+			helpers->log("Driver's Edge wheel_motor: ");
+			std::string ffs = std::to_string(stateFFB);
+			helpers->log((char*)ffs.c_str());
+
+			if (motor.direction == 0)
+			{
+				StopConstantForce(triggers, constants);
+				return;
+			}
+
+			if (motor.direction > 0)
+				SendConstant(triggers, SwapDirection(constants->DIRECTION_FROM_RIGHT), motor.strength);
+			else
+				SendConstant(triggers, SwapDirection(constants->DIRECTION_FROM_LEFT), motor.strength);
+		}
+	}
+
+	if (RunningFFB == RacingFullValueActive1) //Mame games using all values
+	{
+		if (name == wheel || name == wheel_motor || name == m_wheel_motor)
 		{
 			helpers->log("got value: ");
 			std::string ffs = std::to_string(stateFFB);
 			helpers->log((char*)ffs.c_str());
 
-			UINT32 length_ms = 100;
-			if (stateFFB > 0x80 && stateFFB < 0x100)
+			if (stateFFB == 0)
 			{
-				double percentForce = (256 - stateFFB) / 126.0;
+				StopConstantForce(triggers, constants);
+				return;
+			}
+
+			UINT32 length_ms = 100;
+			if (stateFFB >= 0x80 && stateFFB < 0x100)
+			{
+				double percentForce = (256 - stateFFB) / 128.0;
+				if (percentForce > 1.0) percentForce = 1.0;
 				triggers->Rumble(percentForce, 0, length_ms);
-				triggers->Constant(constants->DIRECTION_FROM_LEFT, percentForce);
+				SendConstant(triggers, constants->DIRECTION_FROM_LEFT, percentForce);
 			}
 			else if (stateFFB > 0x00 && stateFFB < 0x80)
 			{
-				double percentForce = (stateFFB) / 126.0;
+				double percentForce = (stateFFB) / 127.0;
+				if (percentForce > 1.0) percentForce = 1.0;
 				triggers->Rumble(0, percentForce, length_ms);
-				triggers->Constant(constants->DIRECTION_FROM_RIGHT, percentForce);
+				SendConstant(triggers, constants->DIRECTION_FROM_RIGHT, percentForce);
+			}
+			else
+			{
+				StopConstantForce(triggers, constants);
 			}
 		}
 	}
@@ -1555,18 +2134,273 @@ static void FFBGameEffects(EffectConstants* constants, Helpers* helpers, EffectT
 			std::string ffs = std::to_string(stateFFB);
 			helpers->log((char*)ffs.c_str());
 
+			if (stateFFB == 0)
+			{
+				StopConstantForce(triggers, constants);
+				return;
+			}
+
 			UINT32 length_ms = 100;
 			if (stateFFB > 0x80 && stateFFB < 0x100)
 			{
 				double percentForce = (256 - stateFFB) / 126.0;
+				if (percentForce > 1.0) percentForce = 1.0;
 				triggers->Rumble(0, percentForce, length_ms);
-				triggers->Constant(constants->DIRECTION_FROM_RIGHT, percentForce);
+				SendConstant(triggers, constants->DIRECTION_FROM_RIGHT, percentForce);
 			}
 			else if (stateFFB > 0x00 && stateFFB < 0x80)
 			{
 				double percentForce = (stateFFB) / 126.0;
+				if (percentForce > 1.0) percentForce = 1.0;
 				triggers->Rumble(percentForce, 0, length_ms);
-				triggers->Constant(constants->DIRECTION_FROM_LEFT, percentForce);
+				SendConstant(triggers, constants->DIRECTION_FROM_LEFT, percentForce);
+			}
+			else
+			{
+				StopConstantForce(triggers, constants);
+			}
+		}
+	}
+
+	if (RunningFFB == RacingFullValueExotica) //Cruis'n Exotica
+	{
+		if (name == wheel || name == wheel_motor)
+		{
+			// Exotica writes the motor command as a signed 8-bit value. 0x80 is
+			// neutral, matching the Cruis'n full-value convention used here.
+			int signedForce = static_cast<signed char>(static_cast<unsigned char>(stateFFB));
+			if (signedForce == -128)
+				signedForce = 0;
+
+			int gain = configFFBGainCrusnExotica;
+			if (gain < 0) gain = 0;
+			if (gain > 800) gain = 800;
+
+			int scaledForce = (signedForce * gain) / 100;
+			if (scaledForce > 127) scaledForce = 127;
+			if (scaledForce < -127) scaledForce = -127;
+
+			// Exotica with the correct shifter/wheel DIP needs inverted FFB direction.
+			scaledForce = -scaledForce;
+
+			char WheelActive[256];
+			sprintf(WheelActive, "WheelActiveExotica raw: %i scaled: %i", stateFFB, scaledForce);
+			helpers->log(WheelActive);
+
+			if (scaledForce > 0)
+			{
+				double percentForce = scaledForce / 126.0;
+				if (percentForce > 1.0) percentForce = 1.0;
+				triggers->Rumble(percentForce, 0, 100);
+				SendConstant(triggers, constants->DIRECTION_FROM_LEFT, percentForce);
+				return;
+			}
+
+			if (scaledForce < 0)
+			{
+				double percentForce = (-scaledForce) / 126.0;
+				if (percentForce > 1.0) percentForce = 1.0;
+				triggers->Rumble(0, percentForce, 100);
+				SendConstant(triggers, constants->DIRECTION_FROM_RIGHT, percentForce);
+				return;
+			}
+		}
+	}
+
+	if (RunningFFB == srallynew) //Sega Rally Championship
+	{
+		if (name == wheel_motor)
+		{
+			helpers->log("got value: ");
+			std::string ffs = std::to_string(stateFFB);
+			helpers->log((char*)ffs.c_str());
+
+			if (stateFFB == 0x00)
+			{
+				triggers->Rumble(0, 0, 0);
+				StopConstantForce(triggers, constants);
+				return;
+			}
+
+			UINT32 length_ms = 100;
+			if (stateFFB >= 0xC0 && stateFFB <= 0xDF) // Force from right, wheel turns left
+			{
+				double percentForce = (stateFFB - 0xC0) / 31.0;
+				triggers->Rumble(0, percentForce, length_ms);
+				SendConstant(triggers, constants->DIRECTION_FROM_RIGHT, percentForce);
+			}
+			else if (stateFFB >= 0x80 && stateFFB <= 0x9F) // Force from left, wheel turns right
+			{
+				double percentForce = (stateFFB - 0x80) / 31.0;
+				triggers->Rumble(percentForce, 0, length_ms);
+				SendConstant(triggers, constants->DIRECTION_FROM_LEFT, percentForce);
+			}
+		}
+	}
+
+	if (RunningFFB == Konami) //Thrill Drive, Winding Heat, GTI Club, Midnight Run, Racing Jam 1 and 2
+	{
+		if (name == wheel || name == wheel_motor || name == pcboutput0 || name == output0 || name == wheel0)
+		{
+			const uint8_t value = static_cast<uint8_t>(stateFFB);
+
+			helpers->log("got value: ");
+			std::string ffs = std::to_string(value);
+			helpers->log((char*)ffs.c_str());
+
+			// Bits 0-3: force level 0-15, bit 4: direction.
+			const int forceLevel = value & 0x0F;
+			const bool directionBit = (value & 0x10) != 0;
+
+			// Any value with a force level of 0 (not only 0 itself, but also 0x80 and 0x90) means no force.
+			if (forceLevel == 0)
+			{
+				StopConstantForce(triggers, constants);
+				return;
+			}
+
+			const double percentForce = forceLevel / 15.0;
+
+			if (!directionBit)
+			{
+				triggers->Rumble(0, percentForce, 100);
+				SendConstant(triggers, constants->DIRECTION_FROM_RIGHT, percentForce);
+			}
+			else
+			{
+				triggers->Rumble(percentForce, 0, 100);
+				SendConstant(triggers, constants->DIRECTION_FROM_LEFT, percentForce);
+			}
+		}
+	}
+
+	if (RunningFFB == hng64) //Roads Edge, Xtreme Rally
+	{
+		if (name == wheel_motor)
+		{
+			helpers->log("got value: ");
+			std::string ffs = std::to_string(stateFFB);
+			helpers->log((char*)ffs.c_str());
+
+			if (stateFFB == 0)
+			{
+				StopConstantForce(triggers, constants);
+				return;
+			}
+
+			if (stateFFB >= 193 && stateFFB <= 255)
+			{
+				double percentForce = (stateFFB - 193) / 62.0;
+				if (percentForce > 1.0) percentForce = 1.0;
+				triggers->Rumble(0, percentForce, 100);
+				SendConstant(triggers, constants->DIRECTION_FROM_LEFT, percentForce);
+			}
+			else if (stateFFB >= 129 && stateFFB <= 191)
+			{
+				double percentForce = (stateFFB - 129) / 62.0;
+				if (percentForce > 1.0) percentForce = 1.0;
+				triggers->Rumble(percentForce, 0, 100);
+				SendConstant(triggers, constants->DIRECTION_FROM_RIGHT, percentForce);
+			}
+			else
+			{
+				StopConstantForce(triggers, constants);
+			}
+		}
+	}
+
+	if (RunningFFB == SideBSActive) //Side by Side 1 and 2
+	{
+		if (name == wheel_motor)
+		{
+			helpers->log("got wheel_motor: ");
+			std::string ffs = std::to_string(stateFFB);
+			helpers->log((char*)ffs.c_str());
+
+			int v = (int)stateFFB & 0x1F; // Extract the last 5 bits (0..31)
+
+			// Values 0 (OFF) and 1E/1F (Attract Mode/Idle) should result in zero force
+			if (v == 0 || v == 0x1E || v == 0x1F)
+			{
+				StopConstantForce(triggers, constants);
+				return;
+			}
+
+			// Direction logic: Even values = Left, Odd values = Right
+			int dir = (v & 1) ? constants->DIRECTION_FROM_RIGHT : constants->DIRECTION_FROM_LEFT;
+
+			// Map raw values to 1..15 range
+			int steps = (v + 1) / 2;
+			if (steps > 15) steps = 15;
+
+			// Invert logic as per hardware behavior:
+			// High MAME values represent low force, low MAME values represent high force
+			int stepsInv = 16 - steps;
+
+			double percentForce = (double)stepsInv / 15.0;
+			if (percentForce > 1.0) percentForce = 1.0;
+
+			// Prevent stale pull: clear both directions before applying new force
+			StopConstantForce(triggers, constants);
+			SendConstant(triggers, dir, percentForce);
+		}
+	}
+
+	if (RunningFFB == m2new) //Model 2 games: Daytona USA, Indy 500, Over Rev, Sega Touring Car Championship, Super GT 24h
+	{
+		if (name == wheel_motor)
+		{
+			helpers->log("got value: ");
+			std::string ffs = std::to_string(stateFFB);
+			helpers->log((char*)ffs.c_str());
+
+			UINT32 length_ms = 100;
+			if ((stateFFB > 0x09) && (stateFFB < 0x18))
+			{
+				//Spring
+				double percentForce = (stateFFB - 15) / 8.0;
+				triggers->Spring(percentForce);
+			}
+
+			if ((stateFFB > 0x1F) && (stateFFB < 0x28))
+			{
+				//Clutch
+				double percentForce = (stateFFB - 31) / 8.0;
+				triggers->Friction(percentForce);
+			}
+
+			if ((stateFFB > 0x2F) && (stateFFB < 0x3D))
+			{
+				//Centering
+				double percentForce = (stateFFB - 47) / 13.0;
+				triggers->Spring(percentForce);
+			}
+
+			if ((stateFFB > 0x3F) && (stateFFB < 0x48))
+			{
+				//Uncentering
+				double percentForce = (stateFFB - 63) / 8.0;
+				triggers->Sine(40, 0, percentForce, length_ms);
+				triggers->Rumble(percentForce, percentForce, length_ms);
+			}
+
+			if ((stateFFB > 0x4F) && (stateFFB < 0x58))
+			{
+				//Roll Left
+				double percentForce = (stateFFB - 79) / 8.0;
+				triggers->Rumble(0, percentForce, length_ms);
+				SendConstant(triggers, constants->DIRECTION_FROM_RIGHT, percentForce);
+			}
+			else if ((stateFFB > 0x5F) && (stateFFB < 0x68))
+			{
+				//Roll Right
+				double percentForce = (stateFFB - 95) / 8.0;
+				triggers->Rumble(percentForce, 0, length_ms);
+				SendConstant(triggers, constants->DIRECTION_FROM_LEFT, percentForce);
+			}
+			else
+			{
+				SendConstant(triggers, constants->DIRECTION_FROM_LEFT, 0.0);
 			}
 		}
 	}
@@ -1829,14 +2663,14 @@ static void FFBGameEffects(EffectConstants* constants, Helpers* helpers, EffectT
 			{
 				double percentForce = HardDrivinFFB / 100.0;
 				triggers->Rumble(percentForce, 0, length_ms);
-				triggers->Constant(constants->DIRECTION_FROM_LEFT, percentForce);
+				SendConstant(triggers, constants->DIRECTION_FROM_LEFT, percentForce);
 			}
 			else if (HardDrivinFFB < 0)
 			{
 				HardDrivinFFB = -HardDrivinFFB;
 				double percentForce = HardDrivinFFB / 100.0;
 				triggers->Rumble(0, percentForce, length_ms);
-				triggers->Constant(constants->DIRECTION_FROM_RIGHT, percentForce);
+				SendConstant(triggers, constants->DIRECTION_FROM_RIGHT, percentForce);
 			}
 		}
 	}
@@ -2203,31 +3037,6 @@ int __stdcall mame_output(const char* name, int value)
 
 static DWORD WINAPI ScanThread(LPVOID lpParam)
 {
-	if (romname == raveracw || romname == raveracj || romname == raveracja || romname == raverace) //Rave Racer
-	{
-		aAddy2 = PatternScan("\xF8\x89\xC2\x00\x9C\x0B\x40\x05\x64\x38\x05\x64\x39\x36\x14\x74\x07\x14\x73\x07", "xxxxxxxxxxxxxxxxxxxx");
-	}
-
-	if (romname == daytona || romname == daytonas || romname == daytonase) //Daytona USA
-	{
-		aAddy2 = PatternScan("\x05\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x8E\x0E\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\xFF\xFF\x00\xFF\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x3F\x42\x3F\x00\x02\x02\x01\x00\x00\x14\x1C\x00\x00\x00\x00\x00", "xxxxxxxxxxx??xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx???x?x?xx?x?xxxx");
-	}
-
-	if (romname == indy500 || romname == indy500d || romname == indy500to) //Indy500
-	{
-		aAddy2 = PatternScan("\x01\xFF\xFF\xFF\x10\x00\xFF\x4E", "xxxx??xx");
-	}
-
-	if (romname == sgt24h) //Sega GT 24hr
-	{
-		aAddy2 = PatternScan("\x03\x00\x00\x00\x09\x00\x00\x00\x1F\x00\x00\x00\x13\x00\x00\x00\x04\x00\x00\x00\x0F", "xxxxxxxxxxxxxxxxxxxxx");
-	}
-
-	if (romname == srallyc || romname == srallycb || romname == srallycdx || romname == srallycdxa) //Sega Rally
-	{
-		aAddy2 = PatternScan("\x01\x04\x00\x00\x80\x3F\xF2\xFF\xFF\xFF\x01\x00\x02\x00\x00\x00\x0B\x00\x01\x00\x01", "xxxxxxxxxxxxxxxxxxxxx");
-	}
-
 	if (romname == superchs || romname == superchsj || romname == superchsp || romname == superchsu) //Super Chase Criminal Termination
 	{
 		aAddy2 = PatternScan("\x80\x38\x00\x50\x49\x5A\x05\x70\x11\x01\x4B\x54\x4F", "xxxxxxxxxxxxx");
@@ -2238,268 +3047,6 @@ static DWORD WINAPI ScanThread(LPVOID lpParam)
 		aAddy2 = PatternScan("\xC8\x00\xC8\x00\xC8\x00\xC8\x00\xC8\x00\xC8\x00\xC8\x00\xC8\x00\x14\x00\x14\x00\x14\x00\x14\x00\x14\x00\x14\x00\x14\x00\x14", "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
 	}
 
-	return 0;
-}
-
-static int raveracer(int ffRaw) {
-	switch (ffRaw) {
-		//case 0xFE:
-			//return 128;
-	case 0x7E:
-		return 123;
-		//case 0xBE:
-			//return 126;
-	case 0x3E:
-		return 122;
-	case 0xDE:
-		return 121;
-	case 0x5E:
-		return 120;
-	case 0x9E:
-		return 119;
-	case 0x1E:
-		return 118;
-	case 0xEE:
-		return 117;
-	case 0x6E:
-		return 116;
-	case 0xAE:
-		return 115;
-	case 0xCE:
-		return 114;
-	case 0x2E:
-		return 113;
-	case 0x4E:
-		return 112;
-	case 0x8E:
-		return 111;
-	case 0x0E:
-		return 110;
-	case 0xF6:
-		return 109;
-	case 0x76:
-		return 108;
-	case 0xB6:
-		return 107;
-	case 0x36:
-		return 106;
-	case 0xD6:
-		return 105;
-	case 0x56:
-		return 104;
-	case 0x96:
-		return 103;
-	case 0x16:
-		return 102;
-	case 0xE6:
-		return 101;
-	case 0x66:
-		return 100;
-	case 0xA6:
-		return 99;
-	case 0xC6:
-		return 98;
-	case 0x26:
-		return 97;
-	case 0x46:
-		return 96;
-	case 0x86:
-		return 95;
-	case 0x06:
-		return 94;
-	case 0xFA:
-		return 93;
-	case 0x7A:
-		return 92;
-	case 0xBA:
-		return 91;
-	case 0x3A:
-		return 90;
-	case 0xDA:
-		return 89;
-	case 0x5A:
-		return 88;
-	case 0x9A:
-		return 87;
-	case 0x1A:
-		return 86;
-	case 0xEA:
-		return 85;
-	case 0x6A:
-		return 84;
-	case 0xAA:
-		return 83;
-	case 0xCA:
-		return 82;
-	case 0x2A:
-		return 81;
-	case 0x4A:
-		return 80;
-	case 0x8A:
-		return 79;
-	case 0x0A:
-		return 78;
-	case 0xF2:
-		return 77;
-	case 0x72:
-		return 76;
-	case 0xB2:
-		return 75;
-	case 0x32:
-		return 74;
-	case 0xD2:
-		return 73;
-	case 0x52:
-		return 72;
-	case 0x92:
-		return 71;
-	case 0x12:
-		return 70;
-	case 0xE2:
-		return 69;
-	case 0x62:
-		return 68;
-	case 0xA2:
-		return 67;
-	case 0xC2:
-		return 66;
-	case 0x22:
-		return 65;
-	case 0x42:
-		return 64;
-	case 0x82:
-		return 63;
-	case 0x02:
-		return 62;
-
-
-	case 0x80:
-		return 61;
-	case 0x40:
-		return 60;
-	case 0x20:
-		return 59;
-	case 0xC0:
-		return 58;
-	case 0xA0:
-		return 57;
-	case 0x60:
-		return 56;
-	case 0xE0:
-		return 55;
-	case 0x10:
-		return 54;
-	case 0x90:
-		return 53;
-	case 0x50:
-		return 52;
-	case 0xD0:
-		return 51;
-	case 0x30:
-		return 50;
-	case 0xB0:
-		return 49;
-	case 0x70:
-		return 48;
-	case 0xF0:
-		return 47;
-	case 0x08:
-		return 46;
-	case 0x88:
-		return 45;
-	case 0x48:
-		return 44;
-	case 0x28:
-		return 43;
-	case 0xC8:
-		return 42;
-	case 0xA8:
-		return 41;
-	case 0x68:
-		return 40;
-	case 0xE8:
-		return 39;
-	case 0x18:
-		return 38;
-	case 0x98:
-		return 37;
-	case 0x58:
-		return 36;
-	case 0xD8:
-		return 35;
-	case 0x38:
-		return 34;
-	case 0xB8:
-		return 33;
-	case 0x78:
-		return 32;
-	case 0xF8:
-		return 31;
-	case 0x04:
-		return 30;
-	case 0x84:
-		return 29;
-	case 0x44:
-		return 28;
-	case 0x24:
-		return 27;
-	case 0xC4:
-		return 26;
-	case 0xA4:
-		return 25;
-	case 0x64:
-		return 24;
-	case 0xE4:
-		return 23;
-	case 0x14:
-		return 22;
-	case 0x94:
-		return 21;
-	case 0x54:
-		return 20;
-	case 0xD4:
-		return 19;
-	case 0x34:
-		return 18;
-	case 0xB4:
-		return 17;
-	case 0x74:
-		return 16;
-	case 0xF4:
-		return 15;
-	case 0x0C:
-		return 14;
-	case 0x8C:
-		return 13;
-	case 0x4C:
-		return 12;
-	case 0x2C:
-		return 11;
-	case 0xCC:
-		return 10;
-	case 0xAC:
-		return 9;
-	case 0x6C:
-		return 8;
-	case 0xEC:
-		return 7;
-	case 0x1C:
-		return 6;
-	case 0x9C:
-		return 5;
-	case 0x5C:
-		return 4;
-	case 0xDC:
-		return 3;
-	case 0x3C:
-		return 2;
-		//case 0xBC:
-			//return 3;
-	case 0x7C:
-		return 1;
-		//case 0xFC:
-			//return 1;
-	}
 	return 0;
 }
 
@@ -2663,6 +3210,42 @@ void MAMESupermodel::FFBLoop(EffectConstants* constants, Helpers* helpers, Effec
 				RunningFFB = "Srally2Active";
 			}
 
+			if (romname == cartfury)
+			{
+				configMinForce = configMinForceCartFury;
+				configMaxForce = configMaxForceCartFury;
+				configAlternativeMinForceLeft = configAlternativeMinForceLeftCartFury;
+				configAlternativeMaxForceLeft = configAlternativeMaxForceLeftCartFury;
+				configAlternativeMinForceRight = configAlternativeMinForceRightCartFury;
+				configAlternativeMaxForceRight = configAlternativeMaxForceRightCartFury;
+				configFeedbackLength = configFeedbackLengthCartFury;
+				PowerMode = PowerModeCartFury;
+				EnableForceSpringEffect = EnableForceSpringEffectCartFury;
+				ForceSpringStrength = ForceSpringStrengthCartFury;
+				EnableDamper = EnableDamperCartFury;
+				DamperStrength = DamperStrengthCartFury;
+
+				RunningFFB = "RacingFullValueActive1";
+			}
+
+			if (romname == overrev || romname == overrevba || romname == overrevb)
+			{
+				configMinForce = configMinForceOverRev;
+				configMaxForce = configMaxForceOverRev;
+				configAlternativeMinForceLeft = configAlternativeMinForceLeftOverRev;
+				configAlternativeMaxForceLeft = configAlternativeMaxForceLeftOverRev;
+				configAlternativeMinForceRight = configAlternativeMinForceRightOverRev;
+				configAlternativeMaxForceRight = configAlternativeMaxForceRightOverRev;
+				configFeedbackLength = configFeedbackLengthOverRev;
+				PowerMode = PowerModeOverRev;
+				EnableForceSpringEffect = EnableForceSpringEffectOverRev;
+				ForceSpringStrength = ForceSpringStrengthOverRev;
+				EnableDamper = EnableDamperOverRev;
+				DamperStrength = DamperStrengthOverRev;
+
+				RunningFFB = "m2new";
+			}
+
 			if (romname == vr)
 			{
 				configMinForce = configMinForceVirtuaRacing;
@@ -2678,6 +3261,172 @@ void MAMESupermodel::FFBLoop(EffectConstants* constants, Helpers* helpers, Effec
 				DamperStrength = DamperStrengthVirtuaRacing;
 
 				RunningFFB = "VirtuaRacingActive";
+			}
+
+			if (romname == smgp || romname == smgp6 || romname == smgp5 ||
+				romname == smgpu || romname == smgpu1 || romname == smgpu2 ||
+				romname == smgpj || romname == smgpja ||
+				romname == smgpd || romname == smgp6d || romname == smgp5d ||
+				romname == smgpud || romname == smgpu1d || romname == smgpu2d || romname == smgpjd)
+			{
+				configMinForce = configMinForceSuperMonacoGP;
+				configMaxForce = configMaxForceSuperMonacoGP;
+				configAlternativeMinForceLeft = configAlternativeMinForceLeftSuperMonacoGP;
+				configAlternativeMaxForceLeft = configAlternativeMaxForceLeftSuperMonacoGP;
+				configAlternativeMinForceRight = configAlternativeMinForceRightSuperMonacoGP;
+				configAlternativeMaxForceRight = configAlternativeMaxForceRightSuperMonacoGP;
+				configFeedbackLength = configFeedbackLengthSuperMonacoGP;
+				EnableForceSpringEffect = EnableForceSpringEffectSuperMonacoGP;
+				ForceSpringStrength = ForceSpringStrengthSuperMonacoGP;
+				SinePeriod = SinePeriodSuperMonacoGP;
+				SineFadePeriod = SineFadePeriodSuperMonacoGP;
+				SineStrength = SineStrengthSuperMonacoGP;
+
+				RunningFFB = "SuperMonacoGPActive";
+			}
+
+			if (romname == roadedge)
+			{
+				configMinForce = configMinForceRoadEdge;
+				configMaxForce = configMaxForceRoadEdge;
+				configAlternativeMinForceLeft = configAlternativeMinForceLeftRoadEdge;
+				configAlternativeMaxForceLeft = configAlternativeMaxForceLeftRoadEdge;
+				configAlternativeMinForceRight = configAlternativeMinForceRightRoadEdge;
+				configAlternativeMaxForceRight = configAlternativeMaxForceRightRoadEdge;
+				configFeedbackLength = configFeedbackLengthRoadEdge;
+				PowerMode = PowerModeRoadEdge;
+				EnableForceSpringEffect = EnableForceSpringEffectRoadEdge;
+				ForceSpringStrength = ForceSpringStrengthRoadEdge;
+				EnableDamper = EnableDamperRoadEdge;
+				DamperStrength = DamperStrengthRoadEdge;
+
+				RunningFFB = "hng64";
+			}
+
+			if (romname == xrally)
+			{
+				configMinForce = configMinForceXRally;
+				configMaxForce = configMaxForceXRally;
+				configAlternativeMinForceLeft = configAlternativeMinForceLeftXRally;
+				configAlternativeMaxForceLeft = configAlternativeMaxForceLeftXRally;
+				configAlternativeMinForceRight = configAlternativeMinForceRightXRally;
+				configAlternativeMaxForceRight = configAlternativeMaxForceRightXRally;
+				configFeedbackLength = configFeedbackLengthXRally;
+				PowerMode = PowerModeXRally;
+				EnableForceSpringEffect = EnableForceSpringEffectXRally;
+				ForceSpringStrength = ForceSpringStrengthXRally;
+				EnableDamper = EnableDamperXRally;
+				DamperStrength = DamperStrengthXRally;
+
+				RunningFFB = "hng64";
+			}
+
+			if (romname == thrilld || romname == thrillda || romname == thrilldj || romname == thrillde || romname == thrilldgej || romname == thrilldgeu || romname == thrilldgke || romname == thrilldgkk || romname == thrilldgmj || romname == thrilldgnj || romname == thrilldgpj || romname == thrilldgkee)
+			{
+				configMinForce = configMinForceThrillD;
+				configMaxForce = configMaxForceThrillD;
+				configAlternativeMinForceLeft = configAlternativeMinForceLeftThrillD;
+				configAlternativeMaxForceLeft = configAlternativeMaxForceLeftThrillD;
+				configAlternativeMinForceRight = configAlternativeMinForceRightThrillD;
+				configAlternativeMaxForceRight = configAlternativeMaxForceRightThrillD;
+				configFeedbackLength = configFeedbackLengthThrillD;
+				PowerMode = PowerModeThrillD;
+				EnableForceSpringEffect = EnableForceSpringEffectThrillD;
+				ForceSpringStrength = ForceSpringStrengthThrillD;
+				EnableDamper = EnableDamperThrillD;
+				DamperStrength = DamperStrengthThrillD;
+
+				RunningFFB = "Konami";
+			}
+
+			if (romname == windheat || romname == windheata || romname == windheatj || romname == windheatu)
+			{
+				configMinForce = configMinForceWindheat;
+				configMaxForce = configMaxForceWindheat;
+				configAlternativeMinForceLeft = configAlternativeMinForceLeftWindheat;
+				configAlternativeMaxForceLeft = configAlternativeMaxForceLeftWindheat;
+				configAlternativeMinForceRight = configAlternativeMinForceRightWindheat;
+				configAlternativeMaxForceRight = configAlternativeMaxForceRightWindheat;
+				configFeedbackLength = configFeedbackLengthWindheat;
+				PowerMode = PowerModeWindheat;
+				EnableForceSpringEffect = EnableForceSpringEffectWindheat;
+				ForceSpringStrength = ForceSpringStrengthWindheat;
+				EnableDamper = EnableDamperWindheat;
+				DamperStrength = DamperStrengthWindheat;
+
+				RunningFFB = "Konami";
+			}
+
+			if (romname == gticlub || romname == gticluba || romname == gticlubj || romname == gticlubu)
+			{
+				configMinForce = configMinForceGTIClub;
+				configMaxForce = configMaxForceGTIClub;
+				configAlternativeMinForceLeft = configAlternativeMinForceLeftGTIClub;
+				configAlternativeMaxForceLeft = configAlternativeMaxForceLeftGTIClub;
+				configAlternativeMinForceRight = configAlternativeMinForceRightGTIClub;
+				configAlternativeMaxForceRight = configAlternativeMaxForceRightGTIClub;
+				configFeedbackLength = configFeedbackLengthGTIClub;
+				PowerMode = PowerModeGTIClub;
+				EnableForceSpringEffect = EnableForceSpringEffectGTIClub;
+				ForceSpringStrength = ForceSpringStrengthGTIClub;
+				EnableDamper = EnableDamperGTIClub;
+				DamperStrength = DamperStrengthGTIClub;
+
+				RunningFFB = "Konami";
+			}
+
+			if (romname == midnrun || romname == midnruna || romname == midnrunj || romname == midnruna2)
+			{
+				configMinForce = configMinForceMidnRun;
+				configMaxForce = configMaxForceMidnRun;
+				configAlternativeMinForceLeft = configAlternativeMinForceLeftMidnRun;
+				configAlternativeMaxForceLeft = configAlternativeMaxForceLeftMidnRun;
+				configAlternativeMinForceRight = configAlternativeMinForceRightMidnRun;
+				configAlternativeMaxForceRight = configAlternativeMaxForceRightMidnRun;
+				configFeedbackLength = configFeedbackLengthMidnRun;
+				PowerMode = PowerModeMidnRun;
+				EnableForceSpringEffect = EnableForceSpringEffectMidnRun;
+				ForceSpringStrength = ForceSpringStrengthMidnRun;
+				EnableDamper = EnableDamperMidnRun;
+				DamperStrength = DamperStrengthMidnRun;
+
+				RunningFFB = "Konami";
+			}
+
+			if (romname == racingj || romname == racingja || romname == racingje || romname == racingjj || romname == racingju)
+			{
+				configMinForce = configMinForceRacingJ;
+				configMaxForce = configMaxForceRacingJ;
+				configAlternativeMinForceLeft = configAlternativeMinForceLeftRacingJ;
+				configAlternativeMaxForceLeft = configAlternativeMaxForceLeftRacingJ;
+				configAlternativeMinForceRight = configAlternativeMinForceRightRacingJ;
+				configAlternativeMaxForceRight = configAlternativeMaxForceRightRacingJ;
+				configFeedbackLength = configFeedbackLengthRacingJ;
+				PowerMode = PowerModeRacingJ;
+				EnableForceSpringEffect = EnableForceSpringEffectRacingJ;
+				ForceSpringStrength = ForceSpringStrengthRacingJ;
+				EnableDamper = EnableDamperRacingJ;
+				DamperStrength = DamperStrengthRacingJ;
+
+				RunningFFB = "Konami";
+			}
+
+			if (romname == racingj2 || romname == racingj2a || romname == racingj2e || romname == racingj2j || romname == racingj2u)
+			{
+				configMinForce = configMinForceRacingJ2;
+				configMaxForce = configMaxForceRacingJ2;
+				configAlternativeMinForceLeft = configAlternativeMinForceLeftRacingJ2;
+				configAlternativeMaxForceLeft = configAlternativeMaxForceLeftRacingJ2;
+				configAlternativeMinForceRight = configAlternativeMinForceRightRacingJ2;
+				configAlternativeMaxForceRight = configAlternativeMaxForceRightRacingJ2;
+				configFeedbackLength = configFeedbackLengthRacingJ2;
+				PowerMode = PowerModeRacingJ2;
+				EnableForceSpringEffect = EnableForceSpringEffectRacingJ2;
+				ForceSpringStrength = ForceSpringStrengthRacingJ2;
+				EnableDamper = EnableDamperRacingJ2;
+				DamperStrength = DamperStrengthRacingJ2;
+
+				RunningFFB = "Konami";
 			}
 
 			if (romname == sfrush || romname == sfrusha)
@@ -2788,6 +3537,23 @@ void MAMESupermodel::FFBLoop(EffectConstants* constants, Helpers* helpers, Effec
 				RunningFFB = "RacingFullValueActive2";
 			}
 
+			if (romname == crusnexo)
+			{
+				configMinForce = configMinForceCrusnExotica;
+				configMaxForce = configMaxForceCrusnExotica;
+				configAlternativeMinForceLeft = configAlternativeMinForceLeftCrusnExotica;
+				configAlternativeMaxForceLeft = configAlternativeMaxForceLeftCrusnExotica;
+				configAlternativeMinForceRight = configAlternativeMinForceRightCrusnExotica;
+				configAlternativeMaxForceRight = configAlternativeMaxForceRightCrusnExotica;
+				configFeedbackLength = configFeedbackLengthCrusnExotica;
+				PowerMode = PowerModeCrusnExotica;
+				EnableForceSpringEffect = EnableForceSpringEffectCrusnExotica;
+				ForceSpringStrength = ForceSpringStrengthCrusnExotica;
+				EnableDamper = EnableDamperCrusnExotica;
+				DamperStrength = DamperStrengthCrusnExotica;
+				RunningFFB = "RacingFullValueExotica";
+			}
+
 			if (romname == calspeed || romname == calspeeda || romname == calspeedb)
 			{
 				configMinForce = configMinForceCalSpeed;
@@ -2802,6 +3568,7 @@ void MAMESupermodel::FFBLoop(EffectConstants* constants, Helpers* helpers, Effec
 				ForceSpringStrength = ForceSpringStrengthCalSpeed;
 				EnableDamper = EnableDamperCalSpeed;
 				DamperStrength = DamperStrengthCalSpeed;
+				ConstantInfHoldsAtZero = true; // its raw motor value crosses 0 when the force changes direction
 
 				RunningFFB = "RacingFullValueActive1";
 			}
@@ -3284,7 +4051,7 @@ void MAMESupermodel::FFBLoop(EffectConstants* constants, Helpers* helpers, Effec
 				RunningFFB = "RacingFullValueActive1";
 			}
 
-			if (romname == raveracw || romname == raveracj || romname == raveracja || romname == raverace)
+			if (romname == raveracw || romname == raveracj || romname == raveracja || romname == raveracej || romname == raveraceja || romname == raverace)
 			{
 				configMinForce = configMinForceRaveRacer;
 				configMaxForce = configMaxForceRaveRacer;
@@ -3299,7 +4066,7 @@ void MAMESupermodel::FFBLoop(EffectConstants* constants, Helpers* helpers, Effec
 				EnableDamper = EnableDamperRaveRacer;
 				DamperStrength = DamperStrengthRaveRacer;
 
-				RunningFFB = "RaveRacerActive";
+				RunningFFB = "RaveRacerNew";
 			}
 
 			if (romname == daytona || romname == daytonas || romname == daytonase)
@@ -3317,7 +4084,7 @@ void MAMESupermodel::FFBLoop(EffectConstants* constants, Helpers* helpers, Effec
 				EnableDamper = EnableDamperDaytonaMAME;
 				DamperStrength = DamperStrengthDaytonaMAME;
 
-				RunningFFB = "M2PatternActive";
+				RunningFFB = "m2new";
 			}
 
 			if (romname == indy500 || romname == indy500d || romname == indy500to)
@@ -3335,7 +4102,7 @@ void MAMESupermodel::FFBLoop(EffectConstants* constants, Helpers* helpers, Effec
 				EnableDamper = EnableDamperIndy500MAME;
 				DamperStrength = DamperStrengthIndy500MAME;
 
-				RunningFFB = "M2PatternActive";
+				RunningFFB = "m2new";
 			}
 
 			if (romname == sgt24h)
@@ -3353,7 +4120,7 @@ void MAMESupermodel::FFBLoop(EffectConstants* constants, Helpers* helpers, Effec
 				EnableDamper = EnableDamperSuperGTMAME;
 				DamperStrength = DamperStrengthSuperGTMAME;
 
-				RunningFFB = "M2PatternActive";
+				RunningFFB = "m2new";
 			}
 
 			if (romname == srallyc || romname == srallycb || romname == srallycdx || romname == srallycdxa)
@@ -3371,7 +4138,7 @@ void MAMESupermodel::FFBLoop(EffectConstants* constants, Helpers* helpers, Effec
 				EnableDamper = EnableDamperSRallyMAME;
 				DamperStrength = DamperStrengthSRallyMAME;
 
-				RunningFFB = "SrallyActive";
+				RunningFFB = "srallynew";
 			}
 
 			if (romname == dirtdash || romname == dirtdasha || romname == dirtdashj)
@@ -3390,7 +4157,25 @@ void MAMESupermodel::FFBLoop(EffectConstants* constants, Helpers* helpers, Effec
 				EnableDamper = EnableDamperDirtDash;
 				DamperStrength = DamperStrengthDirtDash;
 
-				RunningFFB = "NamcoFFBActive";
+				RunningFFB = "DirtDashFFB";
+			}
+
+			if (romname == stcc || romname == stcca || romname == stccb)
+			{
+				configMinForce = configMinForceSTCCMAME;
+				configMaxForce = configMaxForceSTCCMAME;
+				configAlternativeMinForceLeft = configAlternativeMinForceLeftSTCCMAME;
+				configAlternativeMaxForceLeft = configAlternativeMaxForceLeftSTCCMAME;
+				configAlternativeMinForceRight = configAlternativeMinForceRightSTCCMAME;
+				configAlternativeMaxForceRight = configAlternativeMaxForceRightSTCCMAME;
+				configFeedbackLength = configFeedbackLengthSTCCMAME;
+				PowerMode = PowerModeSTCCMAME;
+				EnableForceSpringEffect = EnableForceSpringEffectSTCCMAME;
+				ForceSpringStrength = ForceSpringStrengthSTCCMAME;
+				EnableDamper = EnableDamperSTCCMAME;
+				DamperStrength = DamperStrengthSTCCMAME;
+
+				RunningFFB = "m2new";
 			}
 
 			if (romname == victlapw || romname == victlap)
@@ -3409,7 +4194,7 @@ void MAMESupermodel::FFBLoop(EffectConstants* constants, Helpers* helpers, Effec
 				EnableDamper = EnableDamperAceDriverVictory;
 				DamperStrength = DamperStrengthAceDriverVictory;
 
-				RunningFFB = "NamcoFFBActive";
+				RunningFFB = "NamcoFFBNew";
 			}
 
 			if (romname == acedrvrw || romname == acedrive)
@@ -3428,7 +4213,79 @@ void MAMESupermodel::FFBLoop(EffectConstants* constants, Helpers* helpers, Effec
 				EnableDamper = EnableDamperAceDriver;
 				DamperStrength = DamperStrengthAceDriver;
 
-				RunningFFB = "NamcoFFBActive";
+				RunningFFB = "NamcoFFBNew";
+			}
+
+			if (romname == sidebs)
+			{
+				configMinForce = configMinForceSideBS;
+				configMaxForce = configMaxForceSideBS;
+				configAlternativeMinForceLeft = configAlternativeMinForceLeftSideBS;
+				configAlternativeMaxForceLeft = configAlternativeMaxForceLeftSideBS;
+				configAlternativeMinForceRight = configAlternativeMinForceRightSideBS;
+				configAlternativeMaxForceRight = configAlternativeMaxForceRightSideBS;
+				configFeedbackLength = configFeedbackLengthSideBS;
+				PowerMode = PowerModeSideBS;
+				EnableForceSpringEffect = EnableForceSpringEffectSideBS;
+				ForceSpringStrength = ForceSpringStrengthSideBS;
+				EnableDamper = EnableDamperSideBS;
+				DamperStrength = DamperStrengthSideBS;
+
+				RunningFFB = "SideBSActive";
+			}
+
+			if (romname == sidebs2 || romname == sidebs2j || romname == sidebs2ja)
+			{
+				configMinForce = configMinForceSideBS2;
+				configMaxForce = configMaxForceSideBS2;
+				configAlternativeMinForceLeft = configAlternativeMinForceLeftSideBS2;
+				configAlternativeMaxForceLeft = configAlternativeMaxForceLeftSideBS2;
+				configAlternativeMinForceRight = configAlternativeMinForceRightSideBS2;
+				configAlternativeMaxForceRight = configAlternativeMaxForceRightSideBS2;
+				configFeedbackLength = configFeedbackLengthSideBS2;
+				PowerMode = PowerModeSideBS2;
+				EnableForceSpringEffect = EnableForceSpringEffectSideBS2;
+				ForceSpringStrength = ForceSpringStrengthSideBS2;
+				EnableDamper = EnableDamperSideBS2;
+				DamperStrength = DamperStrengthSideBS2;
+
+				RunningFFB = "SideBSActive";
+			}
+
+			if (romname == drivedge)
+			{
+				configMinForce = configMinForceDriversEdge;
+				configMaxForce = configMaxForceDriversEdge;
+				configAlternativeMinForceLeft = configAlternativeMinForceLeftDriversEdge;
+				configAlternativeMaxForceLeft = configAlternativeMaxForceLeftDriversEdge;
+				configAlternativeMinForceRight = configAlternativeMinForceRightDriversEdge;
+				configAlternativeMaxForceRight = configAlternativeMaxForceRightDriversEdge;
+				configFeedbackLength = configFeedbackLengthDriversEdge;
+				PowerMode = PowerModeDriversEdge;
+				EnableForceSpringEffect = EnableForceSpringEffectDriversEdge;
+				ForceSpringStrength = ForceSpringStrengthDriversEdge;
+				EnableDamper = EnableDamperDriversEdge;
+				DamperStrength = DamperStrengthDriversEdge;
+
+				RunningFFB = "DriversEdgeActive";
+			}
+
+			if (romname == speedup || romname == speedup10 || romname == speedup12 || romname == speedup20 || romname == speedup20a || romname == speedup21)
+			{
+				configMinForce = configMinForceSpeedUp;
+				configMaxForce = configMaxForceSpeedUp;
+				configAlternativeMinForceLeft = configAlternativeMinForceLeftSpeedUp;
+				configAlternativeMaxForceLeft = configAlternativeMaxForceLeftSpeedUp;
+				configAlternativeMinForceRight = configAlternativeMinForceRightSpeedUp;
+				configAlternativeMaxForceRight = configAlternativeMaxForceRightSpeedUp;
+				configFeedbackLength = configFeedbackLengthSpeedUp;
+				PowerMode = PowerModeSpeedUp;
+				EnableForceSpringEffect = EnableForceSpringEffectSpeedUp;
+				ForceSpringStrength = ForceSpringStrengthSpeedUp;
+				EnableDamper = EnableDamperSpeedUp;
+				DamperStrength = DamperStrengthSpeedUp;
+
+				RunningFFB = "RacingFullValueActive1";
 			}
 
 			if (romname == InitialDVer1 || romname == InitialDVer2 || romname == InitialDVer3)
@@ -3667,6 +4524,34 @@ void MAMESupermodel::FFBLoop(EffectConstants* constants, Helpers* helpers, Effec
 
 		}
 
+		if (RunningFFB == SuperMonacoGPActive)
+		{
+			// Upright shaker speed: lamp2 = 1, lamp0 = 2, lamp1 = 4.
+			const int rumbleLevel = smgpLamp2 | (smgpLamp0 << 1) | (smgpLamp1 << 2);
+
+			if (rumbleLevel > 0)
+			{
+				// The original upright has seven motor speed stages. Keep the
+				// configured SinePeriod as the stage-1 base and progressively
+				// shorten the period as the motor stage rises.
+				static const double periodScale[8] =
+				{
+					0.0, 1.00, 0.80, 0.65, 0.52, 0.42, 0.34, 0.28
+				};
+
+				int stagePeriod = static_cast<int>((SinePeriod * periodScale[rumbleLevel]) + 0.5);
+				if (stagePeriod < 1)
+					stagePeriod = 1;
+
+				const double levelStrength = (SineStrength / 100.0) * (rumbleLevel / 7.0);
+				triggers->Sine(static_cast<UINT16>(stagePeriod), SineFadePeriod, levelStrength, stagePeriod);
+			}
+			else
+			{
+				triggers->Sine(0, 0, 0.0, 0);
+			}
+		}
+
 		if (RunningFFB == LightGunActive) //LightGun Games
 		{
 			if (name == Player1_Recoil_Piston || name == Player1_Gun_Recoil || name == Left_Gun_Recoil || name == P1_Gun_Recoil || name == mcuout1 || name == P1_gun_recoil)
@@ -3771,7 +4656,7 @@ void MAMESupermodel::FFBLoop(EffectConstants* constants, Helpers* helpers, Effec
 
 		if (RunningFFB == RacingActive1) //Outrunners,Turbo Outrun,CBombers,DAxle
 		{
-			if (name == MA_Steering_Wheel_motor || name == upright_wheel_motor || name == Vibration_motor || name == Wheel_vibration || name == Wheel_Vibration)
+			if (name == MA_Steering_Wheel_motor || name == mainpcb_MA_Steering_Wheel_motor || name == upright_wheel_motor || name == Vibration_motor || name == Wheel_vibration || name == Wheel_Vibration || name == genout2)
 			{
 				helpers->log("P1 value: ");
 				std::string ffs = std::to_string(newstateFFB);
@@ -3785,7 +4670,7 @@ void MAMESupermodel::FFBLoop(EffectConstants* constants, Helpers* helpers, Effec
 				stateFFB = newstateFFB;
 			}
 
-			if (name == MB_Steering_Wheel_motor)
+			if (name == MB_Steering_Wheel_motor || name == mainpcb_MB_Steering_Wheel_motor)
 			{
 				helpers->log("P2 value: ");
 				std::string ffs = std::to_string(newstateFFB);
@@ -3924,10 +4809,7 @@ void MAMESupermodel::FFBLoop(EffectConstants* constants, Helpers* helpers, Effec
 				std::string ffs = std::to_string(newstateFFB);
 				helpers->log((char*)ffs.c_str());
 
-				if (newstateFFB != 0)
-				{
-					stateFFB = newstateFFB;
-				}
+				stateFFB = newstateFFB;
 			}
 
 			if (name == Vibration_motor)
@@ -4118,252 +5000,6 @@ void MAMESupermodel::FFBLoop(EffectConstants* constants, Helpers* helpers, Effec
 			}
 		}
 
-		if (RunningFFB == RaveRacerActive) //Rave Racer
-		{
-			if (!PatternFind)
-			{
-				if (!PatternLaunch)
-				{
-					if (name == cpuled6)
-					{
-						if (newstateFFB == 1)
-						{
-							Sleep(2000);
-							PatternLaunch = true;
-						}
-					}
-				}
-				else
-				{
-					if (!Scan)
-					{
-						CreateThread(NULL, 0, ScanThread, NULL, 0, NULL);
-						Scan = true;
-					}
-
-					UINT8 CheckAddy2 = helpers->ReadByte((INT_PTR)aAddy2 - 0xDF, false);
-					if (CheckAddy2 == 0xC2)
-					{
-						FFBAddress = (INT_PTR)aAddy2 - 0x1C0;
-						PatternFind = true;
-					}
-				}
-			}
-			else
-			{
-				UINT8 FFB = helpers->ReadByte(FFBAddress, false);
-				UINT8 ffrave = raveracer(FFB);
-
-				helpers->log("got value: ");
-				std::string ffs = std::to_string(ffrave);
-				helpers->log((char*)ffs.c_str());
-
-				UINT32 length_ms = 100;
-				if ((ffrave > 0x3D) && (ffrave < 0x7C))
-				{
-					double percentForce = (124 - ffrave) / 61.0;
-					triggers->Rumble(percentForce, 0, length_ms);
-					triggers->Constant(constants->DIRECTION_FROM_LEFT, percentForce);
-				}
-				else if ((ffrave > 0x00) && (ffrave < 0x3E))
-				{
-					double percentForce = (ffrave) / 61.0;
-					triggers->Rumble(0, percentForce, length_ms);
-					triggers->Constant(constants->DIRECTION_FROM_RIGHT, percentForce);
-				}
-			}
-		}
-
-		if (RunningFFB == M2PatternActive)
-		{
-			if (!PatternFind)
-			{
-				if (!PatternLaunch)
-				{
-					if (romname == daytona || romname == daytonas || romname == daytonase)
-					{
-						Sleep(8000);
-						PatternLaunch = true;
-					}
-
-					if (romname == indy500 || romname == indy500d || romname == indy500to)
-					{
-						if (name == digit1)
-						{
-							if (newstateFFB == 0x3D)
-							{
-								PatternLaunch = true;
-							}
-						}
-					}
-
-					if (romname == sgt24h)
-					{
-						if (name == digit0)
-						{
-							if (newstateFFB == 0x01)
-							{
-								PatternLaunch = true;
-							}
-						}
-					}
-				}
-				else
-				{
-					if (romname == daytona || romname == daytonas || romname == daytonase)
-					{
-						if (!Scan)
-						{
-							CreateThread(NULL, 0, ScanThread, NULL, 0, NULL);
-							Scan = true;
-						}
-
-						if ((UINT8)aAddy2 == 0x05)
-						{
-							FFBAddress = (INT_PTR)aAddy2 + 0x3D;
-							PatternFind = true;
-						}
-					}
-
-					if (romname == indy500 || romname == indy500d || romname == indy500to)
-					{
-						if (!Scan)
-						{
-							CreateThread(NULL, 0, ScanThread, NULL, 0, NULL);
-							Scan = true;
-						}
-						UINT8 CheckAddy2 = helpers->ReadByte((INT_PTR)aAddy2 + 0x04, false);
-						if (CheckAddy2 == 0x01)
-						{
-							FFBAddress = (INT_PTR)aAddy2 + 0x04;
-							PatternFind = true;
-						}
-					}
-
-					if (romname == sgt24h)
-					{
-						if (!Scan)
-						{
-							CreateThread(NULL, 0, ScanThread, NULL, 0, NULL);
-							Scan = true;
-						}
-
-						UINT8 CheckAddy2 = helpers->ReadByte((INT_PTR)aAddy2 - 0x14, false);
-						if (CheckAddy2 == 0x0C)
-						{
-							FFBAddress = (INT_PTR)aAddy2 + 0x50;
-							PatternFind = true;
-						}
-					}
-				}
-			}
-			else
-			{
-				ff = helpers->ReadByte(FFBAddress, false);
-
-				helpers->log("got value: ");
-				std::string ffs = std::to_string(ff);
-				helpers->log((char*)ffs.c_str());
-
-				UINT32 length_ms = 100;
-				if ((ff > 0x09) && (ff < 0x18))
-				{
-					//Spring
-					double percentForce = (ff - 15) / 8.0;
-					triggers->Spring(percentForce);
-				}
-
-				if ((ff > 0x1F) && (ff < 0x28))
-				{
-					//Clutch
-					double percentForce = (ff - 31) / 8.0;
-					triggers->Friction(percentForce);
-				}
-
-				if ((ff > 0x2F) && (ff < 0x3D))
-				{
-					//Centering
-					double percentForce = (ff - 47) / 13.0;
-					triggers->Spring(percentForce);
-				}
-
-				if ((ff > 0x3F) && (ff < 0x48))
-				{
-					//Uncentering
-					double percentForce = (ff - 63) / 8.0;
-					triggers->Sine(40, 0, percentForce, length_ms);
-					triggers->Rumble(percentForce, percentForce, length_ms);
-				}
-
-				if ((ff > 0x4F) && (ff < 0x58))
-				{
-					//Roll Left
-					double percentForce = (ff - 79) / 8.0;
-					triggers->Rumble(0, percentForce, length_ms);
-					triggers->Constant(constants->DIRECTION_FROM_RIGHT, percentForce);
-				}
-				else if ((ff > 0x5F) && (ff < 0x68))
-				{
-					//Roll Right
-					double percentForce = (ff - 95) / 8.0;
-					triggers->Rumble(percentForce, 0, length_ms);
-					triggers->Constant(constants->DIRECTION_FROM_LEFT, percentForce);
-				}
-			}
-		}
-
-		if (RunningFFB == SrallyActive)
-		{
-			if (!PatternFind)
-			{
-				if (!PatternLaunch)
-				{
-					if (name == digit1)
-					{
-						PatternLaunch = true;
-					}
-				}
-				else
-				{
-					if (!Scan)
-					{
-						CreateThread(NULL, 0, ScanThread, NULL, 0, NULL);
-						Scan = true;
-					}
-
-					UINT8 CheckAddy2 = helpers->ReadByte((INT_PTR)aAddy2 + 0x35, false);
-					if (CheckAddy2 == 0xFF)
-					{
-						FFBAddress = (INT_PTR)aAddy2 + 0x2B;
-						PatternFind = true;
-					}
-				}
-			}
-			else
-			{
-				ff = helpers->ReadByte(FFBAddress, false);
-
-				helpers->log("got value: ");
-				std::string ffs = std::to_string(ff);
-				helpers->log((char*)ffs.c_str());
-
-				UINT32 length_ms = 100;
-				if ((ff > 0xBF) && (ff < 0xDF))
-				{
-					double percentForce = (ff - 191) / 31.0;
-					
-					triggers->Rumble(0, percentForce, length_ms);
-					triggers->Constant(constants->DIRECTION_FROM_RIGHT, percentForce);
-				}
-				else if ((ff > 0x7F) && (ff < 0x9F))
-				{
-					double percentForce = (ff - 127) / 31.0;
-					triggers->Rumble(percentForce, 0, length_ms);
-					triggers->Constant(constants->DIRECTION_FROM_LEFT, percentForce);
-				}
-			}
-		}
-		
 		if (RunningFFB == SuperChaseActive)
 		{
 			if (!PatternFind)
@@ -4412,8 +5048,20 @@ void MAMESupermodel::FFBLoop(EffectConstants* constants, Helpers* helpers, Effec
 			}
 		}
 		
-		if (RunningFFB == NamcoFFBActive)
+		if (RunningFFB == DirtDashFFB)
 		{
+			// mcuout1 switches the wheel motor off (0) and on (1). The motor is assumed on
+			// until MAME sends the output, so that the wheel is not dead at start.
+			static int mcuout1State = 1;
+
+			if (name == mcuout1)
+			{
+				mcuout1State = newstateFFB;
+
+				std::string debugMsg = "DirtDashFFB: mcuout1 switched to " + std::to_string(mcuout1State);
+				helpers->log((char*)debugMsg.c_str());
+			}
+
 			if (!PatternFind)
 			{
 				if (!PatternLaunch)
@@ -4429,7 +5077,7 @@ void MAMESupermodel::FFBLoop(EffectConstants* constants, Helpers* helpers, Effec
 				}
 				else
 				{
-					if (romname == acedrvrw || romname == acedrive || romname == victlapw || romname == victlap || romname == dirtdash || romname == dirtdasha || romname == dirtdashj)
+					if (romname == dirtdash || romname == dirtdasha || romname == dirtdashj)
 					{
 						if (!Scan)
 						{
@@ -4455,7 +5103,12 @@ void MAMESupermodel::FFBLoop(EffectConstants* constants, Helpers* helpers, Effec
 				helpers->log((char*)ffs.c_str());
 
 				UINT32 length_ms = 100;
-				if ((FFBNamco >= 0x00) && (FFBNamco < 0x77A))
+				if (mcuout1State == 0) // Wheel motor switched off
+				{
+					triggers->Rumble(0, 0, 0);
+					StopConstantForce(triggers, constants);
+				}
+				else if ((FFBNamco >= 0x00) && (FFBNamco < 0x77A))
 				{
 					double percentForce = (FFBNamco / Divide);
 					if (percentForce > 1.0)
@@ -4463,7 +5116,7 @@ void MAMESupermodel::FFBLoop(EffectConstants* constants, Helpers* helpers, Effec
 						percentForce = 1.0;
 					}
 					triggers->Rumble(0, percentForce, length_ms);
-					triggers->Constant(constants->DIRECTION_FROM_RIGHT, percentForce);
+					SendConstant(triggers, constants->DIRECTION_FROM_RIGHT, percentForce);
 				}
 				else if ((FFBNamco > 0xF886) && (FFBNamco < 0x10000))
 				{
@@ -4473,7 +5126,12 @@ void MAMESupermodel::FFBLoop(EffectConstants* constants, Helpers* helpers, Effec
 						percentForce = 1.0;
 					}
 					triggers->Rumble(percentForce, 0, length_ms);
-					triggers->Constant(constants->DIRECTION_FROM_LEFT, percentForce);
+					SendConstant(triggers, constants->DIRECTION_FROM_LEFT, percentForce);
+				}
+				else
+				{
+					triggers->Rumble(0, 0, 0);
+					StopConstantForce(triggers, constants);
 				}
 			}
 		}
