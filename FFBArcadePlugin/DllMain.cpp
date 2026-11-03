@@ -332,8 +332,12 @@ SDL_Event e;
 CComPtr<ISpVoice> cpVoice;
 
 // Uploads an effect of the given type, its parameters being updated each time it is triggered.
+// Returns -1 when the device does not support it: some wheels (e.g. PXN V10) crash when asked for an unsupported effect.
 static int CreateBaseEffect(SDL_Haptic* device, Uint16 type, Uint32 length_ms)
 {
+	if (!(SDL_HapticQuery(device) & type))
+		return -1;
+
 	SDL_HapticEffect effect;
 	SDL_memset(&effect, 0, sizeof(SDL_HapticEffect));
 	effect.type = type;
@@ -347,7 +351,11 @@ void Initialize()
 	hlp.log("in initialize");
 	SDL_SetHint(SDL_HINT_JOYSTICK_RAWINPUT, "0");
 	if (SDL_Init(SDL_INIT_JOYSTICK | SDL_INIT_HAPTIC | SDL_INIT_GAMECONTROLLER) < 0)
-		SDL_JoystickEventState(SDL_ENABLE);
+	{
+		hlp.log("SDL_Init failed");
+		return;
+	}
+	SDL_JoystickEventState(SDL_ENABLE);
 	SDL_JoystickUpdate();
 	char joystick_guid[256];
 	sprintf(joystick_guid, "%S", deviceGUIDString);
@@ -404,39 +412,47 @@ void Initialize()
 		hlp.log(firstJoystickSelectedText);
 	}
 	haptic = ControllerHaptic;
-	if ((SDL_HapticRumbleSupported(haptic) == SDL_TRUE && EnableRumble))
+	if (haptic == NULL)
+		hlp.log("No haptic device available, FFB effects will be disabled");
+	else
 	{
-		SDL_HapticRumbleInit(ControllerHaptic);
-		hlp.log("Rumble Init");
+		if ((SDL_HapticRumbleSupported(haptic) == SDL_TRUE && EnableRumble))
+		{
+			SDL_HapticRumbleInit(ControllerHaptic);
+			hlp.log("Rumble Init");
+		}
+		hlp.log("disabling all current FFB effects");
+		SDL_HapticStopAll(haptic);
+		hlp.log("setting haptic gain to 100");
+		SDL_HapticSetGain(haptic, 100); // HapticSetGain should be between 0 and 100 as per https://wiki.libsdl.org/SDL_HapticSetGain
+		hlp.log("setting haptic auto center to 0");
+		SDL_HapticSetAutocenter(haptic, 0); // 0 disables autocenter https://wiki.libsdl.org/SDL_HapticSetAutocenter
+
+		hlp.log("creating base effects...");
+
+		if (SDL_HapticQuery(haptic) & SDL_HAPTIC_CONSTANT)
+		{
+			SDL_HapticEffect tempEffect;
+			SDL_memset(&tempEffect, 0, sizeof(SDL_HapticEffect));
+			tempEffect.type = SDL_HAPTIC_CONSTANT;
+			tempEffect.constant.direction.type = SDL_HAPTIC_CARTESIAN;
+			tempEffect.constant.direction.dir[0] = -1; //left => right is +1 as per this 2d array explanation: https://wiki.libsdl.org/SDL_HapticDirection
+			tempEffect.constant.length = configFeedbackLength; // presumably is ms, but is not documented
+			tempEffect.constant.delay = 0;
+			tempEffect.constant.level = 9999; // this is an sint16 => -32768 to 32767
+			effects.effect_constant_id = SDL_HapticNewEffect(haptic, &tempEffect); // Upload the effect
+		}
+
+		effects.effect_friction_id = CreateBaseEffect(haptic, SDL_HAPTIC_FRICTION, 5000);
+		effects.effect_sine_id = CreateBaseEffect(haptic, SDL_HAPTIC_SINE, 0);
+		effects.effect_spring_id = CreateBaseEffect(haptic, SDL_HAPTIC_SPRING, 5000);
+		effects.effect_inertia_id = CreateBaseEffect(haptic, SDL_HAPTIC_INERTIA, 5000);
+		effects.effect_damper_id = CreateBaseEffect(haptic, SDL_HAPTIC_DAMPER, 5000);
+		effects.effect_triangle_id = CreateBaseEffect(haptic, SDL_HAPTIC_TRIANGLE, 5000);
+		effects.effect_ramp_id = CreateBaseEffect(haptic, SDL_HAPTIC_RAMP, 5000);
+		effects.effect_sawtoothup_id = CreateBaseEffect(haptic, SDL_HAPTIC_SAWTOOTHUP, 5000);
+		effects.effect_sawtoothdown_id = CreateBaseEffect(haptic, SDL_HAPTIC_SAWTOOTHDOWN, 5000);
 	}
-	hlp.log("disabling all current FFB effects");
-	SDL_HapticStopAll(haptic);
-	hlp.log("setting haptic gain to 100");
-	SDL_HapticSetGain(haptic, 100); // HapticSetGain should be between 0 and 100 as per https://wiki.libsdl.org/SDL_HapticSetGain
-	hlp.log("setting haptic auto center to 0");
-	SDL_HapticSetAutocenter(haptic, 0); // 0 disables autocenter https://wiki.libsdl.org/SDL_HapticSetAutocenter
-
-	hlp.log("creating base effects...");
-
-	SDL_HapticEffect tempEffect;
-	SDL_memset(&tempEffect, 0, sizeof(SDL_HapticEffect));
-	tempEffect.type = SDL_HAPTIC_CONSTANT;
-	tempEffect.constant.direction.type = SDL_HAPTIC_CARTESIAN;
-	tempEffect.constant.direction.dir[0] = -1; //left => right is +1 as per this 2d array explanation: https://wiki.libsdl.org/SDL_HapticDirection
-	tempEffect.constant.length = configFeedbackLength; // presumably is ms, but is not documented
-	tempEffect.constant.delay = 0;
-	tempEffect.constant.level = 9999; // this is an sint16 => -32768 to 32767
-	effects.effect_constant_id = SDL_HapticNewEffect(haptic, &tempEffect); // Upload the effect
-
-	effects.effect_friction_id = CreateBaseEffect(haptic, SDL_HAPTIC_FRICTION, 5000);
-	effects.effect_sine_id = CreateBaseEffect(haptic, SDL_HAPTIC_SINE, 0);
-	effects.effect_spring_id = CreateBaseEffect(haptic, SDL_HAPTIC_SPRING, 5000);
-	effects.effect_inertia_id = CreateBaseEffect(haptic, SDL_HAPTIC_INERTIA, 5000);
-	effects.effect_damper_id = CreateBaseEffect(haptic, SDL_HAPTIC_DAMPER, 5000);
-	effects.effect_triangle_id = CreateBaseEffect(haptic, SDL_HAPTIC_TRIANGLE, 5000);
-	effects.effect_ramp_id = CreateBaseEffect(haptic, SDL_HAPTIC_RAMP, 5000);
-	effects.effect_sawtoothup_id = CreateBaseEffect(haptic, SDL_HAPTIC_SAWTOOTHUP, 5000);
-	effects.effect_sawtoothdown_id = CreateBaseEffect(haptic, SDL_HAPTIC_SAWTOOTHDOWN, 5000);
 
 	if (haptic2 != NULL)
 		effects.effect_sine_id_device2 = CreateBaseEffect(haptic2, SDL_HAPTIC_SINE, 0);
@@ -532,6 +548,9 @@ static double DoubleStrength(double strength)
 
 static void RunEffect(SDL_Haptic* device, int effectId, SDL_HapticEffect& effect)
 {
+	if (device == NULL || effectId < 0) // no haptic device, or effect not supported by it
+		return;
+
 	SDL_HapticUpdateEffect(device, effectId, &effect);
 	SDL_HapticRunEffect(device, effectId, 1);
 }
@@ -707,6 +726,9 @@ static SineEffectState lastSineEffectDevice3;
 static void RunSineEffect(SDL_Haptic* device, int effectId, SineEffectState& lastEffect, ForceLimits (*forceLimits)(int direction), bool doubleStrength, const char* logMessage,
 	UINT16 period_ms, UINT16 fadePeriod_ms, double strength, UINT32 length_ms)
 {
+	if (device == NULL || effectId < 0)
+		return;
+
 	milliseconds now = duration_cast<milliseconds>(system_clock::now().time_since_epoch());
 	long long elapsedTime = (now - lastEffect.time).count();
 
