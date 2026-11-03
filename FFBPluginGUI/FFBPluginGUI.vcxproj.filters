@@ -42,6 +42,24 @@
     <ClCompile Include="CartFury.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="CrusnExotica.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="DriversEdge.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SideBS.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SideBS2.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SpeedUp.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SuperMonacoGP.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="GTIClubMame.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -555,6 +573,24 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="CartFury.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CrusnExotica.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DriversEdge.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SideBS.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SideBS2.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SpeedUp.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SuperMonacoGP.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="GTIClubMame.h">

@@ -215,6 +215,12 @@
     <ClCompile Include="ButtonRumbleInput.cpp" />
     <ClCompile Include="CaliforniaSpeed.cpp" />
     <ClCompile Include="CartFury.cpp" />
+    <ClCompile Include="CrusnExotica.cpp" />
+    <ClCompile Include="DriversEdge.cpp" />
+    <ClCompile Include="SideBS.cpp" />
+    <ClCompile Include="SideBS2.cpp" />
+    <ClCompile Include="SpeedUp.cpp" />
+    <ClCompile Include="SuperMonacoGP.cpp" />
     <ClCompile Include="ChaseBombers.cpp" />
     <ClCompile Include="ChaseHQ2.cpp" />
     <ClCompile Include="ChaseHQ2Input.cpp" />
@@ -404,6 +410,12 @@
       <FileType>CppHeader</FileType>
     </ClInclude>
     <ClInclude Include="CartFury.h" />
+    <ClInclude Include="CrusnExotica.h" />
+    <ClInclude Include="DriversEdge.h" />
+    <ClInclude Include="SideBS.h" />
+    <ClInclude Include="SideBS2.h" />
+    <ClInclude Include="SpeedUp.h" />
+    <ClInclude Include="SuperMonacoGP.h" />
     <ClInclude Include="CaliforniaSpeed.h" />
     <ClInclude Include="ChaseBombers.h" />
     <ClInclude Include="ChaseHQ2.h">
