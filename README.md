@@ -116,11 +116,15 @@ extremely generous.
 - Afterburner II
 - Beast Busters
 - California Speed
+- Cart Fury
 - Chase Bombers
 - Cisco Heat
+- Cruis'n Exotica
 - Crusn'USA
 - Crusn' World
 - Daytona USA
+- Dirt Dash
+- Driver's Edge
 - F-1 Grand Prix Star
 - F-1 Grand Prix Star II
 - Ghoul Panic
@@ -128,6 +132,7 @@ extremely generous.
 - Gun Buster
 - Hard Drivin'
 - Hyperdrive
+- Indy 500
 - Laser Ghost
 - Midnight Run
 - Mechanized Attack
@@ -151,9 +156,13 @@ extremely generous.
 - San Francisco Rush 2049
 - Sega Rally Championship
 - Sega Touring Car Championship
+- Side by Side
+- Side by Side 2
 - Super Chase - Criminal Termination
 - Super GT 24h (output works but analog input is broken)
+- Super Monaco GP
 - Space gun
+- Speed Up
 - Terminator 2
 - Thrill Drive
 - Turbo Outrun
@@ -163,6 +172,11 @@ extremely generous.
 - Virtua Racing (CHANGE TO UPRIGHT CABINET)
 - Winding Heat
 - Xtreme Rally
+
+The Model 2 games (Daytona USA, Indy 500, Over Rev, Sega Rally Championship, Sega Touring Car Championship,
+Super GT 24h), Driver's Edge, Speed Up and Cruis'n Exotica use `wheel_motor` outputs that the official MAME 0.289
+does not have: they need a MAME that adds them.
+Most MAME racing games play their constant force with the infinite constant effect (`UseConstantInf=1`, the default).
 
 ### MODEL 2 EMULATOR:
 
