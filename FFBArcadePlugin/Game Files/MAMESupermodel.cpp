@@ -1394,7 +1394,14 @@ HINSTANCE hPrevInstance;
 LPSTR lpCmdLine;
 int nCmdShow;
 
-const char* nameFFB;
+// Name of the last output MAME updated, written by the output thread (mame_updatestate)
+// and read by the FFB thread (FFBLoop). It used to be a pointer into a CStringA local to
+// mame_updatestate, so it dangled as soon as that returned and FFBLoop read freed memory,
+// which crashes when the heap is torn down while MAME exits.
+// A Windows lock rather than std::mutex: since VS 2022 17.10, std::mutex crashes when the
+// process loads an older msvcp140.dll.
+static char nameFFB[256];
+static SRWLOCK nameFFBLock = SRWLOCK_INIT;
 const char* EmulatorName;
 char* name;
 char* romname;
@@ -2976,8 +2983,12 @@ int __stdcall mame_updatestate(const char* id, int state)
 	wsprintf(buf, L"updatestate: id=%ld (%S) state=%d\r\n", (INT_PTR)id, name, state);
 	AppendTextToEditCtrl(hEdit, buf);
 
-	CStringA stringName(name);
-	nameFFB = stringName;
+	AcquireSRWLockExclusive(&nameFFBLock);
+	if (IS_INTRESOURCE(name)) // what CStringA did with an id that isn't a string
+		nameFFB[0] = '\0';
+	else
+		strncpy_s(nameFFB, name, _TRUNCATE);
+	ReleaseSRWLockExclusive(&nameFFBLock);
 
 	newstateFFB = state;
 
@@ -3091,11 +3102,17 @@ void MAMESupermodel::FFBLoop(EffectConstants* constants, Helpers* helpers, Effec
 		triggers->Springi(ForceSpringStrength / 100.0);
 	}
 
-	romname = new char[256]; //name of rom being played
-	sprintf(romname, "%s", GameName);
+	// these used to be new char[256] on every call (every 16 ms) and never freed
+	static char romnameBuffer[256];
+	static char nameBuffer[256];
 
-	name = new char[256]; //name of FFB currently
-	sprintf(name, "%s", nameFFB);
+	romname = romnameBuffer; //name of rom being played
+	sprintf_s(romnameBuffer, "%.255s", GameName);
+
+	name = nameBuffer; //name of FFB currently
+	AcquireSRWLockShared(&nameFFBLock);
+	strcpy_s(nameBuffer, nameFFB);
+	ReleaseSRWLockShared(&nameFFBLock);
 
 	if (!RomGameName)
 	{
