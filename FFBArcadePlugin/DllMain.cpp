@@ -586,7 +586,7 @@ static void RunPeriodicEffect(Uint16 type, int effectId, int direction, SHORT ma
 	RunEffect(haptic, effectId, effect);
 }
 
-void TriggerConstantEffect(int direction, double strength)
+static SDL_HapticEffect ConstantEffect(int direction, double strength)
 {
 	ForceLimits limits = ForceLimitsDevice1(direction);
 
@@ -604,7 +604,48 @@ void TriggerConstantEffect(int direction, double strength)
 	tempEffect.constant.length = configFeedbackLength;
 	tempEffect.constant.delay = 0;
 	tempEffect.constant.level = ScaleDirectionalForce(strength, limits);
+	return tempEffect;
+}
+
+void TriggerConstantEffect(int direction, double strength)
+{
+	SDL_HapticEffect tempEffect = ConstantEffect(direction, strength);
 	RunEffect(haptic, effects.effect_constant_id, tempEffect);
+}
+
+// Set for California Speed, whose raw motor value crosses 0 when the force changes direction:
+// ConstantInf then holds the running effect at level 0 instead of stopping and restarting it.
+bool ConstantInfHoldsAtZero = false;
+static bool isConstantInfRunning = false;
+
+// Constant effect started once with infinite iterations, then only updated: restarting it at each
+// update makes some wheels jerk. A strength of 0 stops it.
+void TriggerConstantInfEffect(int direction, double strength)
+{
+	if (haptic == NULL || effects.effect_constant_id < 0)
+	{
+		isConstantInfRunning = false;
+		return;
+	}
+
+	if (strength < 0.001 && !(ConstantInfHoldsAtZero && strength == 0.0))
+	{
+		if (isConstantInfRunning)
+		{
+			SDL_HapticStopEffect(haptic, effects.effect_constant_id);
+			isConstantInfRunning = false;
+		}
+		return;
+	}
+
+	SDL_HapticEffect tempEffect = ConstantEffect(direction, strength);
+	SDL_HapticUpdateEffect(haptic, effects.effect_constant_id, &tempEffect);
+
+	if (!isConstantInfRunning)
+	{
+		SDL_HapticRunEffect(haptic, effects.effect_constant_id, SDL_HAPTIC_INFINITY);
+		isConstantInfRunning = true;
+	}
 }
 
 void TriggerFrictionEffectWithDefaultOption(double strength, bool isDefault)
@@ -1266,6 +1307,7 @@ DWORD WINAPI FFBLoop(LPVOID lpParam)
 
 	// assign FFB effects here
 	t.Constant = &TriggerConstantEffect;
+	t.ConstantInf = &TriggerConstantInfEffect;
 	t.Spring = &TriggerSpringEffect;
 	t.Friction = &TriggerFrictionEffect;
 	t.Sine = &TriggerSineEffect;

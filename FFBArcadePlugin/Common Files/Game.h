@@ -5,6 +5,8 @@
 // struct
 struct EffectTriggers {
 	void(*Constant)(int direction, double strength);
+	// Constant force that keeps playing until the next call, which updates it in place (a strength of 0 stops it)
+	void(*ConstantInf)(int direction, double strength);
 	void(*Spring)(double strength);
 	void(*Friction)(double strength);
 	void(*Sine)(UINT16 waveperiod_ms, UINT16 fadePeriod_ms, double strength, UINT32 length_ms);
