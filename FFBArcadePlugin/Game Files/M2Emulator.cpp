@@ -261,7 +261,10 @@ void M2Emulator::FFBLoop(EffectConstants * constants, Helpers * helpers, EffectT
 	hWnd19 = FindWindowA(0, ("Sega Touring Car Championship (Rev B)"));
 	hWnd20 = FindWindowA(0, ("Over Rev (Model 2B)"));
 
-	romnameM2 = new char[256];
+	// used to be a new char[256] on every call (every 16 ms), never freed, that the FFB strength
+	// adjustment thread could read before anything was written in it (no game window found yet)
+	static char romnameM2Buffer[256];
+	romnameM2 = romnameM2Buffer;
 
 	if (hWnd1 > NULL || hWnd2 > NULL || hWnd3 > NULL || hWnd4 > NULL || hWnd5 > NULL || hWnd6 > NULL || hWnd7 > NULL || hWnd8 > NULL || hWnd9 > NULL || hWnd10 > NULL ||
 		hWnd11 > NULL || hWnd12 > NULL || hWnd13 > NULL || hWnd14 > NULL || hWnd15 > NULL || hWnd16 > NULL || hWnd17 > NULL || hWnd18 > NULL || hWnd19 > NULL || hWnd20 > NULL)
