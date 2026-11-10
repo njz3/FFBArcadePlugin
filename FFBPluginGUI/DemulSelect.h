@@ -41,24 +41,7 @@ namespace FFBPluginGUI {
 		DemulSelect(void)
 		{
 			InitializeComponent();
-			//
-			//TODO: Add the constructor code here
-			//
-			for (int i = 0; i < SDL_NumJoysticks(); i++)
-			{
-				SDL_Joystick* js1 = SDL_JoystickOpen(i);
-				char buff[300];
-				GetPrivateProfileStringA("Settings", "DeviceGUID", "No FFBPlugin.ini found", buff, _countof(buff), ".\\FFBPlugin.ini");
-				String^ str = gcnew String(buff);
-				String^ bah1 = gcnew String(SDL_JoystickName(js1));
-				this->metroComboBox1->Text = str;
-				this->metroComboBox1->Items->Add(bah1);
-			}
-			if (SDL_NumJoysticks() == 0)
-			{
-				this->metroComboBox1->Text = "SDL2 Cannot Detect Any Joystick";
-			}
-
+			LoadDeviceList();
 		}
 
 	public:
@@ -79,6 +62,29 @@ namespace FFBPluginGUI {
 		{
 			obj = obj1;
 			InitializeComponent();
+			LoadDeviceList();
+		}
+
+		// Fills the device list. Both constructors call it: the main menu opens this page with
+		// the constructor that takes the parent form.
+		void LoadDeviceList()
+		{
+			this->metroComboBox1->Items->Clear();
+			for (int i = 0; i < SDL_NumJoysticks(); i++)
+			{
+				SDL_Joystick* js1 = SDL_JoystickOpen(i);
+				char buff[300];
+				GetPrivateProfileStringA("Settings", "DeviceGUID", "No FFBPlugin.ini found", buff, _countof(buff), ".\\FFBPlugin.ini");
+				String^ str = gcnew String(buff);
+				String^ bah1 = gcnew String(SDL_JoystickName(js1));
+				this->metroComboBox1->Text = str;
+				this->metroComboBox1->Items->Add(bah1);
+			}
+			if (SDL_NumJoysticks() == 0)
+			{
+				this->metroComboBox1->Text = "SDL2 Cannot Detect Any Joystick";
+			}
+			this->metroComboBox1->Items->Add("Select no device");
 		}
 
 	protected:

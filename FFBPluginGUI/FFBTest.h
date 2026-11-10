@@ -51,9 +51,28 @@ namespace FFBPluginGUI {
 		FFBTest(void)
 		{
 			InitializeComponent();
-			//
-			//TODO: Add the constructor code here
-			//
+			LoadDeviceList();
+		}
+	private: MetroFramework::Controls::MetroButton^ metroButton14;
+	public:
+	private: MetroFramework::Controls::MetroButton^ metroButton15;
+
+	public:
+	
+			 MetroForm ^obj;
+		FFBTest(MetroForm ^obj1)
+		{
+			obj = obj1;
+			InitializeComponent();
+			LoadDeviceList();
+			WritePrivateProfileStringA("FFBTest", "DeviceID", "99", ".\\FFBPlugin.ini");
+		}
+
+		// Fills the device list. Both constructors call it: the main menu opens this page with
+		// the constructor that takes the parent form.
+		void LoadDeviceList()
+		{
+			this->metroComboBox1->Items->Clear();
 			for (int i = 0; i < SDL_NumJoysticks(); i++)
 			{
 				SDL_Joystick* js1 = SDL_JoystickOpen(i);
@@ -68,20 +87,6 @@ namespace FFBPluginGUI {
 			{
 				this->metroComboBox1->Text = "SDL2 Cannot Detect Any Joystick";
 			}
-
-		}
-	private: MetroFramework::Controls::MetroButton^ metroButton14;
-	public:
-	private: MetroFramework::Controls::MetroButton^ metroButton15;
-
-	public:
-	
-			 MetroForm ^obj;
-		FFBTest(MetroForm ^obj1)
-		{
-			obj = obj1;
-			InitializeComponent();
-			WritePrivateProfileStringA("FFBTest", "DeviceID", "99", ".\\FFBPlugin.ini");
 		}
 
 	protected:
