@@ -3064,9 +3064,9 @@ static DWORD WINAPI ScanThread(LPVOID lpParam)
 
 DWORD WINAPI ThreadForOutputs(LPVOID lpParam)
 {
-	// also read the outputs of "-output network", unless MAMENetworkOutputs=0
+	// also read the network outputs (MAME: "-output network"), unless MAMENetworkOutputs=0
 	if (GetSettingInt(TEXT("MAMENetworkOutputs"), 1) != 0)
-		StartMameNetworkOutputs();
+		StartMameNetworkOutputs(GetSettingInt(TEXT("GameId"), 0));
 	WinMain(hInstance, hPrevInstance, lpCmdLine, nCmdShow);
 	return 0;
 }

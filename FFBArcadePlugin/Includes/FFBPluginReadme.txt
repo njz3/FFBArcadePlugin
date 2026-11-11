@@ -50,7 +50,7 @@ output                    windows
 
 - Ensure either MAME32.dll or MAME64.dll is with FFB Plugin files in MAME folder depending on 32bit or 64bit MAME
 
-- The plugin also reads "output network" (MAME's TCP server on port 8000), for when another program needs the network outputs. MAME has only one output mode at a time. Set MAMENetworkOutputs=0 in FFBPlugin.ini to turn this off.
+- The plugin also reads the network outputs (MAME "output network", Supermodel -outputs=net, Flycast network output): a TCP server on port 8000, for when another program needs them. An emulator has only one output mode at a time. Like BackForceFeeder, the plugin listens on UDP port 8001 for the broadcast that announces another TCP port (Supermodel njz3); only one program can hold that port, so with BackForceFeeder on the same PC keep the TCP port at 8000, or set NetworkOutputsUdpPort=0. Set MAMENetworkOutputs=0 in FFBPlugin.ini to turn the network outputs off.
 
 (For SUPERMODEL EMULATOR)
 

@@ -13,6 +13,7 @@ along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
 
 #pragma once
 
-// Starts a thread that reads the outputs MAME sends with "-output network" and passes them
-// to the same handlers as the Windows output protocol (MAME64.dll).
-void StartMameNetworkOutputs();
+// Starts the threads that read the network outputs of MAME, Supermodel and Flycast, and pass
+// them to the same handlers as the Windows output protocol (MAME64.dll).
+// gameId: the GameId of FFBPlugin.ini, which says how the emulator writes the values.
+void StartMameNetworkOutputs(int gameId);
