@@ -12,6 +12,7 @@ along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
 */
 
 #include "MAMESupermodel.h"
+#include "MAMENetworkOutputs.h"
 #include "../Common Files/Devices.h"
 #include <string>
 #include <tchar.h>
@@ -3063,6 +3064,9 @@ static DWORD WINAPI ScanThread(LPVOID lpParam)
 
 DWORD WINAPI ThreadForOutputs(LPVOID lpParam)
 {
+	// also read the outputs of "-output network", unless MAMENetworkOutputs=0
+	if (GetSettingInt(TEXT("MAMENetworkOutputs"), 1) != 0)
+		StartMameNetworkOutputs();
 	WinMain(hInstance, hPrevInstance, lpCmdLine, nCmdShow);
 	return 0;
 }

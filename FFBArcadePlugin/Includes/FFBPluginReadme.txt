@@ -50,6 +50,8 @@ output                    windows
 
 - Ensure either MAME32.dll or MAME64.dll is with FFB Plugin files in MAME folder depending on 32bit or 64bit MAME
 
+- The plugin also reads "output network" (MAME's TCP server on port 8000), for when another program needs the network outputs. MAME has only one output mode at a time. Set MAMENetworkOutputs=0 in FFBPlugin.ini to turn this off.
+
 (For SUPERMODEL EMULATOR)
 
 - If you wish to use FFB Plugin over Supermodel's FFB then disable Supermodel's FFB.
