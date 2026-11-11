@@ -180,9 +180,13 @@ static DWORD WINAPI UdpThread(LPVOID lpParam)
 	static char buffer[1024];
 	for (;;)
 	{
-		// Only one program can hold the port: BackForceFeeder, when it runs on the same PC, may
-		// have it, so keep trying. Without the broadcast, the TCP port stays 8000.
+		// Shared: every program that opens the port with SO_REUSEADDR gets each broadcast. A
+		// program that opens it alone (BackForceFeeder until it does the same) keeps the others
+		// out while it has it, so keep trying. Without the broadcast, the TCP port stays 8000.
 		SOCKET s = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+		BOOL reuse = TRUE;
+		if (s != INVALID_SOCKET)
+			setsockopt(s, SOL_SOCKET, SO_REUSEADDR, (const char*)&reuse, sizeof(reuse));
 		sockaddr_in local = {};
 		local.sin_family = AF_INET;
 		local.sin_addr.s_addr = htonl(INADDR_ANY);
