@@ -14,8 +14,8 @@ What changed in each version: [CHANGES.md](CHANGES.md).
 ## Repository
 
 - `FFBArcadePlugin/`: the plugin, dinput8.dll (also used under other DLL names for some games). The code of each
-  game is in `Game Files/`; the MAME, Supermodel and Flycast outputs are read by `Game Files/MAMESupermodel.cpp`
-  and `Game Files/MAMENetworkOutputs.cpp`.
+  game is in `GameFiles/`; the MAME, Supermodel and Flycast outputs are read by `GameFiles/MAMESupermodel.cpp`
+  and `GameFiles/MAMENetworkOutputs.cpp`.
 - `FFBPluginGUI/`: the GUI, FFBPluginGUI.exe (C++/CLI, .NET Framework 4.7.2, MetroFramework).
 - `FFBArcadePlugin/Config/FFBPlugin.ini`: the master settings file. The build writes from it one FFBPlugin.ini per
   game profile (`Release.Win32/<profile>/FFBPlugin.ini`); ship the profile's, never the master one (GameId=-1).
