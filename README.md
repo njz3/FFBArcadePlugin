@@ -6,7 +6,7 @@ Endprodukt and the changes of this njz3 fork.
 A plugin that gives force feedback and rumble to arcade games, and its configuration GUI.
 
 **How to use it, its settings, how to set up each emulator and the list of supported games, with what each game
-needs for force feedback: [FFBPluginReadme.md](FFBArcadePlugin/Includes/FFBPluginReadme.md).** That file is shipped
+needs for force feedback: [FFBPluginReadme.md](FFBArcadePlugin/FFBPluginReadme.md).** That file is shipped
 next to the plugin in every release.
 
 What changed in each version: [CHANGES.md](CHANGES.md).

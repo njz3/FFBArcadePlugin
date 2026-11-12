@@ -232,7 +232,7 @@
     <ClInclude Include="IDirectInputDevice.h" />
   </ItemGroup>
   <ItemGroup>
-    <Text Include="Includes\FFBPluginReadme.md" />
+    <Text Include="FFBPluginReadme.md" />
   </ItemGroup>
   <ItemGroup>
     <MASM Include="DLLWrapper.asm" />
@@ -434,7 +434,7 @@
       <ResourceOutputFileName>$(IntDir)$(TargetName)$(TargetExt).embed.manifest.res</ResourceOutputFileName>
     </ManifestResourceCompile>
     <PostBuildEvent>
-      <Command>xcopy /y "$(ProjectDir)Includes\*"  "$(OutDir)"
+      <Command>xcopy /y "$(ProjectDir)FFBPluginReadme.md" "$(OutDir)"
 pwsh.exe "$(ProjectDir)Post-Build\build.ps1" "$(ProjectDir)Config\FFBPlugin.ini" "$(OutDir)\" "$(OutDir)\"
 $(ProjectDir)Post-Build\copydlls.bat "$(OutDir)"
 </Command>

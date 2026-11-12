@@ -9,7 +9,7 @@
         dinput8.dll, SDL2.dll                  FFBArcadePlugin\Release.x64
         MAME64.dll                             FFBArcadePlugin
         FFBPlugin.ini                          FFBArcadePlugin\Release.Win32\MAME 64bit Outputs (GameId=22)
-        FFBPluginReadme.md                    FFBArcadePlugin\Includes
+        FFBPluginReadme.md                    FFBArcadePlugin
         FFBPluginGUI.exe, MetroFramework*.dll  FFBPluginGUI\x64\Release
     <version> comes from Version.h (Write-Version.ps1): "2.1.0" on the tagged commit,
     "2.1.0.3-g22f99dd" between two tags. It refuses to run with changes that are not committed,
@@ -60,7 +60,7 @@ $files = [ordered]@{
     'SDL2.dll'                  = "$plugin\Release.x64\SDL2.dll"
     'MAME64.dll'                = "$plugin\MAME64.dll"
     'FFBPlugin.ini'             = "$plugin\Release.Win32\MAME 64bit Outputs\FFBPlugin.ini"
-    'FFBPluginReadme.md'       = "$plugin\Includes\FFBPluginReadme.md"
+    'FFBPluginReadme.md'       = "$plugin\FFBPluginReadme.md"
     'FFBPluginGUI.exe'          = "$gui\FFBPluginGUI.exe"
     'MetroFramework.dll'        = "$gui\MetroFramework.dll"
     'MetroFramework.Design.dll' = "$gui\MetroFramework.Design.dll"

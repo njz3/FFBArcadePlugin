@@ -482,7 +482,7 @@
     <MASM Include="DLLWrapper.asm" />
   </ItemGroup>
   <ItemGroup>
-    <Text Include="Includes\FFBPluginReadme.md" />
+    <Text Include="FFBPluginReadme.md" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="DInput8Wrapper.rc" />
