@@ -5,12 +5,19 @@ PATCH for a bug fix, MINOR for a new feature. Each release commit is tagged `v<v
 between two tags is named `<version>.<commits since the tag>-g<commit>` (see `Write-Version.ps1`).
 `Make-Release.ps1` builds the release zip.
 
+## Unreleased
+
+- The user guide shipped with the plugin is now Markdown, FFBPluginReadme.md (was FFBPluginReadme.txt). Its list of
+  MAME games is split into the games that need nothing else, the games that need a setting (one paragraph each:
+  Virtua Racing, Rave Racer, Cruis'n Exotica, Over Rev, Super Monaco GP, Super GT 24h) and the games that do not
+  work yet. README.md keeps the build, version and release notes and points to it.
+
 ## 2.1.0 (2026-11-12)
 
 First numbered version of the fork, after Boomslangnz's 2.0.0.54.
 
 - MAME racing games of Endprodukt's FFBPluginRacerMAME and of its GUI, ported on top of the refactored plugin:
-  Model 2 (Daytona USA, Sega Rally, Indy 500, Sega Touring Car, Over Rev, Sega GT 24h), Driver's Edge, Speed Up,
+  Model 2 (Daytona USA, Sega Rally, Indy 500, Sega Touring Car, Over Rev, Super GT 24h), Driver's Edge, Speed Up,
   Cruis'n Exotica, Side by Side 1 and 2, Super Monaco GP and more; the support of the other games is kept.
 - ConstantInf effect (one infinite constant effect, updated in place) and `UseConstantInf`.
 - No crash when the wheel has no haptic support or lacks some effects (PR #108).
