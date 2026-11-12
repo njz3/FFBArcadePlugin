@@ -14,6 +14,7 @@ along with FFB Arcade Plugin GUI.If not, see < https://www.gnu.org/licenses/>.
 #pragma once
 #include <Windows.h>
 #include <string>
+#include "../Version.h"
 #include "AliensExtermination.h"
 #include "AfterburnerClimax.h"
 #include "ArcticThunder.h"
@@ -124,9 +125,14 @@ namespace FFBPluginGUI {
 		Form1(void)
 		{
 			InitializeComponent();
-			//
-			//TODO: Add the constructor code here
-			//
+			// the GUI's version, and the plugin's when the dinput8.dll next to it is another build
+			this->Text = "FFB Arcade Plugin " + gcnew String(FFB_VERSION_STRING);
+			if (System::IO::File::Exists("dinput8.dll"))
+			{
+				String^ plugin = System::Diagnostics::FileVersionInfo::GetVersionInfo(System::IO::Path::GetFullPath("dinput8.dll"))->FileVersion;
+				if (plugin != nullptr && plugin != gcnew String(FFB_VERSION_FILE))
+					this->Text += " (dinput8.dll " + plugin + ")";
+			}
 		}
 
 	protected:

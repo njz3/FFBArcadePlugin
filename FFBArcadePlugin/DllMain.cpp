@@ -25,6 +25,7 @@ along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
 #include "Config/PersistentValues.h"
 #include "Common Files/GameIds.h"
 #include "Common Files/Devices.h"
+#include "../Version.h"
 #include "WrapperExports.h"
 
 // include all game header files here.
@@ -357,6 +358,13 @@ static int CreateBaseEffect(SDL_Haptic* device, Uint16 type, Uint32 length_ms)
 void Initialize()
 {
 	hlp.log("in initialize");
+	{
+		SDL_version sdl;
+		SDL_GetVersion(&sdl);
+		char text[128];
+		sprintf_s(text, "FFB Arcade Plugin %s, SDL %d.%d.%d", FFB_VERSION_STRING, sdl.major, sdl.minor, sdl.patch);
+		hlp.log(text);
+	}
 	SDL_SetHint(SDL_HINT_JOYSTICK_RAWINPUT, "0");
 	if (SDL_Init(SDL_INIT_JOYSTICK | SDL_INIT_HAPTIC | SDL_INIT_GAMECONTROLLER) < 0)
 	{
