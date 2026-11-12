@@ -143,14 +143,14 @@ extremely generous.
 - Operation Wolf
 - Outrun
 - Outrunners
-- Overrev (need to change output mode in service)
+- Overrev (settings: see below)
 - Point Blank 2
 - Power Drift
 - Race Drivin'
 - Rail Chase
 - Racing Jam
 - Racing Jam 2
-- Rave Racer (Feedback needs to be activated in the service menu)(you can invert the ffb effect in the gui for standard/deluxe mode)
+- Rave Racer (settings: see below)
 - Roads Edge
 - Revolution X
 - San Francisco Rush
@@ -161,7 +161,7 @@ extremely generous.
 - Side by Side
 - Side by Side 2
 - Super Chase - Criminal Termination
-- Super GT 24h (output works but analog input is broken)
+- Super GT 24h (see below)
 - Super Monaco GP
 - Space gun
 - Speed Up
@@ -171,7 +171,7 @@ extremely generous.
 - Turkey Shoot
 - Under Fire
 - Vapor TRX
-- Virtua Racing (CHANGE TO UPRIGHT CABINET)
+- Virtua Racing (settings: see below)
 - Winding Heat
 - Xtreme Rally
 
@@ -179,6 +179,43 @@ The Model 2 games (Daytona USA, Indy 500, Over Rev, Sega Rally Championship, Seg
 Super GT 24h), Driver's Edge, Speed Up and Cruis'n Exotica use `wheel_motor` outputs that the official MAME 0.289
 does not have: they need a MAME that adds them.
 Most MAME racing games play their constant force with the infinite constant effect (`UseConstantInf=1`, the default).
+
+#### Settings each MAME game needs for force feedback
+
+Some games only drive their wheel motor when their own settings say the cabinet has one: with the
+wrong setting, MAME sends no motor output and the plugin has nothing to play, whatever FFBPlugin.ini
+says. Set them once, in the game's test menu (MAME's service key, F2 by default) or in MAME's
+Machine Configuration / DIP Switches menu (Tab), as said for each game.
+
+For every game:
+- `output windows` (or `output network`) in mame.ini, and dinput8.dll, SDL2.dll, MAME64.dll and
+  FFBPlugin.ini next to mame.exe.
+- The wheel chosen in the GUI (`DeviceGUID`). A GUID saved with another SDL version still matches
+  (since 2.1.0).
+
+Game by game:
+- **Virtua Racing**: in the test menu, Game Assignments, set the CABINET TYPE to UPRIGHT, or anything
+  but STANDARD. With STANDARD, the game sends no command to its Motor PCB and there is no force
+  feedback.
+- **Rave Racer**: set FEEDBACK STEERING to ON: turn the "Test Mode" DIP switch on in MAME's DIP Switches
+  menu, then TEST MODE > GAME OPTIONS > NEXT PAGE (page 2/2). It is OFF by default and stored in the EEPROM,
+  so once per NVRAM: in a link, in the NVRAM of every cabinet (byte 0x2D1 of nvram/raverace/eeprom, 00 = ON,
+  01 = OFF, then the checksum at 0x2DE-0x2DF, big-endian, so that the bytes 0x200-0x2DD plus it make 0x10EE). With it off, the game writes no drive command at all during the race, whatever the
+  Cabinet setting of MAME's Machine Configuration (Standard, Twin, Deluxe and 50 Inch all measured): the
+  plugin only gets the motor's initialization. The GUI can invert the effect, which
+  differs between the standard and deluxe cabinets.
+- **Cruis'n Exotica**: in the test menu, set Wheel Invert to On, the game type to Dedicated and the
+  cabinet to Sitdown.
+- **Over Rev**: change the output mode in the service menu.
+- **Super Monaco GP**: set the game to Sitdown or Upright, not Deluxe. Then tune the sine length in
+  the GUI until the 7 values of the test menu's motor test give a steady rise of strength.
+- **Daytona USA, Sega Rally Championship, Indy 500, Sega Touring Car Championship, Over Rev, Super
+  GT 24h, Driver's Edge, Speed Up, Cruis'n Exotica**: need a MAME with their `wheel_motor` outputs
+  (MAME njz3), see above. Super GT 24h: the outputs work but its analog inputs do not.
+- **Side by Side, Side by Side 2**: they need the CPU overclocked (MAME's sliders, with cheats on) to be
+  playable; even then, they are not considered working.
+- **Hard Drivin', Race Drivin', Afterburner II, Alien 3**: MAME 0.289 names their outputs with the
+  `mainpcb:` prefix, which the plugin does not read yet: no force feedback with it.
 
 ### MODEL 2 EMULATOR:
 
