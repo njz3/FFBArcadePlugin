@@ -200,7 +200,8 @@ Game by game:
 - **Rave Racer**: set FEEDBACK STEERING to ON: turn the "Test Mode" DIP switch on in MAME's DIP Switches
   menu, then TEST MODE > GAME OPTIONS > NEXT PAGE (page 2/2). It is OFF by default and stored in the EEPROM,
   so once per NVRAM: in a link, in the NVRAM of every cabinet (byte 0x2D1 of nvram/raverace/eeprom, 00 = ON,
-  01 = OFF, then the checksum at 0x2DE-0x2DF, big-endian, so that the bytes 0x200-0x2DD plus it make 0x10EE). With it off, the game writes no drive command at all during the race, whatever the
+  01 = OFF, then the checksum at 0x2DE-0x2DF, big-endian, so that the bytes 0x200-0x2DD plus it make 0x10EE). Checked on two cabinets, alone and in a link: about 900 FFB
+  packets per race with it ON, 66 (the motor's initialization only) with it OFF. With it off, the game writes no drive command at all during the race, whatever the
   Cabinet setting of MAME's Machine Configuration (Standard, Twin, Deluxe and 50 Inch all measured): the
   plugin only gets the motor's initialization. The GUI can invert the effect, which
   differs between the standard and deluxe cabinets.
