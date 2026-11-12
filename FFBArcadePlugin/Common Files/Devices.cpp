@@ -12,6 +12,11 @@ extern SDL_Haptic* ControllerHaptic3;
 extern SDL_Haptic* haptic2;
 extern SDL_Haptic* haptic3;
 
+bool SameJoystickGUID(const SDL_JoystickGUID& a, const SDL_JoystickGUID& b)
+{
+	return memcmp(a.data, b.data, 2) == 0 && memcmp(a.data + 4, b.data + 4, sizeof(a.data) - 4) == 0;
+}
+
 SDL_Joystick* OpenJoystickFromSetting(LPCWSTR guidSetting, int ignoredIndex)
 {
 	wchar_t guidSettingValue[256];
@@ -29,7 +34,7 @@ SDL_Joystick* OpenJoystickFromSetting(LPCWSTR guidSetting, int ignoredIndex)
 		SDL_JoystickGUID dev_guid = SDL_JoystickGetGUID(js);
 		SDL_JoystickClose(js);
 
-		if (!memcmp(&guid, &dev_guid, sizeof(SDL_JoystickGUID)))
+		if (SameJoystickGUID(guid, dev_guid))
 			return SDL_JoystickOpen(i);
 	}
 	return NULL;

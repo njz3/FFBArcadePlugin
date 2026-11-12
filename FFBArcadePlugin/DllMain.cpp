@@ -24,6 +24,7 @@ along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
 #include <TlHelp32.h>
 #include "Config/PersistentValues.h"
 #include "Common Files/GameIds.h"
+#include "Common Files/Devices.h"
 #include "WrapperExports.h"
 
 // include all game header files here.
@@ -387,7 +388,7 @@ void Initialize()
 		sprintf(text, "Joystick: %d / Name: %s / GUID: %s\n", i, name, guid_str);
 		hlp.log(text);
 		SDL_JoystickClose(js);
-		if (!memcmp(&guid, &dev_guid, sizeof(SDL_JoystickGUID)))
+		if (SameJoystickGUID(guid, dev_guid))
 		{
 			if (!IgnoreFirstMatchingGUID)
 			{
