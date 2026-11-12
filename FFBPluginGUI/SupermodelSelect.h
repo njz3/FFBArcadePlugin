@@ -16,12 +16,12 @@ along with FFB Arcade Plugin GUI.If not, see < https://www.gnu.org/licenses/>.
 #include "SDL.h"
 #include "Helper.h"
 
-#include "DaytonaUSA2.h"
-#include "DirtDevils.h"
-#include "EmergencyCallAmbulance.h"
-#include "LeMans24.h"
-#include "ScudRace.h"
-#include "SegaRally2.h"
+#include "GameFiles/DaytonaUSA2.h"
+#include "GameFiles/DirtDevils.h"
+#include "GameFiles/EmergencyCallAmbulance.h"
+#include "GameFiles/LeMans24.h"
+#include "GameFiles/ScudRace.h"
+#include "GameFiles/SegaRally2.h"
 
 namespace FFBPluginGUI {
 

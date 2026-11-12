@@ -18,307 +18,307 @@
     <ClCompile Include="Form1.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="AfterburnerClimax.cpp">
+    <ClCompile Include="GameFiles\AfterburnerClimax.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="BG4.cpp">
+    <ClCompile Include="GameFiles\BG4.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ButtonRumble.cpp">
+    <ClCompile Include="GameFiles\ButtonRumble.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ChaseHQ2.cpp">
+    <ClCompile Include="GameFiles\ChaseHQ2.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="DaytonaChampionshipUSA.cpp">
+    <ClCompile Include="GameFiles\DaytonaChampionshipUSA.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="FordRacing.cpp">
+    <ClCompile Include="GameFiles\FordRacing.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="GTIClub.cpp">
+    <ClCompile Include="GameFiles\GTIClub.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="CartFury.cpp">
+    <ClCompile Include="GameFiles\CartFury.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="CrusnExotica.cpp">
+    <ClCompile Include="GameFiles\CrusnExotica.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="DriversEdge.cpp">
+    <ClCompile Include="GameFiles\DriversEdge.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="SideBS.cpp">
+    <ClCompile Include="GameFiles\SideBS.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="SideBS2.cpp">
+    <ClCompile Include="GameFiles\SideBS2.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="SpeedUp.cpp">
+    <ClCompile Include="GameFiles\SpeedUp.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="SuperMonacoGP.cpp">
+    <ClCompile Include="GameFiles\SuperMonacoGP.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="GTIClubMame.cpp">
+    <ClCompile Include="GameFiles\GTIClubMame.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="MidnightRun.cpp">
+    <ClCompile Include="GameFiles\MidnightRun.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="RacingJam.cpp">
+    <ClCompile Include="GameFiles\RacingJam.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="RacingJam2.cpp">
+    <ClCompile Include="GameFiles\RacingJam2.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="RoadsEdge.cpp">
+    <ClCompile Include="GameFiles\RoadsEdge.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ThrillDrive.cpp">
+    <ClCompile Include="GameFiles\ThrillDrive.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="WindingHeat.cpp">
+    <ClCompile Include="GameFiles\WindingHeat.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="XtremeRally.cpp">
+    <ClCompile Include="GameFiles\XtremeRally.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="InitialD4.cpp">
+    <ClCompile Include="GameFiles\InitialD4.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="InitialD4Japan.cpp">
+    <ClCompile Include="GameFiles\InitialD4Japan.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="InitialD5.cpp">
+    <ClCompile Include="GameFiles\InitialD5.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="InitialD6.cpp">
+    <ClCompile Include="GameFiles\InitialD6.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="InitialD7.cpp">
+    <ClCompile Include="GameFiles\InitialD7.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="InitialD8.cpp">
+    <ClCompile Include="GameFiles\InitialD8.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="LGI.cpp">
+    <ClCompile Include="GameFiles\LGI.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="LGI3D.cpp">
+    <ClCompile Include="GameFiles\LGI3D.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Machstorm.cpp">
+    <ClCompile Include="GameFiles\Machstorm.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="MKGP100Custom.cpp">
+    <ClCompile Include="GameFiles\MKGP100Custom.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="MKGP110Custom.cpp">
+    <ClCompile Include="GameFiles\MKGP110Custom.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Outrun2.cpp">
+    <ClCompile Include="GameFiles\Outrun2.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="PokkenTournament.cpp">
+    <ClCompile Include="GameFiles\PokkenTournament.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="RoadFighters3D.cpp">
+    <ClCompile Include="GameFiles\RoadFighters3D.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="SegaRacingClassic.cpp">
+    <ClCompile Include="GameFiles\SegaRacingClassic.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="SegaRally3.cpp">
+    <ClCompile Include="GameFiles\SegaRally3.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="SonicAllStars.cpp">
+    <ClCompile Include="GameFiles\SonicAllStars.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="WackyRaces.cpp">
+    <ClCompile Include="GameFiles\WackyRaces.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="WMMT5.cpp">
+    <ClCompile Include="GameFiles\WMMT5.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="M2EmulatorInput.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ButtonRumbleInput.cpp">
+    <ClCompile Include="GameFiles\ButtonRumbleInput.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="DaytonaChampionshipUSAInput.cpp">
+    <ClCompile Include="GameFiles\DaytonaChampionshipUSAInput.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="RoadFighters3DInput.cpp">
+    <ClCompile Include="GameFiles\RoadFighters3DInput.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Outrun2Input.cpp">
+    <ClCompile Include="GameFiles\Outrun2Input.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="FFBTest.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="KODrive.cpp">
+    <ClCompile Include="GameFiles\KODrive.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Helper.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="WMMT5Input.cpp">
+    <ClCompile Include="GameFiles\WMMT5Input.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="HOTD4.cpp">
+    <ClCompile Include="GameFiles\HOTD4.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="GRIDReal.cpp">
+    <ClCompile Include="GameFiles\GRIDReal.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="InitialD0.cpp">
+    <ClCompile Include="GameFiles\InitialD0.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ChaseHQ2Input.cpp">
+    <ClCompile Include="GameFiles\ChaseHQ2Input.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="AliensExtermination.cpp">
+    <ClCompile Include="GameFiles\AliensExtermination.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Rambo.cpp">
+    <ClCompile Include="GameFiles\Rambo.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Transformers.cpp">
+    <ClCompile Include="GameFiles\Transformers.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="GoldenGun.cpp">
+    <ClCompile Include="GameFiles\GoldenGun.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="MameSelect.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ZombieRaid.cpp">
+    <ClCompile Include="GameFiles\ZombieRaid.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="UnderFire.cpp">
+    <ClCompile Include="GameFiles\UnderFire.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="TurkeyShoot.cpp">
+    <ClCompile Include="GameFiles\TurkeyShoot.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="TimeCrisis.cpp">
+    <ClCompile Include="GameFiles\TimeCrisis.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Terminator2.cpp">
+    <ClCompile Include="GameFiles\Terminator2.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Spacegun.cpp">
+    <ClCompile Include="GameFiles\Spacegun.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="RevolutionX.cpp">
+    <ClCompile Include="GameFiles\RevolutionX.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="RailChase.cpp">
+    <ClCompile Include="GameFiles\RailChase.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="PointBlank2.cpp">
+    <ClCompile Include="GameFiles\PointBlank2.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="OperationWolf.cpp">
+    <ClCompile Include="GameFiles\OperationWolf.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="OperationThunderbolt.cpp">
+    <ClCompile Include="GameFiles\OperationThunderbolt.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="MechanizedAttack.cpp">
+    <ClCompile Include="GameFiles\MechanizedAttack.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="LaserGhost.cpp">
+    <ClCompile Include="GameFiles\LaserGhost.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="GunBuster.cpp">
+    <ClCompile Include="GameFiles\GunBuster.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="F1GrandPrixStar.cpp">
+    <ClCompile Include="GameFiles\F1GrandPrixStar.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="F1GrandPrixStar2.cpp">
+    <ClCompile Include="GameFiles\F1GrandPrixStar2.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="GhoulPanic.cpp">
+    <ClCompile Include="GameFiles\GhoulPanic.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="CiscoHeat.cpp">
+    <ClCompile Include="GameFiles\CiscoHeat.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ChaseBombers.cpp">
+    <ClCompile Include="GameFiles\ChaseBombers.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="BeastBusters.cpp">
+    <ClCompile Include="GameFiles\BeastBusters.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Alien3.cpp">
+    <ClCompile Include="GameFiles\Alien3.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="AfterburnerII.cpp">
+    <ClCompile Include="GameFiles\AfterburnerII.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="VirtuaRacing.cpp">
+    <ClCompile Include="GameFiles\VirtuaRacing.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="SanFranciscoRush.cpp">
+    <ClCompile Include="GameFiles\SanFranciscoRush.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="SanFranciscoRushTheRock.cpp">
+    <ClCompile Include="GameFiles\SanFranciscoRushTheRock.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="SanFranciscoRush2049.cpp">
+    <ClCompile Include="GameFiles\SanFranciscoRush2049.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="CrusnWorld.cpp">
+    <ClCompile Include="GameFiles\CrusnWorld.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="CrusnUSA.cpp">
+    <ClCompile Include="GameFiles\CrusnUSA.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="CaliforniaSpeed.cpp">
+    <ClCompile Include="GameFiles\CaliforniaSpeed.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Outrun.cpp">
+    <ClCompile Include="GameFiles\Outrun.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="TurboOutrun.cpp">
+    <ClCompile Include="GameFiles\TurboOutrun.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="PowerDrift.cpp">
+    <ClCompile Include="GameFiles\PowerDrift.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="OutRunners.cpp">
+    <ClCompile Include="GameFiles\OutRunners.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="OffRoadChallenge.cpp">
+    <ClCompile Include="GameFiles\OffRoadChallenge.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="SupermodelSelect.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="DaytonaUSA2.cpp">
+    <ClCompile Include="GameFiles\DaytonaUSA2.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="DirtDevils.cpp">
+    <ClCompile Include="GameFiles\DirtDevils.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="EmergencyCallAmbulance.cpp">
+    <ClCompile Include="GameFiles\EmergencyCallAmbulance.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="LeMans24.cpp">
+    <ClCompile Include="GameFiles\LeMans24.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="SegaRally2.cpp">
+    <ClCompile Include="GameFiles\SegaRally2.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ScudRace.cpp">
+    <ClCompile Include="GameFiles\ScudRace.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="DirtyDrivin.cpp">
+    <ClCompile Include="GameFiles\DirtyDrivin.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="LindberghHelp.cpp">
@@ -327,223 +327,223 @@
     <ClCompile Include="Help.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="H2Overdrive.cpp">
+    <ClCompile Include="GameFiles\H2Overdrive.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Hyperdrive.cpp">
+    <ClCompile Include="GameFiles\Hyperdrive.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="VaporTrx.cpp">
+    <ClCompile Include="GameFiles\VaporTrx.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="SnoCross.cpp">
+    <ClCompile Include="GameFiles\SnoCross.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Batman.cpp">
+    <ClCompile Include="GameFiles\Batman.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="R_Tuned.cpp">
+    <ClCompile Include="GameFiles\R_Tuned.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="M2EmulatorSelect.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="DaytonaUSA.cpp">
+    <ClCompile Include="GameFiles\DaytonaUSA.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Indy500.cpp">
+    <ClCompile Include="GameFiles\Indy500.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="OverRev.cpp">
+    <ClCompile Include="GameFiles\OverRev.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="SegaRally.cpp">
+    <ClCompile Include="GameFiles\SegaRally.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="STCC.cpp">
+    <ClCompile Include="GameFiles\STCC.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="SuperGT.cpp">
+    <ClCompile Include="GameFiles\SuperGT.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="RaveRacer.cpp">
+    <ClCompile Include="GameFiles\RaveRacer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="SuperChase.cpp">
+    <ClCompile Include="GameFiles\SuperChase.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="DemulSelect.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="NascarRacing.cpp">
+    <ClCompile Include="GameFiles\NascarRacing.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="SmashingDrive.cpp">
+    <ClCompile Include="GameFiles\SmashingDrive.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="InitialDDemul.cpp">
+    <ClCompile Include="GameFiles\InitialDDemul.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="DemulMaximumSpeed.cpp">
+    <ClCompile Include="GameFiles\DemulMaximumSpeed.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="DemulFasterThanSpeed.cpp">
+    <ClCompile Include="GameFiles\DemulFasterThanSpeed.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ATVTrack.cpp">
+    <ClCompile Include="GameFiles\ATVTrack.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="DirtDash.cpp">
+    <ClCompile Include="GameFiles\DirtDash.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="AceDriver.cpp">
+    <ClCompile Include="GameFiles\AceDriver.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="AceDriverVictoryLap.cpp">
+    <ClCompile Include="GameFiles\AceDriverVictoryLap.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="DemulInputSelect.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="DemulInitialDInput.cpp">
+    <ClCompile Include="GameFiles\DemulInitialDInput.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="DemulSmashingDriveInput.cpp">
+    <ClCompile Include="GameFiles\DemulSmashingDriveInput.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="DemulATVTrackInput.cpp">
+    <ClCompile Include="GameFiles\DemulATVTrackInput.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="DemulFasterThanSpeedInput.cpp">
+    <ClCompile Include="GameFiles\DemulFasterThanSpeedInput.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="DemulNascarInput.cpp">
+    <ClCompile Include="GameFiles\DemulNascarInput.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="DemulMaximumSpeedInput.cpp">
+    <ClCompile Include="GameFiles\DemulMaximumSpeedInput.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="StrengthInput.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="DoubleAxle.cpp">
+    <ClCompile Include="GameFiles\DoubleAxle.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="HardDrivin.cpp">
+    <ClCompile Include="GameFiles\HardDrivin.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="MKGPUSACustom.cpp">
+    <ClCompile Include="GameFiles\MKGPUSACustom.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="SWDC2018.cpp">
+    <ClCompile Include="GameFiles\SWDC2018.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="WMMT6.cpp">
+    <ClCompile Include="GameFiles\WMMT6.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="WMMT6R.cpp">
+    <ClCompile Include="GameFiles\WMMT6R.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="WMMT6RR.cpp">
+    <ClCompile Include="GameFiles\WMMT6RR.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="StormRacerG.cpp">
+    <ClCompile Include="GameFiles\StormRacerG.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="InitialD0Input.cpp">
+    <ClCompile Include="GameFiles\InitialD0Input.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="D1GPArcade.cpp">
+    <ClCompile Include="GameFiles\D1GPArcade.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="CrazyTaxi.cpp">
+    <ClCompile Include="GameFiles\CrazyTaxi.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="WMMT3.cpp">
+    <ClCompile Include="GameFiles\WMMT3.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="DeadHeat.cpp">
+    <ClCompile Include="GameFiles\DeadHeat.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="ElfLdr2Help.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="GaelcoTuningRace.cpp">
+    <ClCompile Include="GameFiles\GaelcoTuningRace.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="TokyoCop.cpp">
+    <ClCompile Include="GameFiles\TokyoCop.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="RingRiders.cpp">
+    <ClCompile Include="GameFiles\RingRiders.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="FlycastInitialD.cpp">
+    <ClCompile Include="GameFiles\FlycastInitialD.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="FlycastMaximumSpeed.cpp">
+    <ClCompile Include="GameFiles\FlycastMaximumSpeed.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="FlycastFasterThanSpeed.cpp">
+    <ClCompile Include="GameFiles\FlycastFasterThanSpeed.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Flycast18Wheeler.cpp">
+    <ClCompile Include="GameFiles\Flycast18Wheeler.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="FlycastF355.cpp">
+    <ClCompile Include="GameFiles\FlycastF355.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="FlycastEmulatorSelect.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="FlycastClubKart.cpp">
+    <ClCompile Include="GameFiles\FlycastClubKart.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="FlycastKingOfRoute66.cpp">
+    <ClCompile Include="GameFiles\FlycastKingOfRoute66.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="FlycastSegaDrivingSimulator.cpp">
+    <ClCompile Include="GameFiles\FlycastSegaDrivingSimulator.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="DaytonaChampionshipUSANSE.cpp">
+    <ClCompile Include="GameFiles\DaytonaChampionshipUSANSE.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="MKGP118Real.cpp">
+    <ClCompile Include="GameFiles\MKGP118Real.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="MKGPUSAReal.cpp">
+    <ClCompile Include="GameFiles\MKGPUSAReal.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="MKGP110Real.cpp">
+    <ClCompile Include="GameFiles\MKGP110Real.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="GRIDCustom.cpp">
+    <ClCompile Include="GameFiles\GRIDCustom.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="MKGP118Custom.cpp">
+    <ClCompile Include="GameFiles\MKGP118Custom.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ArcticThunder.cpp">
+    <ClCompile Include="GameFiles\ArcticThunder.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="FNF.cpp">
+    <ClCompile Include="GameFiles\FNF.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="FNFDrift.cpp">
+    <ClCompile Include="GameFiles\FNFDrift.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="FNFSupercars.cpp">
+    <ClCompile Include="GameFiles\FNFSupercars.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="HummerExtreme.cpp">
+    <ClCompile Include="GameFiles\HummerExtreme.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="CrusnBlast.cpp">
+    <ClCompile Include="GameFiles\CrusnBlast.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="InitialDTheArcadev231.cpp">
+    <ClCompile Include="GameFiles\InitialDTheArcadev231.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="WastelandRacers2071.cpp">
+    <ClCompile Include="GameFiles\WastelandRacers2071.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -551,307 +551,307 @@
     <ClInclude Include="Form1.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="AfterburnerClimax.h">
+    <ClInclude Include="GameFiles\AfterburnerClimax.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="BG4.h">
+    <ClInclude Include="GameFiles\BG4.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ButtonRumble.h">
+    <ClInclude Include="GameFiles\ButtonRumble.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ChaseHQ2.h">
+    <ClInclude Include="GameFiles\ChaseHQ2.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="DaytonaChampionshipUSA.h">
+    <ClInclude Include="GameFiles\DaytonaChampionshipUSA.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="FordRacing.h">
+    <ClInclude Include="GameFiles\FordRacing.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="GTIClub.h">
+    <ClInclude Include="GameFiles\GTIClub.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="CartFury.h">
+    <ClInclude Include="GameFiles\CartFury.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="CrusnExotica.h">
+    <ClInclude Include="GameFiles\CrusnExotica.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="DriversEdge.h">
+    <ClInclude Include="GameFiles\DriversEdge.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="SideBS.h">
+    <ClInclude Include="GameFiles\SideBS.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="SideBS2.h">
+    <ClInclude Include="GameFiles\SideBS2.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="SpeedUp.h">
+    <ClInclude Include="GameFiles\SpeedUp.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="SuperMonacoGP.h">
+    <ClInclude Include="GameFiles\SuperMonacoGP.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="GTIClubMame.h">
+    <ClInclude Include="GameFiles\GTIClubMame.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="MidnightRun.h">
+    <ClInclude Include="GameFiles\MidnightRun.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="RacingJam.h">
+    <ClInclude Include="GameFiles\RacingJam.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="RacingJam2.h">
+    <ClInclude Include="GameFiles\RacingJam2.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="RoadsEdge.h">
+    <ClInclude Include="GameFiles\RoadsEdge.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ThrillDrive.h">
+    <ClInclude Include="GameFiles\ThrillDrive.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="WindingHeat.h">
+    <ClInclude Include="GameFiles\WindingHeat.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="XtremeRally.h">
+    <ClInclude Include="GameFiles\XtremeRally.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="InitialD4.h">
+    <ClInclude Include="GameFiles\InitialD4.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="InitialD4Japan.h">
+    <ClInclude Include="GameFiles\InitialD4Japan.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="InitialD5.h">
+    <ClInclude Include="GameFiles\InitialD5.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="InitialD6.h">
+    <ClInclude Include="GameFiles\InitialD6.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="InitialD7.h">
+    <ClInclude Include="GameFiles\InitialD7.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="InitialD8.h">
+    <ClInclude Include="GameFiles\InitialD8.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="LGI.h">
+    <ClInclude Include="GameFiles\LGI.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="LGI3D.h">
+    <ClInclude Include="GameFiles\LGI3D.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Machstorm.h">
+    <ClInclude Include="GameFiles\Machstorm.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="MKGP100Custom.h">
+    <ClInclude Include="GameFiles\MKGP100Custom.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="MKGP110Custom.h">
+    <ClInclude Include="GameFiles\MKGP110Custom.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Outrun2.h">
+    <ClInclude Include="GameFiles\Outrun2.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="PokkenTournament.h">
+    <ClInclude Include="GameFiles\PokkenTournament.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="RoadFighters3D.h">
+    <ClInclude Include="GameFiles\RoadFighters3D.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="SegaRacingClassic.h">
+    <ClInclude Include="GameFiles\SegaRacingClassic.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="SegaRally3.h">
+    <ClInclude Include="GameFiles\SegaRally3.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="SonicAllStars.h">
+    <ClInclude Include="GameFiles\SonicAllStars.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="WackyRaces.h">
+    <ClInclude Include="GameFiles\WackyRaces.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="WMMT5.h">
+    <ClInclude Include="GameFiles\WMMT5.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="M2EmulatorInput.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ButtonRumbleInput.h">
+    <ClInclude Include="GameFiles\ButtonRumbleInput.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="DaytonaChampionshipUSAInput.h">
+    <ClInclude Include="GameFiles\DaytonaChampionshipUSAInput.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="RoadFighters3DInput.h">
+    <ClInclude Include="GameFiles\RoadFighters3DInput.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Outrun2Input.h">
+    <ClInclude Include="GameFiles\Outrun2Input.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="FFBTest.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="KODrive.h">
+    <ClInclude Include="GameFiles\KODrive.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Helper.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="WMMT5Input.h">
+    <ClInclude Include="GameFiles\WMMT5Input.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="HOTD4.h">
+    <ClInclude Include="GameFiles\HOTD4.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="GRIDReal.h">
+    <ClInclude Include="GameFiles\GRIDReal.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="InitialD0.h">
+    <ClInclude Include="GameFiles\InitialD0.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ChaseHQ2Input.h">
+    <ClInclude Include="GameFiles\ChaseHQ2Input.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="AliensExtermination.h">
+    <ClInclude Include="GameFiles\AliensExtermination.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Rambo.h">
+    <ClInclude Include="GameFiles\Rambo.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Transformers.h">
+    <ClInclude Include="GameFiles\Transformers.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="GoldenGun.h">
+    <ClInclude Include="GameFiles\GoldenGun.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="MameSelect.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ZombieRaid.h">
+    <ClInclude Include="GameFiles\ZombieRaid.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="UnderFire.h">
+    <ClInclude Include="GameFiles\UnderFire.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="TurkeyShoot.h">
+    <ClInclude Include="GameFiles\TurkeyShoot.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="TimeCrisis.h">
+    <ClInclude Include="GameFiles\TimeCrisis.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Terminator2.h">
+    <ClInclude Include="GameFiles\Terminator2.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Spacegun.h">
+    <ClInclude Include="GameFiles\Spacegun.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="RevolutionX.h">
+    <ClInclude Include="GameFiles\RevolutionX.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="RailChase.h">
+    <ClInclude Include="GameFiles\RailChase.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="PointBlank2.h">
+    <ClInclude Include="GameFiles\PointBlank2.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="OperationWolf.h">
+    <ClInclude Include="GameFiles\OperationWolf.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="OperationThunderbolt.h">
+    <ClInclude Include="GameFiles\OperationThunderbolt.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="LaserGhost.h">
+    <ClInclude Include="GameFiles\LaserGhost.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="MechanizedAttack.h">
+    <ClInclude Include="GameFiles\MechanizedAttack.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="GunBuster.h">
+    <ClInclude Include="GameFiles\GunBuster.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="F1GrandPrixStar2.h">
+    <ClInclude Include="GameFiles\F1GrandPrixStar2.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="F1GrandPrixStar.h">
+    <ClInclude Include="GameFiles\F1GrandPrixStar.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="GhoulPanic.h">
+    <ClInclude Include="GameFiles\GhoulPanic.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="CiscoHeat.h">
+    <ClInclude Include="GameFiles\CiscoHeat.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ChaseBombers.h">
+    <ClInclude Include="GameFiles\ChaseBombers.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="BeastBusters.h">
+    <ClInclude Include="GameFiles\BeastBusters.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Alien3.h">
+    <ClInclude Include="GameFiles\Alien3.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="AfterburnerII.h">
+    <ClInclude Include="GameFiles\AfterburnerII.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="VirtuaRacing.h">
+    <ClInclude Include="GameFiles\VirtuaRacing.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="SanFranciscoRush.h">
+    <ClInclude Include="GameFiles\SanFranciscoRush.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="SanFranciscoRushTheRock.h">
+    <ClInclude Include="GameFiles\SanFranciscoRushTheRock.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="SanFranciscoRush2049.h">
+    <ClInclude Include="GameFiles\SanFranciscoRush2049.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="CrusnWorld.h">
+    <ClInclude Include="GameFiles\CrusnWorld.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="CrusnUSA.h">
+    <ClInclude Include="GameFiles\CrusnUSA.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="OffRoadChallenge.h">
+    <ClInclude Include="GameFiles\OffRoadChallenge.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="CaliforniaSpeed.h">
+    <ClInclude Include="GameFiles\CaliforniaSpeed.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Outrun.h">
+    <ClInclude Include="GameFiles\Outrun.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="TurboOutrun.h">
+    <ClInclude Include="GameFiles\TurboOutrun.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="PowerDrift.h">
+    <ClInclude Include="GameFiles\PowerDrift.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="OutRunners.h">
+    <ClInclude Include="GameFiles\OutRunners.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="SupermodelSelect.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="DaytonaUSA2.h">
+    <ClInclude Include="GameFiles\DaytonaUSA2.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="DirtDevils.h">
+    <ClInclude Include="GameFiles\DirtDevils.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="EmergencyCallAmbulance.h">
+    <ClInclude Include="GameFiles\EmergencyCallAmbulance.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="LeMans24.h">
+    <ClInclude Include="GameFiles\LeMans24.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="SegaRally2.h">
+    <ClInclude Include="GameFiles\SegaRally2.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ScudRace.h">
+    <ClInclude Include="GameFiles\ScudRace.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="DirtyDrivin.h">
+    <ClInclude Include="GameFiles\DirtyDrivin.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="LindberghHelp.h">
@@ -860,145 +860,145 @@
     <ClInclude Include="Help.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="H2Overdrive.h">
+    <ClInclude Include="GameFiles\H2Overdrive.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="VaporTrx.h">
+    <ClInclude Include="GameFiles\VaporTrx.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Hyperdrive.h">
+    <ClInclude Include="GameFiles\Hyperdrive.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="SnoCross.h">
+    <ClInclude Include="GameFiles\SnoCross.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Batman.h">
+    <ClInclude Include="GameFiles\Batman.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="R-Tuned.h">
+    <ClInclude Include="GameFiles\R-Tuned.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="M2EmulatorSelect.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="DaytonaUSA.h">
+    <ClInclude Include="GameFiles\DaytonaUSA.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Indy500.h">
+    <ClInclude Include="GameFiles\Indy500.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="OverRev.h">
+    <ClInclude Include="GameFiles\OverRev.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="SegaRally.h">
+    <ClInclude Include="GameFiles\SegaRally.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="STCC.h">
+    <ClInclude Include="GameFiles\STCC.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="SuperGT.h">
+    <ClInclude Include="GameFiles\SuperGT.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="RaveRacer.h">
+    <ClInclude Include="GameFiles\RaveRacer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="SuperChase.h">
+    <ClInclude Include="GameFiles\SuperChase.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="DemulSelect.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="InitialDDemul.h">
+    <ClInclude Include="GameFiles\InitialDDemul.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="SmashingDrive.h">
+    <ClInclude Include="GameFiles\SmashingDrive.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="NascarRacing.h">
+    <ClInclude Include="GameFiles\NascarRacing.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="DemulMaximumSpeed.h">
+    <ClInclude Include="GameFiles\DemulMaximumSpeed.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="DemulFasterThanSpeed.h">
+    <ClInclude Include="GameFiles\DemulFasterThanSpeed.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ATVTrack.h">
+    <ClInclude Include="GameFiles\ATVTrack.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="DirtDash.h">
+    <ClInclude Include="GameFiles\DirtDash.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="AceDriverVictoryLap.h">
+    <ClInclude Include="GameFiles\AceDriverVictoryLap.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="AceDriver.h">
+    <ClInclude Include="GameFiles\AceDriver.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="DemulInputSelect.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="DemulInitialDInput.h">
+    <ClInclude Include="GameFiles\DemulInitialDInput.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="DemulSmashingDriveInput.h">
+    <ClInclude Include="GameFiles\DemulSmashingDriveInput.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="DemulATVTrackInput.h">
+    <ClInclude Include="GameFiles\DemulATVTrackInput.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="DemulFasterThanSpeedInput.h">
+    <ClInclude Include="GameFiles\DemulFasterThanSpeedInput.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="DemulNascarInput.h">
+    <ClInclude Include="GameFiles\DemulNascarInput.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="DemulMaximumSpeedInput.h">
+    <ClInclude Include="GameFiles\DemulMaximumSpeedInput.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="StrengthInput.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="DoubleAxle.h">
+    <ClInclude Include="GameFiles\DoubleAxle.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="HardDrivin.h">
+    <ClInclude Include="GameFiles\HardDrivin.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="MKGPUSACustom.h">
+    <ClInclude Include="GameFiles\MKGPUSACustom.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="SWDC2018.h">
+    <ClInclude Include="GameFiles\SWDC2018.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="WMMT6.h">
+    <ClInclude Include="GameFiles\WMMT6.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="WMMT6R.h">
+    <ClInclude Include="GameFiles\WMMT6R.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="WMMT6RR.h">
+    <ClInclude Include="GameFiles\WMMT6RR.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="StormRacerG.h">
+    <ClInclude Include="GameFiles\StormRacerG.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="InitialD0Input.h">
+    <ClInclude Include="GameFiles\InitialD0Input.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="D1GPArcade.h">
+    <ClInclude Include="GameFiles\D1GPArcade.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="WMMT6Input.h">
+    <ClInclude Include="GameFiles\WMMT6Input.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="CrazyTaxi.h">
+    <ClInclude Include="GameFiles\CrazyTaxi.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="WMMT3.h">
+    <ClInclude Include="GameFiles\WMMT3.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="DeadHeat.h">
+    <ClInclude Include="GameFiles\DeadHeat.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="resource.h">
@@ -1007,82 +1007,82 @@
     <ClInclude Include="ElfLdr2Help.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="GaelcoTuningRace.h">
+    <ClInclude Include="GameFiles\GaelcoTuningRace.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="TokyoCop.h">
+    <ClInclude Include="GameFiles\TokyoCop.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="RingRiders.h">
+    <ClInclude Include="GameFiles\RingRiders.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="FlycastEmulatorSelect.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="FlycastInitialD.h">
+    <ClInclude Include="GameFiles\FlycastInitialD.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="FlycastFasterThanSpeed.h">
+    <ClInclude Include="GameFiles\FlycastFasterThanSpeed.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="FlycastMaximumSpeed.h">
+    <ClInclude Include="GameFiles\FlycastMaximumSpeed.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Flycast18Wheeler.h">
+    <ClInclude Include="GameFiles\Flycast18Wheeler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="FlycastF355.h">
+    <ClInclude Include="GameFiles\FlycastF355.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="FlycastClubKart.h">
+    <ClInclude Include="GameFiles\FlycastClubKart.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="FlycastKingOfRoute66.h">
+    <ClInclude Include="GameFiles\FlycastKingOfRoute66.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="FlycastSegaDrivingSimulator.h">
+    <ClInclude Include="GameFiles\FlycastSegaDrivingSimulator.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="DaytonaChampionshipUSANSE.h">
+    <ClInclude Include="GameFiles\DaytonaChampionshipUSANSE.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="MKGP118Real.h">
+    <ClInclude Include="GameFiles\MKGP118Real.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="MKGPUSAReal.h">
+    <ClInclude Include="GameFiles\MKGPUSAReal.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="MKGP110Real.h">
+    <ClInclude Include="GameFiles\MKGP110Real.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="GRIDCustom.h">
+    <ClInclude Include="GameFiles\GRIDCustom.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="MKGP118Custom.h">
+    <ClInclude Include="GameFiles\MKGP118Custom.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ArcticThunder.h">
+    <ClInclude Include="GameFiles\ArcticThunder.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="FNF.h">
+    <ClInclude Include="GameFiles\FNF.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="FNFDrift.h">
+    <ClInclude Include="GameFiles\FNFDrift.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="FNFSupercars.h">
+    <ClInclude Include="GameFiles\FNFSupercars.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="CrusnBlast.h">
+    <ClInclude Include="GameFiles\CrusnBlast.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="HummerExtreme.h">
+    <ClInclude Include="GameFiles\HummerExtreme.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="InitialDTheArcadev231.h">
+    <ClInclude Include="GameFiles\InitialDTheArcadev231.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="WastelandRacers2071.h">
+    <ClInclude Include="GameFiles\WastelandRacers2071.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

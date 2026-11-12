@@ -16,14 +16,14 @@ along with FFB Arcade Plugin GUI.If not, see < https://www.gnu.org/licenses/>.
 #include "SDL.h"
 #include "Helper.h"
 
-#include "Flycast18Wheeler.h"
-#include "FlycastInitialD.h"
-#include "FlycastFasterThanSpeed.h"
-#include "FlycastMaximumSpeed.h"
-#include "FlycastF355.h"
-#include "FlycastClubKart.h"
-#include "FlycastKingOfRoute66.h"
-#include "FlycastSegaDrivingSimulator.h"
+#include "GameFiles/Flycast18Wheeler.h"
+#include "GameFiles/FlycastInitialD.h"
+#include "GameFiles/FlycastFasterThanSpeed.h"
+#include "GameFiles/FlycastMaximumSpeed.h"
+#include "GameFiles/FlycastF355.h"
+#include "GameFiles/FlycastClubKart.h"
+#include "GameFiles/FlycastKingOfRoute66.h"
+#include "GameFiles/FlycastSegaDrivingSimulator.h"
 
 namespace FFBPluginGUI {
 

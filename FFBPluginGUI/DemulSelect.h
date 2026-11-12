@@ -16,12 +16,12 @@ along with FFB Arcade Plugin GUI.If not, see < https://www.gnu.org/licenses/>.
 #include "SDL.h"
 #include "Helper.h"
 
-#include "NascarRacing.h"
-#include "InitialDDemul.h"
-#include "SmashingDrive.h"
-#include "DemulMaximumSpeed.h"
-#include "DemulFasterThanSpeed.h"
-#include "ATVTrack.h"
+#include "GameFiles/NascarRacing.h"
+#include "GameFiles/InitialDDemul.h"
+#include "GameFiles/SmashingDrive.h"
+#include "GameFiles/DemulMaximumSpeed.h"
+#include "GameFiles/DemulFasterThanSpeed.h"
+#include "GameFiles/ATVTrack.h"
 
 namespace FFBPluginGUI {
 
