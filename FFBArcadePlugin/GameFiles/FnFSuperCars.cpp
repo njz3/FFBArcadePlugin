@@ -18,24 +18,23 @@ static bool init;
 static EffectTriggers* myTriggers;
 static EffectConstants* myConstants;
 static Helpers* myHelpers;
+// longest rumble SDL plays (SDL_MAX_RUMBLE_DURATION_MS): the rumble is changed again at the next change
+static const UINT32 RumbleUntilNextChange = 0xFFFF;
 
 static void(__cdecl* FUN_00402cf0Orig)(float param_1);
+// The game gives its force (-1 to 1) at each frame: the effects are changed, or stopped, only when it
+// changes. They were played at each call, twice when the force was 0.
+static float lastForce = 2.0f; // none yet
 static void __cdecl FUN_00402cf0(float param_1) {
+	if (myTriggers == nullptr || param_1 == lastForce)
+		return;
+	lastForce = param_1;
 
-
-	if (param_1 >= 0) {
-		
-		myTriggers->Rumble(0, param_1, 100);
-		myTriggers->Constant(myConstants->DIRECTION_FROM_RIGHT, param_1 );
-	}
-	 if (param_1 <= 0) {
-		myTriggers->Rumble(0, param_1 * -1, 100);
-		myTriggers->Constant(myConstants->DIRECTION_FROM_LEFT, param_1 * -1);
-	}
-	return;
+	double percentForce = param_1 >= 0 ? param_1 : -param_1;
+	// both last until the next change; a force of 0 stops them
+	myTriggers->Rumble(0, percentForce, RumbleUntilNextChange);
+	myTriggers->ConstantInf(param_1 >= 0 ? myConstants->DIRECTION_FROM_RIGHT : myConstants->DIRECTION_FROM_LEFT, percentForce);
 }
-
-
 
 static void(__cdecl* FnFSCIgnoreLPTOrig)();
 static void __cdecl FnFSCignoreLPT() {
@@ -43,6 +42,11 @@ static void __cdecl FnFSCignoreLPT() {
 }
 
 void FnFSuperCars::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTriggers* triggers) {
+	// before the hooks, which use them
+	myTriggers = triggers;
+	myConstants = constants;
+	myHelpers = helpers;
+
 	if (!init)
 	{
 		OutputDebugStringA("FnFSuperCars::FFBLoop");
@@ -61,9 +65,5 @@ void FnFSuperCars::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectT
 	}
 
 	ApplyDamper(triggers);
-
-	myTriggers = triggers;
-	myConstants = constants;
-	myHelpers = helpers;
 
 }

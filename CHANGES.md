@@ -20,6 +20,9 @@ between two tags is named `<version>.<commits since the tag>-g<commit>` (see `Wr
 - Cars (Raw Thrills, GameId 86), whose code came with the sync with Boomslangnz's plugin, has a profile at last:
   a [Cars] section in FFBPlugin.ini, so a "Cars" folder in the release (32-bit dinput8.dll, which its sdaemon.exe
   imports), and a GUI page (feedback length, rumble, alternative FFB, power mode, double constant, global forces).
+- FNF, FNF Drift, FNF SuperCars: the effects are changed, or stopped, only when the force the game writes changes.
+  They were played at each write, that is at each frame: 442771 effects in a minute of FNF Drift at a high frame
+  rate. The force is now an infinite constant effect updated in place, and the rumble lasts until the next change.
 - Exit: the forces are stopped and the devices closed when the game calls ExitProcess (hooked), while its
   threads still run, instead of in DLL_PROCESS_DETACH, where the other threads have been killed, maybe holding
   an SDL lock, which could hang the exit. DLL_PROCESS_DETACH only stops the forces if that did not happen.

@@ -19,31 +19,29 @@ static bool init;
 static EffectTriggers* myTriggers;
 static EffectConstants* myConstants;
 static Helpers* myHelpers;
+// longest rumble SDL plays (SDL_MAX_RUMBLE_DURATION_MS): the rumble is changed again at the next change
+static const UINT32 RumbleUntilNextChange = 0xFFFF;
 
 static int(__cdecl* FnFSendToLptOrig)(uint16_t addr, uint8_t FFB);
+// The game writes the force to the parallel port (0x378) at each frame: the effects are changed, or
+// stopped, only when that value changes. Playing a constant effect and a rumble at each write sent
+// thousands of effects per second (442771 in a minute of FNF Drift at a high frame rate).
+static volatile LONG lastFFB = -1;
 static int __cdecl FnFSendToLpt(uint16_t addr, uint8_t FFB)
 {
-	UINT32 length = 100;
-	if (addr == 0x378)
+	if (addr == 0x378 && myTriggers != nullptr && InterlockedExchange(&lastFFB, FFB) != FFB)
 	{
 		bool isLeft = FFB < 0x80;
-		float percentForce;
-		if (isLeft) {
-
-			percentForce = static_cast<float>(FFB) / 0x7F;
-			myTriggers->Rumble(0, percentForce, length);
-			myTriggers->Constant(myConstants->DIRECTION_FROM_RIGHT, percentForce);
-		}
-		else {
-
-			percentForce = static_cast<float>(FFB - 0x80) / 0x7F;
-			myTriggers->Rumble(0, percentForce, length);
-			myTriggers->Constant(myConstants->DIRECTION_FROM_LEFT, percentForce);
-		}
+		double percentForce = isLeft ? FFB / 127.0 : (FFB - 0x80) / 127.0;
+		// both last until the next change; a force of 0 stops them
+		myTriggers->Rumble(0, percentForce, RumbleUntilNextChange);
+		myTriggers->ConstantInf(isLeft ? myConstants->DIRECTION_FROM_RIGHT : myConstants->DIRECTION_FROM_LEFT, percentForce);
 	}
-	
+
 	return 0;
+
 }
+
 
 static void(__cdecl* FnFIgnoreLPTOrig)();
 static void __cdecl FnFignoreLPT() {
@@ -52,10 +50,15 @@ static void __cdecl FnFignoreLPT() {
 
 
 void FnF::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTriggers* triggers) {
+	// before the hooks, which use them
+	myTriggers = triggers;
+	myConstants = constants;
+	myHelpers = helpers;
+
 	if (!init)
 	{
 		//enable IO calls
-		myHelpers->WriteIntPtr(0x05b2ed4, 1, false);
+		helpers->WriteIntPtr(0x05b2ed4, 1, false);
 		
 		MH_Initialize();
 		MH_CreateHook((LPVOID)0x046da10, FnFSendToLpt, (LPVOID*)&FnFSendToLptOrig);
@@ -71,8 +74,4 @@ void FnF::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTriggers* 
 	}
 	
 	ApplyDamper(triggers);
-
-	myTriggers = triggers;
-	myConstants = constants;
-	myHelpers = helpers;
 }
