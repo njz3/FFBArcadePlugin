@@ -18,13 +18,16 @@ static bool init;
 static EffectTriggers* myTriggers;
 static EffectConstants* myConstants;
 static Helpers* myHelpers;
-// longest rumble SDL plays (SDL_MAX_RUMBLE_DURATION_MS): the rumble is changed again at the next change
-static const UINT32 RumbleUntilNextChange = 0xFFFF;
+// The rumble lasts RumbleLength and FFBLoop renews it every RumbleRenewal while it is not 0, so that it ends
+// by itself if the game is killed (the constant force is renewed by the plugin, see KeptEffect in DllMain.cpp)
+static const UINT32 RumbleLength = 1000; // ms
+static const ULONGLONG RumbleRenewal = 300; // ms
+static ULONGLONG rumbleRenewed;
 
 static void(__cdecl* FUN_00402cf0Orig)(float param_1);
 // The game gives its force (-1 to 1) at each frame: the effects are changed, or stopped, only when it
 // changes. They were played at each call, twice when the force was 0.
-static float lastForce = 2.0f; // none yet
+static volatile float lastForce = 2.0f; // none yet
 static void __cdecl FUN_00402cf0(float param_1) {
 	if (myTriggers == nullptr || param_1 == lastForce)
 		return;
@@ -32,7 +35,8 @@ static void __cdecl FUN_00402cf0(float param_1) {
 
 	double percentForce = param_1 >= 0 ? param_1 : -param_1;
 	// both last until the next change; a force of 0 stops them
-	myTriggers->Rumble(0, percentForce, RumbleUntilNextChange);
+	myTriggers->Rumble(0, percentForce, RumbleLength);
+	rumbleRenewed = GetTickCount64();
 	myTriggers->ConstantInf(param_1 >= 0 ? myConstants->DIRECTION_FROM_RIGHT : myConstants->DIRECTION_FROM_LEFT, percentForce);
 }
 
@@ -65,5 +69,12 @@ void FnFSuperCars::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectT
 	}
 
 	ApplyDamper(triggers);
+
+	float force = lastForce;
+	if (force != 2.0f && force != 0.0f && GetTickCount64() - rumbleRenewed >= RumbleRenewal)
+	{
+		triggers->Rumble(0, force >= 0 ? force : -force, RumbleLength);
+		rumbleRenewed = GetTickCount64();
+	}
 
 }

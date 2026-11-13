@@ -22,7 +22,12 @@ between two tags is named `<version>.<commits since the tag>-g<commit>` (see `Wr
   imports), and a GUI page (feedback length, rumble, alternative FFB, power mode, double constant, global forces).
 - FNF, FNF Drift, FNF SuperCars: the effects are changed, or stopped, only when the force the game writes changes.
   They were played at each write, that is at each frame: 442771 effects in a minute of FNF Drift at a high frame
-  rate. The force is now an infinite constant effect updated in place, and the rumble lasts until the next change.
+  rate. The force is now the constant effect that lasts until it is changed (ConstantInf), and so is the rumble.
+- No infinite effect left: the default centering and friction, Springi and ConstantInf used to be infinite, and
+  stayed on the device when the game is killed (TerminateProcess), since the plugin then runs no more code. They
+  now last 1 s and the FFB loop starts them again every 300 ms while they last, so they end by themselves within
+  1 s of a kill. A finite effect of the game in the same slot stops the renewal, as it replaced the infinite one.
+  The FNF rumble lasts 1 s too, renewed the same way while the force is not 0.
 - Exit: the forces are stopped and the devices closed when the game calls ExitProcess (hooked), while its
   threads still run, instead of in DLL_PROCESS_DETACH, where the other threads have been killed, maybe holding
   an SDL lock, which could hang the exit. DLL_PROCESS_DETACH only stops the forces if that did not happen.

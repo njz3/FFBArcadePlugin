@@ -19,22 +19,32 @@ static bool init;
 static EffectTriggers* myTriggers;
 static EffectConstants* myConstants;
 static Helpers* myHelpers;
-// longest rumble SDL plays (SDL_MAX_RUMBLE_DURATION_MS): the rumble is changed again at the next change
-static const UINT32 RumbleUntilNextChange = 0xFFFF;
+// The rumble lasts RumbleLength and FFBLoop renews it every RumbleRenewal while it is not 0, so that it ends
+// by itself if the game is killed (the constant force is renewed by the plugin, see KeptEffect in DllMain.cpp)
+static const UINT32 RumbleLength = 1000; // ms
+static const ULONGLONG RumbleRenewal = 300; // ms
+static ULONGLONG rumbleRenewed;
 
 static int(__cdecl* FnFSendToLptOrig)(uint16_t addr, uint8_t FFB);
 // The game writes the force to the parallel port (0x378) at each frame: the effects are changed, or
 // stopped, only when that value changes. Playing a constant effect and a rumble at each write sent
 // thousands of effects per second (442771 in a minute of FNF Drift at a high frame rate).
 static volatile LONG lastFFB = -1;
+
+// Strength of the force, 0 to 1, in either direction (0x00-0x7F: one way, 0x80-0xFF: the other)
+static double ForceOf(LONG FFB)
+{
+	return FFB < 0x80 ? FFB / 127.0 : (FFB - 0x80) / 127.0;
+}
 static int __cdecl FnFSendToLpt(uint16_t addr, uint8_t FFB)
 {
 	if (addr == 0x378 && myTriggers != nullptr && InterlockedExchange(&lastFFB, FFB) != FFB)
 	{
 		bool isLeft = FFB < 0x80;
-		double percentForce = isLeft ? FFB / 127.0 : (FFB - 0x80) / 127.0;
+		double percentForce = ForceOf(FFB);
 		// both last until the next change; a force of 0 stops them
-		myTriggers->Rumble(0, percentForce, RumbleUntilNextChange);
+		myTriggers->Rumble(0, percentForce, RumbleLength);
+		rumbleRenewed = GetTickCount64();
 		myTriggers->ConstantInf(isLeft ? myConstants->DIRECTION_FROM_RIGHT : myConstants->DIRECTION_FROM_LEFT, percentForce);
 	}
 
@@ -74,4 +84,11 @@ void FnF::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTriggers* 
 	}
 	
 	ApplyDamper(triggers);
+
+	LONG FFB = lastFFB;
+	if (FFB >= 0 && ForceOf(FFB) > 0 && GetTickCount64() - rumbleRenewed >= RumbleRenewal)
+	{
+		triggers->Rumble(0, ForceOf(FFB), RumbleLength);
+		rumbleRenewed = GetTickCount64();
+	}
 }

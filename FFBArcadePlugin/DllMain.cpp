@@ -586,6 +586,81 @@ static void RunEffect(SDL_Haptic* device, int effectId, SDL_HapticEffect& effect
 	SDL_HapticRunEffect(device, effectId, 1);
 }
 
+// EFFECTS THAT LAST UNTIL THEY ARE CHANGED
+// The default centering and friction, Springi and ConstantInf last until the game changes or stops
+// them. They used to be infinite: when the game is killed (TerminateProcess, as some launchers do),
+// the plugin runs no more code, and an infinite effect stays on the device. They are now played for
+// KeptEffectLength and renewed by the FFB loop every KeptEffectRenewal while they last, so they end
+// by themselves within KeptEffectLength once the game is gone.
+static const Uint32 KeptEffectLength = 1000; // ms
+static const ULONGLONG KeptEffectRenewal = 300; // ms
+
+struct KeptEffect
+{
+	const int* id; // in `effects`, set by Initialize
+	bool running;
+	ULONGLONG renewed; // GetTickCount64 of the last start
+};
+
+static KeptEffect keptConstant = { &effects.effect_constant_id, false, 0 };
+static KeptEffect keptSpring = { &effects.effect_spring_id, false, 0 };
+static KeptEffect keptFriction = { &effects.effect_friction_id, false, 0 };
+// The effects of these slots are also triggered by other threads than the FFB loop (MAME outputs,
+// game hooks): every use of the three slots holds this lock.
+static SRWLOCK keptEffectsLock = SRWLOCK_INIT;
+
+// Updates the effect of the slot, whose length is KeptEffectLength, and starts it if it is not running;
+// RenewKeptEffects then starts it again before it ends. Called with keptEffectsLock held.
+static void PlayKeptEffect(KeptEffect& kept, SDL_HapticEffect& effect)
+{
+	if (haptic == NULL || *kept.id < 0)
+	{
+		kept.running = false;
+		return;
+	}
+
+	SDL_HapticUpdateEffect(haptic, *kept.id, &effect);
+	if (!kept.running)
+	{
+		SDL_HapticRunEffect(haptic, *kept.id, 1);
+		kept.renewed = GetTickCount64();
+		kept.running = true;
+	}
+}
+
+// Called with keptEffectsLock held
+static void StopKeptEffect(KeptEffect& kept)
+{
+	if (kept.running && haptic != NULL && *kept.id >= 0)
+		SDL_HapticStopEffect(haptic, *kept.id);
+	kept.running = false;
+}
+
+// Plays a finite effect of the game in the slot of a kept one, which is no longer renewed
+static void RunInKeptSlot(KeptEffect& kept, SDL_HapticEffect& effect)
+{
+	AcquireSRWLockExclusive(&keptEffectsLock);
+	kept.running = false;
+	RunEffect(haptic, *kept.id, effect);
+	ReleaseSRWLockExclusive(&keptEffectsLock);
+}
+
+// Called by the FFB loop, every 16 ms
+static void RenewKeptEffects()
+{
+	ULONGLONG now = GetTickCount64();
+	AcquireSRWLockExclusive(&keptEffectsLock);
+	for (KeptEffect* kept : { &keptConstant, &keptSpring, &keptFriction })
+	{
+		if (kept->running && haptic != NULL && *kept->id >= 0 && now - kept->renewed >= KeptEffectRenewal)
+		{
+			SDL_HapticRunEffect(haptic, *kept->id, 1);
+			kept->renewed = now;
+		}
+	}
+	ReleaseSRWLockExclusive(&keptEffectsLock);
+}
+
 static SDL_HapticEffect ConditionEffect(Uint16 type, Uint32 length_ms, SHORT coeff)
 {
 	SDL_HapticEffect effect;
@@ -641,53 +716,51 @@ static SDL_HapticEffect ConstantEffect(int direction, double strength)
 void TriggerConstantEffect(int direction, double strength)
 {
 	SDL_HapticEffect tempEffect = ConstantEffect(direction, strength);
-	RunEffect(haptic, effects.effect_constant_id, tempEffect);
+	RunInKeptSlot(keptConstant, tempEffect);
 }
 
 // Set for California Speed, whose raw motor value crosses 0 when the force changes direction:
 // ConstantInf then holds the running effect at level 0 instead of stopping and restarting it.
 bool ConstantInfHoldsAtZero = false;
-static bool isConstantInfRunning = false;
 
-// Constant effect started once with infinite iterations, then only updated: restarting it at each
-// update makes some wheels jerk. A strength of 0 stops it.
+// Constant effect that lasts until the next call, which only updates it (restarting it at each update
+// makes some wheels jerk); it is renewed by the FFB loop (see KeptEffect). A strength of 0 stops it.
 void TriggerConstantInfEffect(int direction, double strength)
 {
-	if (haptic == NULL || effects.effect_constant_id < 0)
-	{
-		isConstantInfRunning = false;
-		return;
-	}
-
+	AcquireSRWLockExclusive(&keptEffectsLock);
 	if (strength < 0.001 && !(ConstantInfHoldsAtZero && strength == 0.0))
+		StopKeptEffect(keptConstant);
+	else
 	{
-		if (isConstantInfRunning)
-		{
-			SDL_HapticStopEffect(haptic, effects.effect_constant_id);
-			isConstantInfRunning = false;
-		}
-		return;
+		SDL_HapticEffect tempEffect = ConstantEffect(direction, strength);
+		tempEffect.constant.length = KeptEffectLength;
+		PlayKeptEffect(keptConstant, tempEffect);
 	}
-
-	SDL_HapticEffect tempEffect = ConstantEffect(direction, strength);
-	SDL_HapticUpdateEffect(haptic, effects.effect_constant_id, &tempEffect);
-
-	if (!isConstantInfRunning)
-	{
-		SDL_HapticRunEffect(haptic, effects.effect_constant_id, SDL_HAPTIC_INFINITY);
-		isConstantInfRunning = true;
-	}
+	ReleaseSRWLockExclusive(&keptEffectsLock);
 }
 
+// isDefault: the DefaultFriction setting, which lasts until a friction of the game replaces it
 void TriggerFrictionEffectWithDefaultOption(double strength, bool isDefault)
 {
 	if (DoubleFriction)
 		strength = DoubleStrength(strength);
 
-	SDL_HapticEffect tempEffect = ConditionEffect(SDL_HAPTIC_FRICTION, isDefault ? SDL_HAPTIC_INFINITY : configFeedbackLength, ScaleCoefficient(strength, DefaultForceLimits()));
+	SHORT coeff = ScaleCoefficient(strength, DefaultForceLimits());
+	SDL_HapticEffect tempEffect = ConditionEffect(SDL_HAPTIC_FRICTION, isDefault ? KeptEffectLength : configFeedbackLength, coeff);
 	tempEffect.condition.left_sat[0] = 0xFFFF;
 	tempEffect.condition.right_sat[0] = 0xFFFF;
-	RunEffect(haptic, effects.effect_friction_id, tempEffect);
+
+	if (!isDefault)
+		RunInKeptSlot(keptFriction, tempEffect);
+	else
+	{
+		AcquireSRWLockExclusive(&keptEffectsLock);
+		if (coeff == 0) // nothing to keep playing
+			StopKeptEffect(keptFriction);
+		else
+			PlayKeptEffect(keptFriction, tempEffect);
+		ReleaseSRWLockExclusive(&keptEffectsLock);
+	}
 }
 
 void TriggerFrictionEffect(double strength)
@@ -718,23 +791,33 @@ void TriggerDamperEffect(double strength)
 	RunEffect(haptic, effects.effect_damper_id, tempEffect);
 }
 
-static void RunSpringEffect(SHORT coeff, Uint32 length_ms, Sint32 directionY)
+// kept: lasts until another spring replaces it (DefaultCentering, Springi), see KeptEffect
+static void RunSpringEffect(SHORT coeff, bool kept, Sint32 directionY)
 {
-	SDL_HapticEffect tempEffect = ConditionEffect(SDL_HAPTIC_SPRING, length_ms, coeff);
+	SDL_HapticEffect tempEffect = ConditionEffect(SDL_HAPTIC_SPRING, kept ? KeptEffectLength : configFeedbackLength, coeff);
 	tempEffect.condition.direction.dir[0] = 1;
 	tempEffect.condition.direction.dir[1] = directionY; //Y Position
 	tempEffect.condition.left_sat[0] = (short)(coeff * 2.0); //Needed for Logitech G920 wheel
 	tempEffect.condition.right_sat[0] = (short)(coeff * 2.0); //Needed for Logitech G920 wheel
 	tempEffect.condition.center[0] = 0;
-	RunEffect(haptic, effects.effect_spring_id, tempEffect);
+
+	if (!kept)
+		RunInKeptSlot(keptSpring, tempEffect);
+	else
+	{
+		AcquireSRWLockExclusive(&keptEffectsLock);
+		PlayKeptEffect(keptSpring, tempEffect);
+		ReleaseSRWLockExclusive(&keptEffectsLock);
+	}
 }
 
+// isDefault: the DefaultCentering setting, which lasts until a spring of the game replaces it
 void TriggerSpringEffectWithDefaultOption(double strength, bool isDefault)
 {
 	if (DoubleSpring)
 		strength = DoubleStrength(strength);
 
-	RunSpringEffect(ScaleCoefficient(strength, DefaultForceLimits()), isDefault ? SDL_HAPTIC_INFINITY : configFeedbackLength, 0);
+	RunSpringEffect(ScaleCoefficient(strength, DefaultForceLimits()), isDefault, 0);
 }
 
 void TriggerSpringEffect(double strength)
@@ -745,7 +828,7 @@ void TriggerSpringEffect(double strength)
 void TriggerSpringEffectInfinite(double strength)
 {
 	ForceLimits limits = EnableForceSpringEffect ? ForceLimits{ 0, ForceSpringStrength } : DefaultForceLimits();
-	RunSpringEffect(ScaleCoefficient(strength, limits), SDL_HAPTIC_INFINITY, 1);
+	RunSpringEffect(ScaleCoefficient(strength, limits), true, 1);
 }
 
 void TriggerTriangleEffect(double strength, UINT32 length_ms)
@@ -1499,6 +1582,7 @@ DWORD WINAPI FFBLoop(LPVOID lpParam)
 	{
 		if (game != nullptr)
 			game->FFBLoop(&effectConst, &hlp, &t);
+		RenewKeptEffects();
 		Sleep(16);
 	}
 	hlp.log("about to exit FFBLoop");
@@ -1674,6 +1758,9 @@ static void StopPlugin()
 	bool loopStopped = ffbLoopThread == NULL || GetCurrentThreadId() == ffbLoopThreadId
 		|| WaitForSingleObject(ffbLoopThread, 500) == WAIT_OBJECT_0;
 	DisableEffects();
+	AcquireSRWLockExclusive(&keptEffectsLock);
+	keptConstant.running = keptSpring.running = keptFriction.running = false; // no more renewals
+	ReleaseSRWLockExclusive(&keptEffectsLock);
 
 	// Stopping the forces first: a wheel may keep the last force once the game is gone
 	SDL_Haptic* haptics[] = { haptic, haptic2, haptic3 };
