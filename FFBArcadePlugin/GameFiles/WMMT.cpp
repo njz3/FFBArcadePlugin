@@ -77,19 +77,6 @@ int WMMT::InputThread(void* ptr)
 	return 0;
 }
 
-int WMMT::GearChangeThread(void* ptr)
-{
-	WMMT* game = (WMMT*)ptr;
-	if (GearChangeDelay > 0)
-	{
-		Sleep(GearChangeDelay);
-	}
-	game->myHelpers->log("gear change");
-	double percentForce = GearChangeStrength / 100.0;
-	game->myTriggers->Sine(GearChangeLength, GearChangeLength, percentForce, length_ms);
-	game->myTriggers->Rumble(0, percentForce, length_ms);
-	return 0;
-}
 
 // A light spring and friction keep the wheel centered until the game sends its FFB
 void WMMT::PlaySpringAndFriction(bool gameFfbStarted, float spring, float friction)
@@ -214,8 +201,19 @@ void WMMT::PlayWheelSpin(UINT8 gear, int speed)
 	myHelpers->log(msg.c_str());
 }
 
+// The jolt of a gear change, GearChangeDelay ms after it. FFBLoop runs every 16 ms, so the delay
+// is waited for here rather than by a new thread for each gear change, which leaked.
 void WMMT::PlayGearChange(UINT8 gear, int speed)
 {
+	if (gearChangeDue != 0 && GetTickCount64() >= gearChangeDue)
+	{
+		gearChangeDue = 0;
+		myHelpers->log("gear change");
+		double percentForce = GearChangeStrength / 100.0;
+		myTriggers->Sine(GearChangeLength, GearChangeLength, percentForce, length_ms);
+		myTriggers->Rumble(0, percentForce, length_ms);
+	}
+
 	INT_PTR raceState = myHelpers->ReadIntPtr(addresses.raceState, true);
 	float time = myHelpers->ReadFloat32(raceState + 0x18, false);
 
@@ -228,7 +226,7 @@ void WMMT::PlayGearChange(UINT8 gear, int speed)
 
 	if (oldgear != gear && 0 < gear && 0.5 < time && 0.1 <= speed)
 	{
-		SDL_CreateThread(GearChangeThread, "GearChangeThread", this);
+		gearChangeDue = GetTickCount64() + max(GearChangeDelay, 0); // a later change moves it
 	}
 	oldgear = gear;
 }

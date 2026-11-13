@@ -2724,27 +2724,7 @@ void CallTheOutputs()
 #endif
 	}
 }
-static int(__stdcall* ExitOri)(UINT uExitCode);
-static int __stdcall ExitHook(UINT uExitCode)
-{
-	TerminateProcess(GetCurrentProcess(), 0);
-	return 0;
-}
-
-typedef struct _id_map_entry id_map_entry;
-struct _id_map_entry
-{
-	id_map_entry* next;
-	const char* name;
-	WPARAM					id;
-};
-
 void AppendTextToEditCtrl(HWND hWnd, LPCTSTR lpString);
-void reset_id_to_outname_cache(void);
-const char* get_name_from_id(int id);
-void add_map_entry(id_map_entry* entry, int id, char* name);
-
-id_map_entry* idmaplist;
 
 HWND hEdit;
 
@@ -2798,7 +2778,10 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 	mame_updatestate_ptr = mame_updatestate;
 	mame_output_ptr = mame_output;
 
-	dll_init(0, L"Test", mame_start_ptr, mame_stop_ptr, mame_copydata_ptr, mame_updatestate_ptr, mame_output_ptr);
+	// without MAME64.dll (its message box has been shown), only the network outputs work: calling
+	// a null dll_init crashed the game once the message box was closed
+	if (dll_init != NULL)
+		dll_init(0, L"Test", mame_start_ptr, mame_stop_ptr, mame_copydata_ptr, mame_updatestate_ptr, mame_output_ptr);
 
 	while (GetMessage(&msg, NULL, 0, 0))
 	{
@@ -2814,7 +2797,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	switch (message)
 	{
 	case WM_DESTROY:
-		reset_id_to_outname_cache();
 		PostQuitMessage(0);
 		break;
 	default:
@@ -2830,49 +2812,6 @@ void AppendTextToEditCtrl(HWND hWnd, LPCTSTR lpString)
 	SendMessage(hWnd, EM_REPLACESEL, 0, (LPARAM)lpString);
 }
 
-void reset_id_to_outname_cache(void)
-{
-	while (idmaplist != NULL)
-	{
-		id_map_entry* temp = idmaplist;
-		idmaplist = temp->next;
-		free(temp);
-	}
-}
-
-const char* get_name_from_id(int id)
-{
-	while (idmaplist != NULL)
-	{
-		id_map_entry* temp = idmaplist;
-
-		if (temp->id == (WPARAM)id)
-			return temp->name;
-
-		idmaplist = temp->next;
-	}
-
-	return NULL;
-}
-
-void add_map_entry(id_map_entry* entry, int id, char* name)
-{
-	char* string;
-
-	entry = (id_map_entry*)malloc(sizeof(entry));
-	string = (char*)malloc(strlen(name) + 1);
-
-	if (entry != NULL && string != NULL)
-	{
-		entry->next = idmaplist;
-		entry->name = string;
-		entry->id = id;
-
-		strcpy(string, name);
-		idmaplist = entry;
-	}
-}
-
 int __stdcall mame_start(int hWnd)
 {
 	WCHAR buf[256];
@@ -2886,8 +2825,6 @@ int __stdcall mame_start(int hWnd)
 
 int __stdcall mame_stop(void)
 {
-	reset_id_to_outname_cache();
-
 	AppendTextToEditCtrl(hEdit, TEXT("mame_stop\r\n"));
 
 	StopConstant = 255;
@@ -2938,13 +2875,14 @@ static void removeWord(char* str, char* toRemove)
 
 int __stdcall mame_copydata(int id, const char* name)
 {
+	// The names are cut to fit buf: the network outputs pass lines of up to 4 KB
 	WCHAR buf[256];
 
-	wsprintf(buf, L"id %d = '%S'\r\n", id, name);
+	wsprintf(buf, L"id %d = '%.200S'\r\n", id, name);
 
 	if (id == 0)
 	{
-		sprintf(GameName, "%s", name);
+		sprintf_s(GameName, "%.255s", name);
 
 		removeWord(GameName, "game =");
 
@@ -2976,12 +2914,9 @@ int __stdcall mame_updatestate(const char* id, int state)
 {
 	WCHAR buf[256];
 
-	LPCSTR name = get_name_from_id((int)id);
+	LPCSTR name = id;
 
-	if (name == NULL)
-		name = id;
-
-	wsprintf(buf, L"updatestate: id=%ld (%S) state=%d\r\n", (INT_PTR)id, name, state);
+	wsprintf(buf, L"updatestate: id=%ld (%.200S) state=%d\r\n", (INT_PTR)id, IS_INTRESOURCE(name) ? "" : name, state);
 	AppendTextToEditCtrl(hEdit, buf);
 
 	AcquireSRWLockExclusive(&nameFFBLock);
@@ -3041,7 +2976,7 @@ int __stdcall mame_output(const char* name, int value)
 {
 	WCHAR buf[256];
 
-	wsprintf(buf, L"output: name=%S value=%d\r\n", name, value);
+	wsprintf(buf, L"output: name=%.200S value=%d\r\n", name, value);
 	AppendTextToEditCtrl(hEdit, buf);
 
 	return 1;
@@ -3071,13 +3006,6 @@ DWORD WINAPI ThreadForOutputs(LPVOID lpParam)
 	return 0;
 }
 
-DWORD WINAPI ThreadForDaytonaStartEffect(LPVOID lpParam)
-{
-	Sleep(1300);
-	Effect2 = false;
-	return 0;
-}
-
 void MAMESupermodel::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTriggers* triggers) {
 
 	myconstants = constants;
@@ -3092,12 +3020,7 @@ void MAMESupermodel::FFBLoop(EffectConstants* constants, Helpers* helpers, Effec
 		OpenHapticDevice3();
 		SDL_HapticSetGain(haptic3, 100);
 
-		if (configGameId == 60)
-		{
-			MH_Initialize();
-			MH_CreateHookApi(L"KERNEL32.dll", "ExitProcess", ExitHook, (void**)&ExitOri);
-			MH_EnableHook(MH_ALL_HOOKS);
-		}
+		// Flycast is ended with TerminateProcess by the ExitProcess hook of DllMain.cpp
 		init = true;
 	}
 

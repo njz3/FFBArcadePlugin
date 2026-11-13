@@ -187,9 +187,10 @@ HRESULT WINAPI DirectInputDirectInputCreateEx(HINSTANCE hinst, DWORD dwVersion, 
 // DINPUT8 WRAPPER
 HRESULT WINAPI DirectInputDirectInput8Create(HINSTANCE hinst, DWORD dwVersion, REFIID riidltf, LPVOID* ppvOut, LPUNKNOWN punkOuter)
 {
-	LPVOID val;
+	LPVOID val = NULL;
 	HRESULT res = originalDirectInputDirectInput8Create(hinst, dwVersion, riidltf, &val, punkOuter);
-	*ppvOut = new DirectInputDeviceWrapper(val, (IID_IDirectInput8W == riidltf));
+	// the wrapper deletes itself with the last Release
+	*ppvOut = (SUCCEEDED(res) && val != NULL) ? new DirectInputDeviceWrapper(val, (IID_IDirectInput8W == riidltf)) : NULL;
 	return res;
 }
 
@@ -239,7 +240,11 @@ EffectTriggers t;
 
 bool CustomStrength = false;
 bool WaitForGame = false;
-bool keepRunning = true;
+volatile bool keepRunning = true;
+static HANDLE ffbLoopThread = NULL;
+static DWORD ffbLoopThreadId = 0;
+// Set once StopPlugin has stopped the forces and closed the devices
+static volatile LONG pluginStopped = 0;
 
 SDL_Joystick* GameController = NULL;
 SDL_Haptic* ControllerHaptic = NULL;
@@ -338,7 +343,6 @@ int StartDelay = GetSettingInt(TEXT("StartDelay"), 0);
 char chainedDLL[256];
 
 SDL_Event e;
-CComPtr<ISpVoice> cpVoice;
 
 // Uploads an effect of the given type, its parameters being updated each time it is triggered.
 // Returns -1 when the device does not support it: some wheels (e.g. PXN V10) crash when asked for an unsupported effect.
@@ -378,8 +382,10 @@ void Initialize()
 	SDL_JoystickGUID guid = SDL_JoystickGetGUIDFromString(joystick_guid);
 	hlp.log("numJoysticks = ");
 	hlp.logInt(SDL_NumJoysticks());
-	char firstJoystickSelectedText[256];
+	char firstJoystickSelectedText[512];
+	// First joystick matching the GUID, used when none of them has haptics; the other ones are closed
 	SDL_Joystick* FirstGameController = NULL;
+	int firstJoystickIndex = -1;
 	for (int i = 0; i < SDL_NumJoysticks(); i++)
 	{
 		SDL_Joystick* js = SDL_JoystickOpen(i);
@@ -392,41 +398,50 @@ void Initialize()
 			MessageBoxA(NULL, name, "", 0);
 			MessageBoxA(NULL, guid_str, "", 0);
 		}
-		char text[256];
-		sprintf(text, "Joystick: %d / Name: %s / GUID: %s\n", i, name, guid_str);
+		char text[1024];
+		sprintf_s(text, "Joystick: %d / Name: %s / GUID: %s\n", i, name ? name : "", guid_str);
 		hlp.log(text);
 		SDL_JoystickClose(js);
-		if (SameJoystickGUID(guid, dev_guid))
+		if (!SameJoystickGUID(guid, dev_guid))
+			continue;
+		if (IgnoreFirstMatchingGUID)
 		{
-			if (!IgnoreFirstMatchingGUID)
-			{
-				joystick1Index = i;
-				GameController = SDL_JoystickOpen(i);
-				joystick_index1 = SDL_JoystickInstanceID(GameController);
-				ControllerHaptic = SDL_HapticOpenFromJoystick(GameController);
-
-				if (FirstGameController == NULL)
-				{
-					sprintf(firstJoystickSelectedText, "No haptic joystick found, selecting first joystick matching the GUID: %d / Name: %s / GUID: %s\n", i, name, guid_str);
-					FirstGameController = GameController;
-				}
-
-				if (ControllerHaptic != NULL)
-				{
-					sprintf(text, "Haptic joystick found: %d / Name: %s / GUID: %s\n", i, name, guid_str);
-					hlp.log(text);
-					break;
-				}
-			}
 			IgnoreFirstMatchingGUID = 0;
+			continue;
 		}
+
+		SDL_Joystick* candidate = SDL_JoystickOpen(i);
+		SDL_Haptic* candidateHaptic = SDL_HapticOpenFromJoystick(candidate);
+		if (candidateHaptic != NULL)
+		{
+			joystick1Index = i;
+			GameController = candidate;
+			joystick_index1 = SDL_JoystickInstanceID(candidate);
+			ControllerHaptic = candidateHaptic;
+			sprintf_s(text, "Haptic joystick found: %d / Name: %s / GUID: %s\n", i, name ? name : "", guid_str);
+			hlp.log(text);
+			break;
+		}
+
+		if (FirstGameController == NULL)
+		{
+			sprintf_s(firstJoystickSelectedText, "No haptic joystick found, selecting first joystick matching the GUID: %d / Name: %s / GUID: %s\n", i, name ? name : "", guid_str);
+			FirstGameController = candidate;
+			firstJoystickIndex = i;
+		}
+		else
+			SDL_JoystickClose(candidate);
 	}
 
 	if (ControllerHaptic == NULL && FirstGameController != NULL) // If no haptic controller has been found, we select the first controller matching the guid.
 	{
+		joystick1Index = firstJoystickIndex;
 		GameController = FirstGameController;
+		joystick_index1 = SDL_JoystickInstanceID(FirstGameController);
 		hlp.log(firstJoystickSelectedText);
 	}
+	else if (FirstGameController != NULL)
+		SDL_JoystickClose(FirstGameController);
 	haptic = ControllerHaptic;
 	if (haptic == NULL)
 		hlp.log("No haptic device available, FFB effects will be disabled");
@@ -1010,16 +1025,21 @@ static void SpeakMaxForce()
 	sprintf(text, "Max Force: %d", AlternativeFFB ? configAlternativeMaxForceRight : configMaxForce);
 	mbstowcs(wideText, text, strlen(text) + 1);
 
-	HRESULT hr = ::CoInitialize(nullptr);
-	hr = cpVoice.CoCreateInstance(CLSID_SpVoice);
-
-	if (SUCCEEDED(hr))
+	// The voice is created and released each time, before CoUninitialize: it used to be a global
+	// CComPtr, overwritten (leaked) by each new voice, released only when the DLL was unloaded,
+	// after CoUninitialize and maybe after sapi.dll.
+	HRESULT init = ::CoInitialize(nullptr);
 	{
-		hr = cpVoice->SetRate(3);
-		hr = cpVoice->SetOutput(NULL, TRUE);
-		hr = cpVoice->Speak(wideText, SPF_PURGEBEFORESPEAK, NULL);
-		::CoUninitialize();
+		CComPtr<ISpVoice> voice;
+		if (SUCCEEDED(voice.CoCreateInstance(CLSID_SpVoice)))
+		{
+			voice->SetRate(3);
+			voice->SetOutput(NULL, TRUE);
+			voice->Speak(wideText, SPF_PURGEBEFORESPEAK, NULL); // synchronous: done when it returns
+		}
 	}
+	if (SUCCEEDED(init))
+		::CoUninitialize();
 }
 
 static void HandleFFBStrengthButton(const SDL_Event& event)
@@ -1410,6 +1430,8 @@ static Game* CreateGame(int gameId)
 	}
 }
 
+static void InstallExitProcessHook();
+
 DWORD WINAPI FFBLoop(LPVOID lpParam)
 {
 	hlp.log("In FFBLoop");
@@ -1419,6 +1441,7 @@ DWORD WINAPI FFBLoop(LPVOID lpParam)
 
 	Initialize();
 	hlp.log("Initialize() complete");
+	InstallExitProcessHook();
 	if (EnableRumble)
 	{
 		if (!EnableFFBStrengthDynamicAdjustment && !InputDeviceWheelEnable && !GameHandlesSDLEvents()) // Workaround for SDL_JoystickRumble rumble not stopping issue
@@ -1472,8 +1495,7 @@ DWORD WINAPI FFBLoop(LPVOID lpParam)
 	}
 
 	hlp.log("Entering Game's FFBLoop loop");
-	bool* kr = (bool*)lpParam;
-	while (*kr)
+	while (keepRunning)
 	{
 		if (game != nullptr)
 			game->FFBLoop(&effectConst, &hlp, &t);
@@ -1486,17 +1508,9 @@ DWORD WINAPI FFBLoop(LPVOID lpParam)
 void CreateFFBLoopThread()
 {
 	hlp.log("Before CreateThread");
-	CreateThread(NULL, 0, FFBLoop, (LPVOID)&keepRunning, 0, NULL);
+	// the handle is kept for StopPlugin to wait for the thread
+	ffbLoopThread = CreateThread(NULL, 0, FFBLoop, NULL, 0, &ffbLoopThreadId);
 	hlp.log("After CreateThread");
-}
-
-void LeaveFFBLoopThread()
-{
-	hlp.log("Before LeaveFFBLoopThread");
-	keepRunning = false;
-	// Leave some time for thread to exit
-	Sleep(32);
-	hlp.log("After LeaveFFBLoopThread");
 }
 
 // System libraries this DLL can be renamed to: the original one is loaded from the system directory
@@ -1551,9 +1565,6 @@ static void LoadOriginalLibrary(HMODULE hModule)
 	hlp.log(buffer);
 
 	gl_hOriginalDll = LoadLibraryA(buffer);
-
-	if (configGameId == MAME_ || configGameId == SUPERMODEL_ || configGameId == FLYCAST)
-		CreateThread(NULL, 0, ThreadForOutputs, NULL, 0, NULL);
 
 	if (configGameId == SEGA_RALLY_3_Other)
 		MEMwrite((void*)(0x57B2F0), (void*)"\x33\xC0\x40\xC3", 4);
@@ -1634,6 +1645,94 @@ static void CloseController(SDL_Joystick* controller, int stopRumble, int stopRu
 	}
 }
 
+// Effects that do nothing, put in place of the effects by StopPlugin: the threads of the game
+// code (the MAME outputs, for instance) may still trigger effects while the devices are closed.
+static void NoConstant(int, double) {}
+static void NoStrength(double) {}
+static void NoSine(UINT16, UINT16, double, UINT32) {}
+static void NoPair(double, double, UINT32) {}
+static void NoStrengthLength(double, UINT32) {}
+
+static void DisableEffects()
+{
+	t.Constant = t.ConstantInf = &NoConstant;
+	t.Spring = t.Friction = t.Springi = t.Inertia = t.Damper = &NoStrength;
+	t.Sine = t.SineDevice2 = t.SineDevice3 = &NoSine;
+	t.Rumble = t.RumbleDevice2 = t.RumbleDevice3 = t.RumbleTriggers = t.LeftRight = t.LeftRightDevice2 = t.Ramp = &NoPair;
+	t.SawtoothUp = t.SawtoothDown = t.Triangle = &NoStrengthLength;
+}
+
+// Stops the forces and closes the devices when the game exits, from ExitProcessHook: its threads
+// still run and the loader lock is free, unlike in DLL_PROCESS_DETACH.
+static void StopPlugin()
+{
+	if (InterlockedExchange(&pluginStopped, 1) != 0)
+		return;
+
+	hlp.log("Stopping the plugin");
+	keepRunning = false;
+	bool loopStopped = ffbLoopThread == NULL || GetCurrentThreadId() == ffbLoopThreadId
+		|| WaitForSingleObject(ffbLoopThread, 500) == WAIT_OBJECT_0;
+	DisableEffects();
+
+	// Stopping the forces first: a wheel may keep the last force once the game is gone
+	SDL_Haptic* haptics[] = { haptic, haptic2, haptic3 };
+	for (SDL_Haptic* device : haptics)
+	{
+		if (device)
+			SDL_HapticStopAll(device);
+	}
+
+	if (loopStopped && GetCurrentThreadId() != ffbLoopThreadId)
+	{
+		Sleep(50); // an effect another thread was playing when the effects were disabled
+		hlp.log("Closing SDL haptic devices and game controllers");
+		CloseHaptic(haptic);
+		CloseHaptic(haptic2);
+		CloseHaptic(haptic3);
+		haptic = haptic2 = haptic3 = ControllerHaptic = ControllerHaptic2 = ControllerHaptic3 = NULL;
+		CloseController(GameController, EnableRumble, EnableRumbleTriggers);
+		CloseController(GameController2, EnableRumbleDevice2, false);
+		CloseController(GameController3, EnableRumbleDevice3, false);
+		GameController = GameController2 = GameController3 = NULL;
+	}
+	else
+		hlp.log("The FFB loop did not stop: forces stopped, devices left open");
+
+	if (configGameId == FLYCAST)
+		WritePrivateProfileStringA("Settings", "ProcessID", NULL, ".\\FFBPlugin.ini");
+	hlp.log("Plugin stopped");
+}
+
+typedef VOID(WINAPI* ExitProcessFunction)(UINT exitCode);
+static ExitProcessFunction originalExitProcess = NULL;
+
+static VOID WINAPI ExitProcessHook(UINT exitCode)
+{
+	StopPlugin();
+	// Flycast crashes when it exits with the plugin, so it is ended at once, as before (without
+	// DLL_PROCESS_DETACH, whose work StopPlugin has done)
+	if (configGameId == FLYCAST)
+		TerminateProcess(GetCurrentProcess(), exitCode);
+	originalExitProcess(exitCode);
+}
+
+// Called by the FFB thread once the devices are open, before any game code: a game that hooks
+// ExitProcess too (M2Emulator) replaces this hook.
+static void InstallExitProcessHook()
+{
+	MH_STATUS status = MH_Initialize();
+	if (status != MH_OK && status != MH_ERROR_ALREADY_INITIALIZED)
+		return;
+
+	LPVOID target = NULL;
+	if (MH_CreateHookApiEx(L"kernel32.dll", "ExitProcess", &ExitProcessHook, (LPVOID*)&originalExitProcess, &target) == MH_OK
+		&& MH_EnableHook(target) == MH_OK)
+		hlp.log("ExitProcess hooked");
+	else
+		hlp.log("ExitProcess not hooked");
+}
+
 BOOL APIENTRY DllMain(HMODULE hModule, DWORD ulReasonForCall, LPVOID lpReserved)
 {
 	BOOL result = TRUE;
@@ -1657,6 +1756,12 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ulReasonForCall, LPVOID lpReserved)
 		hlp.logInt(configMinForce);
 		hlp.logInt(configMaxForce);
 		DisableThreadLibraryCalls(hModule);
+		{
+			// Never unloaded before the process exits: FreeLibrary would leave the plugin's threads,
+			// the MAMEInterop window, the game hooks and SDL running code that is gone
+			HMODULE pinned;
+			GetModuleHandleExW(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | GET_MODULE_HANDLE_EX_FLAG_PIN, (LPCWSTR)&DllMain, &pinned);
+		}
 		hlp.log("loading original library...");
 
 		LoadOriginalLibrary(hModule);
@@ -1693,6 +1798,14 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ulReasonForCall, LPVOID lpReserved)
 
 		SetErrorMode(SEM_FAILCRITICALERRORS | SEM_NOGPFAULTERRORBOX);
 
+		// the outputs of the emulators, not in FFBPluginGUI.exe
+		if (configGameId == MAME_ || configGameId == SUPERMODEL_ || configGameId == FLYCAST)
+		{
+			HANDLE outputs = CreateThread(NULL, 0, ThreadForOutputs, NULL, 0, NULL);
+			if (outputs)
+				CloseHandle(outputs);
+		}
+
 		hlp.log("creating ffb loop thread...");
 		CreateFFBLoopThread();
 		if (BeepWhenHook)
@@ -1711,22 +1824,22 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ulReasonForCall, LPVOID lpReserved)
 		hlp.log("detaching from process:");
 		hlp.log(processName.c_str());
 
-		LeaveFFBLoopThread();
+		// The module is pinned, so this is the process exiting. StopPlugin has normally been called
+		// by ExitProcessHook. Otherwise, the other threads have already been killed, maybe in the
+		// middle of an SDL call, holding its locks, and the loader lock is held: closing the devices
+		// could hang the exit, so only stop the forces (no SDL lock with the DirectInput wheels).
 		SetErrorMode(SEM_FAILCRITICALERRORS | SEM_NOGPFAULTERRORBOX);
-
-		if (configGameId == FLYCAST) {
-			WritePrivateProfileStringA("Settings", "ProcessID", 0, ".\\FFBPlugin.ini");
+		keepRunning = false;
+		if (ffbLoopThread != NULL && pluginStopped == 0)
+		{
+			hlp.log("Plugin not stopped before the exit: stopping the forces");
+			SDL_Haptic* haptics[] = { haptic, haptic2, haptic3 };
+			for (SDL_Haptic* device : haptics)
+			{
+				if (device)
+					SDL_HapticStopAll(device);
+			}
 		}
-
-		hlp.log("Closing SDL haptic device");
-		CloseHaptic(haptic);
-		CloseHaptic(haptic2);
-		CloseHaptic(haptic3);
-
-		hlp.log("Closing game controller");
-		CloseController(GameController, EnableRumble, EnableRumbleTriggers);
-		CloseController(GameController2, EnableRumbleDevice2, false);
-		CloseController(GameController3, EnableRumbleDevice3, false);
 		hlp.log("All done, leaving");
 
 		break;

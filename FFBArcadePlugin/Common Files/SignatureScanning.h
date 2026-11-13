@@ -82,6 +82,7 @@ static char* PatternScan(char* pattern, char* mask)
 
 					if (match != aAddy2)
 					{
+						delete[] buffer; // the break skips the delete below
 						break;
 					}
 				}

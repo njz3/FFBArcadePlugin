@@ -36,8 +36,11 @@ ULONG STDMETHODCALLTYPE DirectInputDeviceWrapper::AddRef(void)
 
 ULONG STDMETHODCALLTYPE DirectInputDeviceWrapper::Release(void)
 {
-	if (pDeviceA)	return pDeviceA->Release();
-	return pDeviceW->Release();
+	ULONG count = pDeviceA ? pDeviceA->Release() : pDeviceW->Release();
+	// the wrapped object is gone: so is the wrapper, which used to leak
+	if (count == 0)
+		delete this;
+	return count;
 }
 
 HRESULT STDMETHODCALLTYPE DirectInputDeviceWrapper::Acquire(void)

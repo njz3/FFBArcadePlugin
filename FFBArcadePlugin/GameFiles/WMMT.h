@@ -59,9 +59,10 @@ private:
 	void PlayWheelSpin(UINT8 gear, int speed);
 	void PlayGearChange(UINT8 gear, int speed);
 	static int InputThread(void* ptr);
-	static int GearChangeThread(void* ptr);
 
 	bool init = false;
 	bool gameFfbStarted = false;
 	UINT8 oldgear = 0;
+	// When the effect of the last gear change is due (GetTickCount64), 0 if none is waiting
+	ULONGLONG gearChangeDue = 0;
 };

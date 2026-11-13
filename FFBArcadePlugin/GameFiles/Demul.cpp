@@ -470,13 +470,6 @@ static DWORD WINAPI MaximumSpeedRunningLoop(LPVOID lpParam)
 	}
 }
 
-static DWORD WINAPI CloseErrorThread(LPVOID lpParam)
-{
-	SendMessage(hWnd, WM_CLOSE, NULL, NULL);
-	VolumeMute = true;
-	return 0;
-}
-
 static BOOL CALLBACK FindWindowBySubstr(HWND hwnd, LPARAM substring)
 {
 	const DWORD TITLE_SIZE = 1024;
@@ -515,7 +508,9 @@ void Demul::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTriggers
 			hWnd = FindWindowA(0, ("padDemul"));
 			if (hWnd > NULL)
 			{
-				CreateThread(NULL, 0, CloseErrorThread, NULL, 0, NULL);
+				// posted, rather than sent by a new thread at each loop until the popup was gone
+				PostMessage(hWnd, WM_CLOSE, NULL, NULL);
+				VolumeMute = true;
 			}
 		}
 	}

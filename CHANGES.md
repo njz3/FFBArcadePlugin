@@ -13,6 +13,19 @@ between two tags is named `<version>.<commits since the tag>-g<commit>` (see `Wr
   work yet. README.md keeps the build, version and release notes and points to it.
 - BuildAll.cmd names its archives of all the games with the full version of the build, e.g.
   "FFB Arcade Plugin 2.1.0.6-g09c2657.zip" (was the MAJOR.MINOR.PATCH of Version.txt only), and starts them empty.
+- Exit: the forces are stopped and the devices closed when the game calls ExitProcess (hooked), while its
+  threads still run, instead of in DLL_PROCESS_DETACH, where the other threads have been killed, maybe holding
+  an SDL lock, which could hang the exit. DLL_PROCESS_DETACH only stops the forces if that did not happen.
+  Flycast is still ended with TerminateProcess, now after the forces are stopped and its ProcessID cleared.
+- The plugin can no longer be unloaded before the process exits (FreeLibrary would have left its threads,
+  window and hooks running code that is gone), and FFBPluginGUI.exe no longer starts the outputs threads.
+- Leaks fixed: a thread for each gear change in Wangan Midnight Maximum Tune 5 to 6RR (the effect is now
+  played by the FFB loop), a thread at each loop while Demul's error popup is open, a voice object each time
+  the force is spoken (and its release after CoUninitialize when the plugin was unloaded), the memory region
+  copied by the pattern scan that finds a match, the DirectInput8Create wrapper, the joysticks opened while
+  looking for the one with haptics.
+- MAME outputs: names cut to fit the log buffer (a network line can be 4 KB); dead id cache removed; no
+  crash once the "MAME64.dll is missing!" message is closed (the network outputs still work).
 
 ## 2.1.0 (2026-11-12)
 
