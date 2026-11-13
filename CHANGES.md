@@ -15,6 +15,8 @@ between two tags is named `<version>.<commits since the tag>-g<commit>` (see `Wr
   "FFB Arcade Plugin 2.1.0.6-g09c2657.zip" (was the MAJOR.MINOR.PATCH of Version.txt only), and starts them empty.
   Built from a clean Release.Win32, the 32-bit game folders lacked SDL2.dll: the SDL2 package copies it after the
   post-build step that fills the folders. The post-build step now copies it first.
+- GUI: Hummer (GameId 85) has its pages, the ones of Hummer Extreme, which has the same settings, and BuildAll.cmd
+  puts FFBPluginGUI.exe in its folder.
 - Exit: the forces are stopped and the devices closed when the game calls ExitProcess (hooked), while its
   threads still run, instead of in DLL_PROCESS_DETACH, where the other threads have been killed, maybe holding
   an SDL lock, which could hang the exit. DLL_PROCESS_DETACH only stops the forces if that did not happen.
