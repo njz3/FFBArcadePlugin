@@ -11,6 +11,8 @@ between two tags is named `<version>.<commits since the tag>-g<commit>` (see `Wr
   MAME games is split into the games that need nothing else, the games that need a setting (one paragraph each:
   Virtua Racing, Rave Racer, Cruis'n Exotica, Over Rev, Super Monaco GP, Super GT 24h) and the games that do not
   work yet. README.md keeps the build, version and release notes and points to it.
+- BuildAll.cmd names its archives of all the games with the full version of the build, e.g.
+  "FFB Arcade Plugin 2.1.0.6-g09c2657.zip" (was the MAJOR.MINOR.PATCH of Version.txt only), and starts them empty.
 
 ## 2.1.0 (2026-11-12)
 

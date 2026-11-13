@@ -8,8 +8,6 @@ SET VS=2022\Community
 SET BuildMode=Release
 SET BUILDER=%ProgramFiles%\Microsoft Visual Studio\%VS%\MSBuild\Current\Bin\MSBuild.exe
 
-set /p Build=<..\Version.txt
-
 :build64
 :: Restore nuget packages
 "%BUILDER%" -t:restore FFBPluginGUI.sln /p:Platform=x64;Configuration=%BuildMode% -p:RestorePackagesConfig=true 
@@ -213,8 +211,17 @@ xcopy ".\Release\MetroFramework.dll" "..\FFBArcadePlugin\Release.Win32\Winter X 
 
 
 
+:: Full version of this build (e.g. 2.1.0.6-g09c2657), from the Version.h the build has just written
+:: (Write-Version.ps1); Version.txt only holds MAJOR.MINOR.PATCH
+SET Build=
+for /f "tokens=3" %%v in ('findstr /c:"#define FFB_VERSION_STRING" "..\Version.h"') do SET Build=%%~v
+if not defined Build set /p Build=<..\Version.txt
+
 cd %ffbpluginx86_path%
 
+:: 7-Zip adds to an existing archive: start from an empty one
+if exist "..\..\FFB Arcade Plugin %Build%.zip" del "..\..\FFB Arcade Plugin %Build%.zip"
+if exist "..\..\FFB Arcade Plugin %Build%.7z" del "..\..\FFB Arcade Plugin %Build%.7z"
 "C:\Program Files\7-Zip\7z.exe" a "..\..\FFB Arcade Plugin %Build%.zip" ".\*"
 "C:\Program Files\7-Zip\7z.exe" a "..\..\FFB Arcade Plugin %Build%.7z" ".\*"
 
