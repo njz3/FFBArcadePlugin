@@ -202,6 +202,7 @@
     <ClCompile Include="GameFiles\HardDrivin.cpp" />
     <ClCompile Include="Help.cpp" />
     <ClCompile Include="GameFiles\HummerExtreme.cpp" />
+    <ClCompile Include="GameFiles\Cars.cpp" />
     <ClCompile Include="GameFiles\Hyperdrive.cpp" />
     <ClCompile Include="GameFiles\InitialD0Input.cpp" />
     <ClCompile Include="GameFiles\Indy500.cpp" />
@@ -390,6 +391,7 @@
       <FileType>CppForm</FileType>
     </ClInclude>
     <ClInclude Include="GameFiles\HummerExtreme.h" />
+    <ClInclude Include="GameFiles\Cars.h" />
     <ClInclude Include="GameFiles\Hyperdrive.h" />
     <ClInclude Include="GameFiles\InitialD0Input.h" />
     <ClInclude Include="GameFiles\Indy500.h" />

@@ -249,6 +249,7 @@ The force feedback works, but the game's analog inputs do not.
 - Aliens Extermination
 - Batman (2013)
 - Battle Gear 4 Tuned (Japan version v2.07)
+- Cars (Raw Thrills, sdaemon.exe of 2018-09-09, 32-bit): dinput8.dll next to sdaemon.exe in the carscade folder
 - Chase HQ 2
 - Cruis'n Blast
 - Daytona Championship USA

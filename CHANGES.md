@@ -17,6 +17,9 @@ between two tags is named `<version>.<commits since the tag>-g<commit>` (see `Wr
   post-build step that fills the folders. The post-build step now copies it first.
 - GUI: Hummer (GameId 85) has its pages, the ones of Hummer Extreme, which has the same settings, and BuildAll.cmd
   puts FFBPluginGUI.exe in its folder.
+- Cars (Raw Thrills, GameId 86), whose code came with the sync with Boomslangnz's plugin, has a profile at last:
+  a [Cars] section in FFBPlugin.ini, so a "Cars" folder in the release (32-bit dinput8.dll, which its sdaemon.exe
+  imports), and a GUI page (feedback length, rumble, alternative FFB, power mode, double constant, global forces).
 - Exit: the forces are stopped and the devices closed when the game calls ExitProcess (hooked), while its
   threads still run, instead of in DLL_PROCESS_DETACH, where the other threads have been killed, maybe holding
   an SDL lock, which could hang the exit. DLL_PROCESS_DETACH only stops the forces if that did not happen.
