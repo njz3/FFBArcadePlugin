@@ -11,30 +11,19 @@ You should have received a copy of the GNU General Public License
 along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
 */
 
-#include <string>
 #include "Batman.h"
 
-void Batman::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTriggers* triggers) {
+using namespace ffb;
 
-	float ff = helpers->ReadFloat32(0x7EF524, true);
+void Batman::Update()
+{
+	float force = Memory::Read(WheelForce);
+	Log::Value("got value:", force);
 
-	helpers->log("got value: ");
-	std::string ffs = std::to_string(ff);
-	helpers->log((char*)ffs.c_str());
+	ApplyDamper();
 
-	ApplyDamper(triggers);
-
-	UINT32 length_ms = 100;
-	if (ff > 0)
-	{
-		double percentForce = ff / 1.2;
-		triggers->Rumble(0, percentForce, length_ms);
-		triggers->Constant(constants->DIRECTION_FROM_RIGHT, percentForce);
-	}
-	else if (ff < 0)
-	{
-		double percentForce = -ff / 1.2;
-		triggers->Rumble(percentForce, 0, length_ms);
-		triggers->Constant(constants->DIRECTION_FROM_LEFT, percentForce);
-	}
+	if (force > 0)
+		wheel.ConstantWithRumble(Direction::FromRight, force / 1.2);
+	else if (force < 0)
+		wheel.ConstantWithRumble(Direction::FromLeft, -force / 1.2);
 }

@@ -11,37 +11,23 @@ You should have received a copy of the GNU General Public License
 along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
 */
 
-#include <string>
 #include "H2Overdrive.h"
 
-void H2Overdrive::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTriggers* triggers) {
+using namespace ffb;
 
-	float ffstiffness = helpers->ReadFloat32(0x392C54, true);
-	float ff = helpers->ReadFloat32(0x392C58, true);
+void H2Overdrive::Update()
+{
+	float stiffness = Memory::Read(Stiffness);
+	float force = Memory::Read(WheelForce);
+	Log::Value("got value:", force);
 
-	helpers->log("got value: ");
-	std::string ffs = std::to_string(ff);
-	helpers->log((char*)ffs.c_str());
+	ApplyDamper();
 
-	UINT32 length_ms = 100;
-	ApplyDamper(triggers);
+	if (stiffness > 0)
+		wheel.Spring(stiffness / 1.25);
 
-	if (ffstiffness > 0)
-	{
-		double percentForce = ffstiffness / 1.25;
-		triggers->Spring(percentForce);
-	}
-
-	if (ff > 0)
-	{
-		double percentForce = ff;
-		triggers->Rumble(percentForce, 0, length_ms);
-		triggers->Constant(constants->DIRECTION_FROM_LEFT, percentForce);
-	}
-	else if (ff < 0)
-	{
-		double percentForce = -ff;
-		triggers->Rumble(0, percentForce, length_ms);
-		triggers->Constant(constants->DIRECTION_FROM_RIGHT, percentForce);
-	}
+	if (force > 0)
+		wheel.ConstantWithRumble(Direction::FromLeft, force);
+	else if (force < 0)
+		wheel.ConstantWithRumble(Direction::FromRight, -force);
 }

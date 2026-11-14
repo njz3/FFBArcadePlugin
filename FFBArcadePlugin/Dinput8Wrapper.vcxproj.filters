@@ -225,7 +225,6 @@
     <ClCompile Include="GameFiles\ArcticThunder.cpp" />
     <ClCompile Include="GameFiles\CruisnBlast.cpp" />
     <ClCompile Include="GameFiles\FnF.cpp" />
-    <ClCompile Include="GameFiles\FnFDrift.cpp" />
     <ClCompile Include="GameFiles\FnFSuperCars.cpp" />
     <ClCompile Include="GameFiles\SegaRaceTV.cpp" />
     <ClCompile Include="GameFiles\IDTAv231.cpp" />

@@ -12,9 +12,15 @@ along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
 */
 
 #pragma once
-#include "../Common Files/Game.h"
-class Batman : public Game {
+#include "../Core/Game.h"
 
+// Batman (Raw Thrills, TeknoParrot): the force of the wheel is read in the game's memory
+class Batman : public ffb::Game
+{
 public:
-	void FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTriggers* triggers);
+	void Update() override;
+
+private:
+	// Force of the wheel: > 0 from the right, < 0 from the left, up to 1.2
+	static constexpr ffb::GameValue<float> WheelForce{ ffb::Base::Module, 0x7EF524 };
 };

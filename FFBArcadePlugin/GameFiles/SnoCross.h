@@ -12,9 +12,17 @@ along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
 */
 
 #pragma once
-#include "../Common Files/Game.h"
-class SnoCross : public Game {
+#include "../Core/Game.h"
 
+// Snocross (TeknoParrot): the force of the handlebar is read in the game's memory, played when it changes
+class SnoCross : public ffb::Game
+{
 public:
-	void FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTriggers* triggers);
+	void Update() override;
+
+private:
+	// Force of the handlebar: > 0 from the right, < 0 from the left, up to 1.2401
+	static constexpr ffb::GameValue<float> HandlebarForce{ ffb::Base::Absolute, 0x99AB6C };
+
+	float lastForce = 0;
 };

@@ -27,21 +27,23 @@ namespace ffb
 			return MH_Initialize() == MH_OK;
 		}
 
-		template <typename F>
-		static bool Create(LPVOID target, F detour, F* original)
+		// The detour usually has the type of the original; it may differ in calling convention
+		// (a __fastcall detour of a __thiscall function)
+		template <typename Detour, typename Original>
+		static bool Create(LPVOID target, Detour detour, Original* original)
 		{
 			return MH_CreateHook(target, (LPVOID)detour, (LPVOID*)original) == MH_OK;
 		}
 
-		template <typename F>
-		static bool Create(INT_PTR target, F detour, F* original)
+		template <typename Detour, typename Original>
+		static bool Create(INT_PTR target, Detour detour, Original* original)
 		{
 			return Create((LPVOID)target, detour, original);
 		}
 
 		// A function exported by a DLL, e.g. CreateApi(L"user32.dll", "GetCursorPos", ...)
-		template <typename F>
-		static bool CreateApi(LPCWSTR module, LPCSTR function, F detour, F* original)
+		template <typename Detour, typename Original>
+		static bool CreateApi(LPCWSTR module, LPCSTR function, Detour detour, Original* original)
 		{
 			return MH_CreateHookApi(module, function, (LPVOID)detour, (LPVOID*)original) == MH_OK;
 		}

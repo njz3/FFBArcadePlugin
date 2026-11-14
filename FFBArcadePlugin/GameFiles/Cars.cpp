@@ -11,97 +11,76 @@ You should have received a copy of the GNU General Public License
 along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
 */
 
-#include <string>
 #include "Cars.h"
+#include "../Core/Hooks.h"
 
-static int ffbEnabled = 0;
-static bool init = false;
+using namespace ffb;
 
-static EffectTriggers* myTriggers;
-static EffectConstants* myConstants;
+Cars* Cars::instance = nullptr;
+void(__thiscall* Cars::testMenuForceOriginal)(int object, float force, char unknown) = nullptr;
+void(__thiscall* Cars::gameForceOriginal)(int object, float force, char unknown) = nullptr;
+void(__thiscall* Cars::startRumbleOriginal)(int object, int rumble) = nullptr;
 
-static void(__thiscall* testMenuFFB)(int param_1, float ffbAmt, char param_3);
-static void __fastcall testMenuFFBHook(int param_1, float ffbAmt, char param_3) {
-	if (ffbEnabled)
-	{
-		if (ffbAmt >= 0)
-		{
-			myTriggers->Constant(myConstants->DIRECTION_FROM_RIGHT, ffbAmt);
-		}
-		else
-		{
-			myTriggers->Constant(myConstants->DIRECTION_FROM_LEFT, ffbAmt * -1);
-
-		}
-	}
-	testMenuFFB(param_1, ffbAmt, param_3);
+Cars::Cars()
+{
+	instance = this;
 }
 
-static void(__thiscall* gameFFB)(int param_1, float ffbAmt, char param_3);
-static void __fastcall gameFFBHook(int param_1, float ffbAmt, char param_3) {
-	if (ffbEnabled)
-	{
-		if (ffbAmt >= 0)
-		{
-			myTriggers->Constant(myConstants->DIRECTION_FROM_RIGHT, ffbAmt);
-		}
-		else
-		{
-			myTriggers->Constant(myConstants->DIRECTION_FROM_LEFT, ffbAmt * -1);
+void Cars::PlayForce(float force)
+{
+	if (!ffbEnabled)
+		return;
 
-		}
-	}
-	gameFFB(param_1, ffbAmt, param_3);
+	if (force >= 0)
+		wheel.Constant(Direction::FromRight, force);
+	else
+		wheel.Constant(Direction::FromLeft, force * -1);
 }
 
-
-static void(__thiscall* enableRumbleEffectOrig)(int param_1_00, int rumbleEffect);
-static void __fastcall enableRumbleEffect(int param_1_00, int rumbleEffect) {
-	if (ffbEnabled)
-	{
-		if (rumbleEffect == 0)
-		{
-			//in the air
-			myTriggers->Constant(myConstants->DIRECTION_FROM_RIGHT, 0);
-		}
-		if (rumbleEffect > 0)
-		{
-			//rumbling after collision
-            UINT32 length_ms = 150;
-			myTriggers->Rumble(0, 1, rumbleEffect);
-			myTriggers->Sine(rumbleEffect, 0, 50, length_ms);
-		}
-	}
-	enableRumbleEffectOrig(param_1_00, rumbleEffect);
+void __fastcall Cars::TestMenuForceHook(int object, float force, char unknown)
+{
+	instance->PlayForce(force);
+	testMenuForceOriginal(object, force, unknown);
 }
 
+void __fastcall Cars::GameForceHook(int object, float force, char unknown)
+{
+	instance->PlayForce(force);
+	gameForceOriginal(object, force, unknown);
+}
 
-void Cars::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTriggers* triggers) {
+void __fastcall Cars::StartRumbleHook(int object, int rumble)
+{
+	Cars& game = *instance;
+	if (game.ffbEnabled)
+	{
+		if (rumble == 0) // in the air
+			game.wheel.Constant(Direction::FromRight, 0);
 
-	if (!init) {
+		if (rumble > 0) // after a collision
+		{
+			game.wheel.Rumble(0, 1, rumble);
+			game.wheel.Sine(rumble, 0, 50, 150);
+		}
+	}
+	startRumbleOriginal(object, rumble);
+}
 
-		myTriggers = triggers;
-		myConstants = constants;
-
-		MH_Initialize();
-		MH_CreateHook((void*)(0x0451ba0), testMenuFFBHook, (void**)&testMenuFFB);
-		MH_CreateHook((void*)(0x0821d40), gameFFBHook, (void**)&gameFFB);
-		MH_CreateHook((void*)(0x00455550), enableRumbleEffect, (void**)&enableRumbleEffectOrig);
-
-		MH_EnableHook(MH_ALL_HOOKS);
-		init = true;
+void Cars::Update()
+{
+	if (!hooked)
+	{
+		Hooks::Initialize();
+		Hooks::Create(TestMenuForce, TestMenuForceHook, &testMenuForceOriginal);
+		Hooks::Create(GameForce, GameForceHook, &gameForceOriginal);
+		Hooks::Create(StartRumble, StartRumbleHook, &startRumbleOriginal);
+		Hooks::Enable();
+		hooked = true;
 	}
 
-
-	int ffbStatus = helpers->ReadByte(0x18d32a2, false);
-	if (ffbStatus == 1 && !ffbEnabled)
-	{
+	int status = Memory::Read(FFBEnabled);
+	if (status == 1 && !ffbEnabled)
 		ffbEnabled = true;
-	}
-	else if (ffbStatus == 0 && ffbEnabled)
-	{
+	else if (status == 0 && ffbEnabled)
 		ffbEnabled = false;
-	}
-
-
 }

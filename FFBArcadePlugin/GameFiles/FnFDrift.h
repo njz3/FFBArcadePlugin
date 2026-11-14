@@ -1,4 +1,3 @@
-#pragma once
 /*This file is part of FFB Arcade Plugin.
 FFB Arcade Plugin is free software : you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -13,9 +12,11 @@ along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
 */
 
 #pragma once
-#include "../Common Files/Game.h"
-class FnFDrift : public Game {
+#include "FnF.h"
 
+// Fast & Furious Drift (Raw Thrills, TeknoParrot): see FastAndFuriousGame
+class FnFDrift : public FastAndFuriousGame
+{
 public:
-	void FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTriggers* triggers);
+	FnFDrift() : FastAndFuriousGame({ 0x5A3CA4, 0x48A410, { 0x48A760, 0x48A7B0, 0x48A8F0, 0x48AA20 } }) {}
 };

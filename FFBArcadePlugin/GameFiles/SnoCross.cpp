@@ -11,36 +11,23 @@ You should have received a copy of the GNU General Public License
 along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
 */
 
-#include <string>
 #include "SnoCross.h"
 
-void SnoCross::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTriggers* triggers) {
+using namespace ffb;
 
-	float ff = helpers->ReadFloat32(0x99AB6C, false);
-	static float oldff = 0;
-	float newff = ff;
+void SnoCross::Update()
+{
+	float force = Memory::Read(HandlebarForce);
+	Log::Value("got value:", force);
 
-	helpers->log("got value: ");
-	std::string ffs = std::to_string(ff);
-	helpers->log((char*)ffs.c_str());
+	ApplyDamper();
 
-	ApplyDamper(triggers);
-
-	if (oldff != newff)
+	if (force != lastForce)
 	{
-		UINT32 length_ms = 100;
-		if (ff > 0)
-		{
-			double percentForce = ff / 1.2401;
-			triggers->Rumble(0, percentForce, length_ms);
-			triggers->Constant(constants->DIRECTION_FROM_RIGHT, percentForce);
-		}
-		else if (ff < 0)
-		{
-			double percentForce = -ff / 1.2401;
-			triggers->Rumble(percentForce, 0, length_ms);
-			triggers->Constant(constants->DIRECTION_FROM_LEFT, percentForce);
-		}
+		if (force > 0)
+			wheel.ConstantWithRumble(Direction::FromRight, force / 1.2401);
+		else if (force < 0)
+			wheel.ConstantWithRumble(Direction::FromLeft, -force / 1.2401);
 	}
-	oldff = newff;
+	lastForce = force;
 }

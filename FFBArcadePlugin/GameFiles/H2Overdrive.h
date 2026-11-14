@@ -12,9 +12,17 @@ along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
 */
 
 #pragma once
-#include "../Common Files/Game.h"
-class H2Overdrive : public Game {
+#include "../Core/Game.h"
 
+// H2Overdrive (Raw Thrills, TeknoParrot): the stiffness and the force of the wheel are read in the game's memory
+class H2Overdrive : public ffb::Game
+{
 public:
-	void FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTriggers* triggers);
+	void Update() override;
+
+private:
+	// Centering spring of the wheel, up to 1.25
+	static constexpr ffb::GameValue<float> Stiffness{ ffb::Base::Module, 0x392C54 };
+	// Force of the wheel: > 0 from the left, < 0 from the right
+	static constexpr ffb::GameValue<float> WheelForce{ ffb::Base::Module, 0x392C58 };
 };

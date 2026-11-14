@@ -11,74 +11,22 @@ You should have received a copy of the GNU General Public License
 along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
 */
 
-#include <string>
 #include "DirtyDrivin.h"
-static bool ReverseFFB;
 
-void DirtyDrivin::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTriggers* triggers) {
+using namespace ffb;
 
-	float ffstiffness = helpers->ReadFloat32(0x886EC0, false);
-	float ff = helpers->ReadFloat32(0x886EC4, false);
-	UINT8 TrackSelected = helpers->ReadByte(0x96F770, false);
+void DirtyDrivin::Update()
+{
+	float force = Memory::Read(WheelForce);
+	UINT8 track = Memory::Read(Track);
+	Log::Value("got value:", force);
 
-	helpers->log("got value: ");
-	std::string ffs = std::to_string(ff);
-	helpers->log((char*)ffs.c_str());
+	bool reversed = track >= 8 && track <= 14;
 
-	//if (ffstiffness > 0)
-	//{
-		//double percentForce = ffstiffness / 1.25;
-		//triggers->Spring(percentForce);
-	//}
+	ApplyDamper();
 
-	switch (TrackSelected)
-	{
-	case 8:
-	case 9:
-	case 10:
-	case 11:
-	case 12:
-	case 13:
-	case 14:
-		ReverseFFB = true;
-		break;
-	default:
-		ReverseFFB = false;
-		break;
-	}
-
-	ApplyDamper(triggers);
-
-	if (ff > 0)
-	{
-		double percentForce = ff;
-		UINT32 length = 100;
-
-		if (ReverseFFB)
-		{
-			triggers->Rumble(0, percentForce, length);
-			triggers->Constant(constants->DIRECTION_FROM_RIGHT, percentForce);
-		}
-		else
-		{
-			triggers->Rumble(percentForce, 0, length);
-			triggers->Constant(constants->DIRECTION_FROM_LEFT, percentForce);
-		}
-	}
-	else if (ff < 0)
-	{
-		double percentForce = -ff;
-		UINT32 length = 100;
-
-		if (ReverseFFB)
-		{
-			triggers->Rumble(percentForce, 0, length);
-			triggers->Constant(constants->DIRECTION_FROM_LEFT, percentForce);
-		}
-		else
-		{
-			triggers->Rumble(0, percentForce, length);
-			triggers->Constant(constants->DIRECTION_FROM_RIGHT, percentForce);
-		}
-	}
+	if (force > 0)
+		wheel.ConstantWithRumble(reversed ? Direction::FromRight : Direction::FromLeft, force);
+	else if (force < 0)
+		wheel.ConstantWithRumble(reversed ? Direction::FromLeft : Direction::FromRight, -force);
 }

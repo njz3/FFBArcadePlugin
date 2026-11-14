@@ -1,5 +1,3 @@
-#pragma once
-#pragma once
 /*This file is part of FFB Arcade Plugin.
 FFB Arcade Plugin is free software : you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -14,9 +12,33 @@ along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
 */
 
 #pragma once
-#include "../Common Files/Game.h"
-class FnFSuperCars : public Game {
+#include "../Core/Game.h"
 
+// Fast & Furious SuperCars (Raw Thrills, TeknoParrot): the plugin replaces the function the game gives
+// the force of the wheel to (-1 to 1, at each frame). The effects change only when it changes.
+class FnFSuperCars : public ffb::Game
+{
 public:
-	void FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTriggers* triggers);
+	FnFSuperCars();
+	void Update() override;
+
+private:
+	static const INT_PTR SetForce = 0x402CF0;
+	static constexpr INT_PTR OtherLptIo[] = { 0x402CA0, 0x402C50, 0x402BC0 }; // emptied
+
+	// The rumble lasts RumbleLength and is renewed every RumbleRenewal while it is not 0, so that it
+	// ends by itself if the game is killed (the constant force is renewed by the plugin)
+	static const UINT32 RumbleLength = 1000; // ms
+	static const ULONGLONG RumbleRenewal = 300; // ms
+	static constexpr float NoForceYet = 2.0f;
+
+	static FnFSuperCars* instance;
+	static void(__cdecl* setForceOriginal)(float force);
+	static void(__cdecl* ignoredOriginal)();
+	static void __cdecl SetForceHook(float force);
+	static void __cdecl IgnoredHook();
+
+	bool hooked = false;
+	volatile float lastForce = NoForceYet;
+	ULONGLONG rumbleRenewed = 0;
 };

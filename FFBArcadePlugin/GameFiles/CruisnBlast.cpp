@@ -12,99 +12,84 @@ along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
 */
 
 #include "CruisnBlast.h"
-#include <sstream>
-static bool init;
+#include "../Core/Hooks.h"
 
-static EffectTriggers* myTriggers;
-static EffectConstants* myConstants;
-static Helpers* myHelpers;
+using namespace ffb;
 
-static float lastFF = 0;
-static int currentScreen = 0;
+CruisnBlast* CruisnBlast::instance = nullptr;
+int(__cdecl* CruisnBlast::wheelSetOriginal)(float force) = nullptr;
 
-static int(__cdecl* Wheel_SetHookOrig)(float param_1);
-static int __cdecl Wheel_SetHook(float param_1)
+CruisnBlast::CruisnBlast()
 {
-	float puVar1 = myHelpers->ReadFloat32(0x8babbac, false); //menus ffb?! CHECKED COOL
-	float puVar2 = myHelpers->ReadByte(0x8babba8, false); //in game ffb?! //CHECKED seems to just go 0 when off the road
-	//int puVar3 = myHelpers->ReadFloat32(0x8babbb0, false); //ffb effects FLOAT??
-	//int puVar4 = myHelpers->ReadFloat32(0x8babbb4, false);
-	//int puVar5 = myHelpers->ReadFloat32(0x8babbbc, false); //ffb effects
-	//int puVar6 = myHelpers->ReadFloat32(0x8babbb8, false); //ffb effects are running (1 at the start i think)
-	int puVar7 = myHelpers->ReadInt32(0x8babbc0, false); //0 menus, 1 game
+	instance = this;
+}
 
-	if (puVar7 == 1)
+int __cdecl CruisnBlast::WheelSetHook(float raceForce)
+{
+	CruisnBlast& game = *instance;
+	float menuForce = Memory::Read(MenuForce);
+
+	if (Memory::Read(Screen) == 1)
 	{
-		if (currentScreen == 0)
+		if (!game.inRace)
 		{
-			//in game - turn on wheel effects
-			myHelpers->WriteByte(0x9c28504, 1, false);
-			currentScreen = 1;
-			lastFF = 0;
+			// in a race: wheel effects on
+			Memory::Write<UINT8>(WheelEffects, 1);
+			game.inRace = true;
+			game.force = 0;
 		}
 		else
 		{
-			lastFF = param_1;
+			game.force = raceForce;
 		}
 	}
 	else
 	{
-		if (currentScreen == 1)
+		if (game.inRace)
 		{
-			//not in game turn off wheel effects
-			myHelpers->WriteByte(0x9c28504, 0, false);
-			lastFF = 0;
-			currentScreen = 0;
+			// out of the race: wheel effects off
+			Memory::Write<UINT8>(WheelEffects, 0);
+			game.force = 0;
+			game.inRace = false;
 		}
 		else
 		{
-			lastFF = puVar1;
+			game.force = menuForce;
 		}
 	}
-	if (lastFF >= 0) {
-		myTriggers->Rumble(0, lastFF, 100);
-		myTriggers->Constant(myConstants->DIRECTION_FROM_RIGHT, lastFF);
+
+	// a force of 0 is played on both sides
+	if (game.force >= 0)
+	{
+		game.wheel.Rumble(0, game.force, 100);
+		game.wheel.Constant(Direction::FromRight, game.force);
 	}
-	if (lastFF <= 0) {
-		myTriggers->Rumble(0, lastFF * -1, 100);
-		myTriggers->Constant(myConstants->DIRECTION_FROM_LEFT, lastFF * -1);
+	if (game.force <= 0)
+	{
+		game.wheel.Rumble(0, game.force * -1, 100);
+		game.wheel.Constant(Direction::FromLeft, game.force * -1);
 	}
 	return 0;
 }
 
+void CruisnBlast::Update()
+{
+	if (hooked)
+		return;
 
-void CruisnBlast::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTriggers* triggers) {
-	if (!init)
-	{
-		INT_PTR ImageBase = (INT_PTR)GetModuleHandleA(0);
+	ApplyDamper();
 
-		ApplyDamper(triggers);
+	Memory::Write<UINT8>(CabinetType, 4);
 
-		myHelpers = helpers;
-		myTriggers = triggers;
-		myConstants = constants;
+	OutputDebugStringA("CruisnBlast FFB Loop");
 
-		//set cab type
-		myHelpers->WriteByte(0xa0a7808, 4, false);
-		//enable wheel found
-		//myHelpers->WriteByte(0x8bab744, 1, false);
-		
-		OutputDebugStringA("CruisnBlast FFB Loop");
-		
-		MH_Initialize();
-		MH_CreateHook((LPVOID)(0x8151b50), Wheel_SetHook, (LPVOID*)&Wheel_SetHookOrig);
-		//remove wheel check for WHEEL_SET function
-		myHelpers->WriteNop(0x8151b61, 2, false);
-		//remove outs for WHEEL_SET function just incase we get there
-		myHelpers->WriteNop(0x8151b90, 1, false);
-		myHelpers->WriteNop(0x8151b96, 1, false);
-		myHelpers->WriteNop(0x8151b9c, 1, false);
-		myHelpers->WriteNop(0x8151b87, 1, false);
+	Hooks::Initialize();
+	Hooks::Create(WheelSet, WheelSetHook, &wheelSetOriginal);
+	// the wheel check of WHEEL_SET and its outputs, just in case
+	Memory::WriteNop(WheelCheck, 2);
+	for (INT_PTR output : WheelSetOutputs)
+		Memory::WriteNop(output, 1);
 
-		MH_EnableHook(MH_ALL_HOOKS);
-		init = true;
-	}
-
-
-
+	Hooks::Enable();
+	hooked = true;
 }

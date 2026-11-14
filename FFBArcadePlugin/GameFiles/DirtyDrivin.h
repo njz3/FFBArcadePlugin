@@ -12,9 +12,17 @@ along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
 */
 
 #pragma once
-#include "../Common Files/Game.h"
-class DirtyDrivin : public Game {
+#include "../Core/Game.h"
 
+// Dirty Drivin' (Raw Thrills, TeknoParrot): the force of the wheel is read in the game's memory. Its
+// side is the other one on the tracks 8 to 14.
+class DirtyDrivin : public ffb::Game
+{
 public:
-	void FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTriggers* triggers);
+	void Update() override;
+
+private:
+	// Force of the wheel: > 0 from the left, < 0 from the right (the other way on tracks 8 to 14)
+	static constexpr ffb::GameValue<float> WheelForce{ ffb::Base::Absolute, 0x886EC4 };
+	static constexpr ffb::GameValue<UINT8> Track{ ffb::Base::Absolute, 0x96F770 };
 };

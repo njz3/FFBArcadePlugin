@@ -1,4 +1,3 @@
-
 /*This file is part of FFB Arcade Plugin.
 FFB Arcade Plugin is free software : you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -13,68 +12,58 @@ along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
 */
 
 #include "FnFSuperCars.h"
+#include "../Core/Hooks.h"
 
-static bool init;
-static EffectTriggers* myTriggers;
-static EffectConstants* myConstants;
-static Helpers* myHelpers;
-// The rumble lasts RumbleLength and FFBLoop renews it every RumbleRenewal while it is not 0, so that it ends
-// by itself if the game is killed (the constant force is renewed by the plugin, see KeptEffect in DllMain.cpp)
-static const UINT32 RumbleLength = 1000; // ms
-static const ULONGLONG RumbleRenewal = 300; // ms
-static ULONGLONG rumbleRenewed;
+using namespace ffb;
 
-static void(__cdecl* FUN_00402cf0Orig)(float param_1);
-// The game gives its force (-1 to 1) at each frame: the effects are changed, or stopped, only when it
-// changes. They were played at each call, twice when the force was 0.
-static volatile float lastForce = 2.0f; // none yet
-static void __cdecl FUN_00402cf0(float param_1) {
-	if (myTriggers == nullptr || param_1 == lastForce)
+FnFSuperCars* FnFSuperCars::instance = nullptr;
+void(__cdecl* FnFSuperCars::setForceOriginal)(float force) = nullptr;
+void(__cdecl* FnFSuperCars::ignoredOriginal)() = nullptr;
+
+FnFSuperCars::FnFSuperCars()
+{
+	instance = this;
+}
+
+void __cdecl FnFSuperCars::SetForceHook(float force)
+{
+	FnFSuperCars& game = *instance;
+	if (force == game.lastForce)
 		return;
-	lastForce = param_1;
+	game.lastForce = force;
 
-	double percentForce = param_1 >= 0 ? param_1 : -param_1;
+	double strength = force >= 0 ? force : -force;
 	// both last until the next change; a force of 0 stops them
-	myTriggers->Rumble(0, percentForce, RumbleLength);
-	rumbleRenewed = GetTickCount64();
-	myTriggers->ConstantInf(param_1 >= 0 ? myConstants->DIRECTION_FROM_RIGHT : myConstants->DIRECTION_FROM_LEFT, percentForce);
+	game.wheel.Rumble(0, strength, RumbleLength);
+	game.rumbleRenewed = GetTickCount64();
+	game.wheel.KeptConstant(force >= 0 ? Direction::FromRight : Direction::FromLeft, strength);
 }
 
-static void(__cdecl* FnFSCIgnoreLPTOrig)();
-static void __cdecl FnFSCignoreLPT() {
-	return ;
+void __cdecl FnFSuperCars::IgnoredHook()
+{
 }
 
-void FnFSuperCars::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTriggers* triggers) {
-	// before the hooks, which use them
-	myTriggers = triggers;
-	myConstants = constants;
-	myHelpers = helpers;
-
-	if (!init)
+void FnFSuperCars::Update()
+{
+	if (!hooked)
 	{
 		OutputDebugStringA("FnFSuperCars::FFBLoop");
 
+		Hooks::Initialize();
+		Hooks::Create(SetForce, SetForceHook, &setForceOriginal);
+		for (INT_PTR io : OtherLptIo)
+			Hooks::Create(io, IgnoredHook, &ignoredOriginal);
+		Hooks::Enable();
 
-		MH_Initialize();
-		MH_CreateHook((LPVOID)0x0402cf0, FUN_00402cf0, (LPVOID*)&FUN_00402cf0Orig);
-
-		//remove unwanted instances
-		MH_CreateHook((LPVOID)0x0402ca0, FnFSCignoreLPT, (LPVOID*)&FnFSCIgnoreLPTOrig);
-		MH_CreateHook((LPVOID)0x0402c50, FnFSCignoreLPT, (LPVOID*)&FnFSCIgnoreLPTOrig);
-		MH_CreateHook((LPVOID)0x0402bc0, FnFSCignoreLPT, (LPVOID*)&FnFSCIgnoreLPTOrig);	
-		MH_EnableHook(MH_ALL_HOOKS);
-
-		init = true;
+		hooked = true;
 	}
 
-	ApplyDamper(triggers);
+	ApplyDamper();
 
 	float force = lastForce;
-	if (force != 2.0f && force != 0.0f && GetTickCount64() - rumbleRenewed >= RumbleRenewal)
+	if (force != NoForceYet && force != 0.0f && GetTickCount64() - rumbleRenewed >= RumbleRenewal)
 	{
-		triggers->Rumble(0, force >= 0 ? force : -force, RumbleLength);
+		wheel.Rumble(0, force >= 0 ? force : -force, RumbleLength);
 		rumbleRenewed = GetTickCount64();
 	}
-
 }

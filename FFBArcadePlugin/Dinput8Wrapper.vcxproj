@@ -154,7 +154,6 @@
     <ClCompile Include="GameFiles\DemulSmashingDriveInputs.cpp" />
     <ClCompile Include="GameFiles\DirtyDrivin.cpp" />
     <ClCompile Include="GameFiles\FnF.cpp" />
-    <ClCompile Include="GameFiles\FnFDrift.cpp" />
     <ClCompile Include="GameFiles\FnFSuperCars.cpp" />
     <ClCompile Include="GameFiles\FordRacingOther.cpp" />
     <ClCompile Include="GameFiles\GaelcoTuningRace.cpp" />
@@ -363,6 +362,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <ObjectFileName>$(IntDir)%(RelativeDir)</ObjectFileName>
+      <LanguageStandard>stdcpp17</LanguageStandard>
       <PrecompiledHeader>
       </PrecompiledHeader>
       <Optimization>Disabled</Optimization>
@@ -398,6 +398,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <ObjectFileName>$(IntDir)%(RelativeDir)</ObjectFileName>
+      <LanguageStandard>stdcpp17</LanguageStandard>
       <PrecompiledHeader>
       </PrecompiledHeader>
       <Optimization>Disabled</Optimization>
@@ -433,6 +434,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
       <ObjectFileName>$(IntDir)%(RelativeDir)</ObjectFileName>
+      <LanguageStandard>stdcpp17</LanguageStandard>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
@@ -485,6 +487,7 @@ cd $(OutDir) &amp;amp;&amp;amp; for /D /r %d in (.\Deploy\*) do @xcopy *.dll %d\
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
       <ObjectFileName>$(IntDir)%(RelativeDir)</ObjectFileName>
+      <LanguageStandard>stdcpp17</LanguageStandard>
       <PrecompiledHeader>
       </PrecompiledHeader>
       <Optimization>MaxSpeed</Optimization>
