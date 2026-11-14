@@ -28,90 +28,11 @@ along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
 #include "../Version.h"
 #include "WrapperExports.h"
 
-// include all game header files here.
-#include "GameFiles/TestGame.h"
-#include "GameFiles/AliensExtermination.h"
-#include "GameFiles/Batman.h"
-#include "GameFiles/BG4JP.h"
-#include "GameFiles/Cars.h"
-#include "GameFiles/ChaseHQ2.h"
-#include "GameFiles/CrazyTaxi.h"
-#include "GameFiles/CruisnBlast.h"
-#include "GameFiles/D1GP.h"
-#include "GameFiles/Daytona3.h"
-#include "GameFiles/Daytona3NSE.h"
-#include "GameFiles/DeadHeat.h"
-#include "GameFiles/DeadHeatRiders.h"
-#include "GameFiles/DirtyDrivin.h"
-#include "GameFiles/FnF.h"
-#include "GameFiles/FnFDrift.h"
-#include "GameFiles/FnFSuperCars.h"
-#include "GameFiles/FordRacing.h"
-#include "GameFiles/FordRacingOther.h"
-#include "GameFiles/GaelcoTuningRace.h"
-#include "GameFiles/GRIDReal.h"
-#include "GameFiles/GRIDCustom.h"
-#include "GameFiles/GoldenGun.h"
-#include "GameFiles/Hummer.h"
-#include "GameFiles/HummerExtreme.h"
-#include "GameFiles/InitialD0v131.h"
-#include "GameFiles/InitialD0v211.h"
-#include "GameFiles/InitialD0v230.h"
-#include "GameFiles/InitialD4.h"
-#include "GameFiles/InitialD4Japan.h"
-#include "GameFiles/InitialD5.h"
-#include "GameFiles/InitialD6.h"
-#include "GameFiles/InitialD7.h"
-#include "GameFiles/InitialD8.h"
-#include "GameFiles/IDTAv231.h"
-#include "GameFiles/MarioKartGPDXCustom.h"
-#include "GameFiles/MarioKartGPDX1.10Custom.h"
-#include "GameFiles/MarioKartGPDX1.10Real.h"
-#include "GameFiles/MarioKartGPDX1.18Custom.h"
-#include "GameFiles/MarioKartGPDX1.18Real.h"
-#include "GameFiles/MarioKartGPDXUSACustom.h"
-#include "GameFiles/MarioKartGPDXUSAReal.h"
-#include "GameFiles/MAMESupermodel.h"
-#include "GameFiles/OutRun2Fake.h"
-#include "GameFiles/OutRun2Real.h"
-#include "GameFiles/SegaRaceTV.h"
-#include "GameFiles/SegaRacingClassic.h"
-#include "GameFiles/SegaRally3.h"
-#include "GameFiles/SegaRally3Other.h"
-#include "GameFiles/Showdown.h"
-#include "GameFiles/SnoCross.h"
-#include "GameFiles/WackyRaces.h"
-#include "GameFiles/WastelandRacers2071.h"
-#include "GameFiles/WMMT3.h"
-#include "GameFiles/WMMT5.h"
-#include "GameFiles/WMMT5DX.h"
-#include "GameFiles/WMMT5DX+.h"
-#include "GameFiles/WMMT6.h"
-#include "GameFiles/WMMT6R.h"
-#include "GameFiles/WMMT6RR.h"
-#include "GameFiles/Machstorm.h"
-#include "GameFiles/AfterburnerClimax.h"
-#include "GameFiles/PokkenTournament.h"
-#include "GameFiles/SonicSegaAllStarsRacing.h"
-#include "GameFiles/SpringEffect.h"
-#include "GameFiles/M2Emulator.h"
-#include "GameFiles/GTIClub3.h"
-#include "GameFiles/Demul.h"
-#include "GameFiles/ButtonRumble.h"
-#include "GameFiles/RingRiders.h"
-#include "GameFiles/RoadFighters3D.h"
-#include "GameFiles/LGI3D.h"
-#include "GameFiles/LGI.h"
-#include "GameFiles/KODrive.h"
-#include "GameFiles/HOTD4.h"
-#include "GameFiles/Rambo.h"
-#include "GameFiles/R-Tuned.h"
-#include "GameFiles/SWDC2018.h"
-#include "GameFiles/TokyoCop.h"
-#include "GameFiles/Transformers.h"
-#include "GameFiles/H2Overdrive.h"
-#include "GameFiles/StormRacerG.h"
-#include "GameFiles/ArcticThunder.h"
+#include "Core/GameFactory.h"
+#include "Core/ForceFeedback.h"
+#include "Core/Log.h"
+#include "Core/Settings.h"
+#include "Common Files/MinHook.h"
 
 // DINPUT8 FUNCTION DEFINITIONS
 typedef HRESULT(WINAPI* pfnDirectInputDirectInput8Create)(HINSTANCE hinst, DWORD dwVersion, REFIID riidltf, LPVOID* ppvOut, LPUNKNOWN punkOuter);
@@ -233,10 +154,28 @@ extern DWORD WINAPI ThreadForOutputs(LPVOID lpParam);
 SDL_Haptic* haptic;
 SDL_Haptic* haptic2 = NULL;
 SDL_Haptic* haptic3 = NULL;
+// Effects uploaded to the haptic devices, -1 when not created (no device, or effect not supported)
+class EffectCollection {
+public:
+	int effect_constant_id = -1;
+	int effect_leftramp_id = -1;
+	int effect_rightramp_id = -1;
+	int effect_friction_id = -1;
+	int effect_leftright_id = -1;
+	int effect_sine_id = -1;
+	int effect_sine_id_device2 = -1;
+	int effect_sine_id_device3 = -1;
+	int effect_spring_id = -1;
+	int effect_vibration_id = -1;
+	int effect_inertia_id = -1;
+	int effect_ramp_id = -1;
+	int effect_damper_id = -1;
+	int effect_sawtoothup_id = -1;
+	int effect_sawtoothdown_id = -1;
+	int effect_triangle_id = -1;
+};
+
 EffectCollection effects;
-EffectConstants effectConst;
-Helpers hlp;
-EffectTriggers t;
 
 bool CustomStrength = false;
 bool WaitForGame = false;
@@ -268,60 +207,60 @@ LPCSTR CustomMaxForce;
 
 // settings
 static wchar_t* settingsFilename = TEXT(".\\FFBPlugin.ini");
-int configMinForce = GetSettingInt(TEXT("MinForce"), 0);
-int configMaxForce = GetSettingInt(TEXT("MaxForce"), 100);
-int enableLogging = GetSettingInt(TEXT("Logging"), 0);
-int PowerMode = GetSettingInt(TEXT("PowerMode"), 0);
-int EnableRumble = GetSettingInt(TEXT("EnableRumble"), 0);
-int EnableRumbleTriggers = GetSettingInt(TEXT("EnableRumbleTriggers"), 0);
-int ReverseRumble = GetSettingInt(TEXT("ReverseRumble"), 0);
-int SingleRumbleMotor = GetSettingInt(TEXT("SingleRumbleMotor"), 0);
-int EnableDamper = GetSettingInt(TEXT("EnableDamper"), 0);
-int DamperStrength = GetSettingInt(TEXT("DamperStrength"), 100);
+int configMinForce = ffb::Settings::Int(TEXT("MinForce"), 0);
+int configMaxForce = ffb::Settings::Int(TEXT("MaxForce"), 100);
+int enableLogging = ffb::Settings::Int(TEXT("Logging"), 0);
+int PowerMode = ffb::Settings::Int(TEXT("PowerMode"), 0);
+int EnableRumble = ffb::Settings::Int(TEXT("EnableRumble"), 0);
+int EnableRumbleTriggers = ffb::Settings::Int(TEXT("EnableRumbleTriggers"), 0);
+int ReverseRumble = ffb::Settings::Int(TEXT("ReverseRumble"), 0);
+int SingleRumbleMotor = ffb::Settings::Int(TEXT("SingleRumbleMotor"), 0);
+int EnableDamper = ffb::Settings::Int(TEXT("EnableDamper"), 0);
+int DamperStrength = ffb::Settings::Int(TEXT("DamperStrength"), 100);
 static wchar_t deviceGUIDString[256];
 int DeviceGUID = GetPrivateProfileString(TEXT("Settings"), TEXT("DeviceGUID"), NULL, deviceGUIDString, 256, settingsFilename);
-int configFeedbackLength = GetSettingInt(TEXT("FeedbackLength"), 120);
-int configGameId = GetSettingInt(TEXT("GameId"), 0);
-int configDefaultCentering = GetSettingInt(TEXT("DefaultCentering"), 0);
-int configDefaultFriction = GetSettingInt(TEXT("DefaultFriction"), 0);
-int BeepWhenHook = GetSettingInt(TEXT("BeepWhenHook"), 0);
-int AlternativeFFB = GetSettingInt(TEXT("AlternativeFFB"), 0);
-int configAlternativeMinForceLeft = GetSettingInt(TEXT("AlternativeMinForceLeft"), 0);
-int configAlternativeMaxForceLeft = GetSettingInt(TEXT("AlternativeMaxForceLeft"), 100);
-int configAlternativeMinForceRight = GetSettingInt(TEXT("AlternativeMinForceRight"), 0);
-int configAlternativeMaxForceRight = GetSettingInt(TEXT("AlternativeMaxForceRight"), 100);
-int ForceShowDeviceGUIDMessageBox = GetSettingInt(TEXT("ForceShowDeviceGUIDMessageBox"), 0);
-int configMinForceDevice2 = GetSettingInt(TEXT("MinForceDevice2"), 0);
-int configMaxForceDevice2 = GetSettingInt(TEXT("MaxForceDevice2"), 100);
-int EnableRumbleDevice2 = GetSettingInt(TEXT("EnableRumbleDevice2"), 0);
-int ReverseRumbleDevice2 = GetSettingInt(TEXT("ReverseRumbleDevice2"), 0);
-int AlternativeFFBDevice2 = GetSettingInt(TEXT("AlternativeFFBDevice2"), 0);
-int configAlternativeMinForceLeftDevice2 = GetSettingInt(TEXT("AlternativeMinForceLeftDevice2"), 0);
-int configAlternativeMaxForceLeftDevice2 = GetSettingInt(TEXT("AlternativeMaxForceLeftDevice2"), 100);
-int configAlternativeMinForceRightDevice2 = GetSettingInt(TEXT("AlternativeMinForceRightDevice2"), 0);
-int configAlternativeMaxForceRightDevice2 = GetSettingInt(TEXT("AlternativeMaxForceRightDevice2"), 100);
-int configMinForceDevice3 = GetSettingInt(TEXT("MinForceDevice3"), 0);
-int configMaxForceDevice3 = GetSettingInt(TEXT("MaxForceDevice3"), 100);
-int EnableRumbleDevice3 = GetSettingInt(TEXT("EnableRumbleDevice3"), 0);
-int ReverseRumbleDevice3 = GetSettingInt(TEXT("ReverseRumbleDevice3"), 0);
-int AlternativeFFBDevice3 = GetSettingInt(TEXT("AlternativeFFBDevice3"), 0);
-int configAlternativeMinForceLeftDevice3 = GetSettingInt(TEXT("AlternativeMinForceLeftDevice3"), 0);
-int configAlternativeMaxForceLeftDevice3 = GetSettingInt(TEXT("AlternativeMaxForceLeftDevice3"), 100);
-int configAlternativeMinForceRightDevice3 = GetSettingInt(TEXT("AlternativeMinForceRightDevice3"), 0);
-int configAlternativeMaxForceRightDevice3 = GetSettingInt(TEXT("AlternativeMaxForceRightDevice3"), 100);
-int SinePeriod = GetSettingInt(TEXT("SinePeriod"), 0);
-int SineFadePeriod = GetSettingInt(TEXT("SineFadePeriod"), 0);
-int SineStrength = GetSettingInt(TEXT("SineStrength"), 0);
-int RumbleStrengthLeftMotor = GetSettingInt(TEXT("RumbleStrengthLeftMotor"), 0);
-int RumbleStrengthRightMotor = GetSettingInt(TEXT("RumbleStrengthRightMotor"), 0);
-int EnableForceSpringEffect = GetSettingInt(TEXT("EnableForceSpringEffect"), 0);
-int ForceSpringStrength = GetSettingInt(TEXT("ForceSpringStrength"), 0);
-int AutoCloseWindowError = GetSettingInt(TEXT("AutoCloseWindowError"), 0);
-int EnableFFBStrengthDynamicAdjustment = GetSettingInt(TEXT("EnableFFBStrengthDynamicAdjustment"), 0);
-int IncreaseFFBStrength = GetSettingInt(TEXT("IncreaseFFBStrength"), NULL);
-int DecreaseFFBStrength = GetSettingInt(TEXT("DecreaseFFBStrength"), NULL);
-int ResetFFBStrength = GetSettingInt(TEXT("ResetFFBStrength"), NULL);
-int StepFFBStrength = GetSettingInt(TEXT("StepFFBStrength"), 5);
+int configFeedbackLength = ffb::Settings::Int(TEXT("FeedbackLength"), 120);
+int configGameId = ffb::Settings::Int(TEXT("GameId"), 0);
+int configDefaultCentering = ffb::Settings::Int(TEXT("DefaultCentering"), 0);
+int configDefaultFriction = ffb::Settings::Int(TEXT("DefaultFriction"), 0);
+int BeepWhenHook = ffb::Settings::Int(TEXT("BeepWhenHook"), 0);
+int AlternativeFFB = ffb::Settings::Int(TEXT("AlternativeFFB"), 0);
+int configAlternativeMinForceLeft = ffb::Settings::Int(TEXT("AlternativeMinForceLeft"), 0);
+int configAlternativeMaxForceLeft = ffb::Settings::Int(TEXT("AlternativeMaxForceLeft"), 100);
+int configAlternativeMinForceRight = ffb::Settings::Int(TEXT("AlternativeMinForceRight"), 0);
+int configAlternativeMaxForceRight = ffb::Settings::Int(TEXT("AlternativeMaxForceRight"), 100);
+int ForceShowDeviceGUIDMessageBox = ffb::Settings::Int(TEXT("ForceShowDeviceGUIDMessageBox"), 0);
+int configMinForceDevice2 = ffb::Settings::Int(TEXT("MinForceDevice2"), 0);
+int configMaxForceDevice2 = ffb::Settings::Int(TEXT("MaxForceDevice2"), 100);
+int EnableRumbleDevice2 = ffb::Settings::Int(TEXT("EnableRumbleDevice2"), 0);
+int ReverseRumbleDevice2 = ffb::Settings::Int(TEXT("ReverseRumbleDevice2"), 0);
+int AlternativeFFBDevice2 = ffb::Settings::Int(TEXT("AlternativeFFBDevice2"), 0);
+int configAlternativeMinForceLeftDevice2 = ffb::Settings::Int(TEXT("AlternativeMinForceLeftDevice2"), 0);
+int configAlternativeMaxForceLeftDevice2 = ffb::Settings::Int(TEXT("AlternativeMaxForceLeftDevice2"), 100);
+int configAlternativeMinForceRightDevice2 = ffb::Settings::Int(TEXT("AlternativeMinForceRightDevice2"), 0);
+int configAlternativeMaxForceRightDevice2 = ffb::Settings::Int(TEXT("AlternativeMaxForceRightDevice2"), 100);
+int configMinForceDevice3 = ffb::Settings::Int(TEXT("MinForceDevice3"), 0);
+int configMaxForceDevice3 = ffb::Settings::Int(TEXT("MaxForceDevice3"), 100);
+int EnableRumbleDevice3 = ffb::Settings::Int(TEXT("EnableRumbleDevice3"), 0);
+int ReverseRumbleDevice3 = ffb::Settings::Int(TEXT("ReverseRumbleDevice3"), 0);
+int AlternativeFFBDevice3 = ffb::Settings::Int(TEXT("AlternativeFFBDevice3"), 0);
+int configAlternativeMinForceLeftDevice3 = ffb::Settings::Int(TEXT("AlternativeMinForceLeftDevice3"), 0);
+int configAlternativeMaxForceLeftDevice3 = ffb::Settings::Int(TEXT("AlternativeMaxForceLeftDevice3"), 100);
+int configAlternativeMinForceRightDevice3 = ffb::Settings::Int(TEXT("AlternativeMinForceRightDevice3"), 0);
+int configAlternativeMaxForceRightDevice3 = ffb::Settings::Int(TEXT("AlternativeMaxForceRightDevice3"), 100);
+int SinePeriod = ffb::Settings::Int(TEXT("SinePeriod"), 0);
+int SineFadePeriod = ffb::Settings::Int(TEXT("SineFadePeriod"), 0);
+int SineStrength = ffb::Settings::Int(TEXT("SineStrength"), 0);
+int RumbleStrengthLeftMotor = ffb::Settings::Int(TEXT("RumbleStrengthLeftMotor"), 0);
+int RumbleStrengthRightMotor = ffb::Settings::Int(TEXT("RumbleStrengthRightMotor"), 0);
+int EnableForceSpringEffect = ffb::Settings::Int(TEXT("EnableForceSpringEffect"), 0);
+int ForceSpringStrength = ffb::Settings::Int(TEXT("ForceSpringStrength"), 0);
+int AutoCloseWindowError = ffb::Settings::Int(TEXT("AutoCloseWindowError"), 0);
+int EnableFFBStrengthDynamicAdjustment = ffb::Settings::Int(TEXT("EnableFFBStrengthDynamicAdjustment"), 0);
+int IncreaseFFBStrength = ffb::Settings::Int(TEXT("IncreaseFFBStrength"), NULL);
+int DecreaseFFBStrength = ffb::Settings::Int(TEXT("DecreaseFFBStrength"), NULL);
+int ResetFFBStrength = ffb::Settings::Int(TEXT("ResetFFBStrength"), NULL);
+int StepFFBStrength = ffb::Settings::Int(TEXT("StepFFBStrength"), 5);
 // Keyboard keys doing the same as the 3 buttons above, named as in the GUI (e.g. "F5", "Keypad +"), empty if not used
 static wchar_t increaseFFBStrengthKey[64];
 static wchar_t decreaseFFBStrengthKey[64];
@@ -329,16 +268,16 @@ static wchar_t resetFFBStrengthKey[64];
 static int increaseFFBStrengthKeyLength = GetPrivateProfileString(TEXT("Settings"), TEXT("IncreaseFFBStrengthKey"), TEXT(""), increaseFFBStrengthKey, 64, settingsFilename);
 static int decreaseFFBStrengthKeyLength = GetPrivateProfileString(TEXT("Settings"), TEXT("DecreaseFFBStrengthKey"), TEXT(""), decreaseFFBStrengthKey, 64, settingsFilename);
 static int resetFFBStrengthKeyLength = GetPrivateProfileString(TEXT("Settings"), TEXT("ResetFFBStrengthKey"), TEXT(""), resetFFBStrengthKey, 64, settingsFilename);
-int EnableFFBStrengthPersistence = GetSettingInt(TEXT("EnableFFBStrengthPersistence"), 0);
-int EnableFFBStrengthTextToSpeech = GetSettingInt(TEXT("EnableFFBStrengthTextToSpeech"), 0);
-int InputDeviceWheelEnable = GetSettingInt(TEXT("InputDeviceWheelEnable"), 0);
-int IgnoreFirstMatchingGUID = GetSettingInt(TEXT("IgnoreFirstMatchingGUID"), 0);
-int DoubleSine = GetSettingInt(TEXT("DoubleSine"), 0);
-int DoubleConstant = GetSettingInt(TEXT("DoubleConstant"), 0);
-int DoubleSpring = GetSettingInt(TEXT("DoubleSpring"), 0);
-int DoubleFriction = GetSettingInt(TEXT("DoubleFriction"), 0);
-int FFBOrRumble = GetSettingInt(TEXT("FFBOrRumble"), 0);
-int StartDelay = GetSettingInt(TEXT("StartDelay"), 0);
+int EnableFFBStrengthPersistence = ffb::Settings::Int(TEXT("EnableFFBStrengthPersistence"), 0);
+int EnableFFBStrengthTextToSpeech = ffb::Settings::Int(TEXT("EnableFFBStrengthTextToSpeech"), 0);
+int InputDeviceWheelEnable = ffb::Settings::Int(TEXT("InputDeviceWheelEnable"), 0);
+int IgnoreFirstMatchingGUID = ffb::Settings::Int(TEXT("IgnoreFirstMatchingGUID"), 0);
+int DoubleSine = ffb::Settings::Int(TEXT("DoubleSine"), 0);
+int DoubleConstant = ffb::Settings::Int(TEXT("DoubleConstant"), 0);
+int DoubleSpring = ffb::Settings::Int(TEXT("DoubleSpring"), 0);
+int DoubleFriction = ffb::Settings::Int(TEXT("DoubleFriction"), 0);
+int FFBOrRumble = ffb::Settings::Int(TEXT("FFBOrRumble"), 0);
+int StartDelay = ffb::Settings::Int(TEXT("StartDelay"), 0);
 
 char chainedDLL[256];
 
@@ -361,18 +300,18 @@ static int CreateBaseEffect(SDL_Haptic* device, Uint16 type, Uint32 length_ms)
 
 void Initialize()
 {
-	hlp.log("in initialize");
+	ffb::Log::Write("in initialize");
 	{
 		SDL_version sdl;
 		SDL_GetVersion(&sdl);
 		char text[128];
 		sprintf_s(text, "FFB Arcade Plugin %s, SDL %d.%d.%d", FFB_VERSION_STRING, sdl.major, sdl.minor, sdl.patch);
-		hlp.log(text);
+		ffb::Log::Write(text);
 	}
 	SDL_SetHint(SDL_HINT_JOYSTICK_RAWINPUT, "0");
 	if (SDL_Init(SDL_INIT_JOYSTICK | SDL_INIT_HAPTIC | SDL_INIT_GAMECONTROLLER) < 0)
 	{
-		hlp.log("SDL_Init failed");
+		ffb::Log::Write("SDL_Init failed");
 		return;
 	}
 	SDL_JoystickEventState(SDL_ENABLE);
@@ -380,8 +319,8 @@ void Initialize()
 	char joystick_guid[256];
 	sprintf(joystick_guid, "%S", deviceGUIDString);
 	SDL_JoystickGUID guid = SDL_JoystickGetGUIDFromString(joystick_guid);
-	hlp.log("numJoysticks = ");
-	hlp.logInt(SDL_NumJoysticks());
+	ffb::Log::Write("numJoysticks = ");
+	ffb::Log::Printf("%d", SDL_NumJoysticks());
 	char firstJoystickSelectedText[512];
 	// First joystick matching the GUID, used when none of them has haptics; the other ones are closed
 	SDL_Joystick* FirstGameController = NULL;
@@ -400,7 +339,7 @@ void Initialize()
 		}
 		char text[1024];
 		sprintf_s(text, "Joystick: %d / Name: %s / GUID: %s\n", i, name ? name : "", guid_str);
-		hlp.log(text);
+		ffb::Log::Write(text);
 		SDL_JoystickClose(js);
 		if (!SameJoystickGUID(guid, dev_guid))
 			continue;
@@ -419,7 +358,7 @@ void Initialize()
 			joystick_index1 = SDL_JoystickInstanceID(candidate);
 			ControllerHaptic = candidateHaptic;
 			sprintf_s(text, "Haptic joystick found: %d / Name: %s / GUID: %s\n", i, name ? name : "", guid_str);
-			hlp.log(text);
+			ffb::Log::Write(text);
 			break;
 		}
 
@@ -438,28 +377,28 @@ void Initialize()
 		joystick1Index = firstJoystickIndex;
 		GameController = FirstGameController;
 		joystick_index1 = SDL_JoystickInstanceID(FirstGameController);
-		hlp.log(firstJoystickSelectedText);
+		ffb::Log::Write(firstJoystickSelectedText);
 	}
 	else if (FirstGameController != NULL)
 		SDL_JoystickClose(FirstGameController);
 	haptic = ControllerHaptic;
 	if (haptic == NULL)
-		hlp.log("No haptic device available, FFB effects will be disabled");
+		ffb::Log::Write("No haptic device available, FFB effects will be disabled");
 	else
 	{
 		if ((SDL_HapticRumbleSupported(haptic) == SDL_TRUE && EnableRumble))
 		{
 			SDL_HapticRumbleInit(ControllerHaptic);
-			hlp.log("Rumble Init");
+			ffb::Log::Write("Rumble Init");
 		}
-		hlp.log("disabling all current FFB effects");
+		ffb::Log::Write("disabling all current FFB effects");
 		SDL_HapticStopAll(haptic);
-		hlp.log("setting haptic gain to 100");
+		ffb::Log::Write("setting haptic gain to 100");
 		SDL_HapticSetGain(haptic, 100); // HapticSetGain should be between 0 and 100 as per https://wiki.libsdl.org/SDL_HapticSetGain
-		hlp.log("setting haptic auto center to 0");
+		ffb::Log::Write("setting haptic auto center to 0");
 		SDL_HapticSetAutocenter(haptic, 0); // 0 disables autocenter https://wiki.libsdl.org/SDL_HapticSetAutocenter
 
-		hlp.log("creating base effects...");
+		ffb::Log::Write("creating base effects...");
 
 		if (SDL_HapticQuery(haptic) & SDL_HAPTIC_CONSTANT)
 		{
@@ -901,7 +840,7 @@ static void RunSineEffect(SDL_Haptic* device, int effectId, SineEffectState& las
 	if (elapsedTime < lastEffect.length_ms && strength < (lastEffect.strength * 1.5))
 		return;
 
-	hlp.log(logMessage);
+	ffb::Log::Write(logMessage);
 	ForceLimits limits = forceLimits(direction);
 
 	if (doubleStrength)
@@ -1041,6 +980,54 @@ void TriggerRumbleTriggerEffect(double lefttrigger, double righttrigger, UINT32 
 		EnableRumbleTriggers = 0;
 }
 
+// THE DEVICES OF THE GAMES
+
+// Cleared by StopPlugin: the effects asked by the game are then ignored
+static volatile bool effectsEnabled = true;
+
+// Device 1, with all the effects
+class HapticWheel : public ffb::Wheel
+{
+public:
+	void Constant(ffb::Direction direction, double strength) override { if (effectsEnabled) TriggerConstantEffect((int)direction, strength); }
+	void KeptConstant(ffb::Direction direction, double strength) override { if (effectsEnabled) TriggerConstantInfEffect((int)direction, strength); }
+	void Spring(double strength) override { if (effectsEnabled) TriggerSpringEffect(strength); }
+	void KeptSpring(double strength) override { if (effectsEnabled) TriggerSpringEffectInfinite(strength); }
+	void Friction(double strength) override { if (effectsEnabled) TriggerFrictionEffect(strength); }
+	void Inertia(double strength) override { if (effectsEnabled) TriggerInertiaEffect(strength); }
+	void Damper(double strength) override { if (effectsEnabled) TriggerDamperEffect(strength); }
+	void Triangle(double strength, UINT32 length_ms) override { if (effectsEnabled) TriggerTriangleEffect(strength, length_ms); }
+	void SawtoothUp(double strength, UINT32 length_ms) override { if (effectsEnabled) TriggerSawtoothUpEffect(strength, length_ms); }
+	void SawtoothDown(double strength, UINT32 length_ms) override { if (effectsEnabled) TriggerSawtoothDownEffect(strength, length_ms); }
+	void Ramp(double start, double end, UINT32 length_ms) override { if (effectsEnabled) TriggerRampEffect(start, end, length_ms); }
+	void RumbleTriggers(double left, double right, UINT32 length_ms) override { if (effectsEnabled) TriggerRumbleTriggerEffect(left, right, length_ms); }
+	void Sine(UINT16 period_ms, UINT16 fadePeriod_ms, double strength, UINT32 length_ms) override { if (effectsEnabled) TriggerSineEffect(period_ms, fadePeriod_ms, strength, length_ms); }
+	void Rumble(double highFrequency, double lowFrequency, UINT32 length_ms) override { if (effectsEnabled) TriggerRumbleEffect(highFrequency, lowFrequency, length_ms); }
+	void LeftRight(double smallStrength, double largeStrength, UINT32 length_ms) override { if (effectsEnabled) TriggerLeftRightEffect(smallStrength, largeStrength, length_ms); }
+};
+
+// Device 2 (Device2GUID)
+class HapticDevice2 : public ffb::Device
+{
+public:
+	void Sine(UINT16 period_ms, UINT16 fadePeriod_ms, double strength, UINT32 length_ms) override { if (effectsEnabled) TriggerSineEffectDevice2(period_ms, fadePeriod_ms, strength, length_ms); }
+	void Rumble(double highFrequency, double lowFrequency, UINT32 length_ms) override { if (effectsEnabled) TriggerRumbleEffectDevice2(highFrequency, lowFrequency, length_ms); }
+	void LeftRight(double smallStrength, double largeStrength, UINT32 length_ms) override { if (effectsEnabled) TriggerLeftRightDevice2Effect(smallStrength, largeStrength, length_ms); }
+};
+
+// Device 3 (Device3GUID): no LeftRight effect
+class HapticDevice3 : public ffb::Device
+{
+public:
+	void Sine(UINT16 period_ms, UINT16 fadePeriod_ms, double strength, UINT32 length_ms) override { if (effectsEnabled) TriggerSineEffectDevice3(period_ms, fadePeriod_ms, strength, length_ms); }
+	void Rumble(double highFrequency, double lowFrequency, UINT32 length_ms) override { if (effectsEnabled) TriggerRumbleEffectDevice3(highFrequency, lowFrequency, length_ms); }
+	void LeftRight(double, double, UINT32) override {}
+};
+
+static HapticWheel hapticWheel;
+static HapticDevice2 hapticDevice2;
+static HapticDevice3 hapticDevice3;
+
 int WorkaroundToFixRumble(void* ptr)
 {
 	while (SDL_WaitEvent(&e) != 0){}
@@ -1049,15 +1036,7 @@ int WorkaroundToFixRumble(void* ptr)
 
 // FFB STRENGTH ADJUSTMENT WITH JOYSTICK BUTTONS
 
-static std::string FullPath(const char* fileName)
-{
-	char path[MAX_PATH];
-	DWORD length = GetFullPathNameA(fileName, MAX_PATH, path, nullptr);
-	return (length == 0 || length >= MAX_PATH) ? fileName : path;
-}
 
-// FFBPlugin.ini resolved when the plugin is loaded, like the settings read above: the game may change its current directory later.
-static const std::string settingsFullPath = FullPath(".\\FFBPlugin.ini");
 
 void WritePersistentMaxForce()
 {
@@ -1069,12 +1048,12 @@ void WritePersistentMaxForce()
 	{
 		if (CustomAlternativeMaxForceLeft && CustomAlternativeMaxForceRight)
 		{
-			WritePrivateProfileStringA("Settings", CustomAlternativeMaxForceLeft, std::to_string(configAlternativeMaxForceLeft).c_str(), settingsFullPath.c_str());
-			WritePrivateProfileStringA("Settings", CustomAlternativeMaxForceRight, std::to_string(configAlternativeMaxForceRight).c_str(), settingsFullPath.c_str());
+			WritePrivateProfileStringA("Settings", CustomAlternativeMaxForceLeft, std::to_string(configAlternativeMaxForceLeft).c_str(), ffb::Settings::PathA().c_str());
+			WritePrivateProfileStringA("Settings", CustomAlternativeMaxForceRight, std::to_string(configAlternativeMaxForceRight).c_str(), ffb::Settings::PathA().c_str());
 		}
 	}
 	else if (CustomMaxForce)
-		WritePrivateProfileStringA("Settings", CustomMaxForce, std::to_string(configMaxForce).c_str(), settingsFullPath.c_str());
+		WritePrivateProfileStringA("Settings", CustomMaxForce, std::to_string(configMaxForce).c_str(), ffb::Settings::PathA().c_str());
 }
 
 // Moves maxForce by delta, unless it is out of [lowest, highest] or already at the bound it moves to.
@@ -1331,199 +1310,18 @@ static void EnableSpecialKRumble()
 		WritePrivateProfileStringA("Input.Gamepad", "DisableRumble", "false", ".\\dxgi.ini");
 }
 
-static Game* CreateGame(int gameId)
-{
-	switch (gameId) {
-	case AFTER_BURNER_CLIMAX:
-		return new AfterburnerClimax;
-	case CHASE_HQ_2:
-		return new ChaseHQ2;
-	case CARS:
-		return new Cars;
-	case DAYTONA_3:
-		return new Daytona3;
-	case DAYTONA_3_NSE:
-		return new Daytona3NSE;
-	case MAME_:
-	case SUPERMODEL_:
-	case FLYCAST:
-		return new MAMESupermodel;
-	case FORD_RACING:
-		return new FordRacing;
-	case FORD_RACING_OTHER:
-		return new FordRacingOther;
-	case GRID_Real:
-		return new GRIDReal;
-	case Golden_Gun:
-		return new GoldenGun;
-	case Transformers_:
-		return new Transformers;
-	case INITIAL_D_0:
-		return new InitialD0;
-	case INITIAL_D_0_211:
-		return new InitialD0v211;
-	case INITIAL_D_0_230:
-		return new InitialD0v230;
-	case INITIAL_D_4:
-		return new InitialD4;
-	case INITIAL_D_4_Japan:
-		return new InitialD4Japan;
-	case INITIAL_D_5:
-		return new InitialD5;
-	case INITIAL_D_6:
-		return new InitialD6;
-	case INITIAL_D_7:
-		return new InitialD7;
-	case INITIAL_D_8:
-		return new InitialD8;
-	case SEGA_RACING_CLASSIC:
-		return new SegaRacingClassic;
-	case SEGA_RALLY_3:
-		return new SegaRally3;
-	case SEGA_RALLY_3_Other:
-		return new SegaRally3Other;
-	case WACKY_RACES:
-		return new WackyRaces;
-	case WMMT_5:
-		return new WMMT5;
-	case WMMT_5DX:
-		return new WMMT5DX;
-	case WMMT_5DXPlus:
-		return new WMMT5DXPlus;
-	case MARIO_KART_GPDX_CUSTOM:
-		return new MarioKartGPDX100Custom;
-	case OUTRUN_2Fake:
-		return new OutRun2Fake;
-	case OUTRUN_2Real:
-		return new OutRun2Real;
-	case BG4_JP:
-		return new BG4JP;
-	case MACH_STORM:
-		return new Machstorm;
-	case POKKEN_TOURNAMENT:
-		return new PokkenTournament;
-	case RAMBO_:
-		return new Rambo;
-	case MARIO_KART_GPDX_110_CUSTOM:
-		return new MarioKartGPDX110Custom;
-	case MARIO_KART_GPDX_118_CUSTOM:
-		return new MarioKartGPDX118Custom;
-	case MARIO_KART_GPDX_USA_CUSTOM:
-		return new MarioKartGPDXUSACustom;
-	case Sonic_Sega_AllStars_Racing:
-		return new SonicSegaAllStarsRacing;
-	case M2_Emulator:
-		return new M2Emulator;
-	case Demul_Emulator:
-		return new Demul;
-	case ALIENS_EXTERMINATION:
-		return new AliensExtermination;
-	case GTI_Club_3:
-		return new GTIClub3;
-	case Button_Rumble:
-		return new ButtonRumble;
-	case Road_Fighters_3D:
-		return new RoadFighters3D;
-	case LGI_3D:
-		return new LGI3D;
-	case LGI_:
-		return new LGI;
-	case KO_Drive:
-		return new KODrive;
-	case HOTD_4:
-		return new HOTD4;
-	case Dirty_Drivin:
-		return new DirtyDrivin;
-	case H2_Overdrive:
-		return new H2Overdrive;
-	case Sno_Cross:
-		return new SnoCross;
-	case Bat_man:
-		return new Batman;
-	case R_Tuned:
-		return new RTuned;
-	case SWDC_2018:
-		return new SWDC;
-	case WMMT_6:
-		return new WMMT6;
-	case WMMT_6_R:
-		return new WMMT6R;
-	case WMMT_6_RR:
-		return new WMMT6RR;
-	case SRG:
-		return new StormRacerG;
-	case D1_GP:
-		return new D1GP;
-	case Crazy_Taxi:
-		return new CrazyTaxi;
-	case WMMT_3:
-		return new WMMT3;
-	case DEAD_HEAT:
-		return new DeadHeat;
-	case DEAD_HEAT_RIDERS:
-		return new DeadHeatRiders;
-	case GAELCO_TUNING_RACE:
-		return new GaelcoTuningRace;
-	case TOKYO_COP:
-		return new TokyoCop;
-	case RING_RIDERS:
-		return new RingRiders;
-	case MARIO_KART_GPDX_118_REAL:
-		return new MarioKartGPDX118Real;
-	case MARIO_KART_GPDX_110_REAL:
-		return new MarioKartGPDX110Real;
-	case MARIO_KART_GPDX_USA_REAL:
-		return new MarioKartGPDXUSAReal;
-	case GRID_Custom:
-		return new GRIDCustom;
-	case SEGA_SHOWDOWN:
-		return new Showdown;
-	case SPRING_EFFECT:
-		return new SpringEffect;
-	case ARCTIC_THUNDER:
-		return new ArcticThunder;
-	case CRUISN_BLAST:
-		return new CruisnBlast;
-	case FNF:
-		return new FnF;
-	case FNF_DRIFT:
-		return new FnFDrift;
-	case FNF_SUPERCARS:
-		return new FnFSuperCars;
-	case SEGA_RACE_TV:
-		return new SegaRaceTV;
-	case HUMMER:
-		return new Hummer;
-	case HUMMER_EXTREME:
-		return new HummerExtreme;
-	case INITIAL_D_THEARCADE_V231:
-		return new InitialDTA231;
-	case WASTELAND_RACERS_2071:
-		return new WasteLandRacers2071;
-	case TEST_GAME_CONST:
-	case TEST_GAME_FRICTION:
-	case TEST_GAME_SINE:
-	case TEST_GAME_SPRING:
-	case TEST_GAME_HEAVY:
-	case TEST_GAME_LOOSE:
-	case TEST_GAME_RUMBLE:
-		return new TestGame;
-	default:
-		return nullptr;
-	}
-}
 
 static void InstallExitProcessHook();
 
 DWORD WINAPI FFBLoop(LPVOID lpParam)
 {
-	hlp.log("In FFBLoop");
+	ffb::Log::Write("In FFBLoop");
 
 	if (StartDelay) //For games which need code to run quicker etc. Some games will crash if no sleep added
 		Sleep(2500);
 
 	Initialize();
-	hlp.log("Initialize() complete");
+	ffb::Log::Write("Initialize() complete");
 	InstallExitProcessHook();
 	if (EnableRumble)
 	{
@@ -1533,31 +1331,12 @@ DWORD WINAPI FFBLoop(LPVOID lpParam)
 		EnableSpecialKRumble();
 	}
 
-	// assign FFB effects here
-	t.Constant = &TriggerConstantEffect;
-	t.ConstantInf = &TriggerConstantInfEffect;
-	t.Spring = &TriggerSpringEffect;
-	t.Friction = &TriggerFrictionEffect;
-	t.Sine = &TriggerSineEffect;
-	t.SineDevice2 = &TriggerSineEffectDevice2;
-	t.SineDevice3 = &TriggerSineEffectDevice3;
-	t.Rumble = &TriggerRumbleEffect;
-	t.RumbleDevice2 = &TriggerRumbleEffectDevice2;
-	t.RumbleDevice3 = &TriggerRumbleEffectDevice3;
-	t.RumbleTriggers = &TriggerRumbleTriggerEffect;
-	t.LeftRight = &TriggerLeftRightEffect;
-	t.LeftRightDevice2 = &TriggerLeftRightDevice2Effect;
-	t.Springi = &TriggerSpringEffectInfinite;
-	t.Damper = &TriggerDamperEffect;
-	t.Inertia = &TriggerInertiaEffect;
-	t.Ramp = &TriggerRampEffect;
-	t.SawtoothUp = &TriggerSawtoothUpEffect;
-	t.SawtoothDown = &TriggerSawtoothDownEffect;
-	t.Triangle = &TriggerTriangleEffect;
+	// the effects of the game are played on the devices opened by Initialize
+	ffb::UseDevices(hapticWheel, hapticDevice2, hapticDevice3);
 
-	Game* game = CreateGame(configGameId);
+	ffb::Game* game = CreateGame(configGameId);
 
-	hlp.log("Setting DefaultCentering & DefaultFriction forces...");
+	ffb::Log::Write("Setting DefaultCentering & DefaultFriction forces...");
 	if (configDefaultCentering >= 0 && configDefaultCentering <= 100) {
 		TriggerSpringEffectWithDefaultOption(configDefaultCentering / 100.0, true);
 	}
@@ -1577,24 +1356,24 @@ DWORD WINAPI FFBLoop(LPVOID lpParam)
 			CreateThread(NULL, 0, AdjustFFBStrengthLoopKeyboard, NULL, 0, NULL);
 	}
 
-	hlp.log("Entering Game's FFBLoop loop");
+	ffb::Log::Write("Entering Game's FFBLoop loop");
 	while (keepRunning)
 	{
 		if (game != nullptr)
-			game->FFBLoop(&effectConst, &hlp, &t);
+			game->Update();
 		RenewKeptEffects();
 		Sleep(16);
 	}
-	hlp.log("about to exit FFBLoop");
+	ffb::Log::Write("about to exit FFBLoop");
 	return 0;
 }
 
 void CreateFFBLoopThread()
 {
-	hlp.log("Before CreateThread");
+	ffb::Log::Write("Before CreateThread");
 	// the handle is kept for StopPlugin to wait for the thread
 	ffbLoopThread = CreateThread(NULL, 0, FFBLoop, NULL, 0, &ffbLoopThreadId);
-	hlp.log("After CreateThread");
+	ffb::Log::Write("After CreateThread");
 }
 
 // System libraries this DLL can be renamed to: the original one is loaded from the system directory
@@ -1624,7 +1403,7 @@ static void LoadOriginalLibrary(HMODULE hModule)
 	if (0 != strlen(chainedDLL))
 	{
 		// e.g. ChainLoad = dinput8-old.dll (if we need to intercept another dinput8.dll file).
-		hlp.log(chainedDLL);
+		ffb::Log::Write(chainedDLL);
 		gl_hOriginalDll = LoadLibraryA(chainedDLL);
 		return;
 	}
@@ -1646,7 +1425,7 @@ static void LoadOriginalLibrary(HMODULE hModule)
 		}
 	}
 
-	hlp.log(buffer);
+	ffb::Log::Write(buffer);
 
 	gl_hOriginalDll = LoadLibraryA(buffer);
 
@@ -1729,21 +1508,11 @@ static void CloseController(SDL_Joystick* controller, int stopRumble, int stopRu
 	}
 }
 
-// Effects that do nothing, put in place of the effects by StopPlugin: the threads of the game
-// code (the MAME outputs, for instance) may still trigger effects while the devices are closed.
-static void NoConstant(int, double) {}
-static void NoStrength(double) {}
-static void NoSine(UINT16, UINT16, double, UINT32) {}
-static void NoPair(double, double, UINT32) {}
-static void NoStrengthLength(double, UINT32) {}
-
+// Stops the effects of the game: the threads of the game code (the MAME outputs, for instance)
+// may still trigger effects while the devices are closed.
 static void DisableEffects()
 {
-	t.Constant = t.ConstantInf = &NoConstant;
-	t.Spring = t.Friction = t.Springi = t.Inertia = t.Damper = &NoStrength;
-	t.Sine = t.SineDevice2 = t.SineDevice3 = &NoSine;
-	t.Rumble = t.RumbleDevice2 = t.RumbleDevice3 = t.RumbleTriggers = t.LeftRight = t.LeftRightDevice2 = t.Ramp = &NoPair;
-	t.SawtoothUp = t.SawtoothDown = t.Triangle = &NoStrengthLength;
+	effectsEnabled = false;
 }
 
 // Stops the forces and closes the devices when the game exits, from ExitProcessHook: its threads
@@ -1753,7 +1522,7 @@ static void StopPlugin()
 	if (InterlockedExchange(&pluginStopped, 1) != 0)
 		return;
 
-	hlp.log("Stopping the plugin");
+	ffb::Log::Write("Stopping the plugin");
 	keepRunning = false;
 	bool loopStopped = ffbLoopThread == NULL || GetCurrentThreadId() == ffbLoopThreadId
 		|| WaitForSingleObject(ffbLoopThread, 500) == WAIT_OBJECT_0;
@@ -1773,7 +1542,7 @@ static void StopPlugin()
 	if (loopStopped && GetCurrentThreadId() != ffbLoopThreadId)
 	{
 		Sleep(50); // an effect another thread was playing when the effects were disabled
-		hlp.log("Closing SDL haptic devices and game controllers");
+		ffb::Log::Write("Closing SDL haptic devices and game controllers");
 		CloseHaptic(haptic);
 		CloseHaptic(haptic2);
 		CloseHaptic(haptic3);
@@ -1784,11 +1553,11 @@ static void StopPlugin()
 		GameController = GameController2 = GameController3 = NULL;
 	}
 	else
-		hlp.log("The FFB loop did not stop: forces stopped, devices left open");
+		ffb::Log::Write("The FFB loop did not stop: forces stopped, devices left open");
 
 	if (configGameId == FLYCAST)
 		WritePrivateProfileStringA("Settings", "ProcessID", NULL, ".\\FFBPlugin.ini");
-	hlp.log("Plugin stopped");
+	ffb::Log::Write("Plugin stopped");
 }
 
 typedef VOID(WINAPI* ExitProcessFunction)(UINT exitCode);
@@ -1815,33 +1584,32 @@ static void InstallExitProcessHook()
 	LPVOID target = NULL;
 	if (MH_CreateHookApiEx(L"kernel32.dll", "ExitProcess", &ExitProcessHook, (LPVOID*)&originalExitProcess, &target) == MH_OK
 		&& MH_EnableHook(target) == MH_OK)
-		hlp.log("ExitProcess hooked");
+		ffb::Log::Write("ExitProcess hooked");
 	else
-		hlp.log("ExitProcess not hooked");
+		ffb::Log::Write("ExitProcess not hooked");
 }
 
 BOOL APIENTRY DllMain(HMODULE hModule, DWORD ulReasonForCall, LPVOID lpReserved)
 {
 	BOOL result = TRUE;
-	hlp.enableLogging = enableLogging;
 	char buff[MAX_PATH];
-	hlp.log("DLLMAIN ENTERED");
+	ffb::Log::Write("DLLMAIN ENTERED");
 	GetModuleFileNameA(NULL, buff, MAX_PATH);
 	std::string processName = std::string(buff);
-	hlp.log("process name:");
-	hlp.log(processName.c_str());
-	hlp.log("default centering & friction values:");
-	hlp.logInt(configDefaultCentering);
-	hlp.logInt(configDefaultFriction);
+	ffb::Log::Write("process name:");
+	ffb::Log::Write(processName.c_str());
+	ffb::Log::Write("default centering & friction values:");
+	ffb::Log::Printf("%d", configDefaultCentering);
+	ffb::Log::Printf("%d", configDefaultFriction);
 
 	switch (ulReasonForCall)
 	{
 	case DLL_PROCESS_ATTACH:
 		// log, etc.
-		hlp.log("dll process attach:");
-		hlp.log(processName.c_str());
-		hlp.logInt(configMinForce);
-		hlp.logInt(configMaxForce);
+		ffb::Log::Write("dll process attach:");
+		ffb::Log::Write(processName.c_str());
+		ffb::Log::Printf("%d", configMinForce);
+		ffb::Log::Printf("%d", configMaxForce);
 		DisableThreadLibraryCalls(hModule);
 		{
 			// Never unloaded before the process exits: FreeLibrary would leave the plugin's threads,
@@ -1849,24 +1617,24 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ulReasonForCall, LPVOID lpReserved)
 			HMODULE pinned;
 			GetModuleHandleExW(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | GET_MODULE_HANDLE_EX_FLAG_PIN, (LPCWSTR)&DllMain, &pinned);
 		}
-		hlp.log("loading original library...");
+		ffb::Log::Write("loading original library...");
 
 		LoadOriginalLibrary(hModule);
 
 		if (!gl_hOriginalDll)
 		{
-			hlp.log("library load process failed");
+			ffb::Log::Write("library load process failed");
 			ExitProcess(0);
 		}
 		else {
-			hlp.log("library loaded");
+			ffb::Log::Write("library loaded");
 		}
 
 		LoadOriginalFunctions();
 
 		if (configGameId == FLYCAST)
 		{
-			DWORD ProcessID = GetSettingInt(TEXT("ProcessID"), 0);
+			DWORD ProcessID = ffb::Settings::Int(TEXT("ProcessID"), 0);
 
 			if (IsProcessRunning(ProcessID))
 				break;
@@ -1879,7 +1647,7 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ulReasonForCall, LPVOID lpReserved)
 
 		if (processName.find("FFBPluginGUI.exe") != std::string::npos)
 		{
-			hlp.log("hooked FFBPluginGUI.exe, aborting");
+			ffb::Log::Write("hooked FFBPluginGUI.exe, aborting");
 			break;
 		}
 
@@ -1893,23 +1661,23 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ulReasonForCall, LPVOID lpReserved)
 				CloseHandle(outputs);
 		}
 
-		hlp.log("creating ffb loop thread...");
+		ffb::Log::Write("creating ffb loop thread...");
 		CreateFFBLoopThread();
 		if (BeepWhenHook)
 			MessageBeep(MB_ICONASTERISK);
 		break;
 
 	case DLL_THREAD_ATTACH:
-		hlp.log("dll thread attach");
+		ffb::Log::Write("dll thread attach");
 		break;
 
 	case DLL_THREAD_DETACH:
-		hlp.log("dll thread detach");
+		ffb::Log::Write("dll thread detach");
 		break;
 
 	case DLL_PROCESS_DETACH:
-		hlp.log("detaching from process:");
-		hlp.log(processName.c_str());
+		ffb::Log::Write("detaching from process:");
+		ffb::Log::Write(processName.c_str());
 
 		// The module is pinned, so this is the process exiting. StopPlugin has normally been called
 		// by ExitProcessHook. Otherwise, the other threads have already been killed, maybe in the
@@ -1919,7 +1687,7 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ulReasonForCall, LPVOID lpReserved)
 		keepRunning = false;
 		if (ffbLoopThread != NULL && pluginStopped == 0)
 		{
-			hlp.log("Plugin not stopped before the exit: stopping the forces");
+			ffb::Log::Write("Plugin not stopped before the exit: stopping the forces");
 			SDL_Haptic* haptics[] = { haptic, haptic2, haptic3 };
 			for (SDL_Haptic* device : haptics)
 			{
@@ -1927,7 +1695,7 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ulReasonForCall, LPVOID lpReserved)
 					SDL_HapticStopAll(device);
 			}
 		}
-		hlp.log("All done, leaving");
+		ffb::Log::Write("All done, leaving");
 
 		break;
 	}

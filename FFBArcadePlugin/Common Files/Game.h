@@ -1,8 +1,12 @@
 #pragma once
+// Interface of the games not moved yet to the classes of Core/: they implement FFBLoop, which gets
+// the effects as a structure of function pointers and the memory access as Helpers. Both forward
+// to the classes of Core/ (ffb::Wheel, ffb::Memory, ffb::Log).
 #include <Windows.h>
 #include "MinHook.h"
+#include "SDL.h"
+#include "../Core/Game.h"
 
-// struct
 struct EffectTriggers {
 	void(*Constant)(int direction, double strength);
 	// Constant force that keeps playing until the next call, which updates it in place (a strength of 0 stops it)
@@ -27,73 +31,13 @@ struct EffectTriggers {
 	void(*Triangle)(double strength, UINT32 length_ms);
 };
 
-// classes
-// Effects uploaded to the haptic devices, -1 when not created (no device, or effect not supported)
-class EffectCollection {
-public:
-	int effect_constant_id = -1;
-	int effect_leftramp_id = -1;
-	int effect_rightramp_id = -1;
-	int effect_friction_id = -1;
-	int effect_leftright_id = -1;
-	int effect_sine_id = -1;
-	int effect_sine_id_device2 = -1;
-	int effect_sine_id_device3 = -1;
-	int effect_spring_id = -1;
-	int effect_vibration_id = -1;
-	int effect_inertia_id = -1;
-	int effect_ramp_id = -1;
-	int effect_damper_id = -1;
-	int effect_sawtoothup_id = -1;
-	int effect_sawtoothdown_id = -1;
-	int effect_triangle_id = -1;
-};
-
 class EffectConstants {
 public:
-	// constants
 	// Haptic forces are defined by the direction that generates the force
 	// e.g. DIRECTION_FROM_LEFT causes wheel to go right.
 	const int DIRECTION_FROM_LEFT = -1;
 	const int DIRECTION_FROM_RIGHT = 1;
 };
-
-#define VK_A 0x41
-#define VK_B 0x42
-#define VK_C 0x43
-#define VK_D 0x44
-#define VK_E 0x45
-#define VK_F 0x46
-#define VK_G 0x47
-#define VK_H 0x48
-#define VK_I 0x49
-#define VK_J 0x4A
-#define VK_K 0x4B
-#define VK_L 0x4C
-#define VK_M 0x4D
-#define VK_N 0x4E
-#define VK_O 0x4F
-#define VK_P 0x50
-#define VK_Q 0x51
-#define VK_R 0x52
-#define VK_S 0x53
-#define VK_T 0x54
-#define VK_U 0x55
-#define VK_V 0x56
-#define VK_W 0x57
-#define VK_X 0x58
-#define VK_Y 0x59
-#define VK_Z 0x5A
-
-#define SDL_HAT_CENTERED    0x00
-#define SDL_HAT_UP          0x01
-#define SDL_HAT_RIGHT       0x02
-#define SDL_HAT_DOWN        0x04
-#define SDL_HAT_LEFT        0x08
-#define SDL_HAT_RIGHTUP     (SDL_HAT_RIGHT|SDL_HAT_UP)
-#define SDL_HAT_RIGHTDOWN   (SDL_HAT_RIGHT|SDL_HAT_DOWN)
-#define SDL_HAT_LEFTUP      (SDL_HAT_LEFT|SDL_HAT_UP)
-#define SDL_HAT_LEFTDOWN    (SDL_HAT_LEFT|SDL_HAT_DOWN)
 
 // Reads an integer from the [Settings] section of FFBPlugin.ini
 int GetSettingInt(LPCWSTR name, int defaultValue);
@@ -106,7 +50,7 @@ void ApplyDamper(EffectTriggers* triggers);
 
 class Helpers {
 public:
-	int enableLogging = 0;
+	int enableLogging = 0; // unused: ffb::Log reads the Logging setting
 	// logging
 	void log(const char *msg);
 	void logInt(int value);
@@ -117,17 +61,13 @@ public:
 	template <typename T>
 	T Read(INT_PTR offset, bool isRelativeOffset)
 	{
-		T val{};
-		SIZE_T read;
-		ReadProcessMemory(GetCurrentProcess(), ResolveOffset(offset, isRelativeOffset), &val, sizeof(T), &read);
-		return val;
+		return ffb::Memory::Read<T>(ResolveOffset(offset, isRelativeOffset));
 	}
 
 	template <typename T>
 	T Write(INT_PTR offset, T val, bool isRelativeOffset)
 	{
-		SIZE_T written;
-		WriteProcessMemory(GetCurrentProcess(), ResolveOffset(offset, isRelativeOffset), &val, sizeof(T), &written);
+		ffb::Memory::Write<T>(ResolveOffset(offset, isRelativeOffset), val);
 		return val;
 	}
 
@@ -144,13 +84,23 @@ public:
 	UINT8 WriteNop(INT_PTR offset, int countBytes, bool isRelativeOffset);
 
 private:
-	LPVOID ResolveOffset(INT_PTR offset, bool isRelativeOffset)
+	INT_PTR ResolveOffset(INT_PTR offset, bool isRelativeOffset)
 	{
-		return isRelativeOffset ? GetTranslatedOffset(offset) : (LPVOID)offset;
+		return isRelativeOffset ? (INT_PTR)GetTranslatedOffset(offset) : offset;
 	}
 };
 
-class Game {
+// A game with the FFBLoop interface
+class Game : public ffb::Game {
 public:
+	void Update() override;
 	virtual void FFBLoop(EffectConstants *constants, Helpers *helpers, EffectTriggers *triggers);
+
+protected:
+	// the functions above, hidden by the members of ffb::Game of the same name
+	static void ApplyDamper(EffectTriggers* triggers) { ::ApplyDamper(triggers); }
+	static void RumbleWithMode(void(*rumble)(double lowfrequency, double highfrequency, UINT32 length_ms), int mode, double strength, UINT32 length_ms)
+	{
+		::RumbleWithMode(rumble, mode, strength, length_ms);
+	}
 };

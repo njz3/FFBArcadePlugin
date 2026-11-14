@@ -19,6 +19,14 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Core\GameFactory.h" />
+    <ClInclude Include="Core\TeknoParrot.h" />
+    <ClInclude Include="Core\Hooks.h" />
+    <ClInclude Include="Core\Game.h" />
+    <ClInclude Include="Core\ForceFeedback.h" />
+    <ClInclude Include="Core\Memory.h" />
+    <ClInclude Include="Core\Log.h" />
+    <ClInclude Include="Core\Settings.h" />
     <ClInclude Include="GameFiles\Gaelco.h" />
     <ClInclude Include="Common Files\InitialDFFB.h" />
     <ClInclude Include="GameFiles\WMMT.h" />
@@ -100,6 +108,13 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Core\GameFactory.cpp" />
+    <ClCompile Include="Core\TeknoParrot.cpp" />
+    <ClCompile Include="Core\Game.cpp" />
+    <ClCompile Include="Core\MemoryAccess.cpp" />
+    <ClCompile Include="Core\Memory.cpp" />
+    <ClCompile Include="Core\Log.cpp" />
+    <ClCompile Include="Core\Settings.cpp" />
     <ClCompile Include="GameFiles\Gaelco.cpp" />
     <ClCompile Include="Common Files\InitialDFFB.cpp" />
     <ClCompile Include="GameFiles\WMMT.cpp" />
@@ -330,6 +345,7 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
+      <ObjectFileName>$(IntDir)%(RelativeDir)</ObjectFileName>
       <PrecompiledHeader>
       </PrecompiledHeader>
       <Optimization>Disabled</Optimization>
@@ -364,6 +380,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
+      <ObjectFileName>$(IntDir)%(RelativeDir)</ObjectFileName>
       <PrecompiledHeader>
       </PrecompiledHeader>
       <Optimization>Disabled</Optimization>
@@ -398,6 +415,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
+      <ObjectFileName>$(IntDir)%(RelativeDir)</ObjectFileName>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
@@ -449,6 +467,7 @@ cd $(OutDir) &amp;amp;&amp;amp; for /D /r %d in (.\Deploy\*) do @xcopy *.dll %d\
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
+      <ObjectFileName>$(IntDir)%(RelativeDir)</ObjectFileName>
       <PrecompiledHeader>
       </PrecompiledHeader>
       <Optimization>MaxSpeed</Optimization>

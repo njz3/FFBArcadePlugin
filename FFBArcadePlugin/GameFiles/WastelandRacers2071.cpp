@@ -21,12 +21,12 @@ static EffectConstants* myConstants;
 static Helpers* myHelpers;
 
 static bool init;
-static double ffb = 1;
+static double springStrength = 1;
 
 static int(__cdecl* SetForceOrig)(int param_1, int param_2, int param_3, int param_4);
 static int __cdecl SetForce(int param_1, int param_2, int param_3, int param_4) {
 
-	ffb = (double)param_1 / 32768.0;
+	springStrength = (double)param_1 / 32768.0;
 
 	return 0;
 }
@@ -66,7 +66,7 @@ void WasteLandRacers2071::FFBLoop(EffectConstants* constants, Helpers* helpers, 
 
 	ApplyDamper(triggers);
 
-	triggers->Spring(ffb);
+	triggers->Spring(springStrength);
 
 	myTriggers = triggers;
 	myConstants = constants;
