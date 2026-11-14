@@ -2,7 +2,7 @@
 #include <cstring>
 #include <vector>
 #include "PersistentValues.h"
-#include "../Common Files/GameIds.h"
+#include "../Core/GameIds.h"
 
 extern int configGameId;
 extern int configMinForce;

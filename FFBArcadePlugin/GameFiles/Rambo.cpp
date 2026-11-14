@@ -12,7 +12,7 @@ along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
 */
 
 #include "Rambo.h"
-#include "../Common Files/Devices.h"
+#include "../Core/Devices.h"
 
 using namespace ffb;
 

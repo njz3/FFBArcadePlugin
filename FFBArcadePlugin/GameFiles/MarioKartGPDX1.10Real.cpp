@@ -11,34 +11,28 @@ You should have received a copy of the GNU General Public License
 along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
 */
 
-#include <string>
 #include "MarioKartGPDX1.10Real.h"
 
-static int SpringEnable = GetSettingInt(TEXT("SpringEnable"), 0);
-static int SpringStrength = GetSettingInt(TEXT("SpringStrength"), 0);
+using namespace ffb;
 
-void MarioKartGPDX110Real::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTriggers* triggers) {
+MarioKartGPDXReal::MarioKartGPDXReal(const Addresses& addresses)
+	: addresses(addresses)
+{
+}
 
-	ApplyDamper(triggers);
+void MarioKartGPDXReal::Update()
+{
+	ApplyDamper();
 
-	if (SpringEnable)
-		triggers->Springi(SpringStrength / 100.0);
+	if (springEnable)
+		wheel.KeptSpring(springStrength / 100.0);
 
-	DWORD Base = helpers->ReadInt32(0xA2FE20, true);
-	DWORD BaseOff0 = helpers->ReadInt32(Base + 0x08, false);
-	float FFB = helpers->ReadFloat32(BaseOff0 + 0xA44, false);
+	DWORD pointer = Memory::Read<int>(Memory::Address(Base::Module, addresses.forcePointer));
+	DWORD structure = Memory::Read<int>(pointer + ForceStructure);
+	float force = Memory::Read<float>(structure + addresses.forceOffset);
 
-	UINT32 length_ms = 100;
-	if (FFB > 0)
-	{
-		double percentForce = FFB;
-		triggers->Rumble(percentForce, 0, length_ms);
-		triggers->Constant(constants->DIRECTION_FROM_LEFT, percentForce);
-	}
-	else if (FFB < 0)
-	{
-		double percentForce = -FFB;
-		triggers->Rumble(0, percentForce, length_ms);
-		triggers->Constant(constants->DIRECTION_FROM_RIGHT, percentForce);
-	}
+	if (force > 0)
+		wheel.ConstantWithRumble(Direction::FromLeft, force);
+	else if (force < 0)
+		wheel.ConstantWithRumble(Direction::FromRight, -force);
 }

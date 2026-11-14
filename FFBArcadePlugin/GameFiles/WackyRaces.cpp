@@ -11,11 +11,13 @@ You should have received a copy of the GNU General Public License
 along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
 */
 
-#include <string>
 #include "WackyRaces.h"
 
-int ttx2wr(int ffRaw) {
-	switch (ffRaw) {
+using namespace ffb;
+
+int WackyRaces::ForceLevel(int word)
+{
+	switch (word) {
 		// moving left, from weakest to strongest (30 => 16).
 	case 4096:
 		return 30;
@@ -83,45 +85,29 @@ int ttx2wr(int ffRaw) {
 	}
 }
 
-void WackyRaces::FFBLoop(EffectConstants *constants, Helpers *helpers, EffectTriggers* triggers) {
-
-	int ff = 0;
-
+void WackyRaces::Update()
+{
+	long output = Memory::Read(Output);
+	int word = Memory::Read<int>(output + ForceAndLamps);
+	for (int lamp : Lamps)
 	{
-		long ffAddress = helpers->ReadInt32(0x7E00590, /* isRelativeOffset*/ true);
-		int ffRaw = helpers->ReadInt32(ffAddress + 0x45, /* isRelativeOffset */ false);
-		int lampArray[7] = { 16, 1024, 512, 128, 8, 256, 16384 };
-		for (int i = 0; i < 7; i++) {
-			if ((ffRaw & lampArray[i]) == lampArray[i]) {
-				ffRaw -= lampArray[i];
-			}
-		};
-		ff = ttx2wr(ffRaw);
+		if ((word & lamp) == lamp)
+			word -= lamp;
 	}
+	int ff = ForceLevel(word);
 
-	//helpers->log("got value: ");
-	//std::string ffs = std::to_string(ff);
-	//helpers->log((char *)ffs.c_str());
+	ApplyDamper();
 
-	ApplyDamper(triggers);
-
-	UINT32 length_ms = 100;
 	if (ff > 15)
 	{
-		helpers->log("moving wheel left");
+		Log::Write("moving wheel left");
 		// assume that 30 is the weakest and 16 is the strongest
-		double percentForce = (31 - ff) / 15.0;
-		// direction from left => makes wheel turn right
-		triggers->Rumble(0, percentForce, length_ms);
-		triggers->Constant(constants->DIRECTION_FROM_RIGHT, percentForce); // old logic: 31 - ff
+		wheel.ConstantWithRumble(Direction::FromRight, (31 - ff) / 15.0);
 	}
 	else if (ff > 0)
 	{
-		helpers->log("moving wheel right");
+		Log::Write("moving wheel right");
 		// assume that 1 is the strongest and 15 is the weakest
-		double percentForce = (16 - ff) / 15.0;
-		// direction from right => makes wheel turn left
-		triggers->Rumble(percentForce, 0, length_ms);
-		triggers->Constant(constants->DIRECTION_FROM_LEFT, percentForce); // old logic: 15 - ff
+		wheel.ConstantWithRumble(Direction::FromLeft, (16 - ff) / 15.0);
 	}
 }

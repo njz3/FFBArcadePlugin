@@ -73,17 +73,15 @@
     <ClCompile Include="GameFiles\Gaelco.cpp">
       <Filter>GameFiles</Filter>
     </ClCompile>
-    <ClCompile Include="Common Files\InitialDFFB.cpp" />
     <ClCompile Include="GameFiles\WMMT.cpp">
       <Filter>GameFiles</Filter>
     </ClCompile>
-    <ClCompile Include="Common Files\Devices.cpp" />
+    <ClCompile Include="Core\Devices.cpp" />
     <ClCompile Include="Config\PersistentValues.cpp" />
     <ClCompile Include="DllMain.cpp" />
     <ClCompile Include="GameFiles\Daytona3.cpp">
       <Filter>GameFiles</Filter>
     </ClCompile>
-    <ClCompile Include="Common Files\Game.cpp" />
     <ClCompile Include="GameFiles\WackyRaces.cpp">
       <Filter>GameFiles</Filter>
     </ClCompile>
@@ -109,7 +107,6 @@
     <ClCompile Include="GameFiles\ChaseHQ2.cpp">
       <Filter>GameFiles</Filter>
     </ClCompile>
-    <ClCompile Include="Common Files\TeknoParrotGame.cpp" />
     <ClCompile Include="GameFiles\MarioKartGPDXCustom.cpp">
       <Filter>GameFiles</Filter>
     </ClCompile>
@@ -191,9 +188,7 @@
     <ClCompile Include="GameFiles\DeadHeatRiders.cpp" />
     <ClCompile Include="GameFiles\GaelcoTuningRace.cpp" />
     <ClCompile Include="GameFiles\GRIDReal.cpp" />
-    <ClCompile Include="GameFiles\MarioKartGPDX1.18Real.cpp" />
     <ClCompile Include="GameFiles\MarioKartGPDX1.10Real.cpp" />
-    <ClCompile Include="GameFiles\MarioKartGPDXUSAReal.cpp" />
     <ClCompile Include="GameFiles\GRIDCustom.cpp" />
     <ClCompile Include="GameFiles\MarioKartGPDX1.18Custom.cpp" />
     <ClCompile Include="GameFiles\Showdown.cpp" />
@@ -294,26 +289,20 @@
     <ClInclude Include="GameFiles\Gaelco.h">
       <Filter>Common Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Common Files\InitialDFFB.h">
-      <Filter>Common Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="GameFiles\WMMT.h">
       <Filter>Common Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Common Files\Devices.h">
+    <ClInclude Include="Core\Devices.h">
       <Filter>Common Header Files</Filter>
     </ClInclude>
     <ClInclude Include="WrapperExports.h">
       <Filter>Common Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Common Files\GameIds.h">
+    <ClInclude Include="Core\GameIds.h">
       <Filter>Common Header Files</Filter>
     </ClInclude>
     <ClInclude Include="GameFiles\Daytona3.h">
       <Filter>GameFiles</Filter>
-    </ClInclude>
-    <ClInclude Include="Common Files\Game.h">
-      <Filter>Common Header Files</Filter>
     </ClInclude>
     <ClInclude Include="GameFiles\WackyRaces.h">
       <Filter>GameFiles</Filter>
@@ -341,9 +330,6 @@
     </ClInclude>
     <ClInclude Include="GameFiles\ChaseHQ2.h">
       <Filter>GameFiles</Filter>
-    </ClInclude>
-    <ClInclude Include="Common Files\TeknoParrotGame.h">
-      <Filter>Common Header Files</Filter>
     </ClInclude>
     <ClInclude Include="GameFiles\MarioKartGPDXCustom.h">
       <Filter>GameFiles</Filter>
@@ -445,9 +431,6 @@
     <ClInclude Include="GameFiles\R-Tuned.h">
       <Filter>Common Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Common Files\SignatureScanning.h">
-      <Filter>Common Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="GameFiles\MAMENetworkOutputs.h">
       <Filter>Common Header Files</Filter>
     </ClInclude>
@@ -457,7 +440,7 @@
     <ClInclude Include="GameFiles\SegaRally3Other.h">
       <Filter>Common Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Common Files\CRCCheck.h">
+    <ClInclude Include="Core\CRCCheck.h">
       <Filter>Common Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Config\PersistentValues.h">
@@ -526,7 +509,7 @@
     <ClInclude Include="GameFiles\InitialD0v230.h">
       <Filter>Common Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Common Files\MinHook.h">
+    <ClInclude Include="Core\MinHook.h">
       <Filter>Common Header Files</Filter>
     </ClInclude>
     <ClInclude Include="GameFiles\GRIDReal.h">

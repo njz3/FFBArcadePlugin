@@ -12,9 +12,11 @@ along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
 */
 
 #pragma once
-#include "../Common Files/Game.h"
-class MarioKartGPDX118Real : public Game {
+#include "MarioKartGPDX1.10Real.h"
 
+// Mario Kart Arcade GP DX 1.18 with the FFB of the game: see MarioKartGPDXReal
+class MarioKartGPDX118Real : public MarioKartGPDXReal
+{
 public:
-	void FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTriggers* triggers);
+	MarioKartGPDX118Real() : MarioKartGPDXReal({ 0xAAEEA0, 0xBC8 }) {}
 };

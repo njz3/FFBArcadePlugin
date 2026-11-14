@@ -13,7 +13,7 @@ along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
 
 #include <initializer_list>
 #include "TeknoParrot.h"
-#include "../Common Files/GameIds.h"
+#include "GameIds.h"
 
 extern int configGameId;
 

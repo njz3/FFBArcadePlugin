@@ -11,230 +11,202 @@ You should have received a copy of the GNU General Public License
 along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
 */
 
-#include <string>
 #include "MarioKartGPDXUSACustom.h"
 
-void MarioKartGPDXUSACustom::FFBLoop(EffectConstants *constants, Helpers *helpers, EffectTriggers* triggers) {
+using namespace ffb;
 
-	int ConstantEffectForSteering = GetSettingInt(TEXT("ConstantEffectForSteering"), 0);
-	int ConstantEffectForSteeringStrength = GetSettingInt(TEXT("ConstantEffectForSteeringStrength"), 0);
-	int WeaponRumble = GetSettingInt(TEXT("WeaponRumble"), 0);
-	int WeaponRumbleStrength = GetSettingInt(TEXT("WeaponRumbleStrength"), 0);
-	int CoinRumble = GetSettingInt(TEXT("CoinRumble"), 0);
-	int CoinRumbleStrength = GetSettingInt(TEXT("CoinRumbleStrength"), 0);
-	int DriftRumble = GetSettingInt(TEXT("DriftRumble"), 0);
-	int DriftRumbleControllerStrengthMultiplier = GetSettingInt(TEXT("DriftRumbleControllerStrengthMultiplier"), 0);
-	int HitGroundRumble = GetSettingInt(TEXT("HitGroundRumble"), 0);
-	int HitGroundRumbleStrength = GetSettingInt(TEXT("HitGroundRumbleStrength"), 0);
-	int BoostRumble = GetSettingInt(TEXT("BoostRumble"), 0);
-	int BoostRumbleStrength = GetSettingInt(TEXT("BoostRumbleStrength"), 0);
-	int MainShakeRumble = GetSettingInt(TEXT("MainShakeRumble"), 0);
-	int MainShakeRumbleStrength = GetSettingInt(TEXT("MainShakeRumbleStrength"), 0);
-	int DirtRumble = GetSettingInt(TEXT("DirtRumble"), 0);
-	int DirtRumbleStrength = GetSettingInt(TEXT("DirtRumbleStrength"), 0);
-	int GrassRumble = GetSettingInt(TEXT("GrassRumble"), 0);
-	int GrassRumbleStrength = GetSettingInt(TEXT("GrassRumbleStrength"), 0);
-	int SandRumble = GetSettingInt(TEXT("SandRumble"), 0);
-	int SandRumbleStrength = GetSettingInt(TEXT("SandRumbleStrength"), 0);
-	int WaterRumble = GetSettingInt(TEXT("WaterRumble"), 0);
-	int WaterRumbleWheelStrength = GetSettingInt(TEXT("WaterRumbleWheelStrength"), 0);
-	int WaterRumbleControllerStrengthMultiplier = GetSettingInt(TEXT("WaterRumbleControllerStrengthMultiplier"), 0);
-	int TileRumble = GetSettingInt(TEXT("TileRumble"), 0);
-	int TileRumbleStrength = GetSettingInt(TEXT("TileRumbleStrength"), 0);
-	int CarpetRumble = GetSettingInt(TEXT("CarpetRumble"), 0);
-	int CarpetRumbleStrength = GetSettingInt(TEXT("CarpetRumbleStrength"), 0);
-	int SpeedBumpRumble = GetSettingInt(TEXT("SmallBumpRumble"), 0);
-	int SpeedBumpRumbleStrength = GetSettingInt(TEXT("SmallBumpRumbleStrength"), 0);
-	int RoughTrackRumble = GetSettingInt(TEXT("RoughTrackRumble"), 0);
-	int RoughTrackRumbleStrength = GetSettingInt(TEXT("RoughTrackRumbleStrength"), 0);
-	int BridgeRumble = GetSettingInt(TEXT("BridgeRumble"), 0);
-	int BridgeRumbleStrength = GetSettingInt(TEXT("BridgeRumbleStrength"), 0);
+void MarioKartGPDXUSACustom::Update()
+{
+	int constantEffectForSteering = Settings::Int(L"ConstantEffectForSteering", 0);
+	int constantEffectForSteeringStrength = Settings::Int(L"ConstantEffectForSteeringStrength", 0);
+	int weaponRumble = Settings::Int(L"WeaponRumble", 0);
+	int weaponRumbleStrength = Settings::Int(L"WeaponRumbleStrength", 0);
+	int coinRumble = Settings::Int(L"CoinRumble", 0);
+	int coinRumbleStrength = Settings::Int(L"CoinRumbleStrength", 0);
+	int driftRumble = Settings::Int(L"DriftRumble", 0);
+	int driftRumbleControllerStrengthMultiplier = Settings::Int(L"DriftRumbleControllerStrengthMultiplier", 0);
+	int hitGroundRumble = Settings::Int(L"HitGroundRumble", 0);
+	int hitGroundRumbleStrength = Settings::Int(L"HitGroundRumbleStrength", 0);
+	int boostRumble = Settings::Int(L"BoostRumble", 0);
+	int boostRumbleStrength = Settings::Int(L"BoostRumbleStrength", 0);
+	int mainShakeRumble = Settings::Int(L"MainShakeRumble", 0);
+	int mainShakeRumbleStrength = Settings::Int(L"MainShakeRumbleStrength", 0);
+	int dirtRumble = Settings::Int(L"DirtRumble", 0);
+	int dirtRumbleStrength = Settings::Int(L"DirtRumbleStrength", 0);
+	int grassRumble = Settings::Int(L"GrassRumble", 0);
+	int grassRumbleStrength = Settings::Int(L"GrassRumbleStrength", 0);
+	int sandRumble = Settings::Int(L"SandRumble", 0);
+	int sandRumbleStrength = Settings::Int(L"SandRumbleStrength", 0);
+	int waterRumble = Settings::Int(L"WaterRumble", 0);
+	int waterRumbleWheelStrength = Settings::Int(L"WaterRumbleWheelStrength", 0);
+	int waterRumbleControllerStrengthMultiplier = Settings::Int(L"WaterRumbleControllerStrengthMultiplier", 0);
+	int tileRumble = Settings::Int(L"TileRumble", 0);
+	int tileRumbleStrength = Settings::Int(L"TileRumbleStrength", 0);
+	int carpetRumble = Settings::Int(L"CarpetRumble", 0);
+	int carpetRumbleStrength = Settings::Int(L"CarpetRumbleStrength", 0);
+	int speedBumpRumble = Settings::Int(L"SmallBumpRumble", 0);
+	int speedBumpRumbleStrength = Settings::Int(L"SmallBumpRumbleStrength", 0);
+	int roughTrackRumble = Settings::Int(L"RoughTrackRumble", 0);
+	int roughTrackRumbleStrength = Settings::Int(L"RoughTrackRumbleStrength", 0);
+	int bridgeRumble = Settings::Int(L"BridgeRumble", 0);
+	int bridgeRumbleStrength = Settings::Int(L"BridgeRumbleStrength", 0);
 
-	INT_PTR ff1 = helpers->ReadIntPtr(0xB96B74, /* isRelativeOffset */ true); //shake
-	INT_PTR ff2 = helpers->ReadIntPtr(0xB4F324,/* isRelativeOffset */ true);
-	UINT8 ff3 = helpers->ReadInt32(ff2 + 0x628, /* isRelativeOffset */ false); // terrain data
-	UINT8 ff5 = helpers->ReadInt32(ff2 + 0x658, /* isRelativeOffset */ false); //kart flying or on ground
-	INT_PTR ff6 = helpers->ReadIntPtr(0xB486BC,/* isRelativeOffset */ true);
-	INT_PTR ff7 = helpers->ReadIntPtr(ff6 + 0x2E0, /* isRelativeOffset */ false);
-	INT_PTR ff8 = helpers->ReadIntPtr(ff7 + 0xAC, /* isRelativeOffset */ false);
-	INT_PTR ff9 = helpers->ReadIntPtr(ff8 + 0xC, /* isRelativeOffset */ false);
-	INT_PTR ff10 = helpers->ReadIntPtr(ff9 + 0xC, /* isRelativeOffset */ false);
-	UINT8 ff11 = helpers->ReadByte(ff10 + 0x330, /* isRelativeOffset */ false); // 1 during race only
-	float Speed = helpers->ReadFloat32(ff2 + 0x558, /* isRelativeOffset */ false); //Speed of Kart
-	UINT8 ff13 = helpers->ReadByte(0xB4E330, /* isRelativeOffset */ true); //picking up coins
-	UINT8 ff14 = helpers->ReadByte(0xB9548D, /* isRelativeOffset */ true); //picking up weapon box
-	INT_PTR Wheelbase = helpers->ReadIntPtr(0xB4F2E0, /* isRelativeOffset */ true);
-	UINT8 Wheel = helpers->ReadByte(Wheelbase + 0x125, /* isRelativeOffset */ false); //0-255 steering
-	INT_PTR ff16 = helpers->ReadIntPtr(0xB441C8, /* isRelativeOffset*/ true);
-	UINT8 ff17 = helpers->ReadByte(ff2 + 0x674, /* isRelativeOffset */ false); // Drift
-	UINT8 ff18 = helpers->ReadByte(ff16 + 0x3A4, /* isRelativeOffset */ false); // Boost
+	INT_PTR shake = Memory::Read(Shake);
+	INT_PTR kart = Memory::Read(Kart);
+	UINT8 terrain = Memory::Read<int>(kart + Terrain);
+	UINT8 onGround = Memory::Read<int>(kart + OnGround);
+	UINT8 race = Memory::Read(Race);
+	float speed = Memory::Read<float>(kart + Speed);
+	UINT8 coins = Memory::Read(Coins);
+	UINT8 weapon = Memory::Read(Weapon);
+	INT_PTR steeringPointer = Memory::Read(SteeringPointer);
+	UINT8 steering = Memory::Read<UINT8>(steeringPointer + Steering);
+	INT_PTR boostPointer = Memory::Read(BoostPointer);
+	UINT8 drift = Memory::Read<UINT8>(kart + Drift);
+	UINT8 boost = Memory::Read<UINT8>(boostPointer + Boost);
 
-	int static oldcoins = 0;
-	int newcoins = ff13;
-	int static oldweapon = 0;
-	int newweapon = ff14;
-	int static oldhitground = 0;
-	int newhitground = ff5;
+	ApplyDamper();
 
-	ApplyDamper(triggers);
-
-	if ((ConstantEffectForSteering == 1) && (ff11 == 1))
+	if ((constantEffectForSteering == 1) && (race == 1))
 	{
-		UINT32 length_ms = 100;
-		if ((Wheel >= 0) && (Wheel < 128))
+		if ((steering >= 0) && (steering < 128))
 		{
-			double percentForce = ((128 - Wheel) / (ConstantEffectForSteeringStrength / 1.0));
-			triggers->LeftRight(percentForce, 0, length_ms);
-			triggers->Constant(constants->DIRECTION_FROM_LEFT, percentForce);
+			double percentForce = ((128 - steering) / (constantEffectForSteeringStrength / 1.0));
+			wheel.LeftRight(percentForce, 0, 100);
+			wheel.Constant(Direction::FromLeft, percentForce);
 		}
-		else if ((Wheel > 127) && (Wheel < 256))
+		else if ((steering > 127) && (steering < 256))
 		{
-			double percentForce = ((Wheel - 127) / (ConstantEffectForSteeringStrength / 1.0));
-			triggers->LeftRight(0, percentForce, length_ms);
-			triggers->Constant(constants->DIRECTION_FROM_RIGHT, percentForce);
+			double percentForce = ((steering - 127) / (constantEffectForSteeringStrength / 1.0));
+			wheel.LeftRight(0, percentForce, 100);
+			wheel.Constant(Direction::FromRight, percentForce);
 		}
 	}
-	if ((MainShakeRumble == 1) && (4194308 == ff1) && (ff11 == 1))
+	if ((mainShakeRumble == 1) && (4194308 == shake) && (race == 1))
 	{
 		// Large Shake when hitting walls, other karts or getting hit by items
-		double percentForce = ((MainShakeRumbleStrength) / 100.0);
-		UINT32 length_ms = 500;
-		triggers->LeftRight(percentForce, percentForce, length_ms);
-		triggers->Sine(200, 200, percentForce, 500);
+		double percentForce = ((mainShakeRumbleStrength) / 100.0);
+		wheel.LeftRight(percentForce, percentForce, 500);
+		wheel.Sine(200, 200, percentForce, 500);
 	}
-	else if ((BoostRumble == 1) && (ff18 == 1) && (ff11 == 1))
+	else if ((boostRumble == 1) && (boost == 1) && (race == 1))
 	{
 		// Shake when Boost
-		double percentForce = ((BoostRumbleStrength) / 100.0);
-		UINT32 length_ms = 100;
-		triggers->LeftRight(percentForce, percentForce, length_ms);
-		triggers->Sine(60, 60, percentForce, 100);
+		double percentForce = ((boostRumbleStrength) / 100.0);
+		wheel.LeftRight(percentForce, percentForce, 100);
+		wheel.Sine(60, 60, percentForce, 100);
 	}
-	else if ((DriftRumble == 1) && (ff17 == 1) && (Wheel >= 0) && (Wheel < 128) && (ff11 == 1))
+	else if ((driftRumble == 1) && (drift == 1) && (steering >= 0) && (steering < 128) && (race == 1))
 	{
 		// Drift Effect including steering left
-		double percentForce = (((128 - Wheel) / 128.0) * (DriftRumbleControllerStrengthMultiplier / 100.0));
-		UINT32 length_ms = 100;
-		triggers->LeftRight(percentForce, 0, length_ms);
-		triggers->Friction(percentForce);
+		double percentForce = (((128 - steering) / 128.0) * (driftRumbleControllerStrengthMultiplier / 100.0));
+		wheel.LeftRight(percentForce, 0, 100);
+		wheel.Friction(percentForce);
 	}
-	else if ((DriftRumble == 1) && (ff17 == 1) && (Wheel > 127) && (Wheel < 256) && (ff11 == 1))
+	else if ((driftRumble == 1) && (drift == 1) && (steering > 127) && (steering < 256) && (race == 1))
 	{
 		// Drift Effect including steering right
-		double percentForce = (((Wheel - 127) / 128.0) * (DriftRumbleControllerStrengthMultiplier / 100.0));
-		UINT32 length_ms = 100;
-		triggers->LeftRight(0, percentForce, length_ms);
-		triggers->Friction(percentForce);
+		double percentForce = (((steering - 127) / 128.0) * (driftRumbleControllerStrengthMultiplier / 100.0));
+		wheel.LeftRight(0, percentForce, 100);
+		wheel.Friction(percentForce);
 	}
-	else if ((HitGroundRumble == 1) && (oldhitground != newhitground) && (ff5 == 1) && (ff11 == 1))
+	else if ((hitGroundRumble == 1) && (oldHitGround != onGround) && (onGround == 1) && (race == 1))
 	{
 		// Shake when hitting ground
-		double percentForce = ((HitGroundRumbleStrength) / 100.0);
-		UINT32 length_ms = 100;
-		triggers->LeftRight(percentForce, percentForce, length_ms);
-		triggers->Constant(constants->DIRECTION_FROM_LEFT, percentForce);
+		double percentForce = ((hitGroundRumbleStrength) / 100.0);
+		wheel.LeftRight(percentForce, percentForce, 100);
+		wheel.Constant(Direction::FromLeft, percentForce);
 		Sleep(50);
-		triggers->Constant(constants->DIRECTION_FROM_RIGHT, percentForce);
+		wheel.Constant(Direction::FromRight, percentForce);
 	}
-	else if ((WeaponRumble == 1) && (oldweapon != newweapon) && (ff11 == 1))
+	else if ((weaponRumble == 1) && (oldWeapon != weapon) && (race == 1))
 	{
 		// Shake when picking up new weapons or using them
-		double percentForce = ((WeaponRumbleStrength) / 100.0);
-		UINT32 length_ms = 300;
-		triggers->LeftRight(percentForce, percentForce, length_ms);
-		triggers->Sine(80, 50, percentForce, 100);
+		double percentForce = ((weaponRumbleStrength) / 100.0);
+		wheel.LeftRight(percentForce, percentForce, 300);
+		wheel.Sine(80, 50, percentForce, 100);
 	}
-	else if ((CoinRumble == 1) && (oldcoins != newcoins) && (ff11 == 1))
+	else if ((coinRumble == 1) && (oldCoins != coins) && (race == 1))
 	{
 		// Shake when picking up coins
-		double percentForce = ((CoinRumbleStrength) / 100.0);
-		UINT32 length_ms = 200;
-		triggers->LeftRight(percentForce, percentForce, length_ms);
-		triggers->Sine(50, 50, percentForce, 100);
+		double percentForce = ((coinRumbleStrength) / 100.0);
+		wheel.LeftRight(percentForce, percentForce, 200);
+		wheel.Sine(50, 50, percentForce, 100);
 	}
-	else if ((DirtRumble == 1) && (3 == ff3) && (ff11 == 1) && (ff5 == 1) && (Speed > 0.1))
+	else if ((dirtRumble == 1) && (3 == terrain) && (race == 1) && (onGround == 1) && (speed > 0.1))
 	{
 		// small friction when driving on dirt while moving
-		double percentForce = ((DirtRumbleStrength) / 100.0);
-		UINT32 length_ms = 100;
-		triggers->LeftRight(percentForce, 0, length_ms);
-		triggers->Friction(percentForce);
+		double percentForce = ((dirtRumbleStrength) / 100.0);
+		wheel.LeftRight(percentForce, 0, 100);
+		wheel.Friction(percentForce);
 	}
-	else if ((SpeedBumpRumble == 1) && (10 == ff3) && (ff11 == 1) && (ff5 == 1) && (Speed > 0.1))
+	else if ((speedBumpRumble == 1) && (10 == terrain) && (race == 1) && (onGround == 1) && (speed > 0.1))
 	{
-		//	Small constant when hitting bumps
-		double percentForce = ((SpeedBumpRumbleStrength) / 100.0);
-		UINT32 length_ms = 50;
-		triggers->LeftRight(percentForce, percentForce, length_ms);
-		triggers->Constant(constants->DIRECTION_FROM_RIGHT, percentForce);
-		triggers->Constant(constants->DIRECTION_FROM_RIGHT, 0);
+		// Small constant when hitting bumps
+		double percentForce = ((speedBumpRumbleStrength) / 100.0);
+		wheel.LeftRight(percentForce, percentForce, 50);
+		wheel.Constant(Direction::FromRight, percentForce);
+		wheel.Constant(Direction::FromRight, 0);
 	}
-	else if ((GrassRumble == 1) && (4 == ff3) && (ff11 == 1) && (ff5 == 1) && (Speed > 0.1))
+	else if ((grassRumble == 1) && (4 == terrain) && (race == 1) && (onGround == 1) && (speed > 0.1))
 	{
 		// Wheel rumbles while driving on grass
-		double percentForce = ((GrassRumbleStrength) / 100.0);
-		UINT32 length_ms = 50;
-		triggers->LeftRight(0, percentForce, length_ms);
-		triggers->Sine(50, 50, percentForce, 100);
+		double percentForce = ((grassRumbleStrength) / 100.0);
+		wheel.LeftRight(0, percentForce, 50);
+		wheel.Sine(50, 50, percentForce, 100);
 	}
-	else if ((CarpetRumble == 1) && (9 == ff3) && (ff11 == 1) && (ff5 == 1) && (Speed > 0.1))
+	else if ((carpetRumble == 1) && (9 == terrain) && (race == 1) && (onGround == 1) && (speed > 0.1))
 	{
 		// Wheel rumbles while driving on carpet
-		double percentForce = ((CarpetRumbleStrength) / 100.0);
-		UINT32 length_ms = 50;
-		triggers->LeftRight(0, percentForce, length_ms);
-		triggers->Sine(50, 50, percentForce, 100);
+		double percentForce = ((carpetRumbleStrength) / 100.0);
+		wheel.LeftRight(0, percentForce, 50);
+		wheel.Sine(50, 50, percentForce, 100);
 	}
-	else if ((WaterRumble == 1) && (7 == ff3) && (ff11 == 1) && (ff5 == 1) && (Speed > 0.1) && (Wheel >= 0) && (Wheel < 128))
+	else if ((waterRumble == 1) && (7 == terrain) && (race == 1) && (onGround == 1) && (speed > 0.1) && (steering >= 0) && (steering < 128))
 	{
-		//wheel hard to turn while driving through water
-		double percentForce = ((WaterRumbleWheelStrength) / 100.0);
-		double percentForce1 = ((128 - Wheel / 128.0) * (WaterRumbleControllerStrengthMultiplier / 100.0));
-		UINT32 length_ms = 100;
-		triggers->LeftRight(percentForce1, 0, length_ms);
-		triggers->Friction(percentForce);
+		// wheel hard to turn while driving through water
+		double percentForce = ((waterRumbleWheelStrength) / 100.0);
+		// 128 - steering / 128.0, not (128 - steering) / 128.0 as for the drift
+		double percentForce1 = ((128 - steering / 128.0) * (waterRumbleControllerStrengthMultiplier / 100.0));
+		wheel.LeftRight(percentForce1, 0, 100);
+		wheel.Friction(percentForce);
 	}
-	else if ((WaterRumble == 1) && (7 == ff3) && (ff11 == 1) && (ff5 == 1) && (Speed > 0.1) && (Wheel > 127))
+	else if ((waterRumble == 1) && (7 == terrain) && (race == 1) && (onGround == 1) && (speed > 0.1) && (steering > 127))
 	{
-		double percentForce = ((WaterRumbleWheelStrength) / 100.0);
-		double percentForce1 = ((Wheel - 127 / 128.0) * (WaterRumbleControllerStrengthMultiplier / 100.0));
-		UINT32 length_ms = 100;
-		triggers->LeftRight(0, percentForce1, length_ms);
-		triggers->Friction(percentForce);
+		double percentForce = ((waterRumbleWheelStrength) / 100.0);
+		double percentForce1 = ((steering - 127 / 128.0) * (waterRumbleControllerStrengthMultiplier / 100.0));
+		wheel.LeftRight(0, percentForce1, 100);
+		wheel.Friction(percentForce);
 	}
-	else if ((TileRumble == 1) && (12 == ff3) && (ff11 == 1) && (ff5 == 1) && (Speed > 0.1))
+	else if ((tileRumble == 1) && (12 == terrain) && (race == 1) && (onGround == 1) && (speed > 0.1))
 	{
-		//Wheel rumbles lightly when driving over tiles
-		double percentForce = ((TileRumbleStrength) / 100.0);
-		UINT32 length_ms = 150;
-		triggers->LeftRight(0, percentForce, length_ms);
-		triggers->Friction(percentForce);
+		// Wheel rumbles lightly when driving over tiles
+		double percentForce = ((tileRumbleStrength) / 100.0);
+		wheel.LeftRight(0, percentForce, 150);
+		wheel.Friction(percentForce);
 	}
-	else if ((SandRumble == 1) && (14 == ff3) && (ff11 == 1) && (ff5 == 1) && (Speed > 0.1))
+	else if ((sandRumble == 1) && (14 == terrain) && (race == 1) && (onGround == 1) && (speed > 0.1))
 	{
-		//Wheel rumbles lightly when driving over sand
-		double percentForce = ((SandRumbleStrength) / 100.0);
-		UINT32 length_ms = 50;
-		triggers->LeftRight(percentForce, 0, length_ms);
-		triggers->Sine(70, 70, percentForce, 100);
+		// Wheel rumbles lightly when driving over sand
+		double percentForce = ((sandRumbleStrength) / 100.0);
+		wheel.LeftRight(percentForce, 0, 50);
+		wheel.Sine(70, 70, percentForce, 100);
 	}
-	else if ((RoughTrackRumble == 1) && (11 == ff3) && (ff11 == 1) && (ff5 == 1) && (Speed > 0.1))
+	else if ((roughTrackRumble == 1) && (11 == terrain) && (race == 1) && (onGround == 1) && (speed > 0.1))
 	{
-		//Wheel rumbles lightly when driving over rough part of track
-		double percentForce = ((RoughTrackRumbleStrength) / 100.0);
-		UINT32 length_ms = 100;
-		triggers->LeftRight(0, percentForce, length_ms);
-		triggers->Sine(40, 50, percentForce, 100);
+		// Wheel rumbles lightly when driving over rough part of track
+		double percentForce = ((roughTrackRumbleStrength) / 100.0);
+		wheel.LeftRight(0, percentForce, 100);
+		wheel.Sine(40, 50, percentForce, 100);
 	}
-	else if ((BridgeRumble == 1) && (8 == ff3) && (ff11 == 1) && (ff5 == 1) && (Speed > 0.1))
+	else if ((bridgeRumble == 1) && (8 == terrain) && (race == 1) && (onGround == 1) && (speed > 0.1))
 	{
-		//Wheel rumbles moderately when driving over wooden bridges
-		double percentForce = ((BridgeRumbleStrength) / 100.0);
-		UINT32 length_ms = 100;
-		triggers->LeftRight(percentForce, percentForce, length_ms);
-		triggers->Sine(180, 150, percentForce, 200);
+		// Wheel rumbles moderately when driving over wooden bridges
+		double percentForce = ((bridgeRumbleStrength) / 100.0);
+		wheel.LeftRight(percentForce, percentForce, 100);
+		wheel.Sine(180, 150, percentForce, 200);
 	}
-	oldcoins = newcoins;
-	oldweapon = newweapon;
-	oldhitground = newhitground;
+	oldCoins = coins;
+	oldWeapon = weapon;
+	oldHitGround = onGround;
 }

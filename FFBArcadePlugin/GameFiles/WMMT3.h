@@ -12,10 +12,12 @@ along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
 */
 
 #pragma once
-#include "../Common Files/TeknoParrotGame.h"
+#include "DeadHeat.h"
 
-class WMMT3 : public TeknoParrotGame {
-public:
-	WMMT3() : TeknoParrotGame() { }
-	void FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTriggers* triggers);
+// Wangan Midnight Maximum Tune 3 (Namco, TeknoParrot): see NamcoWheelGame. The reflect from the left is
+// negative.
+class WMMT3 : public NamcoWheelGame
+{
+protected:
+	void PlayReflect(int reflect) override;
 };

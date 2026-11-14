@@ -11,161 +11,33 @@ You should have received a copy of the GNU General Public License
 along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
 */
 
-#include <string>
 #include "Machstorm.h"
-typedef unsigned char U8;
-typedef unsigned int U32;
-typedef uint16_t U16;
-void Machstorm::FFBLoop(EffectConstants *constants, Helpers *helpers, EffectTriggers* triggers) {
 
-	int DomeFix = GetSettingInt(TEXT("DomeFix"), 0);
-	int Power1RumbleStrength = GetSettingInt(TEXT("Power1RumbleStrength"), 0);
-	int Power2RumbleStrength = GetSettingInt(TEXT("Power2RumbleStrength"), 0);
-	int Power3RumbleStrength = GetSettingInt(TEXT("Power3RumbleStrength"), 0);
-	int Power4RumbleStrength = GetSettingInt(TEXT("Power4RumbleStrength"), 0);
-	int Power5RumbleStrength = GetSettingInt(TEXT("Power5RumbleStrength"), 0);
-	int Power6RumbleStrength = GetSettingInt(TEXT("Power6RumbleStrength"), 0);
-	int Power7RumbleStrength = GetSettingInt(TEXT("Power7RumbleStrength"), 0);
-	int Power8RumbleStrength = GetSettingInt(TEXT("Power8RumbleStrength"), 0);
-	int Power9RumbleStrength = GetSettingInt(TEXT("Power9RumbleStrength"), 0);
-	int Power10RumbleStrength = GetSettingInt(TEXT("Power10RumbleStrength"), 0);
-	int Power1RumbleLength = GetSettingInt(TEXT("Power1RumbleLength"), 0);
-	int Power2RumbleLength = GetSettingInt(TEXT("Power2RumbleLength"), 0);
-	int Power3RumbleLength = GetSettingInt(TEXT("Power3RumbleLength"), 0);
-	int Power4RumbleLength = GetSettingInt(TEXT("Power4RumbleLength"), 0);
-	int Power5RumbleLength = GetSettingInt(TEXT("Power5RumbleLength"), 0);
-	int Power6RumbleLength = GetSettingInt(TEXT("Power6RumbleLength"), 0);
-	int Power7RumbleLength = GetSettingInt(TEXT("Power7RumbleLength"), 0);
-	int Power8RumbleLength = GetSettingInt(TEXT("Power8RumbleLength"), 0);
-	int Power9RumbleLength = GetSettingInt(TEXT("Power9RumbleLength"), 0);
-	int Power10RumbleLength = GetSettingInt(TEXT("Power10RumbleLength"), 0);
-	int vibration = helpers->ReadInt32(0x6390E9, /* relative */ true);
-	int power = helpers->ReadInt32(0x639109, /* relative */ true);
+using namespace ffb;
 
-	if (vibration == 16842753)
+void Machstorm::Update()
+{
+	Settings::Int(L"DomeFix", 0); // read, unused
+	int strengths[PowerCount];
+	int lengths[PowerCount];
+	for (int i = 0; i < PowerCount; i++)
+		strengths[i] = Settings::Int(StrengthKeys[i], 0);
+	for (int i = 0; i < PowerCount; i++)
+		lengths[i] = Settings::Int(LengthKeys[i], 0);
+	int vibration = Memory::Read(Vibration);
+	int power = Memory::Read(Power);
+
+	// index of the power, -1 if none
+	int level = -1;
+	if (vibration == 16842753 && power >= 61542 && power <= 61551)
+		level = power - 61542;
+	if (vibration == 1 && power >= 16773366 && power <= 16773375)
+		level = power - 16773366;
+
+	if (level >= 0)
 	{
-		if (power == 61542)
-		{
-			UINT32 percentLength = (Power1RumbleLength);
-			double percentForce = ((Power1RumbleStrength) / 100.0);
-			triggers->Rumble(percentForce, percentForce, percentLength);
-		}
-		else if (power == 61543)
-		{
-			UINT32 percentLength = (Power2RumbleLength);
-			double percentForce = ((Power2RumbleStrength) / 100.0);
-			triggers->Rumble(percentForce, percentForce, percentLength);
-		}
-		else if (power == 61544)
-		{
-			UINT32 percentLength = (Power3RumbleLength);
-			double percentForce = ((Power3RumbleStrength) / 100.0);
-			triggers->Rumble(percentForce, percentForce, percentLength);
-		}
-		else if (power == 61545)
-		{
-			UINT32 percentLength = (Power4RumbleLength);
-			double percentForce = ((Power4RumbleStrength) / 100.0);
-			triggers->Rumble(percentForce, percentForce, percentLength);
-		}
-		else if (power == 61546)
-		{
-			UINT32 percentLength = (Power5RumbleLength);
-			double percentForce = ((Power5RumbleStrength) / 100.0);
-			triggers->Rumble(percentForce, percentForce, percentLength);
-		}
-		else if (power == 61547)
-		{
-			UINT32 percentLength = (Power6RumbleLength);
-			double percentForce = ((Power6RumbleStrength) / 100.0);
-			triggers->Rumble(percentForce, percentForce, percentLength);
-		}
-		else if (power == 61548)
-		{
-			UINT32 percentLength = (Power7RumbleLength);
-			double percentForce = ((Power7RumbleStrength) / 100.0);
-			triggers->Rumble(percentForce, percentForce, percentLength);
-		}
-		else if (power == 61549)
-		{
-			UINT32 percentLength = (Power8RumbleLength);
-			double percentForce = ((Power8RumbleStrength) / 100.0);
-			triggers->Rumble(percentForce, percentForce, percentLength);
-		}
-		else if (power == 61550)
-		{
-			UINT32 percentLength = (Power9RumbleLength);
-			double percentForce = ((Power9RumbleStrength) / 100.0);
-			triggers->Rumble(percentForce, percentForce, percentLength);
-		}
-		else if (power == 61551)
-		{
-			UINT32 percentLength = (Power10RumbleLength);
-			double percentForce = ((Power10RumbleStrength) / 100.0);
-			triggers->Rumble(percentForce, percentForce, percentLength);
-		}
-	}
-	if (vibration == 1)
-	{
-		if (power == 16773366)
-		{
-			UINT32 percentLength = (Power1RumbleLength);
-			double percentForce = ((Power1RumbleStrength) / 100.0);
-			triggers->Rumble(percentForce, percentForce, percentLength);
-		}
-		else if (power == 16773367)
-		{
-			UINT32 percentLength = (Power2RumbleLength);
-			double percentForce = ((Power2RumbleStrength) / 100.0);
-			triggers->Rumble(percentForce, percentForce, percentLength);
-		}		
-		else if (power == 16773368)
-		{
-			UINT32 percentLength = (Power3RumbleLength);
-			double percentForce = ((Power3RumbleStrength) / 100.0);
-			triggers->Rumble(percentForce, percentForce, percentLength);
-		}
-		else if (power == 16773369)
-		{
-			UINT32 percentLength = (Power4RumbleLength);
-			double percentForce = ((Power4RumbleStrength) / 100.0);
-			triggers->Rumble(percentForce, percentForce, percentLength);
-		}
-		else if (power == 16773370)
-		{
-			UINT32 percentLength = (Power5RumbleLength);
-			double percentForce = ((Power5RumbleStrength) / 100.0);
-			triggers->Rumble(percentForce, percentForce, percentLength);
-		}
-		else if (power == 16773371)
-		{
-			UINT32 percentLength = (Power6RumbleLength);
-			double percentForce = ((Power6RumbleStrength) / 100.0);
-			triggers->Rumble(percentForce, percentForce, percentLength);
-		}
-		else if (power == 16773372)
-		{
-			UINT32 percentLength = (Power7RumbleLength);
-			double percentForce = ((Power7RumbleStrength) / 100.0);
-			triggers->Rumble(percentForce, percentForce, percentLength);
-		}
-		else if (power == 16773373)
-		{
-			UINT32 percentLength = (Power8RumbleLength);
-			double percentForce = ((Power8RumbleStrength) / 100.0);
-			triggers->Rumble(percentForce, percentForce, percentLength);
-		}
-		else if (power == 16773374)
-		{
-			UINT32 percentLength = (Power9RumbleLength);
-			double percentForce = ((Power9RumbleStrength) / 100.0);
-			triggers->Rumble(percentForce, percentForce, percentLength);
-		}
-		else if (power == 16773375)
-		{
-			UINT32 percentLength = (Power10RumbleLength);
-			double percentForce = ((Power10RumbleStrength) / 100.0);
-			triggers->Rumble(percentForce, percentForce, percentLength);
-		}
+		UINT32 percentLength = (lengths[level]);
+		double percentForce = ((strengths[level]) / 100.0);
+		wheel.Rumble(percentForce, percentForce, percentLength);
 	}
 }

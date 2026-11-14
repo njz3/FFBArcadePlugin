@@ -35,7 +35,7 @@ along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
 #include <stdlib.h>
 #include <string.h>
 #include "MAMENetworkOutputs.h"
-#include "../Common Files/GameIds.h"
+#include "../Core/GameIds.h"
 
 #pragma comment(lib, "ws2_32.lib")
 

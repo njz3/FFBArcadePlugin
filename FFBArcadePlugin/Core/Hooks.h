@@ -13,7 +13,7 @@ along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
 
 #pragma once
 #include <Windows.h>
-#include "../Common Files/MinHook.h"
+#include "MinHook.h"
 
 namespace ffb
 {

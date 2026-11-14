@@ -17,7 +17,7 @@ along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
 #include "SDL.h"
 #include "MAMESupermodel.h"
 #include "EmulatorGames.h"
-#include "../Common Files/Devices.h"
+#include "../Core/Devices.h"
 #include "../Core/ForceProfile.h"
 
 extern SDL_Haptic* haptic2;

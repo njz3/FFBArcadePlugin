@@ -12,10 +12,13 @@ along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
 */
 
 #pragma once
-#include "../Common Files/TeknoParrotGame.h"
+#include "../Core/TeknoParrot.h"
 
-class DeadHeatRiders : public TeknoParrotGame {
+// Dead Heat Riders (Namco, TeknoParrot): TeknoParrot publishes four FFB values of the game, as for Dead
+// Heat (see NamcoWheelGame) but played without strength settings: spring (FFB, up to 500, kept),
+// viscosity (FFB2), center offset (FFB3) and reflect (FFB4), 1 to 0x3F.
+class DeadHeatRiders : public ffb::TeknoParrotGame
+{
 public:
-	DeadHeatRiders() : TeknoParrotGame() { }
-	void FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTriggers* triggers);
+	void Update() override;
 };

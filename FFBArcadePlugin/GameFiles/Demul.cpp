@@ -14,7 +14,7 @@ along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
 #include <string.h>
 #include <tchar.h>
 #include "Demul.h"
-#include "../Common Files/CRCCheck.h"
+#include "../Core/CRCCheck.h"
 #include "../Core/ForceProfile.h"
 
 using namespace ffb;

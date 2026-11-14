@@ -11,69 +11,23 @@ You should have received a copy of the GNU General Public License
 along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
 */
 
-#include <string>
 #include "WMMT3.h"
-#include "../Common Files/Game.h"
 
-static int CenterOffsetStrength = GetSettingInt(TEXT("CenterOffsetStrength"), 100);
-static int ReflectStrength = GetSettingInt(TEXT("ReflectStrength"), 100);
-static int SpringStrength = GetSettingInt(TEXT("SpringStrength"), 100);
-static int ViosityStrength = GetSettingInt(TEXT("ViosityStrength"), 100);
+using namespace ffb;
 
-void WMMT3::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTriggers* triggers)
+void WMMT3::PlayReflect(int reflect)
 {
-	int setSpring = GetTeknoParrotFFB();
-	int setViosity = GetTeknoParrotFFB2();
-	int setCenterOffset = GetTeknoParrotFFB3();
-	int setReflect = GetTeknoParrotFFB4();
-
-	ApplyDamper(triggers);
-
-	if (setSpring)
+	if (reflect > 0x00 && reflect <= 0x3F)
 	{
-		double percentForce = (setSpring / 63.0) * (SpringStrength / 100.0);
-		triggers->Spring(percentForce);
+		double percentForce = (reflect / 63.0) * (reflectStrength / 100.0);
+		wheel.Rumble(percentForce, 0, 100);
+		wheel.Constant(Direction::FromRight, percentForce);
 	}
-
-	if (setViosity)
+	else if (reflect < 0x00)
 	{
-		double percentForce = (setViosity / 63.0) * (ViosityStrength / 100.0);
-		triggers->Friction(percentForce);
-	}
-
-	if (setReflect == 0x00 && setCenterOffset == 0x00)
-	{
-		triggers->Rumble(0, 0, 0);
-		triggers->Constant(constants->DIRECTION_FROM_LEFT, 0);
-		triggers->Constant(constants->DIRECTION_FROM_RIGHT, 0);
-	}
-	else
-	{
-		UINT32 length_ms = 100;
-		if (setReflect > 0x00 && setReflect <= 0x3F)
-		{
-			double percentForce = (setReflect / 63.0) * (ReflectStrength / 100.0);
-			triggers->Rumble(percentForce, 0, length_ms);
-			triggers->Constant(constants->DIRECTION_FROM_RIGHT, percentForce);
-		}
-		else if (setReflect < 0x00)
-		{
-			double percentForce = (((0xFFFFFFFF - setReflect) + 1) / 63.0) * (ReflectStrength / 100.0);
-			triggers->Rumble(0, percentForce, length_ms);
-			triggers->Constant(constants->DIRECTION_FROM_LEFT, percentForce);
-		}
-
-		if (setCenterOffset > 0x00 && setCenterOffset <= 0x3F)
-		{
-			double percentForce = (setCenterOffset / 63.0) * (CenterOffsetStrength / 100.0);
-			triggers->Rumble(percentForce, 0, length_ms);
-			triggers->Constant(constants->DIRECTION_FROM_LEFT, percentForce);
-		}
-		else if (setCenterOffset < 0x00)
-		{
-			double percentForce = (((0xFFFFFFFF - setCenterOffset) + 1) / 63.0) * (CenterOffsetStrength / 100.0);
-			triggers->Rumble(0, percentForce, length_ms);
-			triggers->Constant(constants->DIRECTION_FROM_RIGHT, percentForce);
-		}
+		// in unsigned arithmetic: -reflect
+		double percentForce = (((0xFFFFFFFF - reflect) + 1) / 63.0) * (reflectStrength / 100.0);
+		wheel.Rumble(0, percentForce, 100);
+		wheel.Constant(Direction::FromLeft, percentForce);
 	}
 }

@@ -11,103 +11,91 @@ You should have received a copy of the GNU General Public License
 along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
 */
 
-#include <string>
 #include "MarioKartGPDXCustom.h"
 
-void MarioKartGPDX100Custom::FFBLoop(EffectConstants *constants, Helpers *helpers, EffectTriggers* triggers) {
-	helpers->log("in MKDX Ffbloop");
-	
-	int ff1 = helpers->ReadInt32(0x564C5F, /* isRelativeOffset */ true); //shake
-	int ff2 = helpers->ReadInt32(0x559B68,/* isRelativeOffset */ true);
-	int ff3 = helpers->ReadInt32(ff2 + 0x5F8, /* isRelativeOffset */ false); // terrain data
-	int ff4 = helpers->ReadInt32(0x563860, /* isRelativeOffset */ true); //0-255 accl
-	int ff5 = helpers->ReadInt32(ff2 + 0x628, /* isRelativeOffset */ false); //kart flying or on ground
-	int ff6 = helpers->ReadInt32(0x5532C4,/* isRelativeOffset */ true);
-	int ff7 = helpers->ReadInt32(ff6 + 0x1F0, /* isRelativeOffset */ false);
-	int ff8 = helpers->ReadInt32(ff7 + 0x18, /* isRelativeOffset */ false);
-	int ff9 = helpers->ReadInt32(ff8 + 0x7C, /* isRelativeOffset */ false);
-	int ff10 = helpers->ReadInt32(ff9 + 0x164, /* isRelativeOffset */ false); // 1 during race only
-	int ff11 = helpers->ReadInt32(ff2 + 0x520, /* isRelativeOffset */ false); //1065353216 when kart moves
-	helpers->log("got value: ");
-	std::string ffs = std::to_string(ff1);
-	helpers->log((char *)ffs.c_str()); helpers->log("got value: ");
+using namespace ffb;
 
-	ApplyDamper(triggers);
+void MarioKartGPDX100Custom::Update()
+{
+	Log::Write("in MKDX Ffbloop");
 
-	UINT32 length_ms = 100;
+	int shake = Memory::Read(Shake);
+	int kart = Memory::Read(Kart);
+	int terrain = Memory::Read<int>(kart + Terrain);
+	Memory::Read(Acceleration);
+	int onGround = Memory::Read<int>(kart + OnGround);
+	int pointer = Memory::Read(Race);
+	for (int offset : RaceChain)
+		pointer = Memory::Read<int>(pointer + offset);
+	int race = Memory::Read<int>(pointer + InRace);
+	int moving = Memory::Read<int>(kart + Moving);
+	Log::Value("got value:", shake);
+
+	ApplyDamper();
+
+	bool driving = race == 1 && onGround == 1 && moving == 1065353216;
+
+	// the length of the dirt rumble is the one of the shake when both play
+	UINT32 length = 100;
 	// Large Shake when hitting walls, other karts or getting hit by items
-	if ((4194308 == ff1) && (ff10 == 1))
+	if (shake == 4194308 && race == 1)
 	{
-		double percentForce = 1.0;
-		double percentForce1 = 3.5;
-		length_ms = 500;
-		triggers->Rumble(percentForce1, percentForce1, length_ms);
-		triggers->Sine(200, 200, percentForce, length_ms);
+		length = 500;
+		wheel.Rumble(3.5, 3.5, length);
+		wheel.Sine(200, 200, 1.0, length);
 	}
 
 	// small friction when driving on dirt while moving
-	if ((3 == ff3) && (ff10 == 1) && (ff5 == 1) && (ff11 == 1065353216))
+	if (terrain == 3 && driving)
 	{
-		double percentForce = (0.3);
-		triggers->Rumble(percentForce, 0, length_ms);
-		triggers->Friction(percentForce);
+		wheel.Rumble(0.3, 0, length);
+		wheel.Friction(0.3);
 	}
-	//	Small constant when hitting bumps
-	if ((10 == ff3) && (ff10 == 1) && (ff5 == 1) && (ff11 == 1065353216))
+	// Small constant when hitting bumps
+	if (terrain == 10 && driving)
 	{
-		double percentForce = (0.2);
-		double percentForce1 = 3.0;
-		length_ms = 50;
-		triggers->Rumble(percentForce1, percentForce1, length_ms);
-		triggers->Constant(constants->DIRECTION_FROM_RIGHT, percentForce);
+		length = 50;
+		wheel.Rumble(3.0, 3.0, length);
+		wheel.Constant(Direction::FromRight, 0.2);
 	}
 	// Wheel rumbles while driving on grass
-	if ((4 == ff3) && (ff10 == 1) && (ff5 == 1) && (ff11 == 1065353216))
+	if (terrain == 4 && driving)
 	{
-		double percentForce = 0.2;
-		length_ms = 50;
-		triggers->Rumble(0, percentForce, length_ms);
-		triggers->Sine(50, 50, percentForce, (UINT32)length_ms);
+		length = 50;
+		wheel.Rumble(0, 0.2, length);
+		wheel.Sine(50, 50, 0.2, length);
 	}
-	//wheel hard to turn while driving through water
-	if ((7 == ff3) && (ff10 == 1) && (ff5 == 1) && (ff11 == 1065353216))
+	// wheel hard to turn while driving through water
+	if (terrain == 7 && driving)
 	{
-		double percentForce = (0.65);
-		triggers->Friction(percentForce);
+		wheel.Friction(0.65);
 	}
-	//Wheel rumbles lightly when driving over tiles
-	if ((12 == ff3) && (ff10 == 1) && (ff5 == 1) && (ff11 == 1065353216))
+	// Wheel rumbles lightly when driving over tiles
+	if (terrain == 12 && driving)
 	{
-		double percentForce = 0.1;
-		double percentForce1 = 0.2;
-		length_ms = 150;
-		triggers->Rumble(percentForce1, 0, length_ms);
-		triggers->Sine(70, 70, percentForce, length_ms);
+		length = 150;
+		wheel.Rumble(0.2, 0, length);
+		wheel.Sine(70, 70, 0.1, length);
 	}
-	//Wheel rumbles lightly when driving over sand
-	if ((14 == ff3) && (ff10 == 1) && (ff5 == 1) && (ff11 == 1065353216))
+	// Wheel rumbles lightly when driving over sand
+	if (terrain == 14 && driving)
 	{
-		double percentForce = 0.1;
-		double percentForce1 = 0.2;
-		length_ms = 50;
-		triggers->Rumble(percentForce1, 0, length_ms);
-		triggers->Sine(70, 70, percentForce, length_ms);
+		length = 50;
+		wheel.Rumble(0.2, 0, length);
+		wheel.Sine(70, 70, 0.1, length);
 	}
-	//Wheel rumbles lightly when driving over rough part of track
-	if ((11 == ff3) && (ff10 == 1) && (ff5 == 1) && (ff11 == 1065353216))
+	// Wheel rumbles lightly when driving over rough part of track
+	if (terrain == 11 && driving)
 	{
-		double percentForce = 0.1;
-		double percentForce1 = 0.2;
-		length_ms = 250;
-		triggers->Rumble(0, percentForce1, length_ms);
-		triggers->Sine(40, 50, percentForce, length_ms);
+		length = 250;
+		wheel.Rumble(0, 0.2, length);
+		wheel.Sine(40, 50, 0.1, length);
 	}
-	//Wheel rumbles moderately when driving over wooden bridges
-	if ((8 == ff3) && (ff10 == 1) && (ff5 == 1) && (ff11 == 1065353216))
+	// Wheel rumbles moderately when driving over wooden bridges
+	if (terrain == 8 && driving)
 	{
-		double percentForce = 0.4;
-		length_ms = 10;
-		triggers->Rumble(percentForce, percentForce, length_ms);
-		triggers->Sine(120, 120, percentForce, length_ms);
+		length = 10;
+		wheel.Rumble(0.4, 0.4, length);
+		wheel.Sine(120, 120, 0.4, length);
 	}
 }

@@ -13,7 +13,7 @@ along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
 
 #include <stdio.h>
 #include "ButtonRumble.h"
-#include "../Common Files/Devices.h"
+#include "../Core/Devices.h"
 #include "SDL.h"
 
 extern int joystick_index1;

@@ -15,7 +15,7 @@ along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
 #include <string>
 #include <windows.h>
 #include "SDL.h"
-#include "../Common Files/Devices.h"
+#include "../Core/Devices.h"
 #include "../Core/Memory.h"
 #include "../Core/Settings.h"
 

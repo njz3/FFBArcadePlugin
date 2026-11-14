@@ -11,69 +11,66 @@ You should have received a copy of the GNU General Public License
 along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
 */
 
-#include <string>
 #include "DeadHeat.h"
-#include "../Common Files/Game.h"
 
-static int CenterOffsetStrength = GetSettingInt(TEXT("CenterOffsetStrength"), 100);
-static int ReflectStrength = GetSettingInt(TEXT("ReflectStrength"), 100);
-static int SpringStrength = GetSettingInt(TEXT("SpringStrength"), 100);
-static int ViosityStrength = GetSettingInt(TEXT("ViosityStrength"), 100);
+using namespace ffb;
 
-void DeadHeat::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTriggers* triggers)
+void NamcoWheelGame::Update()
 {
-	int setSpring = GetTeknoParrotFFB();
-	int setViosity = GetTeknoParrotFFB2();
-	int setCenterOffset = GetTeknoParrotFFB3();
-	int setReflect = GetTeknoParrotFFB4();
+	int spring = TeknoParrotFFB();
+	int viscosity = TeknoParrotFFB2();
+	int centerOffset = TeknoParrotFFB3();
+	int reflect = TeknoParrotFFB4();
 
-	ApplyDamper(triggers);
+	ApplyDamper();
 
-	if (setSpring)
+	if (spring)
 	{
-		double percentForce = (setSpring / 63.0) * (SpringStrength / 100.0);
-		triggers->Spring(percentForce);
+		double percentForce = (spring / 63.0) * (springStrength / 100.0);
+		wheel.Spring(percentForce);
 	}
 
-	if (setViosity)
+	if (viscosity)
 	{
-		double percentForce = (setViosity / 63.0) * (ViosityStrength / 100.0);
-		triggers->Friction(percentForce);
+		double percentForce = (viscosity / 63.0) * (viscosityStrength / 100.0);
+		wheel.Friction(percentForce);
 	}
 
-	if (setReflect == 0x00 && setCenterOffset == 0x00)
+	if (reflect == 0x00 && centerOffset == 0x00)
 	{
-		triggers->Rumble(0, 0, 0);
-		triggers->Constant(constants->DIRECTION_FROM_LEFT, 0);
-		triggers->Constant(constants->DIRECTION_FROM_RIGHT, 0);
+		wheel.Rumble(0, 0, 0);
+		wheel.StopConstant();
 	}
 	else
 	{
-		UINT32 length = 100;
-		if (setReflect > 0x00 && setReflect <= 0x3F)
-		{
-			double percentForce = (setReflect / 63.0) * (ReflectStrength / 100.0);
-			triggers->Rumble(percentForce, 0, length);
-			triggers->Constant(constants->DIRECTION_FROM_RIGHT, percentForce);
-		}
-		else if (setReflect > 0x3F)
-		{
-			double percentForce = ((0xFF - setReflect) / 63.0) * (ReflectStrength / 100.0);
-			triggers->Rumble(0, percentForce, length);
-			triggers->Constant(constants->DIRECTION_FROM_LEFT, percentForce);
-		}
+		PlayReflect(reflect);
 
-		if (setCenterOffset > 0x00 && setCenterOffset <= 0x3F)
+		if (centerOffset > 0x00 && centerOffset <= 0x3F)
 		{
-			double percentForce = (setCenterOffset / 63.0) * (CenterOffsetStrength / 100.0);
-			triggers->Rumble(percentForce, 0, length);
-			triggers->Constant(constants->DIRECTION_FROM_LEFT, percentForce);
+			double percentForce = (centerOffset / 63.0) * (centerOffsetStrength / 100.0);
+			wheel.ConstantWithRumble(Direction::FromLeft, percentForce);
 		}
-		else if (setCenterOffset < 0x00)
+		else if (centerOffset < 0x00)
 		{
-			double percentForce = (((0xFFFFFFFF - setCenterOffset) + 1) / 63.0) * (CenterOffsetStrength / 100.0);
-			triggers->Rumble(0, percentForce, length);
-			triggers->Constant(constants->DIRECTION_FROM_RIGHT, percentForce);
+			// in unsigned arithmetic: -centerOffset
+			double percentForce = (((0xFFFFFFFF - centerOffset) + 1) / 63.0) * (centerOffsetStrength / 100.0);
+			wheel.ConstantWithRumble(Direction::FromRight, percentForce);
 		}
+	}
+}
+
+void DeadHeat::PlayReflect(int reflect)
+{
+	if (reflect > 0x00 && reflect <= 0x3F)
+	{
+		double percentForce = (reflect / 63.0) * (reflectStrength / 100.0);
+		wheel.Rumble(percentForce, 0, 100);
+		wheel.Constant(Direction::FromRight, percentForce);
+	}
+	else if (reflect > 0x3F)
+	{
+		double percentForce = ((0xFF - reflect) / 63.0) * (reflectStrength / 100.0);
+		wheel.Rumble(0, percentForce, 100);
+		wheel.Constant(Direction::FromLeft, percentForce);
 	}
 }

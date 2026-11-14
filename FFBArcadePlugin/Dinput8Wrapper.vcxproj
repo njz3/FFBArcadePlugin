@@ -47,14 +47,12 @@
     <ClInclude Include="Core\Log.h" />
     <ClInclude Include="Core\Settings.h" />
     <ClInclude Include="GameFiles\Gaelco.h" />
-    <ClInclude Include="Common Files\InitialDFFB.h" />
     <ClInclude Include="GameFiles\WMMT.h" />
-    <ClInclude Include="Common Files\Devices.h" />
+    <ClInclude Include="Core\Devices.h" />
     <ClInclude Include="WrapperExports.h" />
-    <ClInclude Include="Common Files\GameIds.h" />
-    <ClInclude Include="Common Files\CRCCheck.h" />
-    <ClInclude Include="Common Files\MinHook.h" />
-    <ClInclude Include="Common Files\SignatureScanning.h" />
+    <ClInclude Include="Core\GameIds.h" />
+    <ClInclude Include="Core\CRCCheck.h" />
+    <ClInclude Include="Core\MinHook.h" />
     <ClInclude Include="Config\PersistentValues.h" />
     <ClInclude Include="GameFiles\AliensExtermination.h" />
     <ClInclude Include="GameFiles\ArcticThunder.h" />
@@ -144,9 +142,8 @@
     <ClCompile Include="Core\Log.cpp" />
     <ClCompile Include="Core\Settings.cpp" />
     <ClCompile Include="GameFiles\Gaelco.cpp" />
-    <ClCompile Include="Common Files\InitialDFFB.cpp" />
     <ClCompile Include="GameFiles\WMMT.cpp" />
-    <ClCompile Include="Common Files\Devices.cpp" />
+    <ClCompile Include="Core\Devices.cpp" />
     <ClCompile Include="Config\PersistentValues.cpp" />
     <ClCompile Include="GameFiles\AliensExtermination.cpp" />
     <ClCompile Include="GameFiles\ArcticThunder.cpp" />
@@ -184,18 +181,14 @@
     <ClCompile Include="GameFiles\MAMESupermodel.cpp" />
     <ClCompile Include="GameFiles\MarioKartGPDX1.10Real.cpp" />
     <ClCompile Include="GameFiles\MarioKartGPDX1.18Custom.cpp" />
-    <ClCompile Include="GameFiles\MarioKartGPDX1.18Real.cpp" />
     <ClCompile Include="GameFiles\MarioKartGPDXUSACustom.cpp" />
-    <ClCompile Include="GameFiles\MarioKartGPDXUSAReal.cpp" />
     <ClCompile Include="GameFiles\OutRun2Real.cpp" />
     <ClCompile Include="GameFiles\ButtonRumble.cpp" />
-    <ClCompile Include="Common Files\TeknoParrotGame.cpp" />
     <ClCompile Include="GameFiles\Demul.cpp" />
     <ClCompile Include="GameFiles\AfterburnerClimax.cpp" />
     <ClCompile Include="GameFiles\BG4JP.cpp" />
     <ClCompile Include="GameFiles\Daytona3.cpp" />
     <ClCompile Include="DllMain.cpp" />
-    <ClCompile Include="Common Files\Game.cpp" />
     <ClCompile Include="GameFiles\ChaseHQ2.cpp" />
     <ClCompile Include="GameFiles\InitialD4.cpp" />
     <ClCompile Include="GameFiles\InitialD6.cpp" />
@@ -231,11 +224,9 @@
     <ClCompile Include="GameFiles\LGI.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Common Files\TeknoParrotGame.h" />
     <ClInclude Include="GameFiles\AfterburnerClimax.h" />
     <ClInclude Include="GameFiles\BG4JP.h" />
     <ClInclude Include="GameFiles\Daytona3.h" />
-    <ClInclude Include="Common Files\Game.h" />
     <ClInclude Include="GameFiles\ChaseHQ2.h" />
     <ClInclude Include="GameFiles\InitialD4.h" />
     <ClInclude Include="GameFiles\InitialD6.h" />
@@ -375,7 +366,7 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>Debug</GenerateDebugInformation>
       <ModuleDefinitionFile>dinput8.def</ModuleDefinitionFile>
-      <AdditionalDependencies>dinput8.lib;dxguid.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;xinput.lib;Common Files/MinHook/x86/Debug/MinHook.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>dinput8.lib;dxguid.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;xinput.lib;Core/MinHook/x86/Debug/MinHook.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <IgnoreSpecificDefaultLibraries>libcmt.lib</IgnoreSpecificDefaultLibraries>
     </Link>
     <ResourceCompile>
@@ -411,7 +402,7 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>Debug</GenerateDebugInformation>
       <ModuleDefinitionFile>dinput8.def</ModuleDefinitionFile>
-      <AdditionalDependencies>dinput8.lib;dxguid.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;xinput.lib;Common Files/MinHook/x64/Debug/MinHook.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>dinput8.lib;dxguid.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;xinput.lib;Core/MinHook/x64/Debug/MinHook.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <IgnoreSpecificDefaultLibraries>libcmtd.lib</IgnoreSpecificDefaultLibraries>
     </Link>
     <ResourceCompile>
@@ -449,7 +440,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>No</GenerateDebugInformation>
       <ModuleDefinitionFile>dinput8.def</ModuleDefinitionFile>
-      <AdditionalDependencies>dinput8.lib;dxguid.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;Common Files/MinHook/x86/Release/MinHook.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>dinput8.lib;dxguid.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;Core/MinHook/x86/Release/MinHook.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ImageHasSafeExceptionHandlers />
       <ImportLibrary>$(OutDir)$(TargetName).lib</ImportLibrary>
       <IgnoreSpecificDefaultLibraries>msvcrt.lib</IgnoreSpecificDefaultLibraries>
@@ -506,7 +497,7 @@ cd $(OutDir) &amp;amp;&amp;amp; for /D /r %d in (.\Deploy\*) do @xcopy *.dll %d\
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>No</GenerateDebugInformation>
       <ModuleDefinitionFile>dinput8.def</ModuleDefinitionFile>
-      <AdditionalDependencies>dinput8.lib;dxguid.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;Common Files/MinHook/x64/Release/MinHook.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>dinput8.lib;dxguid.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;Core/MinHook/x64/Release/MinHook.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <IgnoreAllDefaultLibraries>
       </IgnoreAllDefaultLibraries>
       <IgnoreSpecificDefaultLibraries>msvcrt.lib</IgnoreSpecificDefaultLibraries>

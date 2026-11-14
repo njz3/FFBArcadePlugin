@@ -11,140 +11,119 @@ You should have received a copy of the GNU General Public License
 along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
 */
 
-#include <string>
 #include "StormRacerG.h"
 
-static int EnableShakeEffectsWhileRacing = GetSettingInt(TEXT("EnableShakeEffectsWhileRacing"), 0);
-static int EnableShakeEffectsinMenu = GetSettingInt(TEXT("EnableShakeEffectsinMenu"), 0);
-static int EnableGroundEffects = GetSettingInt(TEXT("EnableGroundEffects"), 0);
-static int EnableForceSpringEffect = GetSettingInt(TEXT("EnableForceSpringEffect"), 0);
-static int ForceSpringStrength = GetSettingInt(TEXT("ForceSpringStrength"), 0);
-static int MinFFBConstantStrength = GetSettingInt(TEXT("MinFFBConstantStrength"), 0);
-static int FFBShakeSineStrength = GetSettingInt(TEXT("FFBShakeSineStrength"), 0);
-static int FFBShakeSinePeriod = GetSettingInt(TEXT("FFBShakeSinePeriod"), 0);
-static int FFBShakeFadeSinePeriod = GetSettingInt(TEXT("FFBShakeFadeSinePeriod"), 0);
-static int FFBGrassSinePeriod = GetSettingInt(TEXT("FFBGrassSinePeriod"), 0);
-static int FFBGrassSineStrength = GetSettingInt(TEXT("FFBGrassSineStrength"), 0);
-static int FFBGrassFadeSinePeriod = GetSettingInt(TEXT("FFBGrassFadeSinePeriod"), 0);
-static int FFBRoughTerrainSineStrength = GetSettingInt(TEXT("FFBRoughTerrainSineStrength"), 0);
-static int FFBRoughTerrainSinePeriod = GetSettingInt(TEXT("FFBRoughTerrainSinePeriod"), 0);
-static int FFBRoughTerrainFadeSinePeriod = GetSettingInt(TEXT("FFBRoughTerrainFadeSinePeriod"), 0);
-static int FFBRumbleStripSineStrength = GetSettingInt(TEXT("FFBRumbleStripSineStrength"), 0);
-static int FFBRumbleStripSinePeriod = GetSettingInt(TEXT("FFBRumbleStripSinePeriod"), 0);
-static int FFBRumbleStripFadeSinePeriod = GetSettingInt(TEXT("FFBRumbleStripFadeSinePeriod"), 0);
+using namespace ffb;
 
-void StormRacerG::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTriggers* triggers)
+void StormRacerG::Update()
 {
-	float FFBConstant = (float)GetTeknoParrotFFB() / 1000.0f;
-	int Shake = GetTeknoParrotFFB2();
-	float Ground = (float)GetTeknoParrotFFB3();
-	float Speedo = helpers->ReadFloat32(0x10BE22D8, true);
-	UINT8 Racing = helpers->ReadByte(0x10BD5B20, true);
+	float ffbConstant = (float)TeknoParrotFFB() / 1000.0f;
+	int shake = TeknoParrotFFB2();
+	float ground = (float)TeknoParrotFFB3();
+	float speed = Memory::Read(Speed);
+	UINT8 racing = Memory::Read(Racing);
 
-	ApplyDamper(triggers);
+	ApplyDamper();
 
-	if (EnableForceSpringEffect == 1)
+	if (enableForceSpringEffect == 1)
 	{
-		triggers->Springi(ForceSpringStrength / 100.0);
+		wheel.KeptSpring(forceSpringStrength / 100.0);
 	}
-	else if (EnableForceSpringEffect == 2)
+	else if (enableForceSpringEffect == 2)
 	{
-		if (Racing == 0x00)
+		if (racing == 0x00)
 		{
-			triggers->Spring(ForceSpringStrength / 100.0);
+			wheel.Spring(forceSpringStrength / 100.0);
 		}
 	}
 
-	UINT32 length_ms = 100;
-	if (FFBConstant > 0)
+	if (ffbConstant > 0)
 	{
-		double percentForce = FFBConstant / (MinFFBConstantStrength / 2.173913043478261);
+		double percentForce = ffbConstant / (minFFBConstantStrength / 2.173913043478261);
 
 		if (percentForce > 1.0)
 			percentForce = 1.0;
 
-		triggers->Rumble(0, percentForce, length_ms);
-		triggers->Constant(constants->DIRECTION_FROM_RIGHT, percentForce);
+		wheel.ConstantWithRumble(Direction::FromRight, percentForce);
 	}
-	else if (FFBConstant < 0)
+	else if (ffbConstant < 0)
 	{
-		double percentForce = -FFBConstant / (MinFFBConstantStrength / 2.173913043478261);
+		double percentForce = -ffbConstant / (minFFBConstantStrength / 2.173913043478261);
 
 		if (percentForce > 1.0)
 			percentForce = 1.0;
 
-		triggers->Rumble(percentForce, 0, length_ms);
-		triggers->Constant(constants->DIRECTION_FROM_LEFT, percentForce);
+		wheel.ConstantWithRumble(Direction::FromLeft, percentForce);
 	}
 
-	if (EnableShakeEffectsWhileRacing == 1)
+	if (enableShakeEffectsWhileRacing == 1)
 	{
-		if (Racing == 0x01)
+		if (racing == 0x01)
 		{
-			if (Shake > 0)
+			if (shake > 0)
 			{
-				double percentForce = ((Shake / 1500.0) * (FFBShakeSineStrength / 100.0));
+				double percentForce = ((shake / 1500.0) * (ffbShakeSineStrength / 100.0));
 
 				if (percentForce > 1.0)
 					percentForce = 1.0;
 
-				triggers->Rumble(percentForce, percentForce, length_ms);
-				triggers->Sine(FFBShakeSinePeriod, FFBShakeFadeSinePeriod, percentForce, (UINT32)length_ms);
+				wheel.Rumble(percentForce, percentForce, 100);
+				wheel.Sine(ffbShakeSinePeriod, ffbShakeFadeSinePeriod, percentForce, 100);
 			}
 		}
 	}
 
-	if (EnableShakeEffectsinMenu == 1)
+	if (enableShakeEffectsinMenu == 1)
 	{
-		if (Racing == 0x00)
+		if (racing == 0x00)
 		{
-			if (Shake > 0)
+			if (shake > 0)
 			{
-				double percentForce = ((Shake / 1500.0) * (FFBShakeSineStrength / 100.0));
+				double percentForce = ((shake / 1500.0) * (ffbShakeSineStrength / 100.0));
 
 				if (percentForce > 1.0)
 					percentForce = 1.0;
 
-				triggers->Rumble(percentForce, percentForce, length_ms);
-				triggers->Sine(FFBShakeSinePeriod, FFBShakeFadeSinePeriod, percentForce, (UINT32)length_ms);
+				wheel.Rumble(percentForce, percentForce, 100);
+				wheel.Sine(ffbShakeSinePeriod, ffbShakeFadeSinePeriod, percentForce, 100);
 			}
 		}
 	}
-	
-	if (EnableGroundEffects == 1)
-	{ 
-		if (Speedo > 1.0)
+
+	if (enableGroundEffects == 1)
+	{
+		if (speed > 1.0)
 		{
-			if (Ground < 10000.0f) // Driving on Road (Not implemented yet)
+			if (ground < 10000.0f) // Driving on Road (Not implemented yet)
 			{
-				Ground = Ground / 1000.0f;
+				ground = ground / 1000.0f;
 			}
-			else if (Ground < 300000.0f) // Driving on Grass
+			else if (ground < 300000.0f) // Driving on Grass
 			{
-				Ground = ((Ground - 10000.0f) / 1000.0f);
+				ground = ((ground - 10000.0f) / 1000.0f);
 
-				Ground = Ground * (FFBGrassSineStrength / 100.0f);
+				ground = ground * (ffbGrassSineStrength / 100.0f);
 
-				triggers->Rumble(Ground, Ground, 100);
-				triggers->Sine(FFBGrassSinePeriod, FFBGrassFadeSinePeriod, Ground, 100);
+				wheel.Rumble(ground, ground, 100);
+				wheel.Sine(ffbGrassSinePeriod, ffbGrassFadeSinePeriod, ground, 100);
 			}
-			else if (Ground < 700000.0f) // Driving on Rough Ground
+			else if (ground < 700000.0f) // Driving on Rough Ground
 			{
-				Ground = ((Ground - 300000.0f) / 1000.0f);
+				ground = ((ground - 300000.0f) / 1000.0f);
 
-				Ground = Ground * (FFBRoughTerrainSineStrength / 100.0f);
+				ground = ground * (ffbRoughTerrainSineStrength / 100.0f);
 
-				triggers->Rumble(Ground, Ground, 100);
-				triggers->Sine(FFBRoughTerrainSinePeriod, FFBRoughTerrainFadeSinePeriod, Ground, 100);
+				wheel.Rumble(ground, ground, 100);
+				wheel.Sine(ffbRoughTerrainSinePeriod, ffbRoughTerrainFadeSinePeriod, ground, 100);
 			}
 			else
 			{
-				Ground = ((Ground - 700000.0f) / 1000.0f); // Driving on Rumble Strip
+				ground = ((ground - 700000.0f) / 1000.0f); // Driving on Rumble Strip
 
-				Ground = Ground * (FFBRumbleStripSineStrength / 100.0f);
+				ground = ground * (ffbRumbleStripSineStrength / 100.0f);
 
-				triggers->Rumble(Ground, Ground, 100);
-				triggers->Sine(FFBRumbleStripSinePeriod, FFBRumbleStripFadeSinePeriod, Ground, 100);
+				wheel.Rumble(ground, ground, 100);
+				wheel.Sine(ffbRumbleStripSinePeriod, ffbRumbleStripFadeSinePeriod, ground, 100);
 			}
 		}
 	}

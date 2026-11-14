@@ -12,10 +12,28 @@ along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
 */
 
 #pragma once
-#include "../Common Files/TeknoParrotGame.h"
+#include "../Core/TeknoParrot.h"
 
-class D1GP : public TeknoParrotGame {
+// D1 Grand Prix (TeknoParrot): TeknoParrot publishes the force of the wheel (FFB, / 1000: > 0 from the
+// right, < 0 from the left) and an effect (FFB2: 0x01 spring, 0x02 vibration, 0x04 shake, ground effects
+// on grass and rumble strips); the speed is read in the game's memory.
+class D1GP : public ffb::TeknoParrotGame
+{
 public:
-	D1GP() : TeknoParrotGame() { }
-	void FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTriggers* triggers);
+	void Update() override;
+
+private:
+	// Speed of the car: the strength of the ground effects is speed / 200, up to 1
+	static constexpr ffb::GameValue<float> Speed{ ffb::Base::Module, 0x2150F4 };
+
+	int enableGroundEffects = ffb::Settings::Int(L"EnableGroundEffects", 0);
+	int ffbGrassSinePeriod = ffb::Settings::Int(L"FFBGrassSinePeriod", 0);
+	int ffbGrassFadeSinePeriod = ffb::Settings::Int(L"FFBGrassFadeSinePeriod", 0);
+	int ffbRumbleStripSinePeriod = ffb::Settings::Int(L"FFBRumbleStripSinePeriod", 0);
+	int ffbRumbleStripFadeSinePeriod = ffb::Settings::Int(L"FFBRumbleStripFadeSinePeriod", 0);
+
+	// the shake lasts 32 updates
+	int shakeCount = 0;
+	bool letsShake = false;
+	UINT8 oldEffect = 0;
 };

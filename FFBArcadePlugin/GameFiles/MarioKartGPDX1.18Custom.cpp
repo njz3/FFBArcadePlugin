@@ -11,466 +11,400 @@ You should have received a copy of the GNU General Public License
 along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
 */
 
-#include <string>
 #include "MarioKartGPDX1.18Custom.h"
+#include "../Core/Hooks.h"
 
-static bool init;
+using namespace ffb;
 
-static int ConstantEffectForSteering = GetSettingInt(TEXT("ConstantEffectForSteering"), 0);
-static int ConstantEffectForSteeringStrength = GetSettingInt(TEXT("ConstantEffectForSteeringStrength"), 0);
-static int WeaponRumble = GetSettingInt(TEXT("WeaponRumble"), 0);
-static int WeaponRumbleStrength = GetSettingInt(TEXT("WeaponRumbleStrength"), 0);
-static int CoinRumble = GetSettingInt(TEXT("CoinRumble"), 0);
-static int CoinRumbleStrength = GetSettingInt(TEXT("CoinRumbleStrength"), 0);
-static int DriftRumble = GetSettingInt(TEXT("DriftRumble"), 0);
-static int DriftRumbleControllerStrengthMultiplier = GetSettingInt(TEXT("DriftRumbleControllerStrengthMultiplier"), 0);
-static int HitGroundRumble = GetSettingInt(TEXT("HitGroundRumble"), 0);
-static int HitGroundRumbleStrength = GetSettingInt(TEXT("HitGroundRumbleStrength"), 0);
-static int BoostRumble = GetSettingInt(TEXT("BoostRumble"), 0);
-static int BoostRumbleStrength = GetSettingInt(TEXT("BoostRumbleStrength"), 0);
-static int MainShakeRumble = GetSettingInt(TEXT("MainShakeRumble"), 0);
-static int MainShakeRumbleStrength = GetSettingInt(TEXT("MainShakeRumbleStrength"), 0);
-static int DirtRumble = GetSettingInt(TEXT("DirtRumble"), 0);
-static int DirtRumbleStrength = GetSettingInt(TEXT("DirtRumbleStrength"), 0);
-static int GrassRumble = GetSettingInt(TEXT("GrassRumble"), 0);
-static int GrassRumbleStrength = GetSettingInt(TEXT("GrassRumbleStrength"), 0);
-static int SandRumble = GetSettingInt(TEXT("SandRumble"), 0);
-static int SandRumbleStrength = GetSettingInt(TEXT("SandRumbleStrength"), 0);
-static int WaterRumble = GetSettingInt(TEXT("WaterRumble"), 0);
-static int WaterRumbleWheelStrength = GetSettingInt(TEXT("WaterRumbleWheelStrength"), 0);
-static int WaterRumbleControllerStrengthMultiplier = GetSettingInt(TEXT("WaterRumbleControllerStrengthMultiplier"), 0);
-static int TileRumble = GetSettingInt(TEXT("TileRumble"), 0);
-static int TileRumbleStrength = GetSettingInt(TEXT("TileRumbleStrength"), 0);
-static int CarpetRumble = GetSettingInt(TEXT("CarpetRumble"), 0);
-static int CarpetRumbleStrength = GetSettingInt(TEXT("CarpetRumbleStrength"), 0);
-static int SpeedBumpRumble = GetSettingInt(TEXT("SmallBumpRumble"), 0);
-static int SpeedBumpRumbleStrength = GetSettingInt(TEXT("SmallBumpRumbleStrength"), 0);
-static int RoughTrackRumble = GetSettingInt(TEXT("RoughTrackRumble"), 0);
-static int RoughTrackRumbleStrength = GetSettingInt(TEXT("RoughTrackRumbleStrength"), 0);
-static int BridgeRumble = GetSettingInt(TEXT("BridgeRumble"), 0);
-static int BridgeRumbleStrength = GetSettingInt(TEXT("BridgeRumbleStrength"), 0);
-static int MenuRumble = GetSettingInt(TEXT("MenuRumble"), 0);
-static int MenuRumbleStrength = GetSettingInt(TEXT("MenuRumbleStrength"), 0);
+MarioKartGPDX118Custom* MarioKartGPDX118Custom::instance = nullptr;
+int(__stdcall* MarioKartGPDX118Custom::playerCostumeSelectionRightOriginal)(DWORD* a1) = nullptr;
+int(__stdcall* MarioKartGPDX118Custom::playerCostumeSelectionLeftOriginal)(DWORD* a1) = nullptr;
+int(__stdcall* MarioKartGPDX118Custom::kartCostumeSelectionOriginal)(int a1, int a2, int a3) = nullptr;
+DWORD*(__stdcall* MarioKartGPDX118Custom::playerSelectionRightOriginal)(int a1) = nullptr;
+DWORD*(__stdcall* MarioKartGPDX118Custom::playerSelectionLeftOriginal)(int a1) = nullptr;
+DWORD*(__stdcall* MarioKartGPDX118Custom::modeSelectionRightOriginal)(int a1) = nullptr;
+DWORD*(__stdcall* MarioKartGPDX118Custom::modeSelectionLeftOriginal)(int a1) = nullptr;
+int(__stdcall* MarioKartGPDX118Custom::speedSelectionRightOriginal)(int a1) = nullptr;
+int(__stdcall* MarioKartGPDX118Custom::speedSelectionLeftOriginal)(int a1) = nullptr;
+int(__stdcall* MarioKartGPDX118Custom::cupSelectionRightOriginal)(int a1, int a2, int a3) = nullptr;
+int(__stdcall* MarioKartGPDX118Custom::cupSelectionLeftOriginal)(int a1, int a2, int a3) = nullptr;
+int(__stdcall* MarioKartGPDX118Custom::roundSelectionRightOriginal)(int a1) = nullptr;
+int(__stdcall* MarioKartGPDX118Custom::roundSelectionLeftOriginal)(int a1) = nullptr;
+int(__stdcall* MarioKartGPDX118Custom::itemSelectionRightOriginal)(int a1) = nullptr;
+int(__stdcall* MarioKartGPDX118Custom::itemSelectionLeftOriginal)(int a1) = nullptr;
+int(__stdcall* MarioKartGPDX118Custom::item2SelectionRightOriginal)(int a1) = nullptr;
+int(__stdcall* MarioKartGPDX118Custom::item2SelectionLeftOriginal)(int a1) = nullptr;
+int(__stdcall* MarioKartGPDX118Custom::item3SelectionRightOriginal)(int a1) = nullptr;
+int(__stdcall* MarioKartGPDX118Custom::item3SelectionLeftOriginal)(int a1) = nullptr;
 
-static UINT8 MenuPosition;
-static UINT8 oldMenuPosition;
-static UINT8 oldGameState;
-static bool MenuEffect;
-
-static int oldCoins;
-static int oldWeapon;
-static int oldHitGround;
-
-static int(__stdcall* PlayerCostumeSelectionRightOri)(DWORD* a1);
-static int __stdcall PlayerCostumeSelectionRightHook(DWORD* a1)
+MarioKartGPDX118Custom::MarioKartGPDX118Custom()
 {
-	MenuEffect = true;
-	return PlayerCostumeSelectionRightOri(a1);
+	instance = this;
 }
 
-static int(__stdcall* PlayerCostumeSelectionLeftOri)(DWORD* a1);
-static int __stdcall PlayerCostumeSelectionLeftHook(DWORD* a1)
+int __stdcall MarioKartGPDX118Custom::PlayerCostumeSelectionRightHook(DWORD* a1)
 {
-	MenuEffect = true;
-	return PlayerCostumeSelectionLeftOri(a1);
+	instance->menuEffect = true;
+	return playerCostumeSelectionRightOriginal(a1);
 }
 
-static int(__stdcall* KartCostumeSelectionOri)(int a1, int a2, int a3);
-static int __stdcall KartCostumeSelectionHook(int a1, int a2, int a3)
+int __stdcall MarioKartGPDX118Custom::PlayerCostumeSelectionLeftHook(DWORD* a1)
 {
-	MenuEffect = true;
-	return KartCostumeSelectionOri(a1, a2, a3);
+	instance->menuEffect = true;
+	return playerCostumeSelectionLeftOriginal(a1);
 }
 
-static DWORD*(__stdcall* PlayerSelectionRightOri)(int a1);
-static DWORD* __stdcall PlayerSelectionRightHook(int a1)
+int __stdcall MarioKartGPDX118Custom::KartCostumeSelectionHook(int a1, int a2, int a3)
 {
-	MenuEffect = true;
-	return PlayerSelectionRightOri(a1);
+	instance->menuEffect = true;
+	return kartCostumeSelectionOriginal(a1, a2, a3);
 }
 
-static DWORD* (__stdcall* PlayerSelectionLeftOri)(int a1);
-static DWORD* __stdcall PlayerSelectionLeftHook(int a1)
+DWORD* __stdcall MarioKartGPDX118Custom::PlayerSelectionRightHook(int a1)
 {
-	MenuEffect = true;
-	return PlayerSelectionLeftOri(a1);
+	instance->menuEffect = true;
+	return playerSelectionRightOriginal(a1);
 }
 
-static DWORD* (__stdcall* ModeSelectionRightOri)(int a1);
-static DWORD* __stdcall ModeSelectionRightHook(int a1)
+DWORD* __stdcall MarioKartGPDX118Custom::PlayerSelectionLeftHook(int a1)
 {
-	MenuEffect = true;
-	return ModeSelectionRightOri(a1);
+	instance->menuEffect = true;
+	return playerSelectionLeftOriginal(a1);
 }
 
-static DWORD* (__stdcall* ModeSelectionLeftOri)(int a1);
-static DWORD* __stdcall ModeSelectionLeftHook(int a1)
+DWORD* __stdcall MarioKartGPDX118Custom::ModeSelectionRightHook(int a1)
 {
-	MenuEffect = true;
-	return ModeSelectionLeftOri(a1);
+	instance->menuEffect = true;
+	return modeSelectionRightOriginal(a1);
 }
 
-static int(__stdcall* SpeedSelectionRightOri)(int a1);
-static int __stdcall SpeedSelectionRightHook(int a1)
+DWORD* __stdcall MarioKartGPDX118Custom::ModeSelectionLeftHook(int a1)
 {
-	MenuEffect = true;
-	return SpeedSelectionRightOri(a1);
+	instance->menuEffect = true;
+	return modeSelectionLeftOriginal(a1);
 }
 
-static int(__stdcall* SpeedSelectionLeftOri)(int a1);
-static int __stdcall SpeedSelectionLeftHook(int a1)
+int __stdcall MarioKartGPDX118Custom::SpeedSelectionRightHook(int a1)
 {
-	MenuEffect = true;
-	return SpeedSelectionLeftOri(a1);
+	instance->menuEffect = true;
+	return speedSelectionRightOriginal(a1);
 }
 
-static int(__stdcall* CupSelectionRightOri)(int a1, int a2, int a3);
-static int __stdcall CupSelectionRightHook(int a1, int a2, int a3)
+int __stdcall MarioKartGPDX118Custom::SpeedSelectionLeftHook(int a1)
 {
-	MenuEffect = true;
-	return CupSelectionRightOri(a1, a2, a3);
+	instance->menuEffect = true;
+	return speedSelectionLeftOriginal(a1);
 }
 
-static int(__stdcall* CupSelectionLeftOri)(int a1, int a2, int a3);
-static int __stdcall CupSelectionLeftHook(int a1, int a2, int a3)
+int __stdcall MarioKartGPDX118Custom::CupSelectionRightHook(int a1, int a2, int a3)
 {
-	MenuEffect = true;
-	return CupSelectionLeftOri(a1, a2, a3);
+	instance->menuEffect = true;
+	return cupSelectionRightOriginal(a1, a2, a3);
 }
 
-static int(__stdcall* RoundSelectionRightOri)(int a1);
-static int __stdcall RoundSelectionRightHook(int a1)
+int __stdcall MarioKartGPDX118Custom::CupSelectionLeftHook(int a1, int a2, int a3)
 {
-	MenuEffect = true;
-	return RoundSelectionRightOri(a1);
+	instance->menuEffect = true;
+	return cupSelectionLeftOriginal(a1, a2, a3);
 }
 
-static int(__stdcall* RoundSelectionLeftOri)(int a1);
-static int __stdcall RoundSelectionLeftHook(int a1)
+int __stdcall MarioKartGPDX118Custom::RoundSelectionRightHook(int a1)
 {
-	MenuEffect = true;
-	return RoundSelectionLeftOri(a1);
+	instance->menuEffect = true;
+	return roundSelectionRightOriginal(a1);
 }
 
-static int(__stdcall* ItemSelectionRightOri)(int a1);
-static int __stdcall ItemSelectionRightHook(int a1)
+int __stdcall MarioKartGPDX118Custom::RoundSelectionLeftHook(int a1)
 {
-	MenuEffect = true;
-	return ItemSelectionRightOri(a1);
+	instance->menuEffect = true;
+	return roundSelectionLeftOriginal(a1);
 }
 
-static int(__stdcall* ItemSelectionLeftOri)(int a1);
-static int __stdcall ItemSelectionLeftHook(int a1)
+int __stdcall MarioKartGPDX118Custom::ItemSelectionRightHook(int a1)
 {
-	MenuEffect = true;
-	return ItemSelectionLeftOri(a1);
+	instance->menuEffect = true;
+	return itemSelectionRightOriginal(a1);
 }
 
-static int(__stdcall* Item2SelectionRightOri)(int a1);
-static int __stdcall Item2SelectionRightHook(int a1)
+int __stdcall MarioKartGPDX118Custom::ItemSelectionLeftHook(int a1)
 {
-	MenuEffect = true;
-	return Item2SelectionRightOri(a1);
+	instance->menuEffect = true;
+	return itemSelectionLeftOriginal(a1);
 }
 
-static int(__stdcall* Item2SelectionLeftOri)(int a1);
-static int __stdcall Item2SelectionLeftHook(int a1)
+int __stdcall MarioKartGPDX118Custom::Item2SelectionRightHook(int a1)
 {
-	MenuEffect = true;
-	return Item2SelectionLeftOri(a1);
+	instance->menuEffect = true;
+	return item2SelectionRightOriginal(a1);
 }
 
-static int(__stdcall* Item3SelectionRightOri)(int a1);
-static int __stdcall Item3SelectionRightHook(int a1)
+int __stdcall MarioKartGPDX118Custom::Item2SelectionLeftHook(int a1)
 {
-	MenuEffect = true;
-	return Item3SelectionRightOri(a1);
+	instance->menuEffect = true;
+	return item2SelectionLeftOriginal(a1);
 }
 
-static int(__stdcall* Item3SelectionLeftOri)(int a1);
-static int __stdcall Item3SelectionLeftHook(int a1)
+int __stdcall MarioKartGPDX118Custom::Item3SelectionRightHook(int a1)
 {
-	MenuEffect = true;
-	return Item3SelectionLeftOri(a1);
+	instance->menuEffect = true;
+	return item3SelectionRightOriginal(a1);
 }
 
-void MarioKartGPDX118Custom::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTriggers* triggers) {
+int __stdcall MarioKartGPDX118Custom::Item3SelectionLeftHook(int a1)
+{
+	instance->menuEffect = true;
+	return item3SelectionLeftOriginal(a1);
+}
 
-	INT_PTR ff1 = helpers->ReadIntPtr(0xAC72F4, true); //shake
-	INT_PTR ff2 = helpers->ReadIntPtr(0xAC2A30, true);//??
-	UINT8 ff3 = helpers->ReadByte(ff2 + 0x66C, false); // terrain data
-	UINT8 ff5 = helpers->ReadByte(ff2 + 0x69C, false); //kart flying or on ground
-	INT_PTR ff6 = helpers->ReadIntPtr(0xAAFAB8, true);
-	INT_PTR ff7 = helpers->ReadIntPtr(ff6 + 0x44,false);
-	INT_PTR ff8 = helpers->ReadIntPtr(ff7 + 0x70, false);
-	INT_PTR ff9 = helpers->ReadIntPtr(ff8 + 0x108, false);
-	INT_PTR ff10 = helpers->ReadIntPtr(ff9 + 0x98, false);
-	UINT8 ff11 = helpers->ReadByte(ff10 + 0x4C4, false); // 1 during race only
-	float Speed = helpers->ReadFloat32(ff2 + 0x580, false); //Speed of Kart
-	UINT8 ff13 = helpers->ReadByte(0xAB9110, true); //picking up coins
-	UINT8 ff14 = helpers->ReadByte(0xAC5C0D, true); //picking up weapon box
-	UINT8 Wheel = helpers->ReadByte(0xAC6EAD, true); //0-255 steering
-	INT_PTR ff16 = helpers->ReadIntPtr(0xAAD0BC, true);
-	UINT8 ff17 = helpers->ReadByte(ff2 + 0x6B8, false); // Drift
-	UINT8 ff18 = helpers->ReadByte(ff16 + 0x3A4, false); // Boost
+void MarioKartGPDX118Custom::Update()
+{
+	INT_PTR shake = Memory::Read(Shake);
+	INT_PTR kart = Memory::Read(Kart);
+	UINT8 terrain = Memory::Read<UINT8>(kart + Terrain);
+	UINT8 onGround = Memory::Read<UINT8>(kart + OnGround);
+	UINT8 race = Memory::Read(Race);
+	float speed = Memory::Read<float>(kart + Speed);
+	UINT8 coins = Memory::Read(Coins);
+	UINT8 weapon = Memory::Read(Weapon);
+	UINT8 steering = Memory::Read(Steering);
+	INT_PTR boostPointer = Memory::Read(BoostPointer);
+	UINT8 drift = Memory::Read<UINT8>(kart + Drift);
+	UINT8 boost = Memory::Read<UINT8>(boostPointer + Boost);
 
-	DWORD GameStateBase = helpers->ReadInt32(0xAAEE58, true);
-	UINT8 GameState = helpers->ReadByte(GameStateBase + 0x44, false);
+	DWORD gameStateBase = Memory::Read(GameStateBase);
+	UINT8 gameState = Memory::Read<UINT8>(gameStateBase + GameState);
 
-	helpers->log("got value: ");
-	std::string ffs = std::to_string(ff1);
-	helpers->log((char*)ffs.c_str()); helpers->log("got value: ");
+	Log::Printf("got value: %lld", (long long)shake);
 
-	if (!init && MenuRumble)
+	if (!hooked && menuRumble)
 	{
-		init = true;
+		hooked = true;
 
-		INT_PTR ImageBase = (INT_PTR)GetModuleHandleA(0);
-
-		MH_Initialize(); 
-		MH_CreateHook((void*)(ImageBase + 0x386940), PlayerCostumeSelectionRightHook, (void**)&PlayerCostumeSelectionRightOri);
-		MH_CreateHook((void*)(ImageBase + 0x3867E0), PlayerCostumeSelectionLeftHook, (void**)&PlayerCostumeSelectionLeftOri);
-		MH_CreateHook((void*)(ImageBase + 0x3D1250), KartCostumeSelectionHook, (void**)&KartCostumeSelectionOri);
-		MH_CreateHook((void*)(ImageBase + 0x379650), PlayerSelectionRightHook, (void**)&PlayerSelectionRightOri);
-		MH_CreateHook((void*)(ImageBase + 0x379540), PlayerSelectionLeftHook, (void**)&PlayerSelectionLeftOri);
-		MH_CreateHook((void*)(ImageBase + 0x3A7A50), ModeSelectionRightHook, (void**)&ModeSelectionRightOri);
-		MH_CreateHook((void*)(ImageBase + 0x3A79D0), ModeSelectionLeftHook, (void**)&ModeSelectionLeftOri);
-		MH_CreateHook((void*)(ImageBase + 0x377B30), SpeedSelectionRightHook, (void**)&SpeedSelectionRightOri);
-		MH_CreateHook((void*)(ImageBase + 0x377AD0), SpeedSelectionLeftHook, (void**)&SpeedSelectionLeftOri);
-		MH_CreateHook((void*)(ImageBase + 0x3908D0), CupSelectionRightHook, (void**)&CupSelectionRightOri);
-		MH_CreateHook((void*)(ImageBase + 0x390800), CupSelectionLeftHook, (void**)&CupSelectionLeftOri);
-		MH_CreateHook((void*)(ImageBase + 0x3B0160), RoundSelectionRightHook, (void**)&RoundSelectionRightOri);
-		MH_CreateHook((void*)(ImageBase + 0x3B00D0), RoundSelectionLeftHook, (void**)&RoundSelectionLeftOri);
-		MH_CreateHook((void*)(ImageBase + 0x39D460), ItemSelectionRightHook, (void**)&ItemSelectionRightOri);
-		MH_CreateHook((void*)(ImageBase + 0x39D3C0), ItemSelectionLeftHook, (void**)&ItemSelectionLeftOri);
-		MH_CreateHook((void*)(ImageBase + 0x39C640), Item2SelectionRightHook, (void**)&Item2SelectionRightOri);
-		MH_CreateHook((void*)(ImageBase + 0x39C550), Item2SelectionLeftHook, (void**)&Item2SelectionLeftOri);
-		MH_CreateHook((void*)(ImageBase + 0x39EF70), Item3SelectionRightHook, (void**)&Item3SelectionRightOri);
-		MH_CreateHook((void*)(ImageBase + 0x39EEA0), Item3SelectionLeftHook, (void**)&Item3SelectionLeftOri);
-		MH_EnableHook(MH_ALL_HOOKS);
+		Hooks::Initialize();
+		Hooks::Create(Memory::Address(Base::Module, PlayerCostumeSelectionRight), PlayerCostumeSelectionRightHook, &playerCostumeSelectionRightOriginal);
+		Hooks::Create(Memory::Address(Base::Module, PlayerCostumeSelectionLeft), PlayerCostumeSelectionLeftHook, &playerCostumeSelectionLeftOriginal);
+		Hooks::Create(Memory::Address(Base::Module, KartCostumeSelection), KartCostumeSelectionHook, &kartCostumeSelectionOriginal);
+		Hooks::Create(Memory::Address(Base::Module, PlayerSelectionRight), PlayerSelectionRightHook, &playerSelectionRightOriginal);
+		Hooks::Create(Memory::Address(Base::Module, PlayerSelectionLeft), PlayerSelectionLeftHook, &playerSelectionLeftOriginal);
+		Hooks::Create(Memory::Address(Base::Module, ModeSelectionRight), ModeSelectionRightHook, &modeSelectionRightOriginal);
+		Hooks::Create(Memory::Address(Base::Module, ModeSelectionLeft), ModeSelectionLeftHook, &modeSelectionLeftOriginal);
+		Hooks::Create(Memory::Address(Base::Module, SpeedSelectionRight), SpeedSelectionRightHook, &speedSelectionRightOriginal);
+		Hooks::Create(Memory::Address(Base::Module, SpeedSelectionLeft), SpeedSelectionLeftHook, &speedSelectionLeftOriginal);
+		Hooks::Create(Memory::Address(Base::Module, CupSelectionRight), CupSelectionRightHook, &cupSelectionRightOriginal);
+		Hooks::Create(Memory::Address(Base::Module, CupSelectionLeft), CupSelectionLeftHook, &cupSelectionLeftOriginal);
+		Hooks::Create(Memory::Address(Base::Module, RoundSelectionRight), RoundSelectionRightHook, &roundSelectionRightOriginal);
+		Hooks::Create(Memory::Address(Base::Module, RoundSelectionLeft), RoundSelectionLeftHook, &roundSelectionLeftOriginal);
+		Hooks::Create(Memory::Address(Base::Module, ItemSelectionRight), ItemSelectionRightHook, &itemSelectionRightOriginal);
+		Hooks::Create(Memory::Address(Base::Module, ItemSelectionLeft), ItemSelectionLeftHook, &itemSelectionLeftOriginal);
+		Hooks::Create(Memory::Address(Base::Module, Item2SelectionRight), Item2SelectionRightHook, &item2SelectionRightOriginal);
+		Hooks::Create(Memory::Address(Base::Module, Item2SelectionLeft), Item2SelectionLeftHook, &item2SelectionLeftOriginal);
+		Hooks::Create(Memory::Address(Base::Module, Item3SelectionRight), Item3SelectionRightHook, &item3SelectionRightOriginal);
+		Hooks::Create(Memory::Address(Base::Module, Item3SelectionLeft), Item3SelectionLeftHook, &item3SelectionLeftOriginal);
+		Hooks::Enable();
 	}
 
-	ApplyDamper(triggers);
+	ApplyDamper();
 
-	if (MenuRumble && !ff11)
+	if (menuRumble && !race)
 	{
-		DWORD MenuBase = helpers->ReadInt32(0xAAEEB0, true);
-		DWORD MenuOff0 = helpers->ReadInt32(MenuBase + 0x10, false);
+		DWORD menuBase = Memory::Read(MenuBase);
+		DWORD menu = Memory::Read<int>(menuBase + Menu);
 
-		DWORD BanapassOff0 = helpers->ReadInt32(GameStateBase + 0x38, false);
+		DWORD banapass = Memory::Read<int>(gameStateBase + Banapass);
 
-		if (GameState != oldGameState)
-			MenuPosition = 0;
+		if (gameState != oldGameState)
+			menuPosition = 0;
 
-		switch (GameState)
+		switch (gameState)
 		{
 		case 0x09: // Banapass Selection Screen
-			MenuPosition = helpers->ReadByte(BanapassOff0 + 0x30, false);
+			menuPosition = Memory::Read<UINT8>(banapass + 0x30);
 			break;
 		case 0x13: // Camera Costume Selection Screen
-			MenuPosition = helpers->ReadByte(MenuOff0 + 0x294, false);
+			menuPosition = Memory::Read<UINT8>(menu + 0x294);
 			break;
 		case 0x2D: // After Race Change Selection Screen
-			MenuPosition = helpers->ReadByte(MenuOff0 + 0xE0, false);
+			menuPosition = Memory::Read<UINT8>(menu + 0xE0);
 			break;
 		case 0x2F: // After Race Continue Selection Screen
-			MenuPosition = helpers->ReadByte(MenuOff0 + 0xE8, false);
+			menuPosition = Memory::Read<UINT8>(menu + 0xE8);
 			break;
 		}
 
-		if (MenuPosition != oldMenuPosition && GameState == oldGameState)
+		if (menuPosition != oldMenuPosition && gameState == oldGameState)
 		{
-			double percentForce = MenuRumbleStrength / 100.0;
-			triggers->Sine(60, 0, percentForce, 100);
-			triggers->Rumble(percentForce, percentForce, 100);
+			double percentForce = menuRumbleStrength / 100.0;
+			wheel.Sine(60, 0, percentForce, 100);
+			wheel.Rumble(percentForce, percentForce, 100);
 		}
 
-		if (MenuEffect)
+		if (menuEffect)
 		{
-			MenuEffect = false;
-			double percentForce = MenuRumbleStrength / 100.0;
-			triggers->Sine(60, 0, percentForce, 100);
-			triggers->Rumble(percentForce, percentForce, 100);
+			menuEffect = false;
+			double percentForce = menuRumbleStrength / 100.0;
+			wheel.Sine(60, 0, percentForce, 100);
+			wheel.Rumble(percentForce, percentForce, 100);
 		}
 	}
 
-	if (ConstantEffectForSteering && ff11 == 1)
+	if (constantEffectForSteering && race == 1)
 	{
-		UINT32 length_ms = 100;
-		if (Wheel >= 0 && Wheel < 128)
+		if (steering >= 0 && steering < 128)
 		{
-			double percentForce = ((128 - Wheel) / (ConstantEffectForSteeringStrength / 1.0));
-			triggers->Rumble(percentForce, 0, length_ms);
-			triggers->Constant(constants->DIRECTION_FROM_LEFT, percentForce);
+			double percentForce = ((128 - steering) / (constantEffectForSteeringStrength / 1.0));
+			wheel.ConstantWithRumble(Direction::FromLeft, percentForce);
 		}
-		else if (Wheel > 127 && Wheel < 256)
+		else if (steering > 127 && steering < 256)
 		{
-			double percentForce = ((Wheel - 127) / (ConstantEffectForSteeringStrength / 1.0));
-			triggers->Rumble(0, percentForce, length_ms);
-			triggers->Constant(constants->DIRECTION_FROM_RIGHT, percentForce);
+			double percentForce = ((steering - 127) / (constantEffectForSteeringStrength / 1.0));
+			wheel.ConstantWithRumble(Direction::FromRight, percentForce);
 		}
 	}
 
-	if ((MainShakeRumble) && (4194308 == ff1) && (ff11 == 1))
+	if ((mainShakeRumble) && (4194308 == shake) && (race == 1))
 	{
 		// Large Shake when hitting walls, other karts or getting hit by items
-		double percentForce = ((MainShakeRumbleStrength) / 100.0);
-		UINT32 length_ms = 500;
-		triggers->Rumble(percentForce, percentForce, length_ms);
-		triggers->Sine(200, 200, percentForce, 200);
+		double percentForce = ((mainShakeRumbleStrength) / 100.0);
+		wheel.Rumble(percentForce, percentForce, 500);
+		wheel.Sine(200, 200, percentForce, 200);
 	}
 
-	if ((BoostRumble == 1) && (ff18 == 1) && (ff11 == 1))
+	if ((boostRumble == 1) && (boost == 1) && (race == 1))
 	{
 		// Shake when Boost
-		double percentForce = ((BoostRumbleStrength) / 100.0);
-		UINT32 length_ms = 100;
-		triggers->Rumble(percentForce, percentForce, length_ms);
-		triggers->Sine(60, 60, percentForce, 100);
+		double percentForce = ((boostRumbleStrength) / 100.0);
+		wheel.Rumble(percentForce, percentForce, 100);
+		wheel.Sine(60, 60, percentForce, 100);
 	}
 
-	if ((DriftRumble == 1) && (ff17 == 1) && (Wheel >= 0) && (Wheel < 128) && (ff11 == 1))
+	if ((driftRumble == 1) && (drift == 1) && (steering >= 0) && (steering < 128) && (race == 1))
 	{
 		// Drift Effect including steering left
-		double percentForce = (((128 - Wheel) / 128.0) * (DriftRumbleControllerStrengthMultiplier / 100.0));
-		UINT32 length_ms = 100;
-		triggers->Rumble(percentForce, 0, length_ms);
-		triggers->Friction(percentForce);
+		double percentForce = (((128 - steering) / 128.0) * (driftRumbleControllerStrengthMultiplier / 100.0));
+		wheel.Rumble(percentForce, 0, 100);
+		wheel.Friction(percentForce);
 	}
 
-	if ((DriftRumble == 1) && (ff17 == 1) && (Wheel > 127) && (Wheel < 256) && (ff11 == 1))
+	if ((driftRumble == 1) && (drift == 1) && (steering > 127) && (steering < 256) && (race == 1))
 	{
 		// Drift Effect including steering right
-		double percentForce = (((Wheel - 127) / 128.0) * (DriftRumbleControllerStrengthMultiplier / 100.0));
-		UINT32 length_ms = 100;
-		triggers->Rumble(0, percentForce, length_ms);
-		triggers->Friction(percentForce);
+		double percentForce = (((steering - 127) / 128.0) * (driftRumbleControllerStrengthMultiplier / 100.0));
+		wheel.Rumble(0, percentForce, 100);
+		wheel.Friction(percentForce);
 	}
 
-	if ((HitGroundRumble == 1) && (oldHitGround != ff5) && (ff5 == 1) && (ff11 == 1))
+	if ((hitGroundRumble == 1) && (oldHitGround != onGround) && (onGround == 1) && (race == 1))
 	{
 		// Shake when hitting ground
-		double percentForce = ((HitGroundRumbleStrength) / 100.0);
-		UINT32 length_ms = 100;
-		triggers->Rumble(percentForce, percentForce, length_ms);
-		triggers->Constant(constants->DIRECTION_FROM_LEFT, percentForce);
+		double percentForce = ((hitGroundRumbleStrength) / 100.0);
+		wheel.Rumble(percentForce, percentForce, 100);
+		wheel.Constant(Direction::FromLeft, percentForce);
 		Sleep(50);
-		triggers->Constant(constants->DIRECTION_FROM_RIGHT, percentForce);
+		wheel.Constant(Direction::FromRight, percentForce);
 	}
 
-	if ((WeaponRumble == 1) && (oldWeapon != ff14) && (ff11 == 1))
+	if ((weaponRumble == 1) && (oldWeapon != weapon) && (race == 1))
 	{
 		// Shake when picking up new weapons or using them
-		double percentForce = ((WeaponRumbleStrength) / 100.0);
-		UINT32 length_ms = 300;
-		triggers->Rumble(percentForce, percentForce, length_ms);
-		triggers->Sine(80, 50, percentForce, 100);
+		double percentForce = ((weaponRumbleStrength) / 100.0);
+		wheel.Rumble(percentForce, percentForce, 300);
+		wheel.Sine(80, 50, percentForce, 100);
 	}
 
-	if ((CoinRumble == 1) && (oldCoins != ff13) && (ff11 == 1))
+	if ((coinRumble == 1) && (oldCoins != coins) && (race == 1))
 	{
 		// Shake when picking up coins
-		double percentForce = ((CoinRumbleStrength) / 100.0);
-		UINT32 length_ms = 200;
-		triggers->Rumble(percentForce, percentForce, length_ms);
-		triggers->Sine(50, 50, percentForce, 100);
+		double percentForce = ((coinRumbleStrength) / 100.0);
+		wheel.Rumble(percentForce, percentForce, 200);
+		wheel.Sine(50, 50, percentForce, 100);
 	}
 
-	if ((DirtRumble == 1) && (3 == ff3) && (ff11 == 1) && (ff5 == 1) && (Speed > 0.1))
+	if ((dirtRumble == 1) && (3 == terrain) && (race == 1) && (onGround == 1) && (speed > 0.1))
 	{
 		// small friction when driving on dirt while moving
-		double percentForce = ((DirtRumbleStrength) / 100.0);
-		UINT32 length_ms = 100;
-		triggers->Rumble(percentForce, 0, length_ms);
-		triggers->Friction(percentForce);
+		double percentForce = ((dirtRumbleStrength) / 100.0);
+		wheel.Rumble(percentForce, 0, 100);
+		wheel.Friction(percentForce);
 	}
 
-	if ((SpeedBumpRumble == 1) && (10 == ff3) && (ff11 == 1) && (ff5 == 1) && (Speed > 0.1))
+	if ((speedBumpRumble == 1) && (10 == terrain) && (race == 1) && (onGround == 1) && (speed > 0.1))
 	{
-		//	Small constant when hitting bumps
-		double percentForce = ((SpeedBumpRumbleStrength) / 100.0);
-		UINT32 length_ms = 50;
-		triggers->Rumble(percentForce, percentForce, length_ms);
-		triggers->Constant(constants->DIRECTION_FROM_RIGHT, percentForce);
-		triggers->Constant(constants->DIRECTION_FROM_RIGHT, 0);
+		// Small constant when hitting bumps
+		double percentForce = ((speedBumpRumbleStrength) / 100.0);
+		wheel.Rumble(percentForce, percentForce, 50);
+		wheel.Constant(Direction::FromRight, percentForce);
+		wheel.Constant(Direction::FromRight, 0);
 	}
 
-	if ((GrassRumble == 1) && (4 == ff3) && (ff11 == 1) && (ff5 == 1) && (Speed > 0.1))
+	if ((grassRumble == 1) && (4 == terrain) && (race == 1) && (onGround == 1) && (speed > 0.1))
 	{
 		// Wheel rumbles while driving on grass
-		double percentForce = ((GrassRumbleStrength) / 100.0);
-		UINT32 length_ms = 50;
-		triggers->Rumble(0, percentForce, length_ms);
-		triggers->Sine(50, 50, percentForce, 100);
+		double percentForce = ((grassRumbleStrength) / 100.0);
+		wheel.Rumble(0, percentForce, 50);
+		wheel.Sine(50, 50, percentForce, 100);
 	}
 
-	if ((CarpetRumble == 1) && (9 == ff3) && (ff11 == 1) && (ff5 == 1) && (Speed > 0.1))
+	if ((carpetRumble == 1) && (9 == terrain) && (race == 1) && (onGround == 1) && (speed > 0.1))
 	{
 		// Wheel rumbles while driving on carpet
-		double percentForce = ((CarpetRumbleStrength) / 100.0);
-		UINT32 length_ms = 50;
-		triggers->Rumble(0, percentForce, length_ms);
-		triggers->Sine(50, 50, percentForce, 100);
+		double percentForce = ((carpetRumbleStrength) / 100.0);
+		wheel.Rumble(0, percentForce, 50);
+		wheel.Sine(50, 50, percentForce, 100);
 	}
 
-	if ((WaterRumble == 1) && (7 == ff3) && (ff11 == 1) && (ff5 == 1) && (Speed > 0.1) && (Wheel >= 0) && (Wheel < 128))
+	if ((waterRumble == 1) && (7 == terrain) && (race == 1) && (onGround == 1) && (speed > 0.1) && (steering >= 0) && (steering < 128))
 	{
-		//wheel hard to turn while driving through water
-		double percentForce = ((WaterRumbleWheelStrength) / 100.0);
-		double percentForce1 = ((128 - Wheel / 128.0) * (WaterRumbleControllerStrengthMultiplier / 100.0));
-		UINT32 length_ms = 100;
-		triggers->Rumble(percentForce1, 0, length_ms);
-		triggers->Friction(percentForce);
+		// wheel hard to turn while driving through water
+		double percentForce = ((waterRumbleWheelStrength) / 100.0);
+		// 128 - steering / 128.0, not (128 - steering) / 128.0 as for the drift
+		double percentForce1 = ((128 - steering / 128.0) * (waterRumbleControllerStrengthMultiplier / 100.0));
+		wheel.Rumble(percentForce1, 0, 100);
+		wheel.Friction(percentForce);
 	}
 
-	if ((WaterRumble == 1) && (7 == ff3) && (ff11 == 1) && (ff5 == 1) && (Speed > 0.1) && (Wheel > 127))
+	if ((waterRumble == 1) && (7 == terrain) && (race == 1) && (onGround == 1) && (speed > 0.1) && (steering > 127))
 	{
-		double percentForce = ((WaterRumbleWheelStrength) / 100.0);
-		double percentForce1 = ((Wheel - 127 / 128.0) * (WaterRumbleControllerStrengthMultiplier / 100.0));
-		UINT32 length_ms = 100;
-		triggers->Rumble(0, percentForce1, length_ms);
-		triggers->Friction(percentForce);
+		double percentForce = ((waterRumbleWheelStrength) / 100.0);
+		double percentForce1 = ((steering - 127 / 128.0) * (waterRumbleControllerStrengthMultiplier / 100.0));
+		wheel.Rumble(0, percentForce1, 100);
+		wheel.Friction(percentForce);
 	}
 
-	if ((TileRumble == 1) && (12 == ff3) && (ff11 == 1) && (ff5 == 1) && (Speed > 0.1))
+	if ((tileRumble == 1) && (12 == terrain) && (race == 1) && (onGround == 1) && (speed > 0.1))
 	{
-		//Wheel rumbles lightly when driving over tiles
-		double percentForce = ((TileRumbleStrength) / 100.0);
-		UINT32 length_ms = 150;
-		triggers->Rumble(0, percentForce, length_ms);
-		triggers->Friction(percentForce);
+		// Wheel rumbles lightly when driving over tiles
+		double percentForce = ((tileRumbleStrength) / 100.0);
+		wheel.Rumble(0, percentForce, 150);
+		wheel.Friction(percentForce);
 	}
 
-	if ((SandRumble == 1) && (14 == ff3) && (ff11 == 1) && (ff5 == 1) && (Speed > 0.1))
+	if ((sandRumble == 1) && (14 == terrain) && (race == 1) && (onGround == 1) && (speed > 0.1))
 	{
-		//Wheel rumbles lightly when driving over sand
-		double percentForce = ((SandRumbleStrength) / 100.0);
-		UINT32 length_ms = 50;
-		triggers->Rumble(percentForce, 0, length_ms);
-		triggers->Sine(70, 70, percentForce, 100);
+		// Wheel rumbles lightly when driving over sand
+		double percentForce = ((sandRumbleStrength) / 100.0);
+		wheel.Rumble(percentForce, 0, 50);
+		wheel.Sine(70, 70, percentForce, 100);
 	}
 
-	if ((RoughTrackRumble == 1) && (11 == ff3) && (ff11 == 1) && (ff5 == 1) && (Speed > 0.1))
+	if ((roughTrackRumble == 1) && (11 == terrain) && (race == 1) && (onGround == 1) && (speed > 0.1))
 	{
-		//Wheel rumbles lightly when driving over rough part of track
-		double percentForce = ((RoughTrackRumbleStrength) / 100.0);
-		UINT32 length_ms = 100;
-		triggers->Rumble(0, percentForce, length_ms);
-		triggers->Sine(40, 50, percentForce, 100);
+		// Wheel rumbles lightly when driving over rough part of track
+		double percentForce = ((roughTrackRumbleStrength) / 100.0);
+		wheel.Rumble(0, percentForce, 100);
+		wheel.Sine(40, 50, percentForce, 100);
 	}
 
-	if ((BridgeRumble == 1) && (8 == ff3) && (ff11 == 1) && (ff5 == 1) && (Speed > 0.1))
+	if ((bridgeRumble == 1) && (8 == terrain) && (race == 1) && (onGround == 1) && (speed > 0.1))
 	{
-		//Wheel rumbles moderately when driving over wooden bridges
-		double percentForce = ((BridgeRumbleStrength) / 100.0);
-		UINT32 length_ms = 100;
-		triggers->Rumble(percentForce, percentForce, length_ms);
-		triggers->Sine(120, 120, percentForce, 200);
+		// Wheel rumbles moderately when driving over wooden bridges
+		double percentForce = ((bridgeRumbleStrength) / 100.0);
+		wheel.Rumble(percentForce, percentForce, 100);
+		wheel.Sine(120, 120, percentForce, 200);
 	}
 
-	oldCoins = ff13;
-	oldWeapon = ff14;
-	oldHitGround = ff5;
-	oldMenuPosition = MenuPosition;
-	oldGameState = GameState;
+	oldCoins = coins;
+	oldWeapon = weapon;
+	oldHitGround = onGround;
+	oldMenuPosition = menuPosition;
+	oldGameState = gameState;
 }

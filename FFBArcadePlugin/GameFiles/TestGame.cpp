@@ -13,7 +13,7 @@ along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
 
 #include "TestGame.h"
 #include "SDL.h"
-#include "../Common Files/GameIds.h"
+#include "../Core/GameIds.h"
 
 using namespace ffb;
 

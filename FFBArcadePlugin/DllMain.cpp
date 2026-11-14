@@ -23,8 +23,8 @@ along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
 #include <atlcomcli.h>
 #include <TlHelp32.h>
 #include "Config/PersistentValues.h"
-#include "Common Files/GameIds.h"
-#include "Common Files/Devices.h"
+#include "Core/GameIds.h"
+#include "Core/Devices.h"
 #include "../Version.h"
 #include "WrapperExports.h"
 
@@ -32,7 +32,7 @@ along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
 #include "Core/ForceFeedback.h"
 #include "Core/Log.h"
 #include "Core/Settings.h"
-#include "Common Files/MinHook.h"
+#include "Core/MinHook.h"
 
 // DINPUT8 FUNCTION DEFINITIONS
 typedef HRESULT(WINAPI* pfnDirectInputDirectInput8Create)(HINSTANCE hinst, DWORD dwVersion, REFIID riidltf, LPVOID* ppvOut, LPUNKNOWN punkOuter);

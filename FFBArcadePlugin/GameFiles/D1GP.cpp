@@ -11,107 +11,95 @@ You should have received a copy of the GNU General Public License
 along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
 */
 
-#include <string>
 #include "D1GP.h"
-#include "SDL.h"
 
-static int ShakeCount;
-static bool LetsShake;
-static UINT8 oldEffect;
+using namespace ffb;
 
-static int EnableGroundEffects = GetSettingInt(TEXT("EnableGroundEffects"), 0);
-static int FFBGrassSinePeriod = GetSettingInt(TEXT("FFBGrassSinePeriod"), 0);
-static int FFBGrassFadeSinePeriod = GetSettingInt(TEXT("FFBGrassFadeSinePeriod"), 0);
-static int FFBRumbleStripSinePeriod = GetSettingInt(TEXT("FFBRumbleStripSinePeriod"), 0);
-static int FFBRumbleStripFadeSinePeriod = GetSettingInt(TEXT("FFBRumbleStripFadeSinePeriod"), 0);
-
-void D1GP::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTriggers* triggers)
+void D1GP::Update()
 {
-	float FFBConstant = GetTeknoParrotFFB() / 1000.0f;
-	int Effect = GetTeknoParrotFFB2();
-	float Speedo = helpers->ReadFloat32(0x2150F4, true);
+	float ffbConstant = TeknoParrotFFB() / 1000.0f;
+	int effect = TeknoParrotFFB2();
+	float speed = Memory::Read(Speed);
 
-	UINT length = 100;
+	const UINT32 length = 100;
 
-	ApplyDamper(triggers);
+	ApplyDamper();
 
-	if (FFBConstant > 0)
+	if (ffbConstant > 0)
 	{
-		double percentForce = FFBConstant * 5.0;
+		double percentForce = ffbConstant * 5.0;
 
 		if (percentForce > 1.0)
 			percentForce = 1.0;
 
-		triggers->Rumble(0, percentForce, length);
-		triggers->Constant(constants->DIRECTION_FROM_RIGHT, percentForce);
+		wheel.ConstantWithRumble(Direction::FromRight, percentForce);
 	}
-	else if (FFBConstant < 0)
+	else if (ffbConstant < 0)
 	{
-		double percentForce = -FFBConstant * 5.0;
+		double percentForce = -ffbConstant * 5.0;
 
 		if (percentForce > 1.0)
 			percentForce = 1.0;
 
-		triggers->Rumble(percentForce, 0, length);
-		triggers->Constant(constants->DIRECTION_FROM_LEFT, percentForce);
+		wheel.ConstantWithRumble(Direction::FromLeft, percentForce);
 	}
 
-	double percentForce = Speedo / 200.0;
+	double percentForce = speed / 200.0;
 
 	if (percentForce > 1.0)
 		percentForce = 1.0;
 
-	if (Effect != oldEffect)
+	if (effect != oldEffect)
 	{
-		switch (Effect)
+		switch (effect)
 		{
 		case 0x01:
-			triggers->Spring(0.8);
+			wheel.Spring(0.8);
 			break;
 		case 0x02:
-			triggers->Rumble(0.3, 0.3, length);
-			triggers->Sine(35, 0, 0.3, length);
+			wheel.Rumble(0.3, 0.3, length);
+			wheel.Sine(35, 0, 0.3, length);
 			break;
 		case 0x04:
-			LetsShake = true;
+			letsShake = true;
 			break;
-		}	
+		}
 	}
 
-	if (EnableGroundEffects == 1 && Speedo > 0.1)
+	if (enableGroundEffects == 1 && speed > 0.1)
 	{
-		switch (Effect)
+		switch (effect)
 		{
 		case 0x08:
 		case 0x20:
 		case 0x80:
-		case 0x200:
-			triggers->Rumble(percentForce, percentForce, length);
-			triggers->Sine(FFBGrassSinePeriod, FFBGrassFadeSinePeriod, percentForce, length);
+		case 0x200: // grass
+			wheel.Rumble(percentForce, percentForce, length);
+			wheel.Sine(ffbGrassSinePeriod, ffbGrassFadeSinePeriod, percentForce, length);
 			break;
 		case 0x10:
 		case 0x40:
 		case 0x100:
-		case 0x400:
-			triggers->Rumble(percentForce, percentForce, length);
-			triggers->Sine(FFBRumbleStripSinePeriod, FFBRumbleStripFadeSinePeriod, percentForce, length);
+		case 0x400: // rumble strip
+			wheel.Rumble(percentForce, percentForce, length);
+			wheel.Sine(ffbRumbleStripSinePeriod, ffbRumbleStripFadeSinePeriod, percentForce, length);
 			break;
 		}
 	}
 
-	if (LetsShake)
+	if (letsShake)
 	{
-		++ShakeCount;
+		++shakeCount;
 
-		if (ShakeCount >= 32)
+		if (shakeCount >= 32)
 		{
-			ShakeCount = 0;
-			LetsShake = false;
+			shakeCount = 0;
+			letsShake = false;
 		}
 
-		triggers->Rumble(0.6, 0.6, length);
-		triggers->Sine(70, 60, 0.4, length);
+		wheel.Rumble(0.6, 0.6, length);
+		wheel.Sine(70, 60, 0.4, length);
 	}
 
-	oldEffect = Effect;
+	oldEffect = effect;
 }

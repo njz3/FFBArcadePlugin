@@ -11,13 +11,13 @@ You should have received a copy of the GNU General Public License
 along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
 */
 
-#include <string>
 #include "ChaseHQ2.h"
-static bool removecel = false;
-static int RemoveCelShadedFilter = GetSettingInt(TEXT("RemoveCelShadedFilter"), 0);
 
-int ttx2chasehq2(int ffRaw) {
-	switch (ffRaw) {
+using namespace ffb;
+
+int ChaseHQ2::ForceLevel(int word)
+{
+	switch (word) {
 	case 28672:
 		return 30;
 	case 24640:
@@ -84,52 +84,39 @@ int ttx2chasehq2(int ffRaw) {
 	}
 }
 
-void ChaseHQ2::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTriggers* triggers) {
-
-	int ff = 0;
+void ChaseHQ2::Update()
+{
+	long output = Memory::Read(Output);
+	int word = Memory::Read<int>(output + ForceAndLamps);
+	for (int lamp : Lamps)
 	{
-		long ffAddress = helpers->ReadInt32(0x130B558, true);
-		int ffRaw = helpers->ReadInt32(ffAddress + 0x45, false);
-		int lampArray[8] = { (16384) + 1, 16 ,1024 ,512, 128, 8, 256 }; //The 1 isn't needed but I wasn't sure how to get the 16384 to see the first digit any other way lol
-		for (int i = 0; i < 7; i++) {
-			if ((ffRaw & lampArray[i]) == lampArray[i]) {
-				ffRaw -= lampArray[i];
-			}
-		};
-
-		ff = ttx2chasehq2(ffRaw);
+		if ((word & lamp) == lamp)
+			word -= lamp;
 	}
+	int ff = ForceLevel(word);
 
-	if (RemoveCelShadedFilter)
+	if (removeCelShadedFilter)
 	{
-		if (!removecel)
+		if (!celShadedFilterCodeRemoved)
 		{
-			helpers->WriteNop(0x31FFA, 6, true);
-			removecel = true;
+			Memory::WriteNop(Memory::Address(Base::Module, CelShadedFilterCode), 6);
+			celShadedFilterCodeRemoved = true;
 		}
-		helpers->WriteByte(0x130CB30, 0x00, true); // Remove Cel Shaded Filter
+		Memory::Write<UINT8>(CelShadedFilter, 0x00); // Remove Cel Shaded Filter
 	}
 
-	ApplyDamper(triggers);
+	ApplyDamper();
 
-	helpers->log("got value: ");
-	std::string ffs = std::to_string(ff);
-	helpers->log((char*)ffs.c_str());
-
-	UINT32 length_ms = 100;
+	Log::Value("got value:", ff);
 
 	if (ff > 15)
 	{
-		helpers->log("moving wheel right");
-		double percentForce = (31 - ff) / 15.0;
-		triggers->Rumble(percentForce, 0, length_ms);
-		triggers->Constant(constants->DIRECTION_FROM_LEFT, percentForce);
+		Log::Write("moving wheel right");
+		wheel.ConstantWithRumble(Direction::FromLeft, (31 - ff) / 15.0);
 	}
 	else if (ff > 0)
 	{
-		helpers->log("moving wheel left");
-		double percentForce = (16 - ff) / 15.0;
-		triggers->Rumble(0, percentForce, length_ms);
-		triggers->Constant(constants->DIRECTION_FROM_RIGHT, percentForce);
+		Log::Write("moving wheel left");
+		wheel.ConstantWithRumble(Direction::FromRight, (16 - ff) / 15.0);
 	}
 }

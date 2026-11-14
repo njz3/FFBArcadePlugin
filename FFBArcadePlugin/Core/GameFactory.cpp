@@ -13,7 +13,7 @@ along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
 
 // Creates the game of the GameId setting
 #include "GameFactory.h"
-#include "../Common Files/GameIds.h"
+#include "GameIds.h"
 #include "../GameFiles/TestGame.h"
 #include "../GameFiles/AliensExtermination.h"
 #include "../GameFiles/Batman.h"

@@ -13,7 +13,7 @@ along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
 
 #include <string>
 #include "SDL.h"
-#include "../Common Files/Devices.h"
+#include "../Core/Devices.h"
 #include "RoadFighters3D.h"
 
 using namespace ffb;
