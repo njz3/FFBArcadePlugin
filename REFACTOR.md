@@ -45,7 +45,7 @@ Les fichiers d'entrées de Demul et M2Emulator sont devenus des classes (`DemulI
 
 **Validation.** Un programme de test compile l'ancien code (5b650e8) et le nouveau avec des simulations déterministes : mémoire du jeu (valeurs typées, changeantes), mémoire partagée TeknoParrot, événements joystick, sorties MAME aléatoires, appels des crochets avec des arguments aléatoires (x86), fenêtres des jeux de Demul et M2Emulator, threads des jeux, temps virtuel. Il enregistre les effets, écritures mémoire, crochets, threads et réglages appliqués, et compare les deux versions :
 
-- 1 460 exécutions : tous les jeux et toutes les roms MAME/Supermodel/Flycast, avec deux FFBPlugin.ini (valeurs par défaut, et une valeur pour chaque clé) et deux graines, 3 000 boucles chacune ;
+- 1 460 exécutions, en 32 bits et en 64 bits : tous les jeux et toutes les roms MAME/Supermodel/Flycast, avec deux FFBPlugin.ini (valeurs par défaut, et une valeur pour chaque clé) et deux graines, 3 000 boucles chacune ;
 - 186 exécutions de Demul, M2Emulator et Road Fighters 3D avec la fenêtre de chaque jeu, leurs threads et les entrées du volant activées.
 
 Toutes identiques à chaque commit. Les jeux peu couverts (crochets d'API, threads) ont été relus deux fois, ligne à ligne, et certains testés avec des valeurs orientées. Quatre jeux MAME ont été lancés dans MAME. Rien n'a encore été testé sur les bornes.
