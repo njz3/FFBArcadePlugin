@@ -11,7 +11,8 @@ You should have received a copy of the GNU General Public License
 along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
 */
 
-// The accesses to the game memory, apart from the rest of Memory so that a test harness can replace them
+// The accesses to the process memory, apart from the rest of Memory so that a test harness can replace them
+#include <string.h>
 #include "Memory.h"
 
 namespace ffb
@@ -26,5 +27,71 @@ namespace ffb
 	{
 		SIZE_T written;
 		WriteProcessMemory(GetCurrentProcess(), (LPVOID)address, source, size, &written);
+	}
+
+	static char* FindInBuffer(const char* pattern, const char* mask, char* begin, SIZE_T size)
+	{
+		size_t patternLength = strlen(mask);
+		if (size < patternLength)
+			return nullptr;
+
+		for (SIZE_T i = 0; i < size - patternLength; i++)
+		{
+			bool found = true;
+			for (size_t j = 0; j < patternLength; j++)
+			{
+				if (mask[j] != '?' && pattern[j] != begin[i + j])
+				{
+					found = false;
+					break;
+				}
+			}
+			if (found)
+				return begin + i;
+		}
+		return nullptr;
+	}
+
+	char* Memory::FindPattern(const char* pattern, const char* mask, const char* skip)
+	{
+		SYSTEM_INFO sysInfo;
+		GetSystemInfo(&sysInfo);
+		char* end = (char*)sysInfo.lpMaximumApplicationAddress;
+		HANDLE process = GetCurrentProcess();
+		char* chunk = nullptr;
+		char* match = nullptr;
+
+		while (chunk < end)
+		{
+			MEMORY_BASIC_INFORMATION mbi;
+			if (!VirtualQueryEx(process, chunk, &mbi, sizeof(mbi)))
+				return nullptr;
+
+			if (mbi.State == MEM_COMMIT && mbi.Protect != PAGE_NOACCESS)
+			{
+				char* buffer = new char[mbi.RegionSize];
+				DWORD oldProtect;
+				SIZE_T bytesRead = 0;
+				bool found = false;
+				if (VirtualProtectEx(process, mbi.BaseAddress, mbi.RegionSize, PAGE_EXECUTE_READWRITE, &oldProtect))
+				{
+					ReadProcessMemory(process, mbi.BaseAddress, buffer, mbi.RegionSize, &bytesRead);
+					VirtualProtectEx(process, mbi.BaseAddress, mbi.RegionSize, oldProtect, &oldProtect);
+
+					char* inBuffer = FindInBuffer(pattern, mask, buffer, bytesRead);
+					if (inBuffer != nullptr)
+					{
+						match = chunk + (inBuffer - buffer);
+						found = match != skip;
+					}
+				}
+				delete[] buffer;
+				if (found)
+					break;
+			}
+
+			chunk += mbi.RegionSize;
+		}
+		return match;
 	}
 }

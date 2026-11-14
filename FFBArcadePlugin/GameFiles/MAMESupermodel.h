@@ -12,9 +12,24 @@ along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
 */
 
 #pragma once
-#include "../Common Files/Game.h"
-class MAMESupermodel : public Game {
+#include "../Core/Game.h"
 
+// The games of the emulators that send their outputs to the plugin: MAME (-output windows or
+// -output network), Supermodel and Flycast. The game is found by its rom name in the table of
+// EmulatorGames.cpp, which gives its force settings and its force feedback hardware.
+// The outputs arrive in the thread of the outputs (MAMEOutputs.cpp, MAMENetworkOutputs.cpp).
+class MAMESupermodel : public ffb::Game
+{
 public:
-	void FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTriggers* triggers);
+	void Update() override;
+
+	// The rom name of the game, sent when it starts
+	static void OnGameName(const char* name);
+	// An output of the game changed
+	static void OnOutput(const char* name, int value);
+	// The emulator stopped
+	static void OnStop();
+
+private:
+	bool devicesOpen = false;
 };

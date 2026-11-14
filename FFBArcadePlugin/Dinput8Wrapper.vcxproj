@@ -19,6 +19,14 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="GameFiles\EmulatorGames.h" />
+    <ClInclude Include="Hardware\Vibration.h" />
+    <ClInclude Include="Hardware\WheelMotors.h" />
+    <ClInclude Include="Hardware\Namco.h" />
+    <ClInclude Include="Hardware\SegaInitialD.h" />
+    <ClInclude Include="Hardware\Sega.h" />
+    <ClInclude Include="Hardware\OutputBoard.h" />
+    <ClInclude Include="Core\ForceProfile.h" />
     <ClInclude Include="Core\GameFactory.h" />
     <ClInclude Include="Core\TeknoParrot.h" />
     <ClInclude Include="Core\Hooks.h" />
@@ -108,6 +116,15 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="GameFiles\MAMEOutputs.cpp" />
+    <ClCompile Include="GameFiles\EmulatorGames.cpp" />
+    <ClCompile Include="Hardware\Vibration.cpp" />
+    <ClCompile Include="Hardware\WheelMotors.cpp" />
+    <ClCompile Include="Hardware\Namco.cpp" />
+    <ClCompile Include="Hardware\SegaInitialD.cpp" />
+    <ClCompile Include="Hardware\Sega.cpp" />
+    <ClCompile Include="Hardware\OutputBoard.cpp" />
+    <ClCompile Include="Core\ForceProfile.cpp" />
     <ClCompile Include="Core\GameFactory.cpp" />
     <ClCompile Include="Core\TeknoParrot.cpp" />
     <ClCompile Include="Core\Game.cpp" />

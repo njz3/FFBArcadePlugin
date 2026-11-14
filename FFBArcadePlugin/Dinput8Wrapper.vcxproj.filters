@@ -12,6 +12,9 @@
     <Filter Include="Core">
       <UniqueIdentifier>{306dc369-fdca-44aa-af36-e49f82e5c40b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Hardware">
+      <UniqueIdentifier>{cdf43ffc-cacb-4968-95bd-21367ed9b392}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="Config\FFBPlugin.ini" />
@@ -19,6 +22,33 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="GameFiles\MAMEOutputs.cpp">
+      <Filter>GameFiles</Filter>
+    </ClCompile>
+    <ClCompile Include="GameFiles\EmulatorGames.cpp">
+      <Filter>GameFiles</Filter>
+    </ClCompile>
+    <ClCompile Include="Hardware\Vibration.cpp">
+      <Filter>Hardware</Filter>
+    </ClCompile>
+    <ClCompile Include="Hardware\WheelMotors.cpp">
+      <Filter>Hardware</Filter>
+    </ClCompile>
+    <ClCompile Include="Hardware\Namco.cpp">
+      <Filter>Hardware</Filter>
+    </ClCompile>
+    <ClCompile Include="Hardware\SegaInitialD.cpp">
+      <Filter>Hardware</Filter>
+    </ClCompile>
+    <ClCompile Include="Hardware\Sega.cpp">
+      <Filter>Hardware</Filter>
+    </ClCompile>
+    <ClCompile Include="Hardware\OutputBoard.cpp">
+      <Filter>Hardware</Filter>
+    </ClCompile>
+    <ClCompile Include="Core\ForceProfile.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
     <ClCompile Include="Core\GameFactory.cpp">
       <Filter>Core</Filter>
     </ClCompile>
@@ -206,6 +236,30 @@
     <ClCompile Include="GameFiles\Cars.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="GameFiles\EmulatorGames.h">
+      <Filter>GameFiles</Filter>
+    </ClInclude>
+    <ClInclude Include="Hardware\Vibration.h">
+      <Filter>Hardware</Filter>
+    </ClInclude>
+    <ClInclude Include="Hardware\WheelMotors.h">
+      <Filter>Hardware</Filter>
+    </ClInclude>
+    <ClInclude Include="Hardware\Namco.h">
+      <Filter>Hardware</Filter>
+    </ClInclude>
+    <ClInclude Include="Hardware\SegaInitialD.h">
+      <Filter>Hardware</Filter>
+    </ClInclude>
+    <ClInclude Include="Hardware\Sega.h">
+      <Filter>Hardware</Filter>
+    </ClInclude>
+    <ClInclude Include="Hardware\OutputBoard.h">
+      <Filter>Hardware</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\ForceProfile.h">
+      <Filter>Core</Filter>
+    </ClInclude>
     <ClInclude Include="Core\GameFactory.h">
       <Filter>Core</Filter>
     </ClInclude>
