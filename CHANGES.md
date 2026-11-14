@@ -7,6 +7,12 @@ between two tags is named `<version>.<commits since the tag>-g<commit>` (see `Wr
 
 ## Unreleased
 
+- Code: every game is a class of `Core/` (base `ffb::Game`, effects through `ffb::Wheel`, memory through
+  `ffb::Memory` with named, typed addresses, hooks through `ffb::Hooks`), the force feedback boards of the emulated
+  games are classes of `Hardware/`, the MAME/Supermodel/Flycast games a table, the settings `ffb::Config`, and the
+  versions of a game share a base class. The plugin is compiled as C++17. No change of behaviour: a differential
+  test of the old and the new code, on all the games and roms, gives the same effects (see REFACTOR.md, which
+  also lists the bugs found on the way, kept for now).
 - The user guide shipped with the plugin is now Markdown, FFBPluginReadme.md (was FFBPluginReadme.txt). Its list of
   MAME games is split into the games that need nothing else, the games that need a setting (one paragraph each:
   Virtua Racing, Rave Racer, Cruis'n Exotica, Over Rev, Super Monaco GP, Super GT 24h) and the games that do not

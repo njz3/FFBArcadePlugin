@@ -22,6 +22,65 @@ Ce document suit la factorisation du plugin (`FFBArcadePlugin`) et de sa GUI (`F
 3. Table d'exports de `dinput8.dll` identique (`dumpbin /exports`), pour x64 et x86.
 4. Relecture du diff : comparaison mécanique des adresses, clés `.ini` et valeurs par défaut (script), puis relecture humaine des parties réécrites.
 5. Pour les étapes à risque, test en jeu des jeux concernés (liste donnée dans chaque étape).
+6. Test différentiel (voir la refonte orientée objet ci-dessous) : l'ancien et le nouveau code, compilés dans un programme de test avec des simulations, doivent demander exactement les mêmes effets, écritures mémoire, crochets et réglages.
+
+## Refonte orientée objet — fait (novembre 2026)
+
+Commits 85926e2 à a71f024 sur `dev/mame-racer`. Le code des jeux est passé d'une fonction `FFBLoop(constants, helpers, triggers)` par jeu, avec des variables statiques, des pointeurs `myTriggers`/`myHelpers` et ~60 globales `extern`, à des classes :
+
+| Avant | Après |
+|---|---|
+| `EffectTriggers` (pointeurs de fonctions), `EffectConstants` | `ffb::Wheel` et `ffb::Device` (méthodes virtuelles), `ffb::Direction` |
+| `Helpers` (`ReadFloat32(0x1234, true)`...) | `ffb::Memory` avec des adresses typées : `GameValue<float>{ Base::Module, 0x1234 }`, `PointerChain`, `WriteNop`, `Patch`, `FindPattern` |
+| `MH_CreateHook((LPVOID)a, d, (LPVOID*)&o)` | `ffb::Hooks::Create(a, d, &o)` (typé) |
+| `GetSettingInt` dans des statiques lues au chargement | `ffb::Settings`, membres des classes ; `ffb::Config` pour les réglages de `DllMain.cpp` |
+| ~60 globales `extern` dans 30 fichiers | `ffb::Config` (réglages) et `Core/PluginState.h` (état partagé, déclaré une fois) |
+| `MAMESupermodel.cpp` : 5 084 lignes, 350 chaînes de roms, 867 réglages lus au chargement, 78 blocs de copie | `GameFiles/EmulatorGames.cpp` (une ligne par jeu), `Core/ForceProfile`, 30 classes de cartes dans `Hardware/` |
+| versions d'un même jeu recopiées | classes de base avec une structure d'adresses par version (Initial D 4/5, 6/7/8, 0 ; Daytona 3/NSE ; Out Run 2 ; Let's Go Island ; WMMT ; Gaelco ; FNF ; Hummer ; Mario Kart Real ; Dead Heat/WMMT 3) |
+| `PlayInitialDFFB` | `Hardware/SegaInitialD` : la drive board Initial D, partagée par les jeux TeknoParrot et Flycast |
+| `CreateGame` dans `DllMain.cpp` | `Core/GameFactory.cpp` |
+| macros `VK_A`..`VK_Z`, copies de `SDL_HAT_*`, `PERSISTENT_KEYS` | supprimées ; restent les X-macros des exports de DLL (`WrapperExports.h`), le seul moyen de les générer |
+
+Les fichiers d'entrées de Demul et M2Emulator sont devenus des classes (`DemulInputs`, `M2EmulatorInputs`), convertis mécaniquement : leur logique n'est pas encore factorisée (étape 3c).
+
+**Validation.** Un programme de test compile l'ancien code (5b650e8) et le nouveau avec des simulations déterministes : mémoire du jeu (valeurs typées, changeantes), mémoire partagée TeknoParrot, événements joystick, sorties MAME aléatoires, appels des crochets avec des arguments aléatoires (x86), fenêtres des jeux de Demul et M2Emulator, threads des jeux, temps virtuel. Il enregistre les effets, écritures mémoire, crochets, threads et réglages appliqués, et compare les deux versions :
+
+- 1 460 exécutions : tous les jeux et toutes les roms MAME/Supermodel/Flycast, avec deux FFBPlugin.ini (valeurs par défaut, et une valeur pour chaque clé) et deux graines, 3 000 boucles chacune ;
+- 186 exécutions de Demul, M2Emulator et Road Fighters 3D avec la fenêtre de chaque jeu, leurs threads et les entrées du volant activées.
+
+Toutes identiques à chaque commit. Les jeux peu couverts (crochets d'API, threads) ont été relus deux fois, ligne à ligne, et certains testés avec des valeurs orientées. Quatre jeux MAME ont été lancés dans MAME. Rien n'a encore été testé sur les bornes.
+
+## Bugs repérés pendant la refonte orientée objet, conservés
+
+Le comportement a été gardé à l'identique ; ces points sont à corriger un par un, en jeu.
+
+| Jeu | Problème |
+|---|---|
+| GRID Custom | plante si la première boucle voit un changement de vitesse (son pointeur d'effets n'est posé qu'à la fin de la boucle) |
+| Scud Race, Le Mans, Dirt Devils, ECA (Supermodel) | les séquences de la drive board ne jouent jamais : `(début - maintenant) > durée` en non signé est vrai dès la première boucle |
+| Mario Kart GP DX Custom 1.10/1.18/USA | rumble de l'eau ~128 fois trop fort (priorité des opérateurs) ; `Sleep(50)` dans la boucle FFB ; la petite bosse annulée aussitôt ; force du volant infinie avec `ConstantEffectForSteeringStrength` à 0 |
+| Mario Kart GP DX 1.00 Custom | forces de rumble 3,5 et 3,0 (> 1) ; durée partagée entre deux effets |
+| Storm Racer G | avec `MinFFBConstantStrength` à 0, toute force est maximale |
+| GRID Real, Showdown, Sega Rally 3 Other | `(31 - data)` en non signé : une valeur > 31 donne une force énorme |
+| Sega Rally 3 | une valeur > 31 donne une force négative |
+| Ford Racing / Ford Racing Other | forces jusqu'à 1,67 / 1,1 |
+| Initial D 4 | pas d'amortisseur, contrairement à 4 Japan et 5 |
+| Initial D 0 v2.11 | `EnableOutputs == 1` au lieu de « différent de 0 » dans les autres versions |
+| Sega Race TV | écriture « enable I/O » relative au module alors que la force est lue en absolu ; moteurs de rumble inversés |
+| Crazy Taxi | `springStrength / 100` en division entière : ressort nul sous 100 |
+| SWDC 2018 | amortisseur joué deux fois par boucle |
+| Wasteland Racers 2071 | le rumble prend la position brute du volant (bien au-delà de 1) |
+| Hummer | ressort = octet brut (0 à 255) ; Hummer Extreme : clé `ViosityStrength` mal orthographiée (gardée, les .ini l'utilisent) |
+| Golden Gun | le drapeau « plus de vie » du joueur 2 n'est jamais remis à zéro |
+| Out Run 2 Real | le saut est réécrit à chaque événement joystick ; la vitesse est lue sans être utilisée ; la commande 0x7D (« inutilisée ») joue le ressort |
+| Out Run 2 Fake | la force du volant est jouée deux fois quand les valeurs course et menu valent 1 |
+| BG4 JP | lectures de 4 octets qui se chevauchent pour lire des octets |
+| Dead Heat / WMMT 3 | le retour de force « par la gauche » est 0x40–0xFF dans l'un et négatif dans l'autre |
+| Mach Storm | réglage `DomeFix` lu mais inutilisé |
+| Chase HQ 2 | le masque `16384 + 1` n'enlève le bit 0 qu'avec le bit 14 |
+| Demul | `LoadLibrary("padDemul.dll")` et les NOP refaits à chaque boucle |
+| M2Emulator | clés `.ini` avec une espace finale (`InputDeviceWheelSteeringAxisDevice2 `) |
+| TestGame | l'ID `-8` (rumble des gâchettes) n'est jamais créé par la fabrique |
 
 ## Étape 0 — Fait (octobre 2026)
 
@@ -141,11 +200,12 @@ Gain qualitatif, à faire une fois les étapes 1 à 4 terminées.
 ## Suivi
 
 - [x] Étape 0 — cœur, helpers partagés, WMMT, Initial D, Gaelco, périphériques, code mort
-- [ ] Étape 1 — profils de réglages par jeu des émulateurs
-- [ ] Étape 2 — correctifs des bugs repérés
-- [ ] Étape 3a — harnais « golden master » des entrées
-- [ ] Étape 3b à 3d — fichiers d'entrées Demul / M2 / Road Fighters 3D
-- [ ] Étape 4 — variantes de jeux dupliquées
-- [ ] Étape 5 — architecture du cœur
+- [x] Étape 1 — profils de réglages par jeu des émulateurs (`ForceProfile`, table `EmulatorGames.cpp`, Demul, M2Emulator)
+- [ ] Étape 2 — correctifs des bugs repérés (liste complétée par la refonte orientée objet)
+- [x] Étape 3a — harnais « golden master » : le test différentiel de la refonte orientée objet (hors dépôt pour l'instant)
+- [ ] Étape 3b à 3d — fichiers d'entrées Demul / M2 / Road Fighters 3D : devenus des classes, logique pas encore factorisée
+- [x] Étape 4 — variantes de jeux dupliquées (classes de base avec une structure d'adresses par version)
+- [x] Étape 5 — architecture du cœur (`Core/`, `Hardware/`, `ffb::Config`, `MAMESupermodel.cpp` découpé ; la fabrique n'est pas encore partagée avec la GUI)
 - [ ] Étape 6 — GUI
 - [ ] Étape 7 — build et outillage
+- [ ] Le moteur des effets (`DllMain.cpp` : effets SDL, effets entretenus, réglage de la force en jeu) en classes de `Core/`

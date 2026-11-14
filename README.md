@@ -13,9 +13,18 @@ What changed in each version: [CHANGES.md](CHANGES.md).
 
 ## Repository
 
-- `FFBArcadePlugin/`: the plugin, dinput8.dll (also used under other DLL names for some games). The code of each
-  game is in `GameFiles/`; the MAME, Supermodel and Flycast outputs are read by `GameFiles/MAMESupermodel.cpp`
-  and `GameFiles/MAMENetworkOutputs.cpp`.
+- `FFBArcadePlugin/`: the plugin, dinput8.dll (also used under other DLL names for some games), in C++17:
+  - `DllMain.cpp`: the wrapped DLLs, the devices and their effects, the FFB loop, the exit.
+  - `Core/`: what the games are written with, in namespace `ffb`: `Game` (the base class of the games, updated
+    every 16 ms), `Wheel` and `Device` (the effects), `Memory` (the game memory, with typed addresses
+    `GameValue`/`PointerChain`), `Hooks` (MinHook), `Settings` and `Config` (FFBPlugin.ini), `Log`,
+    `ForceProfile` (the settings of a game of an emulator), `TeknoParrotGame`, `GameFactory` (the game of a GameId).
+  - `Hardware/`: the force feedback boards of the emulated games (Sega drive boards, Namco, Midway/Atari, Konami
+    wheel motors, gun recoil and vibration motors...), driven by the outputs of the emulators.
+  - `GameFiles/`: one class per game (or per family of versions), with its memory addresses as named constants.
+    `EmulatorGames.cpp` is the table of the MAME, Supermodel and Flycast games; their outputs come through
+    `MAMEOutputs.cpp` (MAME64.dll) and `MAMENetworkOutputs.cpp` (network).
+  - [REFACTOR.md](REFACTOR.md): how the code was moved to these classes, and the bugs found on the way.
 - `FFBPluginGUI/`: the GUI, FFBPluginGUI.exe (C++/CLI, .NET Framework 4.7.2, MetroFramework).
 - `FFBArcadePlugin/Config/FFBPlugin.ini`: the master settings file. The build writes from it one FFBPlugin.ini per
   game profile (`Release.Win32/<profile>/FFBPlugin.ini`); ship the profile's, never the master one (GameId=-1).
