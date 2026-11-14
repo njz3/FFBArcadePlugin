@@ -12,17 +12,21 @@ along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
 */
 
 #include "GaelcoTuningRace.h"
+#include "../Core/Hooks.h"
+
+using namespace ffb;
+
+int(__stdcall* GaelcoTuningRace::setMotorOriginal)(DWORD* force) = nullptr;
 
 // The motor force (a float) is passed in the place of the first argument
-static int(__stdcall* SetMotorOri)(DWORD* a1);
-static int __stdcall SetMotorHook(DWORD* a1)
+int __stdcall GaelcoTuningRace::SetMotorHook(DWORD* a1)
 {
 	long double force = *(float*)&a1;
-	GaelcoGame::PlayMotorForce(force);
-	return SetMotorOri(a1);
+	PlayMotorForce(force);
+	return setMotorOriginal(a1);
 }
 
 void GaelcoTuningRace::HookSetMotor()
 {
-	MH_CreateHook((void*)0x8188ABC, SetMotorHook, (void**)&SetMotorOri);
+	Hooks::Create(SetMotor, SetMotorHook, &setMotorOriginal);
 }

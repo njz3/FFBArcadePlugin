@@ -11,39 +11,17 @@ You should have received a copy of the GNU General Public License
 along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
 */
 
-#include <string>
 #include "WMMT5.h"
 #include "SDL.h"
 
-static int ForceFullTune = GetSettingInt(TEXT("ForceFullTune"), 0);
+using namespace ffb;
 
-static const WMMTAddresses wmmt5Addresses = {
-	0x196F188, // ffbValues
-	0x196FEBC, // speed
-	0x1970038, // rpm
-	0x199A450, // carState
-	0x398,     // gearOffset
-	0x199A468, // raceState
-	0x199AE18, // raceTimer
-};
-
-WMMT5::WMMT5() : WMMT(wmmt5Addresses)
+UINT8 WMMT5::ReadPower()
 {
+	return Memory::Read<UINT8>(Memory::Read(CarTune) + Power);
 }
 
-// Tune of the player car: car at +0x2C, power at +0x98, handling at +0x9C
-static INT_PTR ReadCarTune(Helpers* helpers)
-{
-	INT_PTR ptr1 = helpers->ReadIntPtr(0x1948F10, true);
-	return helpers->ReadIntPtr(ptr1 + 0x180 + 0xa8 + 0x18, false);
-}
-
-UINT8 WMMT5::ReadPower(Helpers* helpers)
-{
-	return helpers->ReadByte(ReadCarTune(helpers) + 0x98, false);
-}
-
-void WMMT5::Init()
+void WMMT5::StartThreads()
 {
 	StartInputThread();
 	SDL_CreateThread(SpamThread, "SpamThread", this);
@@ -51,43 +29,40 @@ void WMMT5::Init()
 
 int WMMT5::SpamThread(void* ptr)
 {
-	if (1 != ForceFullTune && 1 != DisableRaceTimer)
+	WMMT5* game = (WMMT5*)ptr;
+	if (1 != game->forceFullTune && 1 != game->disableRaceTimer)
 	{
 		return 0;
 	}
 
-	WMMT5* game = (WMMT5*)ptr;
-	Helpers* helpers = game->myHelpers;
 	Sleep(5000); // To avoid crashes
-	helpers->log("starting spam thread");
+	Log::Write("starting spam thread");
 	while (1)
 	{
-		if (1 == ForceFullTune)
+		if (1 == game->forceFullTune)
 		{
-			INT_PTR carTune = ReadCarTune(helpers);
-			UINT8 car = helpers->ReadByte(carTune + 0x2C, false);
-			std::string msg = "car: " + std::to_string(car);
-			helpers->log(msg.c_str());
+			INT_PTR carTune = Memory::Read(CarTune);
+			UINT8 car = Memory::Read<UINT8>(carTune + Car);
+			Log::Value("car:", car);
 
 			if (0x00 < car)
 			{
-				UINT8 power = helpers->ReadByte(carTune + 0x98, false);
-				UINT8 handling = helpers->ReadByte(carTune + 0x9C, false);
-				msg = "power: " + std::to_string(power) + " | handling: " + std::to_string(handling);
-				helpers->log(msg.c_str());
+				UINT8 power = Memory::Read<UINT8>(carTune + Power);
+				UINT8 handling = Memory::Read<UINT8>(carTune + Handling);
+				Log::Printf("power: %d | handling: %d", power, handling);
 
 				if (0x20 != (power + handling))
 				{
-					helpers->log("forcing full tune");
-					helpers->WriteByte(carTune + 0x98, 0x10, false);
-					helpers->WriteByte(carTune + 0x9C, 0x10, false);
+					Log::Write("forcing full tune");
+					Memory::Write<UINT8>(carTune + Power, 0x10);
+					Memory::Write<UINT8>(carTune + Handling, 0x10);
 				}
 			}
 		}
 
-		if (1 == DisableRaceTimer)
+		if (1 == game->disableRaceTimer)
 		{
-			helpers->WriteFloat32(game->addresses.raceTimer, 999.99f, true);
+			Memory::Write<float>(InModule<float>(game->addresses.raceTimer), 999.99f);
 		}
 
 		Sleep(500); // We don't need to spam too much

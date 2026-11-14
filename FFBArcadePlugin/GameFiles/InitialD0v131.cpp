@@ -11,37 +11,30 @@ You should have received a copy of the GNU General Public License
 along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
 */
 
-#include <string>
 #include "InitialD0v131.h"
-#include "../Common Files/InitialDFFB.h"
-#include "math.h"
 
-static const InitialDFFBSettings ffbSettings = { 127.0, 128, 127.0, 200, 0xFFFFFFFF };
+using namespace ffb;
 
-static bool outputinit;
+InitialDZeroGame::InitialDZeroGame(INT_PTR driveBoardOffset, const SegaInitialDDriveBoard::Scaling& scaling, bool loadOutputs)
+	: driveBoardCommand{ Base::Module, driveBoardOffset }, driveBoard(wheel, scaling), loadOutputs(loadOutputs)
+{
+}
 
-static int EscapeKeyExitViaPlugin = GetSettingInt(TEXT("EscapeKeyExitViaPlugin"), 0);
-static int EnableOutputs = GetSettingInt(TEXT("EnableOutputs"), 0);
-
-void InitialD0::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTriggers* triggers) {
-
-	if (!outputinit)
+void InitialDZeroGame::Update()
+{
+	if (!outputsLoaded && loadOutputs)
 	{
-		if (EnableOutputs)
-		{
-			outputinit = true;
-			LoadLibraryA("OutputBlaster.dll");
-		}
+		outputsLoaded = true;
+		LoadLibraryA("OutputBlaster.dll");
 	}
 
-	if (GetAsyncKeyState((VK_ESCAPE)) && (EscapeKeyExitViaPlugin == 1))
+	if (GetAsyncKeyState((VK_ESCAPE)) && (escapeKeyExitViaPlugin == 1))
 		ExitProcess(0);
 
-	ApplyDamper(triggers);
+	ApplyDamper();
 
-	DWORD FFB = helpers->ReadInt32(0x168317C, true);
+	DWORD command = Memory::Read(driveBoardCommand);
+	const BYTE* bytes = reinterpret_cast<const BYTE*>(&command);
 
-	BYTE* ffb = reinterpret_cast<BYTE*>(&FFB);
-
-	PlayInitialDFFB(ffb[0], ffb[1], ffb[2], ffbSettings, constants, triggers);
+	driveBoard.Play(bytes[0], bytes[1], bytes[2]);
 }

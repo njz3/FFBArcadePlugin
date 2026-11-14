@@ -11,82 +11,62 @@ You should have received a copy of the GNU General Public License
 along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
 */
 
-#include <string>
 #include "BG4JP.h"
 
-static UINT8 oldgear;
-static UINT8 newgear;
+using namespace ffb;
 
-static int SpringStrength = GetSettingInt(TEXT("SpringStrength"), 100);
-static int GearChangeStrength = GetSettingInt(TEXT("GearChangeStrength"), 100);
-static int GearChangeSinePeriod = GetSettingInt(TEXT("GearSinePeriod"), 100);
-static int EnableBoostEffect = GetSettingInt(TEXT("EnableBoostEffect"), 0);
-static int EnableGearShiftEffect = GetSettingInt(TEXT("EnableGearShiftEffect"), 0);
-static int BoostSinePeriod = GetSettingInt(TEXT("BoostSinePeriod"), 0);
-static int BoostFadeSinePeriod = GetSettingInt(TEXT("BoostFadeSinePeriod"), 0);
+void BG4JP::Update()
+{
+	UINT8 inRace = (UINT8)Memory::Read(InRace);
+	Memory::Read(GroundContact);
+	UINT8 wallContact = (UINT8)Memory::Read(WallContact);
+	UINT8 carContact = (UINT8)Memory::Read(CarContact);
+	UINT8 shiftEffect = (UINT8)Memory::Read(ShiftEffect);
+	Memory::Read(CurrentView);
+	float speed = Memory::Read(Speed);
 
-void BG4JP::FFBLoop(EffectConstants *constants, Helpers *helpers, EffectTriggers* triggers) {
+	Log::Value("got value:", wallContact);
 
-	UINT8 InRace = helpers->ReadInt32(0x4A9508, true);
-	UINT8 GoundContact = helpers->ReadInt32(0x42EBB1, true);
-	UINT8 WallContact = helpers->ReadInt32(0x42EBB2, true);
-	UINT8 CarContact = helpers->ReadInt32(0x42EBB3, true);
-	UINT8 ShiftEffect = helpers->ReadInt32(0x42ECF0, true);
-	UINT8 CurrentView = helpers->ReadInt32(0x3F2654, true);
-	float ffspeed = helpers->ReadFloat32(0x3F3000, true);
-	newgear = ShiftEffect;
+	ApplyDamper();
 
-	helpers->log("got value: ");
-	std::string ffs = std::to_string(WallContact);
-	helpers->log((char *)ffs.c_str());
-
-	ApplyDamper(triggers);
-
-	double percentForce = ffspeed / 180.00;
-	UINT32 length_ms = 100;
-
+	double percentForce = speed / 180.00;
 	if (percentForce > 1.0)
 		percentForce = 1.0;
 
-	if (InRace)
+	if (inRace)
 	{
-		triggers->Spring(SpringStrength / 100.0);
+		wheel.Spring(springStrength / 100.0);
 
-		if (EnableGearShiftEffect)
+		if (enableGearShiftEffect)
 		{
-			if (oldgear != newgear && ShiftEffect != 0x00)
+			if (lastShiftEffect != shiftEffect && shiftEffect != 0x00)
 			{
-				double percentForceShift = GearChangeStrength / 100.0;
-				triggers->Sine(GearChangeSinePeriod, 0, percentForceShift, 100);
-				triggers->Rumble(0, percentForceShift, 100);
+				double percentForceShift = gearChangeStrength / 100.0;
+				wheel.Sine(gearChangeSinePeriod, 0, percentForceShift, 100);
+				wheel.Rumble(0, percentForceShift, 100);
 			}
 		}
 
-		if (EnableBoostEffect)
+		if (enableBoostEffect)
 		{
-			if (WallContact & 0x02)
+			if (wallContact & 0x02)
 			{
-				triggers->Sine(BoostSinePeriod, BoostFadeSinePeriod, percentForce, length_ms);
-				triggers->Rumble(percentForce, percentForce, length_ms);
+				wheel.Sine(boostSinePeriod, boostFadeSinePeriod, percentForce, 100);
+				wheel.Rumble(percentForce, percentForce, 100);
 			}
 		}
 
-		if (CarContact & 0x01)
+		if (carContact & 0x01)
 		{
-			triggers->Sine(120, 0, percentForce, length_ms);
-			triggers->Rumble(percentForce, percentForce, length_ms);
+			wheel.Sine(120, 0, percentForce, 100);
+			wheel.Rumble(percentForce, percentForce, 100);
 		}
 
-		if (WallContact & 0x10 || CarContact & 0x08)
-		{
-			triggers->Rumble(percentForce, 0, length_ms);
-			triggers->Constant(constants->DIRECTION_FROM_LEFT, percentForce);
-		}
-		else if (WallContact & 0x20 || CarContact & 0x02)
-		{
-			triggers->Rumble(0, percentForce, length_ms);
-			triggers->Constant(constants->DIRECTION_FROM_RIGHT, percentForce);
-		}
+		if (wallContact & 0x10 || carContact & 0x08)
+			wheel.ConstantWithRumble(Direction::FromLeft, percentForce);
+		else if (wallContact & 0x20 || carContact & 0x02)
+			wheel.ConstantWithRumble(Direction::FromRight, percentForce);
 	}
-	oldgear = newgear;
+
+	lastShiftEffect = shiftEffect;
 }

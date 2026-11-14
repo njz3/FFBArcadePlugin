@@ -12,9 +12,12 @@ along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
 */
 
 #pragma once
-#include "../Common Files/Game.h"
+#include "InitialD0v131.h"
 
-class InitialD0v230 : public Game {
+// Initial D Zero v2.30 (Sega ALLS): see InitialDZeroGame. OutputBlaster.dll is loaded when
+// EnableOutputs is not 0.
+class InitialD0v230 : public InitialDZeroGame
+{
 public:
-	void FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTriggers* triggers);
+	InitialD0v230() : InitialDZeroGame(0x18B54DC, LongVibrationScaling, ffb::Settings::Int(L"EnableOutputs", 0) != 0) {}
 };

@@ -11,28 +11,26 @@ You should have received a copy of the GNU General Public License
 along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
 */
 
-#include <string>
 #include "PokkenTournament.h"
 
-static int configFeedbackLength = GetSettingInt(TEXT("FeedbackLength"), 120);
+using namespace ffb;
 
-void PokkenTournament::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTriggers* triggers)
+void PokkenTournament::Update()
 {
-		helpers->log("in PokkenTournament Ffbloop");
-		const int LeftMotor = GetTeknoParrotFFB();
-		const int RightMotor = GetTeknoParrotFFB2();
-		std::string ffs = std::to_string(LeftMotor);
-		helpers->log((char*)ffs.c_str());
+	Log::Write("in PokkenTournament Ffbloop");
+	const int leftMotor = TeknoParrotFFB();
+	const int rightMotor = TeknoParrotFFB2();
+	Log::Value("left motor:", leftMotor);
 
-		if (LeftMotor > 3)
-		{
-			double percentForce = (LeftMotor / 255.0);
-			triggers->Rumble(0, percentForce, configFeedbackLength);
-		}
+	if (leftMotor > 3)
+	{
+		double percentForce = (leftMotor / 255.0);
+		wheel.Rumble(0, percentForce, feedbackLength);
+	}
 
-		if (RightMotor > 3)
-		{
-			double percentForce = (RightMotor / 255.0);
-			triggers->Rumble(percentForce, 0, configFeedbackLength);
-		}
+	if (rightMotor > 3)
+	{
+		double percentForce = (rightMotor / 255.0);
+		wheel.Rumble(percentForce, 0, feedbackLength);
+	}
 }

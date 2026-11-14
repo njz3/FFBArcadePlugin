@@ -11,49 +11,27 @@ You should have received a copy of the GNU General Public License
 along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
 */
 
-
 #include "AliensExtermination.h"
 #include "../Common Files/Devices.h"
-#include "SDL.h"
-#include <string>
-#include <Windows.h>
-static bool init = false;
 
-static int EscapeKeyExitViaPlugin = GetSettingInt(TEXT("EscapeKeyExitViaPlugin"), 0);
-static int configFeedbackLength = GetSettingInt(TEXT("FeedbackLength"), 120);
-static int HowtoRumbleGunEffect = GetSettingInt(TEXT("HowtoRumbleGunEffect"), 0);
-static int HowtoRumbleFlameEffect = GetSettingInt(TEXT("HowtoRumbleFlameEffect"), 0);
-static int HowtoRumbleHealthEffect = GetSettingInt(TEXT("HowtoRumbleHealthEffect"), 0);
-static int Gun1pStrength = GetSettingInt(TEXT("Gun1pStrength"), 0);
-static int Flame1pStrength = GetSettingInt(TEXT("Flame1pStrength"), 0);
-static int Health1pStrength = GetSettingInt(TEXT("Health1pStrength"), 0);
-static int Gun2pStrength = GetSettingInt(TEXT("Gun2pStrength"), 0);
-static int Flame2pStrength = GetSettingInt(TEXT("Flame2pStrength"), 0);
-static int Health2pStrength = GetSettingInt(TEXT("Health2pStrength"), 0);
+using namespace ffb;
 
-static bool Ammo1pBool = false;
-static bool Ammo2pBool = false;
-static bool Flame1pBool = false;
-static bool Flame2pBool = false;
-static bool Health1pBool = false;
-static bool Health2pBool = false;
-
-void AliensExtermination::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTriggers* triggers) {
-
-	UINT8 Ammo1pA = helpers->ReadByte(0x4E7AEA0, true);
-	UINT8 Ammo1pB = helpers->ReadByte(0x4E7AEA1, true);
-	float Flame1p = helpers->ReadFloat32(0x556CB30, true);
-	float Health1p = helpers->ReadFloat32(0x556C884, true);
-	UINT8 Ammo2pA = helpers->ReadByte(0x4E7AEA2, true);
-	UINT8 Ammo2pB = helpers->ReadByte(0x4E7AEA3, true);
-	float Flame2p = helpers->ReadFloat32(0x556CEC4, true);
-	float Health2p = helpers->ReadFloat32(0x556CC18, true);
-	UINT8 Shoot1p = helpers->ReadByte(0x556ACBC, true);
-	UINT8 Shoot2p = helpers->ReadByte(0x556AFD8, true);
+void AliensExtermination::Update()
+{
+	UINT8 ammo1pA = Memory::Read(Ammo1pA);
+	UINT8 ammo1pB = Memory::Read(Ammo1pB);
+	float flame1p = Memory::Read(Flame1p);
+	float health1p = Memory::Read(Health1p);
+	UINT8 ammo2pA = Memory::Read(Ammo2pA);
+	UINT8 ammo2pB = Memory::Read(Ammo2pB);
+	float flame2p = Memory::Read(Flame2p);
+	float health2p = Memory::Read(Health2p);
+	UINT8 shoot1p = Memory::Read(Shoot1p);
+	UINT8 shoot2p = Memory::Read(Shoot2p);
 
 	HWND hWnd = FindWindowA(0, ("GLUT"));
 
-	if (GetAsyncKeyState((VK_ESCAPE)) && (EscapeKeyExitViaPlugin == 1))
+	if (GetAsyncKeyState((VK_ESCAPE)) && (escapeKeyExitViaPlugin == 1))
 	{
 		if (hWnd > NULL)
 		{
@@ -61,162 +39,122 @@ void AliensExtermination::FFBLoop(EffectConstants* constants, Helpers* helpers, 
 		}
 	}
 
-	if (!init)
+	if (!devicesOpen)
 	{
 		OpenHapticDevice2();
-		init = true;
+		devicesOpen = true;
 	}
-	
-	static UINT8 oldAmmo = 0;
-	UINT8 newAmmo = Ammo1pA;
 
-	static UINT8 oldAmmo2 = 0;
-	UINT8 newAmmo2 = Ammo2pA;
+	UINT32 length = feedbackLength;
 
-	static float oldFlame = 0;
-	float newFlame = Flame1p;
-
-	static float oldFlame2 = 0;
-	float newFlame2 = Flame2p;
-
-	static float oldHealth = 0;
-	float newHealth = Health1p;
-
-	static float oldHealth2 = 0;
-	float newHealth2 = Health2p;
-
-	static UINT8 oldShoot = 0;
-	UINT8 newShoot = Shoot1p;
-
-	static UINT8 oldShoot2 = 0;
-	UINT8 newShoot2 = Shoot2p;
-	
-	UINT32 length = configFeedbackLength;
-
-	if (oldAmmo != newAmmo)
+	if (lastAmmo != ammo1pA)
 	{
-		if (Ammo1pBool)
+		if (hadAmmo1p)
 		{
-			if (Ammo1pB >= 0 && Ammo1pA > 0)
-			{
-				RumbleWithMode(triggers->Rumble, HowtoRumbleGunEffect, Gun1pStrength / 100.0, length);
-			}
+			if (ammo1pB >= 0 && ammo1pA > 0)
+				RumbleWithMode(wheel, howtoRumbleGunEffect, gun1pStrength / 100.0, length);
 		}
 
-		if (Ammo1pA == 0 && Ammo1pB == 0)
-			Ammo1pBool = false;
+		if (ammo1pA == 0 && ammo1pB == 0)
+			hadAmmo1p = false;
 		else
-			Ammo1pBool = true;
+			hadAmmo1p = true;
 	}
 
-	if (oldShoot != newShoot)
+	if (lastShoot != shoot1p)
 	{
-		if ((Ammo1pA == 0 && Ammo1pB == 0) || (Ammo1pA == 10 && Ammo1pB == 10))
-		{ 
-			if (Shoot1p & 0x10)
-			{
-				RumbleWithMode(triggers->Rumble, HowtoRumbleGunEffect, Gun1pStrength / 100.0, length);
-			}
-		}
-	}
-
-	if (oldAmmo2 != newAmmo2)
-	{
-		if (Ammo2pBool)
+		if ((ammo1pA == 0 && ammo1pB == 0) || (ammo1pA == 10 && ammo1pB == 10))
 		{
-			if (Ammo2pB >= 0 && Ammo2pA > 0)
-			{
-				RumbleWithMode(triggers->RumbleDevice2, HowtoRumbleGunEffect, Gun2pStrength / 100.0, length);
-			}
-		}
-
-		if (Ammo2pA == 0 && Ammo2pB == 0)
-			Ammo2pBool = false;
-		else
-			Ammo2pBool = true;
-	}
-
-	if (oldShoot2 != newShoot2)
-	{
-		if ((Ammo2pA == 0 && Ammo2pB == 0) || (Ammo2pA == 10 && Ammo2pB == 10))
-		{ 
-			if (Shoot2p & 0x10)
-			{
-				RumbleWithMode(triggers->RumbleDevice2, HowtoRumbleGunEffect, Gun2pStrength / 100.0, length);
-			}
+			if (shoot1p & 0x10)
+				RumbleWithMode(wheel, howtoRumbleGunEffect, gun1pStrength / 100.0, length);
 		}
 	}
 
-	if (oldFlame != newFlame)
+	if (lastAmmo2 != ammo2pA)
 	{
-		if (Flame1pBool)
+		if (hadAmmo2p)
 		{
-			if (Flame1p > 0)
-			{
-				RumbleWithMode(triggers->Rumble, HowtoRumbleFlameEffect, Flame1pStrength / 100.0, length);
-			}
+			if (ammo2pB >= 0 && ammo2pA > 0)
+				RumbleWithMode(device2, howtoRumbleGunEffect, gun2pStrength / 100.0, length);
 		}
 
-		if ((Flame1p <= 0) )
-			Flame1pBool = false;
+		if (ammo2pA == 0 && ammo2pB == 0)
+			hadAmmo2p = false;
 		else
-			Flame1pBool = true;
+			hadAmmo2p = true;
 	}
 
-	if (oldFlame2 != newFlame2)
+	if (lastShoot2 != shoot2p)
 	{
-		if (Flame2pBool)
+		if ((ammo2pA == 0 && ammo2pB == 0) || (ammo2pA == 10 && ammo2pB == 10))
 		{
-			if (Flame2p > 0)
-			{
-				RumbleWithMode(triggers->RumbleDevice2, HowtoRumbleFlameEffect, Flame2pStrength / 100.0, length);
-			}
+			if (shoot2p & 0x10)
+				RumbleWithMode(device2, howtoRumbleGunEffect, gun2pStrength / 100.0, length);
 		}
-
-		if ((Flame2p <= 0))
-			Flame2pBool = false;
-		else
-			Flame2pBool = true;
 	}
 
-	if (oldHealth != newHealth)
+	if (lastFlame != flame1p)
 	{
-		if (Health1pBool)
+		if (hadFlame1p)
 		{
-			if (Health1p > 0)
-			{
-				RumbleWithMode(triggers->Rumble, HowtoRumbleHealthEffect, Health1pStrength / 100.0, length);
-			}
+			if (flame1p > 0)
+				RumbleWithMode(wheel, howtoRumbleFlameEffect, flame1pStrength / 100.0, length);
 		}
 
-		if ((Health1p == 0))
-			Health1pBool = false;
+		if (flame1p <= 0)
+			hadFlame1p = false;
 		else
-			Health1pBool = true;
+			hadFlame1p = true;
 	}
 
-	if (oldHealth2 != newHealth2)
+	if (lastFlame2 != flame2p)
 	{
-		if (Health2pBool)
+		if (hadFlame2p)
 		{
-			if (Health2p > 0)
-			{
-				RumbleWithMode(triggers->RumbleDevice2, HowtoRumbleHealthEffect, Health2pStrength / 100.0, length);
-			}
+			if (flame2p > 0)
+				RumbleWithMode(device2, howtoRumbleFlameEffect, flame2pStrength / 100.0, length);
 		}
 
-		if ((Health2p == 0))
-			Health2pBool = false;
+		if (flame2p <= 0)
+			hadFlame2p = false;
 		else
-			Health2pBool = true;
+			hadFlame2p = true;
 	}
 
-	oldAmmo = newAmmo;
-	oldAmmo2 = newAmmo2;
-	oldFlame = newFlame;
-	oldFlame2 = newFlame2;
-	oldHealth = newHealth;
-	oldHealth2 = newHealth2;
-	oldShoot = newShoot;
-	oldShoot2 = newShoot2;
+	if (lastHealth != health1p)
+	{
+		if (hadHealth1p)
+		{
+			if (health1p > 0)
+				RumbleWithMode(wheel, howtoRumbleHealthEffect, health1pStrength / 100.0, length);
+		}
+
+		if (health1p == 0)
+			hadHealth1p = false;
+		else
+			hadHealth1p = true;
+	}
+
+	if (lastHealth2 != health2p)
+	{
+		if (hadHealth2p)
+		{
+			if (health2p > 0)
+				RumbleWithMode(device2, howtoRumbleHealthEffect, health2pStrength / 100.0, length);
+		}
+
+		if (health2p == 0)
+			hadHealth2p = false;
+		else
+			hadHealth2p = true;
+	}
+
+	lastAmmo = ammo1pA;
+	lastAmmo2 = ammo2pA;
+	lastFlame = flame1p;
+	lastFlame2 = flame2p;
+	lastHealth = health1p;
+	lastHealth2 = health2p;
+	lastShoot = shoot1p;
+	lastShoot2 = shoot2p;
 }

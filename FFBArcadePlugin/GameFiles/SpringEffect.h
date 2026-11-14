@@ -12,9 +12,16 @@ along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
 */
 
 #pragma once
-#include "../Common Files/Game.h"
-class SpringEffect : public Game {
+#include "../Core/Game.h"
 
+// Spring effect (any game): a centering spring of SpringStrength (%) when SpringEnable is set, with the
+// damper of the settings.
+class SpringEffect : public ffb::Game
+{
 public:
-	void FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTriggers* triggers);
+	void Update() override;
+
+private:
+	int springEnable = ffb::Settings::Int(L"SpringEnable", 0);
+	int springStrength = ffb::Settings::Int(L"SpringStrength", 0);
 };

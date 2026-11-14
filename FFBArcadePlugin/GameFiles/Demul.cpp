@@ -11,176 +11,24 @@ You should have received a copy of the GNU General Public License
 along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
 */
 
-#include <string>
+#include <string.h>
 #include <tchar.h>
 #include "Demul.h"
-#include "../Common Files/InitialDFFB.h"
-#include "math.h"
-#include <stdlib.h>
-#include <string.h>
-#include <windows.h>
-#include "SDL.h"
 #include "../Common Files/CRCCheck.h"
-#include "../Common Files/SignatureScanning.h"
+#include "../Core/ForceProfile.h"
 
-//Demul Emulator Games
-std::string Nascar("Nascar");
-std::string InitialDArcadeStage("Initial D Arcade Stage");
-std::string SmashingDrive("Smashing Drive");
-std::string MaximumSpeed("Maximum Speed");
-std::string FasterThanSpeed("Faster Than Speed");
-std::string ATVTrack("ATV Track");
-
-extern void NascarInputsEnabled(Helpers* helpers);
-extern void InitialDInputsEnabled(Helpers* helpers);
-extern void SmashingDriveInputsEnabled(Helpers* helpers);
-extern void ATVTrackInputsEnabled(Helpers* helpers);
-extern void FasterThanSpeedInputsEnabled(Helpers* helpers);
-extern void MaximumSpeedInputsEnabled(Helpers* helpers);
-
-static EffectTriggers* myTriggers;
-static EffectConstants* myConstants;
-static Helpers* myHelpers;
-static HINSTANCE gl_padDemul;
+using namespace ffb;
 
 extern bool WaitForGame;
-static bool VolumeMute = false;
-static bool CRCinit = false;
-static bool NOPinit = false;
-static bool InputFind = false;
-static SDL_Event e;
-
-INT_PTR SteeringAddress;
-INT_PTR AcclAddress;
-INT_PTR BrakeAddress;
-INT_PTR StartViewAddress;
-INT_PTR ShiftUpDownAddress;
-INT_PTR ServiceTestAddress;
-INT_PTR CoinAddress;
-INT_PTR CardAddress;
-INT_PTR CardAddress2;
-
-static HWND hWnd;
-
-static bool Demul180428 = false;
-static bool Demul111117 = false;
-
-extern int configFeedbackLength;
-extern int configMinForce;
-extern int configMaxForce;
-extern int PowerMode;
-extern int configFeedbackLength;
-extern int configAlternativeMinForceLeft;
-extern int configAlternativeMaxForceLeft;
-extern int configAlternativeMinForceRight;
-extern int configAlternativeMaxForceRight;
+extern int AutoCloseWindowError;
 extern int EnableForceSpringEffect;
 extern int ForceSpringStrength;
-extern int AutoCloseWindowError;
-extern int EnableDamper;
-extern int DamperStrength;
-extern int DoubleConstant;
-extern int DoubleSine;
 
-static int InputDeviceWheelEnable = GetSettingInt(TEXT("InputDeviceWheelEnable"), 0);
-
-static int configMinForceInitialDDemul = GetSettingInt(TEXT("MinForceInitialDDemul"), 0);
-static int configMaxForceInitialDDemul = GetSettingInt(TEXT("MaxForceInitialDDemul"), 100);
-static int configAlternativeMinForceLeftInitialDDemul = GetSettingInt(TEXT("AlternativeMinForceLeftInitialDDemul"), 0);
-static int configAlternativeMaxForceLeftInitialDDemul = GetSettingInt(TEXT("AlternativeMaxForceLeftInitialDDemul"), 100);
-static int configAlternativeMinForceRightInitialDDemul = GetSettingInt(TEXT("AlternativeMinForceRightInitialDDemul"), 0);
-static int configAlternativeMaxForceRightInitialDDemul = GetSettingInt(TEXT("AlternativeMaxForceRightInitialDDemul"), 100);
-static int PowerModeInitialDDemul = GetSettingInt(TEXT("PowerModeInitialDDemul"), 0);
-static int configFeedbackLengthInitialDDemul = GetSettingInt(TEXT("FeedbackLengthInitialDDemul"), 120);
-static int EnableForceSpringEffectInitialDDemul = GetSettingInt(TEXT("EnableForceSpringEffectInitialDDemul"), 0);
-static int ForceSpringStrengthInitialDDemul = GetSettingInt(TEXT("ForceSpringStrengthInitialDDemul"), 0);
-static int EnableDamperInitialDDemul = GetSettingInt(TEXT("EnableDamperInitialDDemul"), 0);
-static int DamperStrengthInitialDDemul = GetSettingInt(TEXT("DamperStrengthInitialDDemul"), 100);
-static int DoubleSineInitialDDemul = GetSettingInt(TEXT("DoubleSineInitialDDemul"), 0);
-static int DoubleConstantInitialDDemul = GetSettingInt(TEXT("DoubleConstantInitialDDemul"), 0);
-
-static int configMinForceNascarRacing = GetSettingInt(TEXT("MinForceNascarRacing"), 0);
-static int configMaxForceNascarRacing = GetSettingInt(TEXT("MaxForceNascarRacing"), 100);
-static int configAlternativeMinForceLeftNascarRacing = GetSettingInt(TEXT("AlternativeMinForceLeftNascarRacing"), 0);
-static int configAlternativeMaxForceLeftNascarRacing = GetSettingInt(TEXT("AlternativeMaxForceLeftNascarRacing"), 100);
-static int configAlternativeMinForceRightNascarRacing = GetSettingInt(TEXT("AlternativeMinForceRightNascarRacing"), 0);
-static int configAlternativeMaxForceRightNascarRacing = GetSettingInt(TEXT("AlternativeMaxForceRightNascarRacing"), 100);
-static int PowerModeNascarRacing = GetSettingInt(TEXT("PowerModeNascarRacing"), 0);
-static int configFeedbackLengthNascarRacing = GetSettingInt(TEXT("FeedbackLengthNascarRacing"), 120);
-static int EnableForceSpringEffectNascarRacing = GetSettingInt(TEXT("EnableForceSpringEffectNascarRacing"), 0);
-static int ForceSpringStrengthNascarRacing = GetSettingInt(TEXT("ForceSpringStrengthNascarRacing"), 0);
-static int EnableDamperNascarRacing = GetSettingInt(TEXT("EnableDamperNascarRacing"), 0);
-static int DamperStrengthNascarRacing = GetSettingInt(TEXT("DamperStrengthNascarRacing"), 100);
-
-static int configMinForceSmashingDrive = GetSettingInt(TEXT("MinForceSmashingDrive"), 0);
-static int configMaxForceSmashingDrive = GetSettingInt(TEXT("MaxForceSmashingDrive"), 100);
-static int configAlternativeMinForceLeftSmashingDrive = GetSettingInt(TEXT("AlternativeMinForceLeftSmashingDrive"), 0);
-static int configAlternativeMaxForceLeftSmashingDrive = GetSettingInt(TEXT("AlternativeMaxForceLeftSmashingDrive"), 100);
-static int configAlternativeMinForceRightSmashingDrive = GetSettingInt(TEXT("AlternativeMinForceRightSmashingDrive"), 0);
-static int configAlternativeMaxForceRightSmashingDrive = GetSettingInt(TEXT("AlternativeMaxForceRightSmashingDrive"), 100);
-static int PowerModeSmashingDrive = GetSettingInt(TEXT("PowerModeSmashingDrive"), 0);
-static int configFeedbackLengthSmashingDrive = GetSettingInt(TEXT("FeedbackLengthSmashingDrive"), 120);
-static int EnableForceSpringEffectSmashingDrive = GetSettingInt(TEXT("EnableForceSpringEffectSmashingDrive"), 0);
-static int ForceSpringStrengthSmashingDrive = GetSettingInt(TEXT("ForceSpringStrengthSmashingDrive"), 0);
-static int EnableDamperSmashingDrive = GetSettingInt(TEXT("EnableDamperSmashingDrive"), 0);
-static int DamperStrengthSmashingDrive = GetSettingInt(TEXT("DamperStrengthSmashingDrive"), 100);
-
-static int configMinForceMaximumSpeed = GetSettingInt(TEXT("MinForceMaximumSpeed"), 0);
-static int configMaxForceMaximumSpeed = GetSettingInt(TEXT("MaxForceMaximumSpeed"), 100);
-static int configAlternativeMinForceLeftMaximumSpeed = GetSettingInt(TEXT("AlternativeMinForceLeftMaximumSpeed"), 0);
-static int configAlternativeMaxForceLeftMaximumSpeed = GetSettingInt(TEXT("AlternativeMaxForceLeftMaximumSpeed"), 100);
-static int configAlternativeMinForceRightMaximumSpeed = GetSettingInt(TEXT("AlternativeMinForceRightMaximumSpeed"), 0);
-static int configAlternativeMaxForceRightMaximumSpeed = GetSettingInt(TEXT("AlternativeMaxForceRightMaximumSpeed"), 100);
-static int PowerModeMaximumSpeed = GetSettingInt(TEXT("PowerModeMaximumSpeed"), 0);
-static int configFeedbackLengthMaximumSpeed = GetSettingInt(TEXT("FeedbackLengthMaximumSpeed"), 120);
-static int EnableForceSpringEffectMaximumSpeed = GetSettingInt(TEXT("EnableForceSpringEffectMaximumSpeed"), 0);
-static int ForceSpringStrengthMaximumSpeed = GetSettingInt(TEXT("ForceSpringStrengthMaximumSpeed"), 0);
-static int EnableDamperMaximumSpeed = GetSettingInt(TEXT("EnableDamperMaximumSpeed"), 0);
-static int DamperStrengthMaximumSpeed = GetSettingInt(TEXT("DamperStrengthMaximumSpeed"), 100);
-
-static int configMinForceFasterSpeed = GetSettingInt(TEXT("MinForceFasterSpeed"), 0);
-static int configMaxForceFasterSpeed = GetSettingInt(TEXT("MaxForceFasterSpeed"), 100);
-static int configAlternativeMinForceLeftFasterSpeed = GetSettingInt(TEXT("AlternativeMinForceLeftFasterSpeed"), 0);
-static int configAlternativeMaxForceLeftFasterSpeed = GetSettingInt(TEXT("AlternativeMaxForceLeftFasterSpeed"), 100);
-static int configAlternativeMinForceRightFasterSpeed = GetSettingInt(TEXT("AlternativeMinForceRightFasterSpeed"), 0);
-static int configAlternativeMaxForceRightFasterSpeed = GetSettingInt(TEXT("AlternativeMaxForceRightFasterSpeed"), 100);
-static int PowerModeFasterSpeed = GetSettingInt(TEXT("PowerModeFasterSpeed"), 0);
-static int configFeedbackLengthFasterSpeed = GetSettingInt(TEXT("FeedbackLengthFasterSpeed"), 120);
-static int EnableForceSpringEffectFasterSpeed = GetSettingInt(TEXT("EnableForceSpringEffectFasterSpeed"), 0);
-static int ForceSpringStrengthFasterSpeed = GetSettingInt(TEXT("ForceSpringStrengthFasterSpeed"), 0);
-static int EnableDamperFasterSpeed = GetSettingInt(TEXT("EnableDamperFasterSpeed"), 0);
-static int DamperStrengthFasterSpeed = GetSettingInt(TEXT("DamperStrengthFasterSpeed"), 100);
-
-static int configMinForceATVTrack = GetSettingInt(TEXT("MinForceATVTrack"), 0);
-static int configMaxForceATVTrack = GetSettingInt(TEXT("MaxForceATVTrack"), 100);
-static int configAlternativeMinForceLeftATVTrack = GetSettingInt(TEXT("AlternativeMinForceLeftATVTrack"), 0);
-static int configAlternativeMaxForceLeftATVTrack = GetSettingInt(TEXT("AlternativeMaxForceLeftATVTrack"), 100);
-static int configAlternativeMinForceRightATVTrack = GetSettingInt(TEXT("AlternativeMinForceRightATVTrack"), 0);
-static int configAlternativeMaxForceRightATVTrack = GetSettingInt(TEXT("AlternativeMaxForceRightATVTrack"), 100);
-static int PowerModeATVTrack = GetSettingInt(TEXT("PowerModeATVTrack"), 0);
-static int configFeedbackLengthATVTrack = GetSettingInt(TEXT("FeedbackLengthATVTrack"), 120);
-static int EnableForceSpringEffectATVTrack = GetSettingInt(TEXT("EnableForceSpringEffectATVTrack"), 0);
-static int ForceSpringStrengthATVTrack = GetSettingInt(TEXT("ForceSpringStrengthATVTrack"), 0);
-static int EnableDamperATVTrack = GetSettingInt(TEXT("EnableDamperATVTrack"), 0);
-static int DamperStrengthATVTrack = GetSettingInt(TEXT("DamperStrengthATVTrack"), 100);
-
-static bool NascarRunning = false;
-static bool InitialDRunning = false;
-static bool SmashingDriveRunning = false;
-static bool MaximumSpeedRunning = false;
-static bool FasterThanSpeedRunning = false;
-static bool ATVTrackRunning = false;
-static bool FFBGameInit = false;
-static bool KickStartWait = false;
-static bool WindowSearch = false;
-
-static INT_PTR FFBAddress;
-static int ffnascar = 0;
-static int fffaster = 0;
-
+// Name of the game, for the keys of the persistent max force (Config/PersistentValues.cpp)
 char* romnameDemul;
 
-int nascar(int ffnas) {
+// force value of NASCAR to force: 1 to 16 one way, 17 to 32 the other, 0 if not a force
+static int nascar(int ffnas) {
 	switch (ffnas) {
 
 	case 0x04:
@@ -253,7 +101,7 @@ int nascar(int ffnas) {
 	}
 }
 
-int fasterspeed(int ffspeed) {
+static int fasterspeed(int ffspeed) {
 	switch (ffspeed) {
 	case 0x1F:
 		return 22;
@@ -305,171 +153,6 @@ int fasterspeed(int ffspeed) {
 	}
 }
 
-static int InitialDFFBLoop()
-{
-	DWORD FFB = myHelpers->ReadInt32(FFBAddress, false);
-
-	BYTE* ffb = reinterpret_cast<BYTE*>(&FFB);
-
-	if (KickStartWait)
-	{
-		PlayInitialDFFB(ffb[0], ffb[1], ffb[2], InitialDFFBDefaultSettings, myConstants, myTriggers);
-	}
-	return 0;
-}
-
-static int SmashingDriveFFBLoop()
-{
-	INT_PTR FFBSmashingDrive = myHelpers->ReadIntPtr(FFBAddress, false);
-	UINT32 length_ms = 100;
-	if ((FFBSmashingDrive > 0x01) && (FFBSmashingDrive < 0x100))
-	{
-		double percentForce = FFBSmashingDrive / 255.0;
-		myTriggers->Rumble(percentForce, 0, length_ms);
-		myTriggers->Constant(myConstants->DIRECTION_FROM_LEFT, percentForce);
-	}
-	else if ((FFBSmashingDrive > 0x1FF) && (FFBSmashingDrive < 0xFF01))
-	{
-		double percentForce = (FFBSmashingDrive / 65280.0);
-		myTriggers->Rumble(0, percentForce, length_ms);
-		myTriggers->Constant(myConstants->DIRECTION_FROM_RIGHT, percentForce);
-	}
-	return 0;
-}
-
-static int ATVTrackFFBLoop()
-{
-	float FFBATVTrack = myHelpers->ReadFloat32(FFBAddress, false);
-	UINT32 length_ms = 100;
-	if (FFBATVTrack > 0)
-	{
-		double percentForce = FFBATVTrack;
-		myTriggers->Rumble(percentForce, 0, length_ms);
-		myTriggers->Constant(myConstants->DIRECTION_FROM_LEFT, percentForce);
-	}
-	else if (FFBATVTrack < 0)
-	{
-		double percentForce = -FFBATVTrack;
-		myTriggers->Rumble(0, percentForce, length_ms);
-		myTriggers->Constant(myConstants->DIRECTION_FROM_RIGHT, percentForce);
-	}
-	return 0;
-}
-
-static int FasterThanSpeedFFBLoop()
-{
-	UINT8 ffbfaster = myHelpers->ReadByte(FFBAddress, false);
-	fffaster = fasterspeed(ffbfaster);
-	UINT32 length_ms = 100;
-	if ((fffaster > 0x0B) && (fffaster < 0x17))
-	{
-		double percentForce = (fffaster - 11) / 11.0;
-		myTriggers->Rumble(percentForce, 0, length_ms);
-		myTriggers->Constant(myConstants->DIRECTION_FROM_LEFT, percentForce);
-	}
-	else if ((fffaster > 0x00) && (fffaster < 0x0C))
-	{
-		double percentForce = fffaster / 11.0;
-		myTriggers->Rumble(0, percentForce, length_ms);
-		myTriggers->Constant(myConstants->DIRECTION_FROM_RIGHT, percentForce);
-	}
-	return 0;
-}
-
-static int MaximumSpeedFFBLoop()
-{
-	UINT8 FFBMaximumSpeed = myHelpers->ReadByte(FFBAddress, false);
-	UINT8 FFBMaximumSpeed2 = myHelpers->ReadByte(FFBAddress + 0x01, false);
-	UINT32 length_ms = 100;
-	if ((FFBMaximumSpeed > 0x7F) && (FFBMaximumSpeed < 0x100) && (FFBMaximumSpeed2 == 0xFF))
-	{
-		double percentForce = (256 - FFBMaximumSpeed) / 128.0;
-		myTriggers->Rumble(percentForce, 0, length_ms);
-		myTriggers->Constant(myConstants->DIRECTION_FROM_LEFT, percentForce);
-	}
-	else if ((FFBMaximumSpeed > 0x00) && (FFBMaximumSpeed < 0x81) && (FFBMaximumSpeed2 == 0x00))
-	{
-		double percentForce = FFBMaximumSpeed / 128.0;
-		myTriggers->Rumble(0, percentForce, length_ms);
-		myTriggers->Constant(myConstants->DIRECTION_FROM_RIGHT, percentForce);
-	}
-	return 0;
-}
-
-static int NascarFFBLoop()
-{
-	UINT8 ffnas = myHelpers->ReadByte(FFBAddress, false);
-	ffnascar = nascar(ffnas);
-	UINT32 length_ms = 100;
-	if ((ffnascar > 0x10) && (ffnascar < 0x21))
-	{
-		double percentForce = (ffnascar - 16) / 16.0;
-		myTriggers->Rumble(percentForce, 0, length_ms);
-		myTriggers->Constant(myConstants->DIRECTION_FROM_LEFT, percentForce);
-	}
-	else if ((ffnascar > 0x00) && (ffnascar < 0x11))
-	{
-		double percentForce = (17 - ffnascar) / 16.0;
-		myTriggers->Rumble(0, percentForce, length_ms);
-		myTriggers->Constant(myConstants->DIRECTION_FROM_RIGHT, percentForce);
-	}
-	return 0;
-}
-
-static DWORD WINAPI NascarRunningLoop(LPVOID lpParam)
-{
-	while (true)
-	{
-		NascarFFBLoop();
-		Sleep(16);
-	}
-}
-
-static DWORD WINAPI InitialDRunningLoop(LPVOID lpParam)
-{
-	while (true)
-	{
-		InitialDFFBLoop();
-		Sleep(16);
-	}
-}
-
-static DWORD WINAPI SmashingDriveRunningLoop(LPVOID lpParam)
-{
-	while (true)
-	{
-		SmashingDriveFFBLoop();
-		Sleep(16);
-	}
-}
-
-static DWORD WINAPI ATVTrackRunningLoop(LPVOID lpParam)
-{
-	while (true)
-	{
-		ATVTrackFFBLoop();
-		Sleep(16);
-	}
-}
-
-static DWORD WINAPI FasterThanSpeedRunningLoop(LPVOID lpParam)
-{
-	while (true)
-	{
-		FasterThanSpeedFFBLoop();
-		Sleep(16);
-	}
-}
-
-static DWORD WINAPI MaximumSpeedRunningLoop(LPVOID lpParam)
-{
-	while (true)
-	{
-		MaximumSpeedFFBLoop();
-		Sleep(16);
-	}
-}
-
 static BOOL CALLBACK FindWindowBySubstr(HWND hwnd, LPARAM substring)
 {
 	const DWORD TITLE_SIZE = 1024;
@@ -494,11 +177,174 @@ const TCHAR substring4[] = TEXT("Maximum Speed");
 const TCHAR substring5[] = TEXT("Faster Than Speed");
 const TCHAR substring6[] = TEXT("ATV Track");
 
-void Demul::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTriggers* triggers) {
+int Demul::InitialDFFBLoop()
+{
+	DWORD FFB = Memory::Read<int>(FFBAddress);
 
-	myTriggers = triggers;
-	myConstants = constants;
-	myHelpers = helpers;
+	BYTE* ffb = reinterpret_cast<BYTE*>(&FFB);
+
+	if (KickStartWait)
+	{
+		driveBoard.Play(ffb[0], ffb[1], ffb[2]);
+	}
+	return 0;
+}
+
+int Demul::SmashingDriveFFBLoop()
+{
+	INT_PTR FFBSmashingDrive = Memory::Read<INT_PTR>(FFBAddress);
+	UINT32 length_ms = 100;
+	if ((FFBSmashingDrive > 0x01) && (FFBSmashingDrive < 0x100))
+	{
+		double percentForce = FFBSmashingDrive / 255.0;
+		wheel.Rumble(percentForce, 0, length_ms);
+		wheel.Constant(Direction::FromLeft, percentForce);
+	}
+	else if ((FFBSmashingDrive > 0x1FF) && (FFBSmashingDrive < 0xFF01))
+	{
+		double percentForce = (FFBSmashingDrive / 65280.0);
+		wheel.Rumble(0, percentForce, length_ms);
+		wheel.Constant(Direction::FromRight, percentForce);
+	}
+	return 0;
+}
+
+int Demul::ATVTrackFFBLoop()
+{
+	float FFBATVTrack = Memory::Read<float>(FFBAddress);
+	UINT32 length_ms = 100;
+	if (FFBATVTrack > 0)
+	{
+		double percentForce = FFBATVTrack;
+		wheel.Rumble(percentForce, 0, length_ms);
+		wheel.Constant(Direction::FromLeft, percentForce);
+	}
+	else if (FFBATVTrack < 0)
+	{
+		double percentForce = -FFBATVTrack;
+		wheel.Rumble(0, percentForce, length_ms);
+		wheel.Constant(Direction::FromRight, percentForce);
+	}
+	return 0;
+}
+
+int Demul::FasterThanSpeedFFBLoop()
+{
+	UINT8 ffbfaster = Memory::Read<UINT8>(FFBAddress);
+	fffaster = fasterspeed(ffbfaster);
+	UINT32 length_ms = 100;
+	if ((fffaster > 0x0B) && (fffaster < 0x17))
+	{
+		double percentForce = (fffaster - 11) / 11.0;
+		wheel.Rumble(percentForce, 0, length_ms);
+		wheel.Constant(Direction::FromLeft, percentForce);
+	}
+	else if ((fffaster > 0x00) && (fffaster < 0x0C))
+	{
+		double percentForce = fffaster / 11.0;
+		wheel.Rumble(0, percentForce, length_ms);
+		wheel.Constant(Direction::FromRight, percentForce);
+	}
+	return 0;
+}
+
+int Demul::MaximumSpeedFFBLoop()
+{
+	UINT8 FFBMaximumSpeed = Memory::Read<UINT8>(FFBAddress);
+	UINT8 FFBMaximumSpeed2 = Memory::Read<UINT8>(FFBAddress + 0x01);
+	UINT32 length_ms = 100;
+	if ((FFBMaximumSpeed > 0x7F) && (FFBMaximumSpeed < 0x100) && (FFBMaximumSpeed2 == 0xFF))
+	{
+		double percentForce = (256 - FFBMaximumSpeed) / 128.0;
+		wheel.Rumble(percentForce, 0, length_ms);
+		wheel.Constant(Direction::FromLeft, percentForce);
+	}
+	else if ((FFBMaximumSpeed > 0x00) && (FFBMaximumSpeed < 0x81) && (FFBMaximumSpeed2 == 0x00))
+	{
+		double percentForce = FFBMaximumSpeed / 128.0;
+		wheel.Rumble(0, percentForce, length_ms);
+		wheel.Constant(Direction::FromRight, percentForce);
+	}
+	return 0;
+}
+
+int Demul::NascarFFBLoop()
+{
+	UINT8 ffnas = Memory::Read<UINT8>(FFBAddress);
+	ffnascar = nascar(ffnas);
+	UINT32 length_ms = 100;
+	if ((ffnascar > 0x10) && (ffnascar < 0x21))
+	{
+		double percentForce = (ffnascar - 16) / 16.0;
+		wheel.Rumble(percentForce, 0, length_ms);
+		wheel.Constant(Direction::FromLeft, percentForce);
+	}
+	else if ((ffnascar > 0x00) && (ffnascar < 0x11))
+	{
+		double percentForce = (17 - ffnascar) / 16.0;
+		wheel.Rumble(0, percentForce, length_ms);
+		wheel.Constant(Direction::FromRight, percentForce);
+	}
+	return 0;
+}
+
+DWORD WINAPI Demul::NascarRunningLoop(LPVOID game)
+{
+	while (true)
+	{
+		((Demul*)game)->NascarFFBLoop();
+		Sleep(16);
+	}
+}
+
+DWORD WINAPI Demul::InitialDRunningLoop(LPVOID game)
+{
+	while (true)
+	{
+		((Demul*)game)->InitialDFFBLoop();
+		Sleep(16);
+	}
+}
+
+DWORD WINAPI Demul::SmashingDriveRunningLoop(LPVOID game)
+{
+	while (true)
+	{
+		((Demul*)game)->SmashingDriveFFBLoop();
+		Sleep(16);
+	}
+}
+
+DWORD WINAPI Demul::ATVTrackRunningLoop(LPVOID game)
+{
+	while (true)
+	{
+		((Demul*)game)->ATVTrackFFBLoop();
+		Sleep(16);
+	}
+}
+
+DWORD WINAPI Demul::FasterThanSpeedRunningLoop(LPVOID game)
+{
+	while (true)
+	{
+		((Demul*)game)->FasterThanSpeedFFBLoop();
+		Sleep(16);
+	}
+}
+
+DWORD WINAPI Demul::MaximumSpeedRunningLoop(LPVOID game)
+{
+	while (true)
+	{
+		((Demul*)game)->MaximumSpeedFFBLoop();
+		Sleep(16);
+	}
+}
+
+void Demul::Update()
+{
+
 
 	if (AutoCloseWindowError == 1)
 	{
@@ -555,86 +401,86 @@ void Demul::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTriggers
 
 		if (Demul180428)
 		{
-			helpers->WriteNop((INT_PTR)gl_padDemul + 0x27013, 3, false);
-			helpers->WriteNop((INT_PTR)gl_padDemul + 0x26F31, 3, false);
-			helpers->WriteNop((INT_PTR)gl_padDemul + 0x271F7, 3, false);
-			helpers->WriteNop((INT_PTR)gl_padDemul + 0x276BD, 4, false);
-			helpers->WriteNop((INT_PTR)gl_padDemul + 0x272FF, 3, false);
-			helpers->WriteNop((INT_PTR)gl_padDemul + 0x26FBD, 3, false);
-			helpers->WriteNop((INT_PTR)gl_padDemul + 0x27685, 4, false);
-			helpers->WriteNop((INT_PTR)gl_padDemul + 0x276A2, 4, false);
-			helpers->WriteNop((INT_PTR)gl_padDemul + 0x26FEC, 3, false);
-			helpers->WriteNop((INT_PTR)gl_padDemul + 0x270A3, 3, false);
-			helpers->WriteNop((INT_PTR)gl_padDemul + 0x26FE1, 3, false);
-			helpers->WriteNop((INT_PTR)gl_padDemul + 0x27048, 4, false);
-			helpers->WriteNop((INT_PTR)gl_padDemul + 0x2703A, 4, false);
+			Memory::WriteNop((INT_PTR)gl_padDemul + 0x27013, 3);
+			Memory::WriteNop((INT_PTR)gl_padDemul + 0x26F31, 3);
+			Memory::WriteNop((INT_PTR)gl_padDemul + 0x271F7, 3);
+			Memory::WriteNop((INT_PTR)gl_padDemul + 0x276BD, 4);
+			Memory::WriteNop((INT_PTR)gl_padDemul + 0x272FF, 3);
+			Memory::WriteNop((INT_PTR)gl_padDemul + 0x26FBD, 3);
+			Memory::WriteNop((INT_PTR)gl_padDemul + 0x27685, 4);
+			Memory::WriteNop((INT_PTR)gl_padDemul + 0x276A2, 4);
+			Memory::WriteNop((INT_PTR)gl_padDemul + 0x26FEC, 3);
+			Memory::WriteNop((INT_PTR)gl_padDemul + 0x270A3, 3);
+			Memory::WriteNop((INT_PTR)gl_padDemul + 0x26FE1, 3);
+			Memory::WriteNop((INT_PTR)gl_padDemul + 0x27048, 4);
+			Memory::WriteNop((INT_PTR)gl_padDemul + 0x2703A, 4);
 		}
 
 		if (Demul111117)
 		{
-			helpers->WriteNop((INT_PTR)gl_padDemul + 0x26B31, 3, false);
-			helpers->WriteNop((INT_PTR)gl_padDemul + 0x26DD0, 3, false);
-			helpers->WriteNop((INT_PTR)gl_padDemul + 0x272AD, 4, false);
-			helpers->WriteNop((INT_PTR)gl_padDemul + 0x26B9C, 3, false);
-			helpers->WriteNop((INT_PTR)gl_padDemul + 0x27275, 4, false);
-			helpers->WriteNop((INT_PTR)gl_padDemul + 0x27292, 4, false);
-			helpers->WriteNop((INT_PTR)gl_padDemul + 0x26BC2, 3, false);
-			helpers->WriteNop((INT_PTR)gl_padDemul + 0x26BBA, 3, false);
-			helpers->WriteNop((INT_PTR)gl_padDemul + 0x26BE3, 3, false);
-			helpers->WriteNop((INT_PTR)gl_padDemul + 0x26C1E, 4, false);
-			helpers->WriteNop((INT_PTR)gl_padDemul + 0x26C10, 4, false);
+			Memory::WriteNop((INT_PTR)gl_padDemul + 0x26B31, 3);
+			Memory::WriteNop((INT_PTR)gl_padDemul + 0x26DD0, 3);
+			Memory::WriteNop((INT_PTR)gl_padDemul + 0x272AD, 4);
+			Memory::WriteNop((INT_PTR)gl_padDemul + 0x26B9C, 3);
+			Memory::WriteNop((INT_PTR)gl_padDemul + 0x27275, 4);
+			Memory::WriteNop((INT_PTR)gl_padDemul + 0x27292, 4);
+			Memory::WriteNop((INT_PTR)gl_padDemul + 0x26BC2, 3);
+			Memory::WriteNop((INT_PTR)gl_padDemul + 0x26BBA, 3);
+			Memory::WriteNop((INT_PTR)gl_padDemul + 0x26BE3, 3);
+			Memory::WriteNop((INT_PTR)gl_padDemul + 0x26C1E, 4);
+			Memory::WriteNop((INT_PTR)gl_padDemul + 0x26C10, 4);
 		}
 
 		if (NascarRunning)
 		{
-			helpers->WriteByte(SteeringAddress, 0x80, false);
-			helpers->WriteByte(AcclAddress, 0x00, false);
-			helpers->WriteByte(BrakeAddress, 0x00, false);
-			helpers->WriteByte(ShiftUpDownAddress, 0x28, false);
-			NascarInputsEnabled(helpers);
+			Memory::Write<UINT8>(inputAddresses.steering, 0x80);
+			Memory::Write<UINT8>(inputAddresses.accelerator, 0x00);
+			Memory::Write<UINT8>(inputAddresses.brake, 0x00);
+			Memory::Write<UINT8>(inputAddresses.shiftUpDown, 0x28);
+			nascarInputs.Update();
 		}
 
 		if (InitialDRunning)
 		{
-			helpers->WriteByte(SteeringAddress, 0x80, false);
-			helpers->WriteByte(AcclAddress, 0x00, false);
-			helpers->WriteByte(BrakeAddress, 0x00, false);
-			InitialDInputsEnabled(helpers);
+			Memory::Write<UINT8>(inputAddresses.steering, 0x80);
+			Memory::Write<UINT8>(inputAddresses.accelerator, 0x00);
+			Memory::Write<UINT8>(inputAddresses.brake, 0x00);
+			initialDInputs.Update();
 		}
 
 		if (SmashingDriveRunning)
 		{
-			helpers->WriteByte(SteeringAddress, 0x80, false);
-			SmashingDriveInputsEnabled(helpers);
+			Memory::Write<UINT8>(inputAddresses.steering, 0x80);
+			smashingDriveInputs.Update();
 		}
 
 		if (ATVTrackRunning)
 		{
-			helpers->WriteByte(SteeringAddress, 0x80, false);
-			helpers->WriteByte(AcclAddress, 0x00, false);
-			ATVTrackInputsEnabled(helpers);
+			Memory::Write<UINT8>(inputAddresses.steering, 0x80);
+			Memory::Write<UINT8>(inputAddresses.accelerator, 0x00);
+			atvTrackInputs.Update();
 		}
 
 		if (FasterThanSpeedRunning)
 		{
-			helpers->WriteByte(SteeringAddress, 0x80, false);
-			helpers->WriteByte(AcclAddress, 0x00, false);
-			helpers->WriteByte(BrakeAddress, 0x00, false);
-			FasterThanSpeedInputsEnabled(helpers);
+			Memory::Write<UINT8>(inputAddresses.steering, 0x80);
+			Memory::Write<UINT8>(inputAddresses.accelerator, 0x00);
+			Memory::Write<UINT8>(inputAddresses.brake, 0x00);
+			fasterThanSpeedInputs.Update();
 		}
 
 		if (MaximumSpeedRunning)
 		{
-			helpers->WriteByte(SteeringAddress, 0x80, false);
-			helpers->WriteByte(AcclAddress, 0x00, false);
-			helpers->WriteByte(BrakeAddress, 0x00, false);
-			MaximumSpeedInputsEnabled(helpers);
+			Memory::Write<UINT8>(inputAddresses.steering, 0x80);
+			Memory::Write<UINT8>(inputAddresses.accelerator, 0x00);
+			Memory::Write<UINT8>(inputAddresses.brake, 0x00);
+			maximumSpeedInputs.Update();
 		}
 	}
 		
 	if (EnableForceSpringEffect == 1)
 	{
-		triggers->Springi(ForceSpringStrength / 100.0);
+		wheel.KeptSpring(ForceSpringStrength / 100.0);
 	}
 
 	if (!WindowSearch)
@@ -643,18 +489,7 @@ void Demul::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTriggers
 		{
 			if (!EnumWindows(FindWindowBySubstr, (LPARAM)substring1))
 			{
-				configMinForce = configMinForceNascarRacing;
-				configMaxForce = configMaxForceNascarRacing;
-				configAlternativeMinForceLeft = configAlternativeMinForceLeftNascarRacing;
-				configAlternativeMaxForceLeft = configAlternativeMaxForceLeftNascarRacing;
-				configAlternativeMinForceRight = configAlternativeMinForceRightNascarRacing;
-				configAlternativeMaxForceRight = configAlternativeMaxForceRightNascarRacing;
-				configFeedbackLength = configFeedbackLengthNascarRacing;
-				PowerMode = PowerModeNascarRacing;
-				EnableForceSpringEffect = EnableForceSpringEffectNascarRacing;
-				ForceSpringStrength = ForceSpringStrengthNascarRacing;
-				EnableDamper = EnableDamperNascarRacing;
-				DamperStrength = DamperStrengthNascarRacing;
+				ForceProfile::Apply(L"NascarRacing", ForceProfile::Racing);
 
 				romnameDemul = "Nascar";
 
@@ -665,20 +500,7 @@ void Demul::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTriggers
 
 			if (!EnumWindows(FindWindowBySubstr, (LPARAM)substring2))
 			{
-				configMinForce = configMinForceInitialDDemul;
-				configMaxForce = configMaxForceInitialDDemul;
-				configAlternativeMinForceLeft = configAlternativeMinForceLeftInitialDDemul;
-				configAlternativeMaxForceLeft = configAlternativeMaxForceLeftInitialDDemul;
-				configAlternativeMinForceRight = configAlternativeMinForceRightInitialDDemul;
-				configAlternativeMaxForceRight = configAlternativeMaxForceRightInitialDDemul;
-				configFeedbackLength = configFeedbackLengthInitialDDemul;
-				PowerMode = PowerModeInitialDDemul;
-				EnableForceSpringEffect = EnableForceSpringEffectInitialDDemul;
-				ForceSpringStrength = ForceSpringStrengthInitialDDemul;
-				EnableDamper = EnableDamperInitialDDemul;
-				DamperStrength = DamperStrengthInitialDDemul;
-				DoubleSine = DoubleSineInitialDDemul;
-				DoubleConstant = DoubleConstantInitialDDemul;
+				ForceProfile::Apply(L"InitialDDemul", ForceProfile::Racing | ForceProfile::Doubles);
 
 				romnameDemul = "Initial D Arcade Stage";
 
@@ -689,18 +511,7 @@ void Demul::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTriggers
 
 			if (!EnumWindows(FindWindowBySubstr, (LPARAM)substring3))
 			{
-				configMinForce = configMinForceSmashingDrive;
-				configMaxForce = configMaxForceSmashingDrive;
-				configAlternativeMinForceLeft = configAlternativeMinForceLeftSmashingDrive;
-				configAlternativeMaxForceLeft = configAlternativeMaxForceLeftSmashingDrive;
-				configAlternativeMinForceRight = configAlternativeMinForceRightSmashingDrive;
-				configAlternativeMaxForceRight = configAlternativeMaxForceRightSmashingDrive;
-				configFeedbackLength = configFeedbackLengthSmashingDrive;
-				PowerMode = PowerModeSmashingDrive;
-				EnableForceSpringEffect = EnableForceSpringEffectSmashingDrive;
-				ForceSpringStrength = ForceSpringStrengthSmashingDrive;
-				EnableDamper = EnableDamperSmashingDrive;
-				DamperStrength = DamperStrengthSmashingDrive;
+				ForceProfile::Apply(L"SmashingDrive", ForceProfile::Racing);
 
 				romnameDemul = "Smashing Drive";
 
@@ -711,18 +522,7 @@ void Demul::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTriggers
 
 			if (!EnumWindows(FindWindowBySubstr, (LPARAM)substring4))
 			{
-				configMinForce = configMinForceMaximumSpeed;
-				configMaxForce = configMaxForceMaximumSpeed;
-				configAlternativeMinForceLeft = configAlternativeMinForceLeftMaximumSpeed;
-				configAlternativeMaxForceLeft = configAlternativeMaxForceLeftMaximumSpeed;
-				configAlternativeMinForceRight = configAlternativeMinForceRightMaximumSpeed;
-				configAlternativeMaxForceRight = configAlternativeMaxForceRightMaximumSpeed;
-				configFeedbackLength = configFeedbackLengthMaximumSpeed;
-				PowerMode = PowerModeMaximumSpeed;
-				EnableForceSpringEffect = EnableForceSpringEffectMaximumSpeed;
-				ForceSpringStrength = ForceSpringStrengthMaximumSpeed;
-				EnableDamper = EnableDamperMaximumSpeed;
-				DamperStrength = DamperStrengthMaximumSpeed;
+				ForceProfile::Apply(L"MaximumSpeed", ForceProfile::Racing);
 
 				romnameDemul = "Maximum Speed";
 
@@ -733,18 +533,7 @@ void Demul::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTriggers
 
 			if (!EnumWindows(FindWindowBySubstr, (LPARAM)substring5))
 			{
-				configMinForce = configMinForceFasterSpeed;
-				configMaxForce = configMaxForceFasterSpeed;
-				configAlternativeMinForceLeft = configAlternativeMinForceLeftFasterSpeed;
-				configAlternativeMaxForceLeft = configAlternativeMaxForceLeftFasterSpeed;
-				configAlternativeMinForceRight = configAlternativeMinForceRightFasterSpeed;
-				configAlternativeMaxForceRight = configAlternativeMaxForceRightFasterSpeed;
-				configFeedbackLength = configFeedbackLengthFasterSpeed;
-				PowerMode = PowerModeFasterSpeed;
-				EnableForceSpringEffect = EnableForceSpringEffectFasterSpeed;
-				ForceSpringStrength = ForceSpringStrengthFasterSpeed;
-				EnableDamper = EnableDamperFasterSpeed;
-				DamperStrength = DamperStrengthFasterSpeed;
+				ForceProfile::Apply(L"FasterSpeed", ForceProfile::Racing);
 
 				romnameDemul = "Faster Than Speed";
 
@@ -755,18 +544,7 @@ void Demul::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTriggers
 
 			if (!EnumWindows(FindWindowBySubstr, (LPARAM)substring6))
 			{
-				configMinForce = configMinForceATVTrack;
-				configMaxForce = configMaxForceATVTrack;
-				configAlternativeMinForceLeft = configAlternativeMinForceLeftATVTrack;
-				configAlternativeMaxForceLeft = configAlternativeMaxForceLeftATVTrack;
-				configAlternativeMinForceRight = configAlternativeMinForceRightATVTrack;
-				configAlternativeMaxForceRight = configAlternativeMaxForceRightATVTrack;
-				configFeedbackLength = configFeedbackLengthATVTrack;
-				PowerMode = PowerModeATVTrack;
-				EnableForceSpringEffect = EnableForceSpringEffectATVTrack;
-				ForceSpringStrength = ForceSpringStrengthATVTrack;
-				EnableDamper = EnableDamperATVTrack;
-				DamperStrength = DamperStrengthATVTrack;
+				ForceProfile::Apply(L"ATVTrack", ForceProfile::Racing);
 
 				romnameDemul = "ATV Track";
 
@@ -782,9 +560,9 @@ void Demul::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTriggers
 		if (!FFBGameInit)
 		{
 			Sleep(5000);
-			aAddy2 = PatternScan("\x13\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x50\x72\x6F\x64\x75\x63\x65\x64\x20\x42\x79\x20", "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
+			aAddy2 = Memory::FindPattern("\x13\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x50\x72\x6F\x64\x75\x63\x65\x64\x20\x42\x79\x20", "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx", aAddy2);
 			FFBAddress = (INT_PTR)aAddy2 - 0x2F0;
-			CreateThread(NULL, 0, NascarRunningLoop, NULL, 0, NULL);
+			CreateThread(NULL, 0, NascarRunningLoop, this, 0, NULL);
 			FFBGameInit = true;
 		}
 		else
@@ -793,17 +571,17 @@ void Demul::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTriggers
 			{
 				if (!InputFind)
 				{
-					aAddy = PatternScan("\x11\x00\x16\x1F\x05\x04\x1D\x0D\x07\x12\x18\x14\x02\x13\x09\x15\x0E\x19\x01\x1C\x08\x1A\x17\x03\x0F\x1B\x00\x10\x0A\x0B\x0C\x06\x01", "x?xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
-					UINT8 CheckaAddy = helpers->ReadByte((INT_PTR)aAddy + 0x01, false);
+					aAddy = Memory::FindPattern("\x11\x00\x16\x1F\x05\x04\x1D\x0D\x07\x12\x18\x14\x02\x13\x09\x15\x0E\x19\x01\x1C\x08\x1A\x17\x03\x0F\x1B\x00\x10\x0A\x0B\x0C\x06\x01", "x?xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx", aAddy2);
+					UINT8 CheckaAddy = Memory::Read<UINT8>((INT_PTR)aAddy + 0x01);
 					if (CheckaAddy == 0x1E)
 					{
-						SteeringAddress = (INT_PTR)aAddy - 0xC45;
-						AcclAddress = (INT_PTR)aAddy - 0xC0D;
-						BrakeAddress = (INT_PTR)aAddy - 0xBD5;
-						ShiftUpDownAddress = (INT_PTR)aAddy - 0xDEA;
-						ServiceTestAddress = (INT_PTR)aAddy - 0x108A;
-						StartViewAddress = (INT_PTR)aAddy - 0xF8E;
-						CoinAddress = (INT_PTR)aAddy - 0xFE2;
+						inputAddresses.steering = (INT_PTR)aAddy - 0xC45;
+						inputAddresses.accelerator = (INT_PTR)aAddy - 0xC0D;
+						inputAddresses.brake = (INT_PTR)aAddy - 0xBD5;
+						inputAddresses.shiftUpDown = (INT_PTR)aAddy - 0xDEA;
+						inputAddresses.serviceTest = (INT_PTR)aAddy - 0x108A;
+						inputAddresses.startView = (INT_PTR)aAddy - 0xF8E;
+						inputAddresses.coin = (INT_PTR)aAddy - 0xFE2;
 						NOPinit = true;
 						InputFind = true;
 					}
@@ -817,7 +595,7 @@ void Demul::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTriggers
 		if (!FFBGameInit)
 		{
 			Sleep(6000);
-			aAddy2 = PatternScan("\x88\xA9\x00\x09", "xxxx");
+			aAddy2 = Memory::FindPattern("\x88\xA9\x00\x09", "xxxx", aAddy2);
 			FFBAddress = (INT_PTR)aAddy2 + 0x01;
 			FFBGameInit = true;
 		}
@@ -827,7 +605,7 @@ void Demul::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTriggers
 			if (FFBAddress > 0)
 			{
 				Sleep(6000);
-				CreateThread(NULL, 0, InitialDRunningLoop, NULL, 0, NULL);
+				CreateThread(NULL, 0, InitialDRunningLoop, this, 0, NULL);
 				KickStartWait = true;
 			}
 		}
@@ -837,19 +615,19 @@ void Demul::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTriggers
 			{
 				if (!InputFind)
 				{
-					aAddy = PatternScan("\x06\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x01\x00\x00\x00\xFF\xFF\x00\x00\x00\x00\x00\x00\x00\x00\x01\x00\x00\x00\x20", "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
-					UINT8 CheckaAddy = helpers->ReadByte((INT_PTR)aAddy - 0x2A0, false);
+					aAddy = Memory::FindPattern("\x06\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x01\x00\x00\x00\xFF\xFF\x00\x00\x00\x00\x00\x00\x00\x00\x01\x00\x00\x00\x20", "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx", aAddy2);
+					UINT8 CheckaAddy = Memory::Read<UINT8>((INT_PTR)aAddy - 0x2A0);
 					if (CheckaAddy == 0x01)
 					{
-						SteeringAddress = (INT_PTR)aAddy - 0x85;
-						AcclAddress = (INT_PTR)aAddy - 0x4D;
-						BrakeAddress = (INT_PTR)aAddy - 0x15;
-						StartViewAddress = (INT_PTR)aAddy - 0x14A;
-						ShiftUpDownAddress = (INT_PTR)aAddy - 0xDA;
-						ServiceTestAddress = (INT_PTR)aAddy - 0x246;
-						CoinAddress = (INT_PTR)aAddy - 0x19E;
-						CardAddress = (INT_PTR)aAddy + 0x3E;
-						CardAddress2 = (INT_PTR)aAddy + 0x22;
+						inputAddresses.steering = (INT_PTR)aAddy - 0x85;
+						inputAddresses.accelerator = (INT_PTR)aAddy - 0x4D;
+						inputAddresses.brake = (INT_PTR)aAddy - 0x15;
+						inputAddresses.startView = (INT_PTR)aAddy - 0x14A;
+						inputAddresses.shiftUpDown = (INT_PTR)aAddy - 0xDA;
+						inputAddresses.serviceTest = (INT_PTR)aAddy - 0x246;
+						inputAddresses.coin = (INT_PTR)aAddy - 0x19E;
+						inputAddresses.card = (INT_PTR)aAddy + 0x3E;
+						inputAddresses.card2 = (INT_PTR)aAddy + 0x22;
 						NOPinit = true;
 						InputFind = true;
 					}
@@ -863,13 +641,13 @@ void Demul::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTriggers
 		if (!FFBGameInit)
 		{	
 			Sleep(5000);
-			aAddy2 = PatternScan("\xC0\xF3\x51\x00\x60\x9A\x2C\x01", "xxxxxxxx");
+			aAddy2 = Memory::FindPattern("\xC0\xF3\x51\x00\x60\x9A\x2C\x01", "xxxxxxxx", aAddy2);
 			
-			UINT8 CheckAddy = helpers->ReadByte((INT_PTR)aAddy2 - 0x0E, false);
+			UINT8 CheckAddy = Memory::Read<UINT8>((INT_PTR)aAddy2 - 0x0E);
 			if (CheckAddy == 0x07)
 			{
 				FFBAddress = (INT_PTR)aAddy2 - 0xD0;
-				CreateThread(NULL, 0, SmashingDriveRunningLoop, NULL, 0, NULL);
+				CreateThread(NULL, 0, SmashingDriveRunningLoop, this, 0, NULL);
 				FFBGameInit = true;
 			}
 		}
@@ -879,13 +657,13 @@ void Demul::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTriggers
 			{
 				if (!InputFind)
 				{
-					aAddy = PatternScan("\x0C\x00\x0E\x0F\x08\x09\x0A\x0B\x1C\x1D\x1E\x1F\x18\x19\x1A\x1B\x04\x05\x06\x07\x00\x01\x02\x03\x14\x15\x16\x17\x10\x11", "x?xxxxxxxxxxxxxxxxxxxxxxxxxxxx");
-					UINT8 CheckaAddy = helpers->ReadByte((INT_PTR)aAddy + 0x01, false);
+					aAddy = Memory::FindPattern("\x0C\x00\x0E\x0F\x08\x09\x0A\x0B\x1C\x1D\x1E\x1F\x18\x19\x1A\x1B\x04\x05\x06\x07\x00\x01\x02\x03\x14\x15\x16\x17\x10\x11", "x?xxxxxxxxxxxxxxxxxxxxxxxxxxxx", aAddy2);
+					UINT8 CheckaAddy = Memory::Read<UINT8>((INT_PTR)aAddy + 0x01);
 					if (CheckaAddy == 0x0D)
 					{
-						SteeringAddress = (INT_PTR)aAddy - 0x80A;
-						ServiceTestAddress = (INT_PTR)aAddy - 0x95A;
-						AcclAddress = (INT_PTR)aAddy - 0x896;
+						inputAddresses.steering = (INT_PTR)aAddy - 0x80A;
+						inputAddresses.serviceTest = (INT_PTR)aAddy - 0x95A;
+						inputAddresses.accelerator = (INT_PTR)aAddy - 0x896;
 						NOPinit = true;
 						InputFind = true;
 					}
@@ -899,13 +677,13 @@ void Demul::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTriggers
 		if (!FFBGameInit)
 		{
 			Sleep(10000);
-			aAddy2 = PatternScan("\x48\x03\x00\x00\xE0\x01\x00\x00\x2C\x01\x00\x00\xB4\x00\x00\x00\x00\x00\x00\x00\x20\xFE\xFF\xFF", "xxxxxxxxxxxxxxxxxxxxxxxx");
+			aAddy2 = Memory::FindPattern("\x48\x03\x00\x00\xE0\x01\x00\x00\x2C\x01\x00\x00\xB4\x00\x00\x00\x00\x00\x00\x00\x20\xFE\xFF\xFF", "xxxxxxxxxxxxxxxxxxxxxxxx", aAddy2);
 
-			UINT8 CheckAddy = helpers->ReadByte((INT_PTR)aAddy2 + 0x21, false);
+			UINT8 CheckAddy = Memory::Read<UINT8>((INT_PTR)aAddy2 + 0x21);
 			if (CheckAddy == 0xFC)
 			{
 				FFBAddress = (INT_PTR)aAddy2 + 0x18;
-				CreateThread(NULL, 0, MaximumSpeedRunningLoop, NULL, 0, NULL);
+				CreateThread(NULL, 0, MaximumSpeedRunningLoop, this, 0, NULL);
 				FFBGameInit = true;
 			}
 		}
@@ -915,16 +693,16 @@ void Demul::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTriggers
 			{
 				if (!InputFind)
 				{
-					aAddy = PatternScan("\x14\x00\x05\x10\x0C\x18\x19\x04\x0B\x11\x0D\x1C\x1D\x02\x1F\x08\x06\x17\x0A\x0E\x16\x1A\x07\x15\x0F\x13\x01\x12\x03\x1E\x09", "x?xxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
-					UINT8 CheckaAddy = helpers->ReadByte((INT_PTR)aAddy + 0x01, false);
+					aAddy = Memory::FindPattern("\x14\x00\x05\x10\x0C\x18\x19\x04\x0B\x11\x0D\x1C\x1D\x02\x1F\x08\x06\x17\x0A\x0E\x16\x1A\x07\x15\x0F\x13\x01\x12\x03\x1E\x09", "x?xxxxxxxxxxxxxxxxxxxxxxxxxxxxx", aAddy2);
+					UINT8 CheckaAddy = Memory::Read<UINT8>((INT_PTR)aAddy + 0x01);
 					if (CheckaAddy == 0x1B)
 					{
-						SteeringAddress = (INT_PTR)aAddy - 0x1316;
-						AcclAddress = (INT_PTR)aAddy - 0x12DE;
-						BrakeAddress = (INT_PTR)aAddy - 0x12A6;
-						ShiftUpDownAddress = (INT_PTR)aAddy - 0x14F2;
-						ServiceTestAddress = (INT_PTR)aAddy - 0x14F1;
-						CoinAddress = (INT_PTR)aAddy - 0x136A;
+						inputAddresses.steering = (INT_PTR)aAddy - 0x1316;
+						inputAddresses.accelerator = (INT_PTR)aAddy - 0x12DE;
+						inputAddresses.brake = (INT_PTR)aAddy - 0x12A6;
+						inputAddresses.shiftUpDown = (INT_PTR)aAddy - 0x14F2;
+						inputAddresses.serviceTest = (INT_PTR)aAddy - 0x14F1;
+						inputAddresses.coin = (INT_PTR)aAddy - 0x136A;
 						NOPinit = true;
 						InputFind = true;
 					}
@@ -938,13 +716,13 @@ void Demul::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTriggers
 		if (!FFBGameInit)
 		{
 			Sleep(10000);
-			aAddy2 = PatternScan("\x01\x00\x10\x00\x00\x00\x00\x00\x00\x2F\x76", "xxxxxxxxxxx");
+			aAddy2 = Memory::FindPattern("\x01\x00\x10\x00\x00\x00\x00\x00\x00\x2F\x76", "xxxxxxxxxxx", aAddy2);
 
-			UINT8 CheckAddy = helpers->ReadByte((INT_PTR)aAddy2 + 0x0E, false);
+			UINT8 CheckAddy = Memory::Read<UINT8>((INT_PTR)aAddy2 + 0x0E);
 			if (CheckAddy == 0x0C)
 			{
 				FFBAddress = (INT_PTR)aAddy2 + 0x0F;
-				CreateThread(NULL, 0, FasterThanSpeedRunningLoop, NULL, 0, NULL);
+				CreateThread(NULL, 0, FasterThanSpeedRunningLoop, this, 0, NULL);
 				FFBGameInit = true;
 			}
 		}
@@ -954,16 +732,16 @@ void Demul::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTriggers
 			{
 				if (!InputFind)
 				{
-					aAddy = PatternScan("\x14\x00\x05\x10\x0C\x18\x19\x04\x0B\x11\x0D\x1C\x1D\x02\x1F\x08\x06\x17\x0A\x0E\x16\x1A\x07\x15\x0F\x13\x01\x12\x03\x1E\x09", "x?xxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
-					UINT8 CheckaAddy = helpers->ReadByte((INT_PTR)aAddy + 0x01, false);
+					aAddy = Memory::FindPattern("\x14\x00\x05\x10\x0C\x18\x19\x04\x0B\x11\x0D\x1C\x1D\x02\x1F\x08\x06\x17\x0A\x0E\x16\x1A\x07\x15\x0F\x13\x01\x12\x03\x1E\x09", "x?xxxxxxxxxxxxxxxxxxxxxxxxxxxxx", aAddy2);
+					UINT8 CheckaAddy = Memory::Read<UINT8>((INT_PTR)aAddy + 0x01);
 					if (CheckaAddy == 0x1B)
 					{
-						SteeringAddress = (INT_PTR)aAddy - 0x1316;
-						AcclAddress = (INT_PTR)aAddy - 0x12DE;
-						BrakeAddress = (INT_PTR)aAddy - 0x12A6;
-						ShiftUpDownAddress = (INT_PTR)aAddy - 0x14F2;
-						ServiceTestAddress = (INT_PTR)aAddy - 0x14F1;
-						CoinAddress = (INT_PTR)aAddy - 0x136A;
+						inputAddresses.steering = (INT_PTR)aAddy - 0x1316;
+						inputAddresses.accelerator = (INT_PTR)aAddy - 0x12DE;
+						inputAddresses.brake = (INT_PTR)aAddy - 0x12A6;
+						inputAddresses.shiftUpDown = (INT_PTR)aAddy - 0x14F2;
+						inputAddresses.serviceTest = (INT_PTR)aAddy - 0x14F1;
+						inputAddresses.coin = (INT_PTR)aAddy - 0x136A;
 						NOPinit = true;
 						InputFind = true;
 					}
@@ -977,12 +755,12 @@ void Demul::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTriggers
 		if (!FFBGameInit)
 		{
 			Sleep(15000);
-			aAddy2 = PatternScan("\x49\x55\x4C\x00\x00\x00\x05", "xxxxxxx");
-			UINT8 CheckAddy = helpers->ReadByte((INT_PTR)aAddy2 - 0x04, false);
+			aAddy2 = Memory::FindPattern("\x49\x55\x4C\x00\x00\x00\x05", "xxxxxxx", aAddy2);
+			UINT8 CheckAddy = Memory::Read<UINT8>((INT_PTR)aAddy2 - 0x04);
 			if (CheckAddy == 0x1E)
 			{
 				FFBAddress = (INT_PTR)aAddy2 - 0x1A;
-				CreateThread(NULL, 0, ATVTrackRunningLoop, NULL, 0, NULL);
+				CreateThread(NULL, 0, ATVTrackRunningLoop, this, 0, NULL);
 				FFBGameInit = true;
 			}
 		}
@@ -992,14 +770,14 @@ void Demul::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTriggers
 			{
 				if (!InputFind)
 				{
-					aAddy = PatternScan("\x11\x00\x16\x1F\x05\x04\x1D\x0D\x07\x12\x18\x14\x02\x13\x09\x15\x0E\x19\x01\x1C\x08\x1A\x17\x03\x0F\x1B\x00\x10\x0A\x0B\x0C\x06\x01", "x?xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
-					UINT8 CheckaAddy = helpers->ReadByte((INT_PTR)aAddy + 0x01, false);
+					aAddy = Memory::FindPattern("\x11\x00\x16\x1F\x05\x04\x1D\x0D\x07\x12\x18\x14\x02\x13\x09\x15\x0E\x19\x01\x1C\x08\x1A\x17\x03\x0F\x1B\x00\x10\x0A\x0B\x0C\x06\x01", "x?xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx", aAddy2);
+					UINT8 CheckaAddy = Memory::Read<UINT8>((INT_PTR)aAddy + 0x01);
 					if (CheckaAddy == 0x1E)
 					{
-						SteeringAddress = (INT_PTR)aAddy - 0xA16;
-						AcclAddress = (INT_PTR)aAddy - 0x9DE;
-						BrakeAddress = (INT_PTR)aAddy - 0xABE;
-						ServiceTestAddress = (INT_PTR)aAddy - 0xB82;
+						inputAddresses.steering = (INT_PTR)aAddy - 0xA16;
+						inputAddresses.accelerator = (INT_PTR)aAddy - 0x9DE;
+						inputAddresses.brake = (INT_PTR)aAddy - 0xABE;
+						inputAddresses.serviceTest = (INT_PTR)aAddy - 0xB82;
 						NOPinit = true;
 						InputFind = true;
 					}

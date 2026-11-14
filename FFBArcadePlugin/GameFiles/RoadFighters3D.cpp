@@ -15,113 +15,46 @@ along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
 #include "SDL.h"
 #include "../Common Files/Devices.h"
 #include "RoadFighters3D.h"
-#include <Windows.h>
-static EffectTriggers *myTriggers;
-static EffectConstants *myConstants;
-static Helpers *myHelpers;
+
+using namespace ffb;
+
 extern HINSTANCE gl_hjgtDll;
 extern HINSTANCE gl_hlibavs;
 extern int joystick_index1;
 extern int joystick_index2;
 extern SDL_Joystick* GameController2;
-static bool avoiderror = true;
-static bool testbuttonA;
-static bool servicebuttonA;
-static bool threedeebuttonA;
-static bool viewbuttonA;
-static bool leverupA;
-static bool leverdownA;
-static bool leverleftA;
-static bool leverrightA;
-static bool init = false;
 extern SDL_Event e;
 
-static void MEMwrite(void *adr, void *ptr, int size)
+int RoadFighters3D::ThreadLoop()
 {
-	DWORD OldProtection;
-	VirtualProtect(adr, size, PAGE_EXECUTE_READWRITE, &OldProtection);
-	memcpy(adr, ptr, size);
-	VirtualProtect(adr, size, OldProtection, &OldProtection);
-}
-
-static int CabinetID = GetSettingInt(TEXT("CabinetID"), 0);
-static int Only2D = GetSettingInt(TEXT("Only2D"), 0);
-static int HackToSkipMenuError = GetSettingInt(TEXT("HackToSkipMenuError"), 0);
-static int HackToCloseLibmovieErrorAuto = GetSettingInt(TEXT("HackToCloseLibmovieErrorAuto"), 0);
-static int InputDeviceWheelEnable = GetSettingInt(TEXT("InputDeviceWheelEnable"), 0);
-static int InputDeviceWheelSteeringAxis = GetSettingInt(TEXT("InputDeviceWheelSteeringAxis"), 0);
-static int InputDeviceWheelAcclAxis = GetSettingInt(TEXT("InputDeviceWheelAcclAxis"), 0);
-static int InputDeviceWheelBrakeAxis = GetSettingInt(TEXT("InputDeviceWheelBrakeAxis"), 0);
-static int InputDeviceWheelReverseAxis = GetSettingInt(TEXT("InputDeviceWheelReverseAxis"), 0);
-static int InputDeviceCombinedPedals = GetSettingInt(TEXT("InputDeviceCombinedPedals"), 0);
-static int SteeringDeadzone = GetSettingInt(TEXT("SteeringDeadzone"), 0);
-static int PedalDeadzone = GetSettingInt(TEXT("PedalDeadzone"), 0);
-static int SequentialGears = GetSettingInt(TEXT("SequentialGears"), 0);
-static int ShowButtonNumbersForSetup = GetSettingInt(TEXT("ShowButtonNumbersForSetup"), 0);
-static int ShowAxisForSetup = GetSettingInt(TEXT("ShowAxisForSetup"), 0);
-static int ExitButton = GetSettingInt(TEXT("ExitButton"), 0);
-static int TestButton = GetSettingInt(TEXT("TestButton"), 0);
-static int ServiceButton = GetSettingInt(TEXT("ServiceButton"), 0);
-static int CreditButton = GetSettingInt(TEXT("CreditButton"), 0);
-static int ViewButton = GetSettingInt(TEXT("ViewButton"), 0);
-static int ThreeDimensionalButton = GetSettingInt(TEXT("ThreeDimensionalButton"), 0);
-static int leverUp = GetSettingInt(TEXT("leverUp"), 0);
-static int leverDown = GetSettingInt(TEXT("leverDown"), 0);
-static int leverLeft = GetSettingInt(TEXT("leverLeft"), 0);
-static int leverRight = GetSettingInt(TEXT("leverRight"), 0);
-static int Gear1Button = GetSettingInt(TEXT("Gear1Button"), 0);
-static int Gear2Button = GetSettingInt(TEXT("Gear2Button"), 0);
-static int Gear3Button = GetSettingInt(TEXT("Gear3Button"), 0);
-static int Gear4Button = GetSettingInt(TEXT("Gear4Button"), 0);
-static int Gear5Button = GetSettingInt(TEXT("Gear5Button"), 0);
-static int Gear6Button = GetSettingInt(TEXT("Gear6Button"), 0);
-static int ExitButtonDevice2 = GetSettingInt(TEXT("ExitButtonDevice2"), 0);
-static int TestButtonDevice2 = GetSettingInt(TEXT("TestButtonDevice2"), 0);
-static int ServiceButtonDevice2 = GetSettingInt(TEXT("ServiceButtonDevice2"), 0);
-static int CreditButtonDevice2 = GetSettingInt(TEXT("CreditButtonDevice2"), 0);
-static int ViewButtonDevice2 = GetSettingInt(TEXT("ViewButtonDevice2"), 0);
-static int ThreeDimensionalButtonDevice2 = GetSettingInt(TEXT("ThreeDimensionalButtonDevice2"), 0);
-static int leverUpDevice2 = GetSettingInt(TEXT("leverUpDevice2"), 0);
-static int leverDownDevice2 = GetSettingInt(TEXT("leverDownDevice2"), 0);
-static int leverLeftDevice2 = GetSettingInt(TEXT("leverLeftDevice2"), 0);
-static int leverRightDevice2 = GetSettingInt(TEXT("leverRightDevice2"), 0);
-static int Gear1ButtonDevice2 = GetSettingInt(TEXT("Gear1ButtonDevice2"), 0);
-static int Gear2ButtonDevice2 = GetSettingInt(TEXT("Gear2ButtonDevice2"), 0);
-static int Gear3ButtonDevice2 = GetSettingInt(TEXT("Gear3ButtonDevice2"), 0);
-static int Gear4ButtonDevice2 = GetSettingInt(TEXT("Gear4ButtonDevice2"), 0);
-static int Gear5ButtonDevice2 = GetSettingInt(TEXT("Gear5ButtonDevice2"), 0);
-static int Gear6ButtonDevice2 = GetSettingInt(TEXT("Gear6ButtonDevice2"), 0);
-
-static int ThreadLoop()
-{
-	INT_PTR menuvalue = myHelpers->ReadIntPtr((INT_PTR)gl_hjgtDll + (INT_PTR)0x0094BFFC, false);
-	INT_PTR menuvalue1 = myHelpers->ReadIntPtr((INT_PTR)menuvalue + (INT_PTR)0x46C, false);
-	INT_PTR serviceread3 = myHelpers->ReadIntPtr((INT_PTR)gl_hjgtDll + (INT_PTR)0x7D2B24, false);
-	INT_PTR timer = myHelpers->ReadIntPtr((INT_PTR)gl_hjgtDll + (INT_PTR)0x954394, false);
-	int cabid = myHelpers->ReadByte((INT_PTR)gl_hjgtDll + (INT_PTR)0x951034, false);
-	int cabid2 = myHelpers->ReadByte((INT_PTR)gl_hjgtDll + (INT_PTR)0x952B9C, false);
-	float timeroutofmenu = myHelpers->ReadByte((INT_PTR)gl_hjgtDll + (INT_PTR)0x94BEE8, false);
+	INT_PTR menuvalue = Memory::Read<INT_PTR>((INT_PTR)gl_hjgtDll + (INT_PTR)0x0094BFFC);
+	INT_PTR menuvalue1 = Memory::Read<INT_PTR>((INT_PTR)menuvalue + (INT_PTR)0x46C);
+	INT_PTR serviceread3 = Memory::Read<INT_PTR>((INT_PTR)gl_hjgtDll + (INT_PTR)0x7D2B24);
+	INT_PTR timer = Memory::Read<INT_PTR>((INT_PTR)gl_hjgtDll + (INT_PTR)0x954394);
+	int cabid = Memory::Read<UINT8>((INT_PTR)gl_hjgtDll + (INT_PTR)0x951034);
+	int cabid2 = Memory::Read<UINT8>((INT_PTR)gl_hjgtDll + (INT_PTR)0x952B9C);
+	float timeroutofmenu = Memory::Read<UINT8>((INT_PTR)gl_hjgtDll + (INT_PTR)0x94BEE8);
 	uintptr_t jgtBase = (uintptr_t)GetModuleHandleA("jgt.dll");
 
 	if (CabinetID == 2)
 	{
-		MEMwrite((void*)(jgtBase + 0x951034), (void*)"\x01", 1);
-		MEMwrite((void*)(jgtBase + 0x42EBB9), (void*)"\x75", 1);
+		Memory::Patch(jgtBase + 0x951034, "\x01", 1);
+		Memory::Patch(jgtBase + 0x42EBB9, "\x75", 1);
 	}
 	else if (CabinetID == 3)
 	{
-		MEMwrite((void*)(jgtBase + 0x951034), (void*)"\x02", 1);
-		MEMwrite((void*)(jgtBase + 0x42EBB9), (void*)"\x75", 1);
+		Memory::Patch(jgtBase + 0x951034, "\x02", 1);
+		Memory::Patch(jgtBase + 0x42EBB9, "\x75", 1);
 	}
 	else if (CabinetID == 4)
 	{
-		MEMwrite((void*)(jgtBase + 0x951034), (void*)"\x03", 1);
-		MEMwrite((void*)(jgtBase + 0x42EBB9), (void*)"\x75", 1);
+		Memory::Patch(jgtBase + 0x951034, "\x03", 1);
+		Memory::Patch(jgtBase + 0x42EBB9, "\x75", 1);
 	}
 	else
 	{
-		MEMwrite((void*)(jgtBase + 0x951034), (void*)"\x00", 1);
-		MEMwrite((void*)(jgtBase + 0x42EBB9), (void*)"\x74", 1);
+		Memory::Patch(jgtBase + 0x951034, "\x00", 1);
+		Memory::Patch(jgtBase + 0x42EBB9, "\x74", 1);
 	}
 
 	if (HackToCloseLibmovieErrorAuto == 1)
@@ -142,20 +75,20 @@ static int ThreadLoop()
 			{
 				if (menuvalue1 > 700000)
 				{
-					myHelpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, 0x02, false);
+					Memory::Write<INT_PTR>((INT_PTR)gl_hjgtDll + 0x7D2B24, 0x02);
 				}
 				if (menuvalue1 == 0)
 				{
 					SDL_Delay(50);
-					myHelpers->WriteIntPtr((INT_PTR)menuvalue + 0x46C, 0x0F, false);
+					Memory::Write<INT_PTR>((INT_PTR)menuvalue + 0x46C, 0x0F);
 				}
 				if (menuvalue1 == 15)
 				{
-					myHelpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, 0x01, false);
+					Memory::Write<INT_PTR>((INT_PTR)gl_hjgtDll + 0x7D2B24, 0x01);
 				}
 				if (timeroutofmenu != 0)
 				{
-					myHelpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, 0x00, false);
+					Memory::Write<INT_PTR>((INT_PTR)gl_hjgtDll + 0x7D2B24, 0x00);
 					avoiderror = false;
 				}
 			}
@@ -163,12 +96,12 @@ static int ThreadLoop()
 			{
 				if (menuvalue1 > 700000)
 				{
-					myHelpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, 0x01, false);
+					Memory::Write<INT_PTR>((INT_PTR)gl_hjgtDll + 0x7D2B24, 0x01);
 				}
 				if (timeroutofmenu != 0)
 				{
-					myHelpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, 0x00, false);
-					myHelpers->WriteByte((INT_PTR)gl_hjgtDll + 0x7D2B39, 0x7F, false);
+					Memory::Write<INT_PTR>((INT_PTR)gl_hjgtDll + 0x7D2B24, 0x00);
+					Memory::Write<UINT8>((INT_PTR)gl_hjgtDll + 0x7D2B39, 0x7F);
 					avoiderror = false;
 				}
 			}
@@ -178,51 +111,51 @@ static int ThreadLoop()
 	if (Only2D == 1)
 	{
 		//2D Only
-		myHelpers->WriteNop((INT_PTR)gl_hjgtDll + 0x24C9F, 3, false);
-		myHelpers->WriteNop((INT_PTR)gl_hjgtDll + 0x24CAA, 3, false);
-		myHelpers->WriteNop((INT_PTR)gl_hjgtDll + 0x24CBA, 3, false);
-		myHelpers->WriteNop((INT_PTR)gl_hjgtDll + 0x478F, 3, false);
-		myHelpers->WriteNop((INT_PTR)gl_hjgtDll + 0x3E6DB, 3, false);
-		myHelpers->WriteNop((INT_PTR)gl_hjgtDll + 0x1391D8, 3, false);
-		myHelpers->WriteNop((INT_PTR)gl_hjgtDll + 0x1391EF, 3, false);
-		myHelpers->WriteNop((INT_PTR)gl_hjgtDll + 0x5962F, 3, false);
-		INT_PTR TwoDee1 = myHelpers->ReadIntPtr((INT_PTR)gl_hjgtDll + 0x00946DA0, false);
-		INT_PTR TwoDee2 = myHelpers->ReadIntPtr((INT_PTR)TwoDee1 + 0x38, false);
-		INT_PTR TwoDee3 = myHelpers->ReadIntPtr((INT_PTR)TwoDee2 + 0x94, false);
-		myHelpers->WriteIntPtr((INT_PTR)TwoDee3 + 0x74, 0x00, false);
+		Memory::WriteNop((INT_PTR)gl_hjgtDll + 0x24C9F, 3);
+		Memory::WriteNop((INT_PTR)gl_hjgtDll + 0x24CAA, 3);
+		Memory::WriteNop((INT_PTR)gl_hjgtDll + 0x24CBA, 3);
+		Memory::WriteNop((INT_PTR)gl_hjgtDll + 0x478F, 3);
+		Memory::WriteNop((INT_PTR)gl_hjgtDll + 0x3E6DB, 3);
+		Memory::WriteNop((INT_PTR)gl_hjgtDll + 0x1391D8, 3);
+		Memory::WriteNop((INT_PTR)gl_hjgtDll + 0x1391EF, 3);
+		Memory::WriteNop((INT_PTR)gl_hjgtDll + 0x5962F, 3);
+		INT_PTR TwoDee1 = Memory::Read<INT_PTR>((INT_PTR)gl_hjgtDll + 0x00946DA0);
+		INT_PTR TwoDee2 = Memory::Read<INT_PTR>((INT_PTR)TwoDee1 + 0x38);
+		INT_PTR TwoDee3 = Memory::Read<INT_PTR>((INT_PTR)TwoDee2 + 0x94);
+		Memory::Write<INT_PTR>((INT_PTR)TwoDee3 + 0x74, 0x00);
 	}
 	if (InputDeviceWheelEnable == 1)
 	{
 		//Write New Calibration Values	
-		myHelpers->WriteByte((INT_PTR)gl_hjgtDll + 0x7D2B00, 0x00, false);
-		myHelpers->WriteByte((INT_PTR)gl_hjgtDll + 0x7D2B01, 0x7F, false);
-		myHelpers->WriteByte((INT_PTR)gl_hjgtDll + 0x7D2B0C, 0x00, false);
-		myHelpers->WriteByte((INT_PTR)gl_hjgtDll + 0x7D2B0D, 0xFF, false);
-		myHelpers->WriteByte((INT_PTR)gl_hjgtDll + 0x7D2B14, 0x00, false);
-		myHelpers->WriteByte((INT_PTR)gl_hjgtDll + 0x7D2B15, 0xFF, false);
-		myHelpers->WriteByte((INT_PTR)gl_hjgtDll + 0x7D2B10, 0x00, false);
-		myHelpers->WriteByte((INT_PTR)gl_hjgtDll + 0x7D2B11, 0xFF, false);
-		myHelpers->WriteByte((INT_PTR)gl_hjgtDll + 0x7D2B21, 0x00, false);
+		Memory::Write<UINT8>((INT_PTR)gl_hjgtDll + 0x7D2B00, 0x00);
+		Memory::Write<UINT8>((INT_PTR)gl_hjgtDll + 0x7D2B01, 0x7F);
+		Memory::Write<UINT8>((INT_PTR)gl_hjgtDll + 0x7D2B0C, 0x00);
+		Memory::Write<UINT8>((INT_PTR)gl_hjgtDll + 0x7D2B0D, 0xFF);
+		Memory::Write<UINT8>((INT_PTR)gl_hjgtDll + 0x7D2B14, 0x00);
+		Memory::Write<UINT8>((INT_PTR)gl_hjgtDll + 0x7D2B15, 0xFF);
+		Memory::Write<UINT8>((INT_PTR)gl_hjgtDll + 0x7D2B10, 0x00);
+		Memory::Write<UINT8>((INT_PTR)gl_hjgtDll + 0x7D2B11, 0xFF);
+		Memory::Write<UINT8>((INT_PTR)gl_hjgtDll + 0x7D2B21, 0x00);
 
 		// Remove error flashing
-		myHelpers->WriteByte((INT_PTR)gl_hjgtDll + 0x951154, 0x01, false);
-		myHelpers->WriteByte((INT_PTR)gl_hjgtDll + 0x951155, 0x01, false);
-		myHelpers->WriteByte((INT_PTR)gl_hjgtDll + 0x951156, 0x01, false);
+		Memory::Write<UINT8>((INT_PTR)gl_hjgtDll + 0x951154, 0x01);
+		Memory::Write<UINT8>((INT_PTR)gl_hjgtDll + 0x951155, 0x01);
+		Memory::Write<UINT8>((INT_PTR)gl_hjgtDll + 0x951156, 0x01);
 	}
 
-	UINT8 ff1 = myHelpers->ReadByte((INT_PTR)gl_hjgtDll + 0x7D2BB9, false);
-	UINT8 ff2 = myHelpers->ReadByte((INT_PTR)gl_hjgtDll + 0x7D2BBA, false);
-	UINT8 ff3 = myHelpers->ReadByte((INT_PTR)gl_hjgtDll + 0x7D2BBB, false);
-	UINT8 ff4 = myHelpers->ReadByte((INT_PTR)gl_hjgtDll + 0x7D2BBC, false);
+	UINT8 ff1 = Memory::Read<UINT8>((INT_PTR)gl_hjgtDll + 0x7D2BB9);
+	UINT8 ff2 = Memory::Read<UINT8>((INT_PTR)gl_hjgtDll + 0x7D2BBA);
+	UINT8 ff3 = Memory::Read<UINT8>((INT_PTR)gl_hjgtDll + 0x7D2BBB);
+	UINT8 ff4 = Memory::Read<UINT8>((INT_PTR)gl_hjgtDll + 0x7D2BBC);
 	//Change timer back to 0 when test menu & FFB Only while timer above 0
 	if ((timer != 0) || (menuvalue1 == 0x00))
 	{
 		if (menuvalue1 == 0x00)
 		{
-			myHelpers->WriteFloat32((INT_PTR)gl_hjgtDll + 0x954394, 0, false);
+			Memory::Write<float>((INT_PTR)gl_hjgtDll + 0x954394, 0);
 		}
 
-		ApplyDamper(myTriggers);
+		ApplyDamper();
 
 		if ((ff3 != 0x00) && (ff4 != 0x00))
 		{
@@ -230,49 +163,47 @@ static int ThreadLoop()
 			if (ff2 > 0x00 && ff2 < 0x40)
 			{
 				double percentForce = (ff2) / 63.0;
-				myTriggers->Rumble(percentForce, percentForce, length_ms);
-				myTriggers->Sine(120, 120, percentForce, length_ms);
+				wheel.Rumble(percentForce, percentForce, length_ms);
+				wheel.Sine(120, 120, percentForce, length_ms);
 			}
 
 			if (ff1 > 0x00 && ff1 < 0x08)
 			{
-				//helpers->log("moving wheel left");
+				//Log::Write("moving wheel left");
 				double percentForce = (ff1) / 7.0;
-				myTriggers->Rumble(0, percentForce, length_ms);
-				myTriggers->Constant(myConstants->DIRECTION_FROM_LEFT, percentForce);
+				wheel.Rumble(0, percentForce, length_ms);
+				wheel.Constant(Direction::FromLeft, percentForce);
 			}
 			else if (ff1 > 0x07 && ff1 < 0x10)
 			{
-				//helpers->log("moving wheel right");
+				//Log::Write("moving wheel right");
 				double percentForce = (16 - ff1) / 8.0;
-				myTriggers->Rumble(percentForce, 0, length_ms);
-				myTriggers->Constant(myConstants->DIRECTION_FROM_RIGHT, percentForce);
+				wheel.Rumble(percentForce, 0, length_ms);
+				wheel.Constant(Direction::FromRight, percentForce);
 			}
 		}
 	}
 	return 0;
 }
 
-static DWORD WINAPI RunningLoop(LPVOID lpParam)
+DWORD WINAPI RoadFighters3D::RunningLoop(LPVOID game)
 {
 	while (true)
 	{
-		ThreadLoop();
+		((RoadFighters3D*)game)->ThreadLoop();
 		Sleep(16);
 	}
 }
 
-void RoadFighters3D::FFBLoop(EffectConstants *constants, Helpers *helpers, EffectTriggers* triggers) {
+void RoadFighters3D::Update()
+{
 
 	if (InputDeviceWheelEnable == 1)
 	{
 		if (!init)
 		{
-			myTriggers = triggers;
-			myConstants = constants;
-			myHelpers = helpers;
 
-			CreateThread(NULL, 0, RunningLoop, NULL, 0, NULL);
+			CreateThread(NULL, 0, RunningLoop, this, 0, NULL);
 
 			OpenInputDevice2();
 
@@ -286,13 +217,13 @@ void RoadFighters3D::FFBLoop(EffectConstants *constants, Helpers *helpers, Effec
 			init = true;
 		}
 
-			helpers->WriteNop((INT_PTR)gl_hjgtDll + 0x18D84B, 3, false);
-			helpers->WriteNop((INT_PTR)gl_hjgtDll + 0x18D852, 3, false);
-			helpers->WriteNop((INT_PTR)gl_hjgtDll + 0x18D85C, 3, false);
+			Memory::WriteNop((INT_PTR)gl_hjgtDll + 0x18D84B, 3);
+			Memory::WriteNop((INT_PTR)gl_hjgtDll + 0x18D852, 3);
+			Memory::WriteNop((INT_PTR)gl_hjgtDll + 0x18D85C, 3);
 			// Spicetools shit below. STOPS test buttons showing in menu etc if not nop
-		    helpers->WriteNop((INT_PTR)gl_hjgtDll + 0x18DA89, 6, false);
-			helpers->WriteNop((INT_PTR)gl_hjgtDll + 0x18DAA3, 3, false);
-			helpers->WriteNop((INT_PTR)gl_hjgtDll + 0x18DA97, 6, false);
+		    Memory::WriteNop((INT_PTR)gl_hjgtDll + 0x18DA89, 6);
+			Memory::WriteNop((INT_PTR)gl_hjgtDll + 0x18DAA3, 3);
+			Memory::WriteNop((INT_PTR)gl_hjgtDll + 0x18DA97, 6);
 
 		// Dpad stuff here to set as any button
 		char DpadUpChar[256];
@@ -340,17 +271,17 @@ void RoadFighters3D::FFBLoop(EffectConstants *constants, Helpers *helpers, Effec
 		std::string dpdleft2(DpadLeftCharDevice2);
 		std::string dpdright2(DpadRightCharDevice2);
 
-		INT_PTR serviceread = helpers->ReadIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, true);
-		INT_PTR creditnumber = helpers->ReadIntPtr((INT_PTR)gl_hlibavs + 0x00042C10, false);
-		INT_PTR creditnumber1 = helpers->ReadIntPtr((INT_PTR)creditnumber + 0x20, false);
-		INT_PTR gearnumber = helpers->ReadIntPtr((INT_PTR)gl_hjgtDll + 0x00953F70, false);
-		INT_PTR gearnumber1 = helpers->ReadIntPtr((INT_PTR)gearnumber + 0x5C, false);
-		INT_PTR gearnumber2 = helpers->ReadIntPtr((INT_PTR)gearnumber1 + 0x390, false);
-		INT_PTR gearnumber3 = helpers->ReadIntPtr((INT_PTR)gearnumber2 + 0x18, false);
+		INT_PTR serviceread = Memory::Read<INT_PTR>(Memory::Address(Base::Module, (INT_PTR)gl_hjgtDll + 0x7D2B24));
+		INT_PTR creditnumber = Memory::Read<INT_PTR>((INT_PTR)gl_hlibavs + 0x00042C10);
+		INT_PTR creditnumber1 = Memory::Read<INT_PTR>((INT_PTR)creditnumber + 0x20);
+		INT_PTR gearnumber = Memory::Read<INT_PTR>((INT_PTR)gl_hjgtDll + 0x00953F70);
+		INT_PTR gearnumber1 = Memory::Read<INT_PTR>((INT_PTR)gearnumber + 0x5C);
+		INT_PTR gearnumber2 = Memory::Read<INT_PTR>((INT_PTR)gearnumber1 + 0x390);
+		INT_PTR gearnumber3 = Memory::Read<INT_PTR>((INT_PTR)gearnumber2 + 0x18);
 
 		if (SequentialGears == 1)
 		{
-			helpers->WriteNop((INT_PTR)gl_hjgtDll + 0x95DDA, 3, false);
+			Memory::WriteNop((INT_PTR)gl_hjgtDll + 0x95DDA, 3);
 		}
 
 		const int WHEEL_DEAD_ZONE = (SteeringDeadzone * 100);
@@ -360,12 +291,9 @@ void RoadFighters3D::FFBLoop(EffectConstants *constants, Helpers *helpers, Effec
 
 		while (SDL_WaitEvent(&e) != 0)
 		{
-			INT_PTR menuvalue = myHelpers->ReadIntPtr((INT_PTR)gl_hjgtDll + 0x0094BFFC, false);
-			INT_PTR menuvalue1 = myHelpers->ReadIntPtr((INT_PTR)menuvalue + 0x46C, false);
+			INT_PTR menuvalue = Memory::Read<INT_PTR>((INT_PTR)gl_hjgtDll + 0x0094BFFC);
+			INT_PTR menuvalue1 = Memory::Read<INT_PTR>((INT_PTR)menuvalue + 0x46C);
 
-			myTriggers = triggers;
-			myConstants = constants;
-			myHelpers = helpers;
 			if (e.type == SDL_JOYAXISMOTION && ShowAxisForSetup == 0)
 			{
 				if (e.jaxis.which == joystick_index1)
@@ -376,17 +304,17 @@ void RoadFighters3D::FFBLoop(EffectConstants *constants, Helpers *helpers, Effec
 						if (e.jaxis.value < -WHEEL_DEAD_ZONE)
 						{
 							e.jaxis.value = e.jaxis.value - WHEEL_DEAD_ZONE;
-							helpers->WriteByte((INT_PTR)gl_hjgtDll + 0x7D2B39, (128 + (e.jaxis.value + WHEEL_DEAD_ZONE) / 255), false);
+							Memory::Write<UINT8>((INT_PTR)gl_hjgtDll + 0x7D2B39, (128 + (e.jaxis.value + WHEEL_DEAD_ZONE) / 255));
 						}
 						//Right of dead zone
 						else if (e.jaxis.value > WHEEL_DEAD_ZONE)
 						{
 							e.jaxis.value = e.jaxis.value + WHEEL_DEAD_ZONE;
-							helpers->WriteByte((INT_PTR)gl_hjgtDll + 0x7D2B39, (127 + (e.jaxis.value - WHEEL_DEAD_ZONE) / 255), false);
+							Memory::Write<UINT8>((INT_PTR)gl_hjgtDll + 0x7D2B39, (127 + (e.jaxis.value - WHEEL_DEAD_ZONE) / 255));
 						}
 						else if (e.jaxis.value < WHEEL_DEAD_ZONE && e.jaxis.value > -WHEEL_DEAD_ZONE)
 						{
-							helpers->WriteByte((INT_PTR)gl_hjgtDll + 0x7D2B39, 0x7F, false);
+							Memory::Write<UINT8>((INT_PTR)gl_hjgtDll + 0x7D2B39, 0x7F);
 						}
 					}
 					if (InputDeviceWheelReverseAxis == 1)
@@ -398,17 +326,17 @@ void RoadFighters3D::FFBLoop(EffectConstants *constants, Helpers *helpers, Effec
 								if (e.jaxis.value < -ACCL_DEAD_ZONE)
 								{
 									e.jaxis.value = e.jaxis.value + ACCL_DEAD_ZONE;
-									helpers->WriteByte((INT_PTR)gl_hjgtDll + 0x7D2B3D, (UINT8)((-e.jaxis.value + ACCL_DEAD_ZONE) / 128.5), false);
+									Memory::Write<UINT8>((INT_PTR)gl_hjgtDll + 0x7D2B3D, (UINT8)((-e.jaxis.value + ACCL_DEAD_ZONE) / 128.5));
 								}
 								else if (e.jaxis.value > ACCL_DEAD_ZONE)
 								{
 									e.jaxis.value = e.jaxis.value - ACCL_DEAD_ZONE;
-									helpers->WriteByte((INT_PTR)gl_hjgtDll + 0x7D2B41, (UINT8)((e.jaxis.value + ACCL_DEAD_ZONE) / 128), false);
+									Memory::Write<UINT8>((INT_PTR)gl_hjgtDll + 0x7D2B41, (UINT8)((e.jaxis.value + ACCL_DEAD_ZONE) / 128));
 								}
 								else if (e.jaxis.value < ACCL_DEAD_ZONE && e.jaxis.value > -ACCL_DEAD_ZONE)
 								{
-									helpers->WriteByte((INT_PTR)gl_hjgtDll + 0x7D2B41, 0x00, false);
-									helpers->WriteByte((INT_PTR)gl_hjgtDll + 0x7D2B3D, 0x00, false);
+									Memory::Write<UINT8>((INT_PTR)gl_hjgtDll + 0x7D2B41, 0x00);
+									Memory::Write<UINT8>((INT_PTR)gl_hjgtDll + 0x7D2B3D, 0x00);
 								}
 							}
 						}
@@ -419,12 +347,12 @@ void RoadFighters3D::FFBLoop(EffectConstants *constants, Helpers *helpers, Effec
 								if (e.jaxis.value < -ACCL_DEAD_ZONE)
 								{
 									e.jaxis.value = (e.jaxis.value / 255);
-									helpers->WriteByte((INT_PTR)gl_hjgtDll + 0x7D2B3D, 127 - e.jaxis.value, false);
+									Memory::Write<UINT8>((INT_PTR)gl_hjgtDll + 0x7D2B3D, 127 - e.jaxis.value);
 								}
 								else if (e.jaxis.value > ACCL_DEAD_ZONE)
 								{
 									e.jaxis.value = (e.jaxis.value / 255);
-									helpers->WriteByte((INT_PTR)gl_hjgtDll + 0x7D2B3D, 128 - e.jaxis.value, false);
+									Memory::Write<UINT8>((INT_PTR)gl_hjgtDll + 0x7D2B3D, 128 - e.jaxis.value);
 								}
 							}
 							else if (e.jaxis.axis == InputDeviceWheelBrakeAxis)
@@ -432,12 +360,12 @@ void RoadFighters3D::FFBLoop(EffectConstants *constants, Helpers *helpers, Effec
 								if (e.jaxis.value < -BRAKE_DEAD_ZONE)
 								{
 									e.jaxis.value = (e.jaxis.value / 255);
-									helpers->WriteByte((INT_PTR)gl_hjgtDll + 0x7D2B41, 127 - e.jaxis.value, false);
+									Memory::Write<UINT8>((INT_PTR)gl_hjgtDll + 0x7D2B41, 127 - e.jaxis.value);
 								}
 								else if (e.jaxis.value > BRAKE_DEAD_ZONE)
 								{
 									e.jaxis.value = (e.jaxis.value / 255);
-									helpers->WriteByte((INT_PTR)gl_hjgtDll + 0x7D2B41, 128 - e.jaxis.value, false);
+									Memory::Write<UINT8>((INT_PTR)gl_hjgtDll + 0x7D2B41, 128 - e.jaxis.value);
 								}
 							}
 						}
@@ -451,17 +379,17 @@ void RoadFighters3D::FFBLoop(EffectConstants *constants, Helpers *helpers, Effec
 								if (e.jaxis.value < -ACCL_DEAD_ZONE)
 								{
 									e.jaxis.value = e.jaxis.value - ACCL_DEAD_ZONE;
-									helpers->WriteByte((INT_PTR)gl_hjgtDll + 0x7D2B3D, ((e.jaxis.value + ACCL_DEAD_ZONE) / 128), false);
+									Memory::Write<UINT8>((INT_PTR)gl_hjgtDll + 0x7D2B3D, ((e.jaxis.value + ACCL_DEAD_ZONE) / 128));
 								}
 								else if (e.jaxis.value > ACCL_DEAD_ZONE)
 								{
 									e.jaxis.value = e.jaxis.value + ACCL_DEAD_ZONE;
-									helpers->WriteByte((INT_PTR)gl_hjgtDll + 0x7D2B41, ((-e.jaxis.value + ACCL_DEAD_ZONE) / 128), false);
+									Memory::Write<UINT8>((INT_PTR)gl_hjgtDll + 0x7D2B41, ((-e.jaxis.value + ACCL_DEAD_ZONE) / 128));
 								}
 								else if (e.jaxis.value < ACCL_DEAD_ZONE && e.jaxis.value > -ACCL_DEAD_ZONE)
 								{
-									helpers->WriteByte((INT_PTR)gl_hjgtDll + 0x7D2B41, 0xFF, false);
-									helpers->WriteByte((INT_PTR)gl_hjgtDll + 0x7D2B3D, 0xFF, false);
+									Memory::Write<UINT8>((INT_PTR)gl_hjgtDll + 0x7D2B41, 0xFF);
+									Memory::Write<UINT8>((INT_PTR)gl_hjgtDll + 0x7D2B3D, 0xFF);
 								}
 							}
 						}
@@ -472,12 +400,12 @@ void RoadFighters3D::FFBLoop(EffectConstants *constants, Helpers *helpers, Effec
 								if (e.jaxis.value < -ACCL_DEAD_ZONE)
 								{
 									e.jaxis.value = (e.jaxis.value / 255);
-									helpers->WriteByte((INT_PTR)gl_hjgtDll + 0x7D2B3D, 128 + e.jaxis.value, false);
+									Memory::Write<UINT8>((INT_PTR)gl_hjgtDll + 0x7D2B3D, 128 + e.jaxis.value);
 								}
 								else if (e.jaxis.value > ACCL_DEAD_ZONE)
 								{
 									e.jaxis.value = (e.jaxis.value / 255);
-									helpers->WriteByte((INT_PTR)gl_hjgtDll + 0x7D2B3D, 127 + e.jaxis.value, false);
+									Memory::Write<UINT8>((INT_PTR)gl_hjgtDll + 0x7D2B3D, 127 + e.jaxis.value);
 								}
 							}
 							if (e.jaxis.axis == InputDeviceWheelBrakeAxis)
@@ -485,12 +413,12 @@ void RoadFighters3D::FFBLoop(EffectConstants *constants, Helpers *helpers, Effec
 								if (e.jaxis.value < -BRAKE_DEAD_ZONE)
 								{
 									e.jaxis.value = (e.jaxis.value / 255);
-									helpers->WriteByte((INT_PTR)gl_hjgtDll + 0x7D2B41, 128 + e.jaxis.value, false);
+									Memory::Write<UINT8>((INT_PTR)gl_hjgtDll + 0x7D2B41, 128 + e.jaxis.value);
 								}
 								else if (e.jaxis.value > BRAKE_DEAD_ZONE)
 								{
 									e.jaxis.value = (e.jaxis.value / 255);
-									helpers->WriteByte((INT_PTR)gl_hjgtDll + 0x7D2B41, 127 + e.jaxis.value, false);
+									Memory::Write<UINT8>((INT_PTR)gl_hjgtDll + 0x7D2B41, 127 + e.jaxis.value);
 								}
 							}
 						}
@@ -548,42 +476,42 @@ void RoadFighters3D::FFBLoop(EffectConstants *constants, Helpers *helpers, Effec
 					{
 						if (testbuttonA)
 						{
-							helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread -= 0x02, false);
+							Memory::Write<INT_PTR>((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread -= 0x02);
 							testbuttonA = false;
 						}
 						if (servicebuttonA)
 						{
-							helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread -= 0x01, false);
+							Memory::Write<INT_PTR>((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread -= 0x01);
 							servicebuttonA = false;
 						}
 						if (viewbuttonA)
 						{
-							helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread -= 0x400, false);
+							Memory::Write<INT_PTR>((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread -= 0x400);
 							viewbuttonA = false;
 						}
 						if (threedeebuttonA)
 						{
-							helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread -= 0x800, false);
+							Memory::Write<INT_PTR>((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread -= 0x800);
 							threedeebuttonA = false;
 						}						
 						if (leverupA)
 						{
-							helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread -= 0x1040, false);
+							Memory::Write<INT_PTR>((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread -= 0x1040);
 							leverupA = false;
 						}
 						if (leverdownA)
 						{
-							helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread -= 0x2080, false);
+							Memory::Write<INT_PTR>((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread -= 0x2080);
 							leverdownA = false;
 						}
 						if (leverleftA)
 						{
-							helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread -= 0x4000, false);
+							Memory::Write<INT_PTR>((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread -= 0x4000);
 							leverleftA = false;
 						}
 						if (leverrightA)
 						{
-							helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread -= 0x8000, false);
+							Memory::Write<INT_PTR>((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread -= 0x8000);
 							leverrightA = false;
 						}
 					}
@@ -591,42 +519,42 @@ void RoadFighters3D::FFBLoop(EffectConstants *constants, Helpers *helpers, Effec
 					{
 						if (testbuttonA)
 						{
-							helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread -= 0x02, false);
+							Memory::Write<INT_PTR>((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread -= 0x02);
 							testbuttonA = false;
 						}
 						if (servicebuttonA)
 						{
-							helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread -= 0x01, false);
+							Memory::Write<INT_PTR>((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread -= 0x01);
 							servicebuttonA = false;
 						}
 						if (viewbuttonA)
 						{
-							helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread -= 0x400, false);
+							Memory::Write<INT_PTR>((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread -= 0x400);
 							viewbuttonA = false;
 						}
 						if (threedeebuttonA)
 						{
-							helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread -= 0x800, false);
+							Memory::Write<INT_PTR>((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread -= 0x800);
 							threedeebuttonA = false;
 						}
 						if (leverupA)
 						{
-							helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread -= 0x1040, false);
+							Memory::Write<INT_PTR>((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread -= 0x1040);
 							leverupA = false;
 						}
 						if (leverdownA)
 						{
-							helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread -= 0x2080, false);
+							Memory::Write<INT_PTR>((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread -= 0x2080);
 							leverdownA = false;
 						}
 						if (leverleftA)
 						{
-							helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread -= 0x4000, false);
+							Memory::Write<INT_PTR>((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread -= 0x4000);
 							leverleftA = false;
 						}
 						if (leverrightA)
 						{
-							helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread -= 0x8000, false);
+							Memory::Write<INT_PTR>((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread -= 0x8000);
 							leverrightA = false;
 						}
 					}
@@ -641,47 +569,47 @@ void RoadFighters3D::FFBLoop(EffectConstants *constants, Helpers *helpers, Effec
 						}
 						if (dpdup.compare(test) == 0)
 						{
-							helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x02, false);
+							Memory::Write<INT_PTR>((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x02);
 							testbuttonA = true;
 						}
 						if (dpdup.compare(service) == 0)
 						{
-							helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x01, false);
+							Memory::Write<INT_PTR>((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x01);
 							servicebuttonA = true;
 						}
 						if (dpdup.compare(coin) == 0)
 						{
-							INT_PTR credit = helpers->ReadIntPtr((INT_PTR)gl_hlibavs + 0x00042C10, false);
-							helpers->WriteIntPtr((INT_PTR)credit + 0x20, ++creditnumber1, false);
+							INT_PTR credit = Memory::Read<INT_PTR>((INT_PTR)gl_hlibavs + 0x00042C10);
+							Memory::Write<INT_PTR>((INT_PTR)credit + 0x20, ++creditnumber1);
 						}
 						if (dpdup.compare(view) == 0)
 						{
-							helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x400, false);
+							Memory::Write<INT_PTR>((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x400);
 							viewbuttonA = true;
 						}
 						if (dpdup.compare(three) == 0)
 						{
-							helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x800, false);
+							Memory::Write<INT_PTR>((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x800);
 							threedeebuttonA = true;
 						}
 						if (dpdup.compare(lvup) == 0)
 						{
-							helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x1040, false);
+							Memory::Write<INT_PTR>((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x1040);
 							leverupA = true;
 						}
 						if (dpdup.compare(lvdown) == 0)
 						{
-							helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x2080, false);
+							Memory::Write<INT_PTR>((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x2080);
 							leverdownA = true;
 						}
 						if (dpdup.compare(lvleft) == 0)
 						{
-							helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x4000, false);
+							Memory::Write<INT_PTR>((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x4000);
 							leverleftA = true;
 						}
 						if (dpdup.compare(lvright) == 0)
 						{
-							helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x8000, false);
+							Memory::Write<INT_PTR>((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x8000);
 							leverrightA = true;
 						}
 					}
@@ -693,47 +621,47 @@ void RoadFighters3D::FFBLoop(EffectConstants *constants, Helpers *helpers, Effec
 						}
 						if (dpdup2.compare(test2) == 0)
 						{
-							helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x02, false);
+							Memory::Write<INT_PTR>((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x02);
 							testbuttonA = true;
 						}
 						if (dpdup2.compare(service2) == 0)
 						{
-							helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x01, false);
+							Memory::Write<INT_PTR>((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x01);
 							servicebuttonA = true;
 						}
 						if (dpdup2.compare(coin2) == 0)
 						{
-							INT_PTR credit = helpers->ReadIntPtr((INT_PTR)gl_hlibavs + 0x00042C10, false);
-							helpers->WriteIntPtr((INT_PTR)credit + 0x20, ++creditnumber1, false);
+							INT_PTR credit = Memory::Read<INT_PTR>((INT_PTR)gl_hlibavs + 0x00042C10);
+							Memory::Write<INT_PTR>((INT_PTR)credit + 0x20, ++creditnumber1);
 						}
 						if (dpdup2.compare(view2) == 0)
 						{
-							helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x400, false);
+							Memory::Write<INT_PTR>((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x400);
 							viewbuttonA = true;
 						}
 						if (dpdup2.compare(three2) == 0)
 						{
-							helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x800, false);
+							Memory::Write<INT_PTR>((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x800);
 							threedeebuttonA = true;
 						}
 						if (dpdup2.compare(lvup2) == 0)
 						{
-							helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x1040, false);
+							Memory::Write<INT_PTR>((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x1040);
 							leverupA = true;
 						}
 						if (dpdup2.compare(lvdown2) == 0)
 						{
-							helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x2080, false);
+							Memory::Write<INT_PTR>((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x2080);
 							leverdownA = true;
 						}
 						if (dpdup2.compare(lvleft2) == 0)
 						{
-							helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x4000, false);
+							Memory::Write<INT_PTR>((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x4000);
 							leverleftA = true;
 						}
 						if (dpdup2.compare(lvright2) == 0)
 						{
-							helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x8000, false);
+							Memory::Write<INT_PTR>((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x8000);
 							leverrightA = true;
 						}
 					}
@@ -748,47 +676,47 @@ void RoadFighters3D::FFBLoop(EffectConstants *constants, Helpers *helpers, Effec
 						}
 						if (dpddown.compare(test) == 0)
 						{
-							helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x02, false);
+							Memory::Write<INT_PTR>((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x02);
 							testbuttonA = true;
 						}
 						if (dpddown.compare(service) == 0)
 						{
-							helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x01, false);
+							Memory::Write<INT_PTR>((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x01);
 							servicebuttonA = true;
 						}
 						if (dpddown.compare(coin) == 0)
 						{
-							INT_PTR credit = helpers->ReadIntPtr((INT_PTR)gl_hlibavs + 0x00042C10, false);
-							helpers->WriteIntPtr((INT_PTR)credit + 0x20, ++creditnumber1, false);
+							INT_PTR credit = Memory::Read<INT_PTR>((INT_PTR)gl_hlibavs + 0x00042C10);
+							Memory::Write<INT_PTR>((INT_PTR)credit + 0x20, ++creditnumber1);
 						}
 						if (dpddown.compare(view) == 0)
 						{
-							helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x400, false);
+							Memory::Write<INT_PTR>((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x400);
 							viewbuttonA = true;
 						}
 						if (dpddown.compare(three) == 0)
 						{
-							helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x800, false);
+							Memory::Write<INT_PTR>((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x800);
 							threedeebuttonA = true;
 						}
 						if (dpddown.compare(lvup) == 0)
 						{
-							helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x1040, false);
+							Memory::Write<INT_PTR>((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x1040);
 							leverupA = true;
 						}
 						if (dpddown.compare(lvdown) == 0)
 						{
-							helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x2080, false);
+							Memory::Write<INT_PTR>((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x2080);
 							leverdownA = true;
 						}
 						if (dpddown.compare(lvleft) == 0)
 						{
-							helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x4000, false);
+							Memory::Write<INT_PTR>((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x4000);
 							leverleftA = true;
 						}
 						if (dpddown.compare(lvright) == 0)
 						{
-							helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x8000, false);
+							Memory::Write<INT_PTR>((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x8000);
 							leverrightA = true;
 						}
 					}
@@ -800,47 +728,47 @@ void RoadFighters3D::FFBLoop(EffectConstants *constants, Helpers *helpers, Effec
 						}
 						if (dpdup2.compare(test2) == 0)
 						{
-							helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x02, false);
+							Memory::Write<INT_PTR>((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x02);
 							testbuttonA = true;
 						}
 						if (dpddown2.compare(service2) == 0)
 						{
-							helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x01, false);
+							Memory::Write<INT_PTR>((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x01);
 							servicebuttonA = true;
 						}
 						if (dpddown2.compare(coin2) == 0)
 						{
-							INT_PTR credit = helpers->ReadIntPtr((INT_PTR)gl_hlibavs + 0x00042C10, false);
-							helpers->WriteIntPtr((INT_PTR)credit + 0x20, ++creditnumber1, false);
+							INT_PTR credit = Memory::Read<INT_PTR>((INT_PTR)gl_hlibavs + 0x00042C10);
+							Memory::Write<INT_PTR>((INT_PTR)credit + 0x20, ++creditnumber1);
 						}
 						if (dpddown2.compare(view2) == 0)
 						{
-							helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x400, false);
+							Memory::Write<INT_PTR>((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x400);
 							viewbuttonA = true;
 						}
 						if (dpddown2.compare(three2) == 0)
 						{
-							helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x800, false);
+							Memory::Write<INT_PTR>((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x800);
 							threedeebuttonA = true;
 						}
 						if (dpddown2.compare(lvup2) == 0)
 						{
-							helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x1040, false);
+							Memory::Write<INT_PTR>((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x1040);
 							leverupA = true;
 						}
 						if (dpddown2.compare(lvdown2) == 0)
 						{
-							helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x2080, false);
+							Memory::Write<INT_PTR>((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x2080);
 							leverdownA = true;
 						}
 						if (dpddown2.compare(lvleft2) == 0)
 						{
-							helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x4000, false);
+							Memory::Write<INT_PTR>((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x4000);
 							leverleftA = true;
 						}
 						if (dpddown2.compare(lvright2) == 0)
 						{
-							helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x8000, false);
+							Memory::Write<INT_PTR>((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x8000);
 							leverrightA = true;
 						}
 					}
@@ -855,47 +783,47 @@ void RoadFighters3D::FFBLoop(EffectConstants *constants, Helpers *helpers, Effec
 						}
 						if (dpdleft.compare(test) == 0)
 						{
-							helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x02, false);
+							Memory::Write<INT_PTR>((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x02);
 							testbuttonA = true;
 						}
 						if (dpdleft.compare(service) == 0)
 						{
-							helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x01, false);
+							Memory::Write<INT_PTR>((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x01);
 							servicebuttonA = true;
 						}
 						if (dpdleft.compare(coin) == 0)
 						{
-							INT_PTR credit = helpers->ReadIntPtr((INT_PTR)gl_hlibavs + 0x00042C10, false);
-							helpers->WriteIntPtr((INT_PTR)credit + 0x20, ++creditnumber1, false);
+							INT_PTR credit = Memory::Read<INT_PTR>((INT_PTR)gl_hlibavs + 0x00042C10);
+							Memory::Write<INT_PTR>((INT_PTR)credit + 0x20, ++creditnumber1);
 						}
 						if (dpdleft.compare(view) == 0)
 						{
-							helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x400, false);
+							Memory::Write<INT_PTR>((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x400);
 							viewbuttonA = true;
 						}
 						if (dpdleft.compare(three) == 0)
 						{
-							helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x800, false);
+							Memory::Write<INT_PTR>((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x800);
 							threedeebuttonA = true;
 						}
 						if (dpdleft.compare(lvup) == 0)
 						{
-							helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x1040, false);
+							Memory::Write<INT_PTR>((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x1040);
 							leverupA = true;
 						}
 						if (dpdleft.compare(lvdown) == 0)
 						{
-							helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x2080, false);
+							Memory::Write<INT_PTR>((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x2080);
 							leverdownA = true;
 						}
 						if (dpdleft.compare(lvleft) == 0)
 						{
-							helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x4000, false);
+							Memory::Write<INT_PTR>((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x4000);
 							leverleftA = true;
 						}
 						if (dpdleft.compare(lvright) == 0)
 						{
-							helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x8000, false);
+							Memory::Write<INT_PTR>((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x8000);
 							leverrightA = true;
 						}
 					}
@@ -907,47 +835,47 @@ void RoadFighters3D::FFBLoop(EffectConstants *constants, Helpers *helpers, Effec
 						}
 						if (dpdleft2.compare(test2) == 0)
 						{
-							helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x02, false);
+							Memory::Write<INT_PTR>((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x02);
 							testbuttonA = true;
 						}
 						if (dpdleft2.compare(service2) == 0)
 						{
-							helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x01, false);
+							Memory::Write<INT_PTR>((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x01);
 							servicebuttonA = true;
 						}
 						if (dpdleft2.compare(coin2) == 0)
 						{
-							INT_PTR credit = helpers->ReadIntPtr((INT_PTR)gl_hlibavs + 0x00042C10, false);
-							helpers->WriteIntPtr((INT_PTR)credit + 0x20, ++creditnumber1, false);
+							INT_PTR credit = Memory::Read<INT_PTR>((INT_PTR)gl_hlibavs + 0x00042C10);
+							Memory::Write<INT_PTR>((INT_PTR)credit + 0x20, ++creditnumber1);
 						}
 						if (dpdleft2.compare(view2) == 0)
 						{
-							helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x400, false);
+							Memory::Write<INT_PTR>((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x400);
 							viewbuttonA = true;
 						}
 						if (dpdleft2.compare(three2) == 0)
 						{
-							helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x800, false);
+							Memory::Write<INT_PTR>((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x800);
 							threedeebuttonA = true;
 						}
 						if (dpdleft2.compare(lvup2) == 0)
 						{
-							helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x1040, false);
+							Memory::Write<INT_PTR>((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x1040);
 							leverupA = true;
 						}
 						if (dpdleft2.compare(lvdown2) == 0)
 						{
-							helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x2080, false);
+							Memory::Write<INT_PTR>((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x2080);
 							leverdownA = true;
 						}
 						if (dpdleft2.compare(lvleft2) == 0)
 						{
-							helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x4000, false);
+							Memory::Write<INT_PTR>((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x4000);
 							leverleftA = true;
 						}
 						if (dpdleft2.compare(lvright2) == 0)
 						{
-							helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x8000, false);
+							Memory::Write<INT_PTR>((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x8000);
 							leverrightA = true;
 						}
 					}
@@ -962,47 +890,47 @@ void RoadFighters3D::FFBLoop(EffectConstants *constants, Helpers *helpers, Effec
 						}
 						if (dpdright.compare(test) == 0)
 						{
-							helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x02, false);
+							Memory::Write<INT_PTR>((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x02);
 							testbuttonA = true;
 						}
 						if (dpdright.compare(service) == 0)
 						{
-							helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x01, false);
+							Memory::Write<INT_PTR>((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x01);
 							servicebuttonA = true;
 						}
 						if (dpdright.compare(coin) == 0)
 						{
-							INT_PTR credit = helpers->ReadIntPtr((INT_PTR)gl_hlibavs + 0x00042C10, false);
-							helpers->WriteIntPtr((INT_PTR)credit + 0x20, ++creditnumber1, false);
+							INT_PTR credit = Memory::Read<INT_PTR>((INT_PTR)gl_hlibavs + 0x00042C10);
+							Memory::Write<INT_PTR>((INT_PTR)credit + 0x20, ++creditnumber1);
 						}
 						if (dpdright.compare(view) == 0)
 						{
-							helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x400, false);
+							Memory::Write<INT_PTR>((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x400);
 							viewbuttonA = true;
 						}
 						if (dpdright.compare(three) == 0)
 						{
-							helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x800, false);
+							Memory::Write<INT_PTR>((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x800);
 							threedeebuttonA = true;
 						}
 						if (dpdright.compare(lvup) == 0)
 						{
-							helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x1040, false);
+							Memory::Write<INT_PTR>((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x1040);
 							leverupA = true;
 						}
 						if (dpdright.compare(lvdown) == 0)
 						{
-							helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x2080, false);
+							Memory::Write<INT_PTR>((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x2080);
 							leverdownA = true;
 						}
 						if (dpdright.compare(lvleft) == 0)
 						{
-							helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x4000, false);
+							Memory::Write<INT_PTR>((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x4000);
 							leverleftA = true;
 						}
 						if (dpdright.compare(lvright) == 0)
 						{
-							helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x8000, false);
+							Memory::Write<INT_PTR>((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x8000);
 							leverrightA = true;
 						}
 					}
@@ -1014,47 +942,47 @@ void RoadFighters3D::FFBLoop(EffectConstants *constants, Helpers *helpers, Effec
 						}
 						if (dpdright2.compare(test2) == 0)
 						{
-							helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x02, false);
+							Memory::Write<INT_PTR>((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x02);
 							testbuttonA = true;
 						}
 						if (dpdright2.compare(service2) == 0)
 						{
-							helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x01, false);
+							Memory::Write<INT_PTR>((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x01);
 							testbuttonA = true;
 						}
 						if (dpdright2.compare(coin2) == 0)
 						{
-							INT_PTR credit = helpers->ReadIntPtr((INT_PTR)gl_hlibavs + 0x00042C10, false);
-							helpers->WriteIntPtr((INT_PTR)credit + 0x20, ++creditnumber1, false);
+							INT_PTR credit = Memory::Read<INT_PTR>((INT_PTR)gl_hlibavs + 0x00042C10);
+							Memory::Write<INT_PTR>((INT_PTR)credit + 0x20, ++creditnumber1);
 						}
 						if (dpdright2.compare(view2) == 0)
 						{
-							helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x400, false);
+							Memory::Write<INT_PTR>((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x400);
 							viewbuttonA = true;
 						}
 						if (dpdright2.compare(three2) == 0)
 						{
-							helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x800, false);
+							Memory::Write<INT_PTR>((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x800);
 							threedeebuttonA = true;
 						}
 						if (dpdright2.compare(lvup2) == 0)
 						{
-							helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x1040, false);
+							Memory::Write<INT_PTR>((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x1040);
 							leverupA = true;
 						}
 						if (dpdright2.compare(lvdown2) == 0)
 						{
-							helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x2080, false);
+							Memory::Write<INT_PTR>((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x2080);
 							leverdownA = true;
 						}
 						if (dpdright2.compare(lvleft2) == 0)
 						{
-							helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x4000, false);
+							Memory::Write<INT_PTR>((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x4000);
 							leverleftA = true;
 						}
 						if (dpdright2.compare(lvright2) == 0)
 						{
-							helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x8000, false);
+							Memory::Write<INT_PTR>((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x8000);
 							leverrightA = true;
 						}
 					}
@@ -1067,7 +995,7 @@ void RoadFighters3D::FFBLoop(EffectConstants *constants, Helpers *helpers, Effec
 				{
 					if (e.jbutton.button == TestButton)
 					{
-						helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x02, false);
+						Memory::Write<INT_PTR>((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x02);
 					}
 					if (e.jbutton.button == ExitButton)
 					{
@@ -1075,93 +1003,93 @@ void RoadFighters3D::FFBLoop(EffectConstants *constants, Helpers *helpers, Effec
 					}
 					if (e.jbutton.button == ServiceButton)
 					{
-						helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x01, false);
+						Memory::Write<INT_PTR>((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x01);
 					}
 					if (e.jbutton.button == CreditButton)
 					{
-						INT_PTR credit = helpers->ReadIntPtr((INT_PTR)gl_hlibavs + 0x00042C10, false);
-						helpers->WriteIntPtr((INT_PTR)credit + 0x20, ++creditnumber1, false);
+						INT_PTR credit = Memory::Read<INT_PTR>((INT_PTR)gl_hlibavs + 0x00042C10);
+						Memory::Write<INT_PTR>((INT_PTR)credit + 0x20, ++creditnumber1);
 					}
 					if (e.jbutton.button == ViewButton)
 					{
-						helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x400, false);
+						Memory::Write<INT_PTR>((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x400);
 					}
 					if (e.jbutton.button == ThreeDimensionalButton)
 					{
-						helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x800, false);
+						Memory::Write<INT_PTR>((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x800);
 					}
 					if ((e.jbutton.button == leverUp) && (SequentialGears == 0))
 					{
-						helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x1040, false);
+						Memory::Write<INT_PTR>((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x1040);
 					}
 					if ((e.jbutton.button == leverUp) && (SequentialGears == 1) && (menuvalue1 == 0x00))
 					{
-						helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x1040, false);
+						Memory::Write<INT_PTR>((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x1040);
 					}
 					if ((e.jbutton.button == leverUp) && (SequentialGears == 1) && (gearnumber3 < 0x06))
 					{
-						INT_PTR Writegearnumber = helpers->ReadIntPtr((INT_PTR)gl_hjgtDll + 0x00953F70, false);
-						INT_PTR Writegearnumber1 = helpers->ReadIntPtr((INT_PTR)Writegearnumber + 0x5C, false);
-						INT_PTR Writegearnumber2 = helpers->ReadIntPtr((INT_PTR)Writegearnumber1 + 0x390, false);
-						helpers->WriteIntPtr((INT_PTR)Writegearnumber2 + 0x18, ++gearnumber3, false);
+						INT_PTR Writegearnumber = Memory::Read<INT_PTR>((INT_PTR)gl_hjgtDll + 0x00953F70);
+						INT_PTR Writegearnumber1 = Memory::Read<INT_PTR>((INT_PTR)Writegearnumber + 0x5C);
+						INT_PTR Writegearnumber2 = Memory::Read<INT_PTR>((INT_PTR)Writegearnumber1 + 0x390);
+						Memory::Write<INT_PTR>((INT_PTR)Writegearnumber2 + 0x18, ++gearnumber3);
 					}
 					if ((e.jbutton.button == leverDown) && (SequentialGears == 0))
 					{
-						helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x2080, false);
+						Memory::Write<INT_PTR>((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x2080);
 					}
 					if ((e.jbutton.button == leverDown) && (SequentialGears == 1) && (menuvalue1 == 0x00))
 					{
-						helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x2080, false);
+						Memory::Write<INT_PTR>((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x2080);
 					}
 					if ((e.jbutton.button == leverDown) && (SequentialGears == 1) && (gearnumber3 > 0x01))
 					{
-						INT_PTR Writegearnumber = helpers->ReadIntPtr((INT_PTR)gl_hjgtDll + 0x00953F70, false);
-						INT_PTR Writegearnumber1 = helpers->ReadIntPtr((INT_PTR)Writegearnumber + 0x5C, false);
-						INT_PTR Writegearnumber2 = helpers->ReadIntPtr((INT_PTR)Writegearnumber1 + 0x390, false);
-						helpers->WriteIntPtr((INT_PTR)Writegearnumber2 + 0x18, --gearnumber3, false);
+						INT_PTR Writegearnumber = Memory::Read<INT_PTR>((INT_PTR)gl_hjgtDll + 0x00953F70);
+						INT_PTR Writegearnumber1 = Memory::Read<INT_PTR>((INT_PTR)Writegearnumber + 0x5C);
+						INT_PTR Writegearnumber2 = Memory::Read<INT_PTR>((INT_PTR)Writegearnumber1 + 0x390);
+						Memory::Write<INT_PTR>((INT_PTR)Writegearnumber2 + 0x18, --gearnumber3);
 					}
 					if (e.jbutton.button == leverLeft)
 					{
-						helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x4000, false);
+						Memory::Write<INT_PTR>((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x4000);
 					}
 					if (e.jbutton.button == leverRight)
 					{
-						helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x8000, false);
+						Memory::Write<INT_PTR>((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x8000);
 					}
 					if (e.jbutton.button == Gear1Button)
 					{
-						helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x1040, false);
-						helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x4000, false);
+						Memory::Write<INT_PTR>((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x1040);
+						Memory::Write<INT_PTR>((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x4000);
 					}
 					if (e.jbutton.button == Gear2Button)
 					{
-						helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x2080, false);
-						helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x4000, false);
+						Memory::Write<INT_PTR>((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x2080);
+						Memory::Write<INT_PTR>((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x4000);
 					}
 					if (e.jbutton.button == Gear3Button)
 					{
-						helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x1040, false);
+						Memory::Write<INT_PTR>((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x1040);
 					}
 					if (e.jbutton.button == Gear4Button)
 					{
-						helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x2080, false);
+						Memory::Write<INT_PTR>((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x2080);
 					}
 					if (e.jbutton.button == Gear5Button)
 					{
-						helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x1040, false);
-						helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x8000, false);
+						Memory::Write<INT_PTR>((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x1040);
+						Memory::Write<INT_PTR>((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x8000);
 					}
 					if (e.jbutton.button == Gear6Button)
 					{
-						helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x2080, false);
-						helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x8000, false);
+						Memory::Write<INT_PTR>((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x2080);
+						Memory::Write<INT_PTR>((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x8000);
 					}
 				}
 				else if (e.jbutton.which == joystick_index2)
 				{
 					if (e.jbutton.button == TestButtonDevice2)
 					{
-						helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x02, false);
+						Memory::Write<INT_PTR>((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x02);
 					}
 					if (e.jbutton.button == ExitButtonDevice2)
 					{
@@ -1169,86 +1097,86 @@ void RoadFighters3D::FFBLoop(EffectConstants *constants, Helpers *helpers, Effec
 					}
 					if (e.jbutton.button == ServiceButtonDevice2)
 					{
-						helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x01, false);
+						Memory::Write<INT_PTR>((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x01);
 					}
 					if (e.jbutton.button == CreditButtonDevice2)
 					{
-						INT_PTR credit = helpers->ReadIntPtr((INT_PTR)gl_hlibavs + 0x00042C10, false);
-						helpers->WriteIntPtr((INT_PTR)credit + 0x20, ++creditnumber1, false);
+						INT_PTR credit = Memory::Read<INT_PTR>((INT_PTR)gl_hlibavs + 0x00042C10);
+						Memory::Write<INT_PTR>((INT_PTR)credit + 0x20, ++creditnumber1);
 					}
 					if (e.jbutton.button == ViewButtonDevice2)
 					{
-						helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x400, false);
+						Memory::Write<INT_PTR>((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x400);
 					}
 					if (e.jbutton.button == ThreeDimensionalButtonDevice2)
 					{
-						helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x800, false);
+						Memory::Write<INT_PTR>((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x800);
 					}
 					if ((e.jbutton.button == leverUpDevice2) && (SequentialGears == 0))
 					{
-						helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x1040, false);
+						Memory::Write<INT_PTR>((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x1040);
 					}
 					if ((e.jbutton.button == leverUpDevice2) && (SequentialGears == 1) && (menuvalue1 == 0x00))
 					{
-						helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x1040, false);
+						Memory::Write<INT_PTR>((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x1040);
 					}
 					if ((e.jbutton.button == leverUpDevice2) && (SequentialGears == 1) && (gearnumber3 < 0x06))
 					{
-						INT_PTR Writegearnumber = helpers->ReadIntPtr((INT_PTR)gl_hjgtDll + 0x00953F70, false);
-						INT_PTR Writegearnumber1 = helpers->ReadIntPtr((INT_PTR)Writegearnumber + 0x5C, false);
-						INT_PTR Writegearnumber2 = helpers->ReadIntPtr((INT_PTR)Writegearnumber1 + 0x390, false);
-						helpers->WriteIntPtr((INT_PTR)Writegearnumber2 + 0x18, ++gearnumber3, false);
+						INT_PTR Writegearnumber = Memory::Read<INT_PTR>((INT_PTR)gl_hjgtDll + 0x00953F70);
+						INT_PTR Writegearnumber1 = Memory::Read<INT_PTR>((INT_PTR)Writegearnumber + 0x5C);
+						INT_PTR Writegearnumber2 = Memory::Read<INT_PTR>((INT_PTR)Writegearnumber1 + 0x390);
+						Memory::Write<INT_PTR>((INT_PTR)Writegearnumber2 + 0x18, ++gearnumber3);
 					}
 					if (e.jbutton.button == leverDownDevice2 && SequentialGears == 0)
 					{
-						helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x2080, false);
+						Memory::Write<INT_PTR>((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x2080);
 					}
 					if (e.jbutton.button == leverDownDevice2 && SequentialGears == 1 && menuvalue1 == 0x00)
 					{
-						helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x2080, false);
+						Memory::Write<INT_PTR>((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x2080);
 					}
 					if (e.jbutton.button == leverDownDevice2 && SequentialGears == 1 && gearnumber3 > 0x01)
 					{
-						INT_PTR Writegearnumber = helpers->ReadIntPtr((INT_PTR)gl_hjgtDll + 0x00953F70, false);
-						INT_PTR Writegearnumber1 = helpers->ReadIntPtr((INT_PTR)Writegearnumber + 0x5C, false);
-						INT_PTR Writegearnumber2 = helpers->ReadIntPtr((INT_PTR)Writegearnumber1 + 0x390, false);
-						helpers->WriteIntPtr((INT_PTR)Writegearnumber2 + 0x18, --gearnumber3, false);
+						INT_PTR Writegearnumber = Memory::Read<INT_PTR>((INT_PTR)gl_hjgtDll + 0x00953F70);
+						INT_PTR Writegearnumber1 = Memory::Read<INT_PTR>((INT_PTR)Writegearnumber + 0x5C);
+						INT_PTR Writegearnumber2 = Memory::Read<INT_PTR>((INT_PTR)Writegearnumber1 + 0x390);
+						Memory::Write<INT_PTR>((INT_PTR)Writegearnumber2 + 0x18, --gearnumber3);
 					}
 					if (e.jbutton.button == leverLeftDevice2)
 					{
-						helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x4000, false);
+						Memory::Write<INT_PTR>((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x4000);
 					}
 					if (e.jbutton.button == leverRightDevice2)
 					{
-						helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x8000, false);
+						Memory::Write<INT_PTR>((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x8000);
 					}
 					if (e.jbutton.button == Gear1ButtonDevice2)
 					{
-						helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x1040, false);
-						helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x4000, false);
+						Memory::Write<INT_PTR>((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x1040);
+						Memory::Write<INT_PTR>((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x4000);
 					}
 					if (e.jbutton.button == Gear2ButtonDevice2)
 					{
-						helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x2080, false);
-						helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x4000, false);
+						Memory::Write<INT_PTR>((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x2080);
+						Memory::Write<INT_PTR>((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x4000);
 					}
 					if (e.jbutton.button == Gear3ButtonDevice2)
 					{
-						helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x1040, false);
+						Memory::Write<INT_PTR>((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x1040);
 					}
 					if (e.jbutton.button == Gear4ButtonDevice2)
 					{
-						helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x2080, false);
+						Memory::Write<INT_PTR>((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x2080);
 					}
 					if (e.jbutton.button == Gear5ButtonDevice2)
 					{
-						helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x1040, false);
-						helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x8000, false);
+						Memory::Write<INT_PTR>((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x1040);
+						Memory::Write<INT_PTR>((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x8000);
 					}
 					if (e.jbutton.button == Gear6ButtonDevice2)
 					{
-						helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x2080, false);
-						helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x8000, false);
+						Memory::Write<INT_PTR>((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x2080);
+						Memory::Write<INT_PTR>((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread += 0x8000);
 					}
 				}
 			}
@@ -1258,142 +1186,142 @@ void RoadFighters3D::FFBLoop(EffectConstants *constants, Helpers *helpers, Effec
 				{
 					if (e.jbutton.button == TestButton)
 					{
-						helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread -= 0x02, false);
+						Memory::Write<INT_PTR>((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread -= 0x02);
 					}
 					if (e.jbutton.button == ServiceButton)
 					{
-						helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread -= 0x01, false);
+						Memory::Write<INT_PTR>((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread -= 0x01);
 					}
 					if (e.jbutton.button == ViewButton)
 					{
-						helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread -= 0x400, false);
+						Memory::Write<INT_PTR>((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread -= 0x400);
 					}
 					if (e.jbutton.button == ThreeDimensionalButton)
 					{
-						helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread -= 0x800, false);
+						Memory::Write<INT_PTR>((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread -= 0x800);
 					}
 					if (e.jbutton.button == leverUp && SequentialGears == 0)
 					{
-						helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread -= 0x1040, false);
+						Memory::Write<INT_PTR>((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread -= 0x1040);
 					}
 					if (e.jbutton.button == leverUp && SequentialGears == 1 && menuvalue1 == 0x00)
 					{
-						helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread -= 0x1040, false);
+						Memory::Write<INT_PTR>((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread -= 0x1040);
 					}
 					if (e.jbutton.button == leverDown && SequentialGears == 0)
 					{
-						helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread -= 0x2080, false);
+						Memory::Write<INT_PTR>((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread -= 0x2080);
 					}
 					if ((e.jbutton.button == leverDown) && (SequentialGears == 1) && (menuvalue1 == 0x00))
 					{
-						helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread -= 0x2080, false);
+						Memory::Write<INT_PTR>((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread -= 0x2080);
 					}
 					if (e.jbutton.button == leverLeft)
 					{
-						helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread -= 0x4000, false);
+						Memory::Write<INT_PTR>((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread -= 0x4000);
 					}
 					if (e.jbutton.button == leverRight)
 					{
-						helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread -= 0x8000, false);
+						Memory::Write<INT_PTR>((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread -= 0x8000);
 					}
 					if (e.jbutton.button == Gear1Button)
 					{
-						helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread -= 0x1040, false);
-						helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread -= 0x4000, false);
+						Memory::Write<INT_PTR>((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread -= 0x1040);
+						Memory::Write<INT_PTR>((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread -= 0x4000);
 					}
 					if (e.jbutton.button == Gear2Button)
 					{
-						helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread -= 0x2080, false);
-						helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread -= 0x4000, false);
+						Memory::Write<INT_PTR>((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread -= 0x2080);
+						Memory::Write<INT_PTR>((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread -= 0x4000);
 					}
 					if (e.jbutton.button == Gear3Button)
 					{
-						helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread -= 0x1040, false);
+						Memory::Write<INT_PTR>((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread -= 0x1040);
 					}
 					if (e.jbutton.button == Gear4Button)
 					{
-						helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread -= 0x2080, false);
+						Memory::Write<INT_PTR>((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread -= 0x2080);
 					}
 					if (e.jbutton.button == Gear5Button)
 					{
-						helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread -= 0x1040, false);
-						helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread -= 0x8000, false);
+						Memory::Write<INT_PTR>((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread -= 0x1040);
+						Memory::Write<INT_PTR>((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread -= 0x8000);
 					}
 					if (e.jbutton.button == Gear6Button)
 					{
-						helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread -= 0x2080, false);
-						helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread -= 0x8000, false);
+						Memory::Write<INT_PTR>((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread -= 0x2080);
+						Memory::Write<INT_PTR>((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread -= 0x8000);
 					}
 				}
 				else if (e.jbutton.which == joystick_index2)
 				{
 					if (e.jbutton.button == TestButtonDevice2)
 					{
-						helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread -= 0x02, false);
+						Memory::Write<INT_PTR>((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread -= 0x02);
 					}
 					if (e.jbutton.button == ServiceButtonDevice2)
 					{
-						helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread -= 0x01, false);
+						Memory::Write<INT_PTR>((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread -= 0x01);
 					}
 					if (e.jbutton.button == ViewButtonDevice2)
 					{
-						helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread -= 0x400, false);
+						Memory::Write<INT_PTR>((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread -= 0x400);
 					}
 					if (e.jbutton.button == ThreeDimensionalButtonDevice2)
 					{
-						helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread -= 0x800, false);
+						Memory::Write<INT_PTR>((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread -= 0x800);
 					}
 					if ((e.jbutton.button == leverUpDevice2) && (SequentialGears == 0))
 					{
-						helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread -= 0x1040, false);
+						Memory::Write<INT_PTR>((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread -= 0x1040);
 					}
 					if ((e.jbutton.button == leverUpDevice2) && (SequentialGears == 1) && (menuvalue1 == 0x00))
 					{
-						helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread -= 0x1040, false);
+						Memory::Write<INT_PTR>((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread -= 0x1040);
 					}
 					if ((e.jbutton.button == leverDownDevice2) && (SequentialGears == 0))
 					{
-						helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread -= 0x2080, false);
+						Memory::Write<INT_PTR>((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread -= 0x2080);
 					}
 					if ((e.jbutton.button == leverDownDevice2) && (SequentialGears == 1) && (menuvalue1 == 0x00))
 					{
-						helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread -= 0x2080, false);
+						Memory::Write<INT_PTR>((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread -= 0x2080);
 					}
 					if (e.jbutton.button == leverLeftDevice2)
 					{
-						helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread -= 0x4000, false);
+						Memory::Write<INT_PTR>((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread -= 0x4000);
 					}
 					if (e.jbutton.button == leverRightDevice2)
 					{
-						helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread -= 0x8000, false);
+						Memory::Write<INT_PTR>((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread -= 0x8000);
 					}
 					if (e.jbutton.button == Gear1ButtonDevice2)
 					{
-						helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread -= 0x1040, false);
-						helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread -= 0x4000, false);
+						Memory::Write<INT_PTR>((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread -= 0x1040);
+						Memory::Write<INT_PTR>((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread -= 0x4000);
 					}
 					if (e.jbutton.button == Gear2ButtonDevice2)
 					{
-						helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread -= 0x2080, false);
-						helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread -= 0x4000, false);
+						Memory::Write<INT_PTR>((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread -= 0x2080);
+						Memory::Write<INT_PTR>((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread -= 0x4000);
 					}
 					if (e.jbutton.button == Gear3ButtonDevice2)
 					{
-						helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread -= 0x1040, false);
+						Memory::Write<INT_PTR>((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread -= 0x1040);
 					}
 					if (e.jbutton.button == Gear4ButtonDevice2)
 					{
-						helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread -= 0x2080, false);
+						Memory::Write<INT_PTR>((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread -= 0x2080);
 					}
 					if (e.jbutton.button == Gear5ButtonDevice2)
 					{
-						helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread -= 0x1040, false);
-						helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread -= 0x8000, false);
+						Memory::Write<INT_PTR>((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread -= 0x1040);
+						Memory::Write<INT_PTR>((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread -= 0x8000);
 					}
 					if (e.jbutton.button == Gear6ButtonDevice2)
 					{
-						helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread -= 0x2080, false);
-						helpers->WriteIntPtr((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread -= 0x8000, false);
+						Memory::Write<INT_PTR>((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread -= 0x2080);
+						Memory::Write<INT_PTR>((INT_PTR)gl_hjgtDll + 0x7D2B24, serviceread -= 0x8000);
 					}
 				}
 			}
@@ -1403,18 +1331,12 @@ void RoadFighters3D::FFBLoop(EffectConstants *constants, Helpers *helpers, Effec
 	{
 		if (!init)
 		{
-			myTriggers = triggers;
-			myConstants = constants;
-			myHelpers = helpers;
-			CreateThread(NULL, 0, RunningLoop, NULL, 0, NULL);
+			CreateThread(NULL, 0, RunningLoop, this, 0, NULL);
 			init = true;
 		}
 
 		while (SDL_WaitEvent(&e) != 0)
 		{
-			myTriggers = triggers;
-			myConstants = constants;
-			myHelpers = helpers;
 		}
 	}
 }

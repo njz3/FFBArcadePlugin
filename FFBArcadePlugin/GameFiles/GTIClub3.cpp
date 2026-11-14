@@ -11,43 +11,41 @@ You should have received a copy of the GNU General Public License
 along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
 */
 
-#include <string>
 #include "GTIClub3.h"
-#include "math.h"
 
-void GTIClub3::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTriggers* triggers) {
+using namespace ffb;
 
-	UINT8 ff = helpers->ReadByte(0x00918CBC, /* isRelativeOffset */ false);
-	UINT8 ff1 = helpers->ReadByte(0x00918CBD, /* isRelativeOffset */ false);
-	UINT8 ff2 = helpers->ReadByte(0x00918CBE, /* isRelativeOffset */ false);
-	UINT8 menu = helpers->ReadByte(0x518E8E, /* isRelativeOffset */ true);
-	helpers->log("got value: ");
-	std::string ffs = std::to_string(ff2);
-	helpers->log((char*)ffs.c_str());
+void GTIClub3::Update()
+{
+	UINT8 force = Memory::Read(WheelForce);
+	UINT8 vibration = Memory::Read(Vibration);
+	UINT8 loggedValue = Memory::Read(LoggedValue);
+	UINT8 menu = Memory::Read(Menu);
+	Log::Value("got value:", loggedValue);
 
-	ApplyDamper(triggers);
+	ApplyDamper();
 
 	if (!menu)
 	{
 		UINT32 length_ms = 100;
-		if (ff1 > 0x00 && ff1 < 0x40)
+		if (vibration > 0x00 && vibration < 0x40)
 		{
-			double percentForce = ff1 / 63.0;
-			triggers->Rumble(percentForce, percentForce, length_ms);
-			triggers->Sine(120, 0, percentForce, (UINT32)length_ms);
+			double percentForce = vibration / 63.0;
+			wheel.Rumble(percentForce, percentForce, length_ms);
+			wheel.Sine(120, 0, percentForce, length_ms);
 		}
 
-		if (ff > 0x80 && ff < 0x101)
+		if (force > 0x80 && force < 0x101)
 		{
-			double percentForce = (257 - ff) / 128.0;
-			triggers->Rumble(percentForce, 0, length_ms);
-			triggers->Constant(constants->DIRECTION_FROM_RIGHT, percentForce);
+			double percentForce = (257 - force) / 128.0;
+			wheel.Rumble(percentForce, 0, length_ms);
+			wheel.Constant(Direction::FromRight, percentForce);
 		}
-		else if (ff > 0x00 && ff < 0x80)
+		else if (force > 0x00 && force < 0x80)
 		{
-			double percentForce = (ff) / 127.0;
-			triggers->Rumble(0, percentForce, length_ms);
-			triggers->Constant(constants->DIRECTION_FROM_LEFT, percentForce);
+			double percentForce = (force) / 127.0;
+			wheel.Rumble(0, percentForce, length_ms);
+			wheel.Constant(Direction::FromLeft, percentForce);
 		}
 	}
 }

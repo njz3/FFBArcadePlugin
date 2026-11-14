@@ -12,9 +12,21 @@ along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
 */
 
 #pragma once
-#include "../Common Files/Game.h"
+#include "../Core/Game.h"
+#include "../Hardware/SegaInitialD.h"
 
-class KODrive : public Game {
+// KO Drive (TeknoParrot): the game keeps the last command of its drive board, a Sega drive board like
+// the one of Initial D, in its memory; the plugin plays it at each loop.
+class KODrive : public ffb::Game
+{
 public:
-	void FFBLoop(EffectConstants *constants, Helpers *helpers, EffectTriggers* triggers);
+	void Update() override;
+
+private:
+	// Command of the drive board: byte 0 the command, byte 1 its parameter, byte 2 its strength
+	static constexpr ffb::GameValue<int> DriveBoardCommand{ ffb::Base::Module, 0x7261F4 };
+
+	// Strengths up to 24, a constant force from the left is (128 - strength) / 24, vibration periods
+	// are parameter / 128 * 120 ms and the vibrations last 200 ms
+	ffb::SegaInitialDDriveBoard driveBoard{ wheel, { 24.0, 128, 128.0, 200, 0xFFFFFFFF } };
 };

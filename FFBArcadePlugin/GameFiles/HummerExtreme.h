@@ -12,9 +12,16 @@ along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
 */
 
 #pragma once
-#include "../Common Files/Game.h"
+#include "Hummer.h"
 
-class HummerExtreme : public Game {
+// Hummer Extreme (Sega, Lindbergh, TeknoParrot): see HummerGame. The ViosityStrength and SpringStrength
+// settings (in %) scale the viscosity and the spring of the game.
+class HummerExtreme : public HummerGame
+{
 public:
-	void FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTriggers* triggers);
+	HummerExtreme()
+		: HummerGame({ 0x80cffb4, 0x80d01aa, 0x80d004a, 0x80d00fa, 0x80d0302,
+			ffb::Settings::Int(L"ViosityStrength", 100) / 100.0, ffb::Settings::Int(L"SpringStrength", 100) / 100.0, nullptr, true })
+	{
+	}
 };

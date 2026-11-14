@@ -13,45 +13,36 @@ along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
 
 #include "SonicSegaAllStarsRacing.h"
 
-static UINT8 OLDFFB;
+using namespace ffb;
 
-static int SpringEnable = GetSettingInt(TEXT("SpringEnable"), 0);
-static int SpringStrength = GetSettingInt(TEXT("SpringStrength"), 0);
+void SonicSegaAllStarsRacing::Update()
+{
+	UINT8 ff = Memory::Read(WheelForce);
 
-void SonicSegaAllStarsRacing::FFBLoop(EffectConstants *constants, Helpers *helpers, EffectTriggers* triggers) {
+	Memory::Write<UINT8>(ForceMode, 0x03);
 
-	UINT8 FFB = helpers->ReadByte(0x5CD864, true);
+	ApplyDamper();
 
-	helpers->WriteByte(0x5CD858, 0x03, true);
+	if (springEnable)
+		wheel.KeptSpring(springStrength / 100.0);
 
-	ApplyDamper(triggers);
-
-	if (SpringEnable)
-		triggers->Springi(SpringStrength / 100.0);
-
-	if (OLDFFB != FFB)
+	if (lastForce != ff)
 	{
-		UINT32 length_ms = 100;
-		if (FFB > 0 && FFB < 19)
+		if (ff > 0 && ff < 19)
 		{
-			helpers->log("moving wheel left");
-			double percentForce = FFB / 18.0;
-			triggers->Rumble(0, percentForce, length_ms);
-			triggers->Constant(constants->DIRECTION_FROM_RIGHT, percentForce);
+			Log::Write("moving wheel left");
+			wheel.ConstantWithRumble(Direction::FromRight, ff / 18.0);
 		}
-		else if (FFB > 237 && FFB < 256)
+		else if (ff > 237 && ff < 256)
 		{
-			helpers->log("moving wheel right");
-			double percentForce = (256 - FFB) / 18.0;
-			triggers->Rumble(percentForce, 0, length_ms);
-			triggers->Constant(constants->DIRECTION_FROM_LEFT, percentForce);
+			Log::Write("moving wheel right");
+			wheel.ConstantWithRumble(Direction::FromLeft, (256 - ff) / 18.0);
 		}
 		else
 		{
-			triggers->Rumble(0, 0, 80);
-			triggers->Constant(constants->DIRECTION_FROM_LEFT, 0);
-			triggers->Constant(constants->DIRECTION_FROM_RIGHT, 0);
+			wheel.Rumble(0, 0, 80);
+			wheel.StopConstant();
 		}
 	}
-	OLDFFB = FFB;
+	lastForce = ff;
 }

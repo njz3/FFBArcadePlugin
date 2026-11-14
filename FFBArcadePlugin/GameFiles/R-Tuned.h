@@ -12,9 +12,24 @@ along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
 */
 
 #pragma once
-#include "../Common Files/Game.h"
-class RTuned : public Game {
+#include "../Core/Game.h"
 
+// R-Tuned: Ultimate Street Racing (Sega, Lindbergh, TeknoParrot): the plugin turns the FFB of the game
+// on, then plays its crash, spring and boost states, read in the game's memory.
+class RTuned : public ffb::Game
+{
 public:
-	void FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTriggers* triggers);
+	void Update() override;
+
+private:
+	// 0xFF in a crash (vibration), 0x04 centering spring (SpringStrength)
+	static constexpr ffb::GameValue<UINT8> SpringCrash{ ffb::Base::Absolute, 0x8519D18 };
+	// Strength of the boost vibration, played as value / 400
+	static constexpr ffb::GameValue<UINT8> BoostStrength{ ffb::Base::Absolute, 0x8519D10 };
+	// 0x7F while boosting
+	static constexpr ffb::GameValue<UINT8> Boost{ ffb::Base::Absolute, 0x8519D20 };
+	// FFB state of the game: set from 0x01 to 0x09 by the plugin, which turns the FFB on
+	static constexpr ffb::GameValue<UINT8> FFBState{ ffb::Base::Absolute, 0x8519C58 };
+
+	int springStrength = ffb::Settings::Int(L"SpringStrength", 0);
 };

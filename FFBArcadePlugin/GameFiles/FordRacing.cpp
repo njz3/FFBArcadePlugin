@@ -11,30 +11,31 @@ You should have received a copy of the GNU General Public License
 along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
 */
 
-#include <string>
 #include "FordRacing.h"
 
-void FordRacing::FFBLoop(EffectConstants *constants, Helpers *helpers, EffectTriggers* triggers) {
-	helpers->log("in FR Ffbloop");
-	const int ff = GetTeknoParrotFFB();
-	std::string ffs = std::to_string(ff);
-	helpers->log((char *)ffs.c_str());
+using namespace ffb;
 
-	ApplyDamper(triggers);
+void FordRacing::Update()
+{
+	Log::Write("in FR Ffbloop");
+	const int ff = TeknoParrotFFB();
+	Log::Printf("%d", ff);
+
+	ApplyDamper();
 
 	UINT32 length_ms = 50;
 	if (ff < -65505 && ff > -65515)
 	{
-		helpers->log("moving wheel left");
+		Log::Write("moving wheel left");
 		double percentForce = (-65505 - ff) / 9.0;
-		triggers->Rumble(0, percentForce, length_ms);
-		triggers->Constant(constants->DIRECTION_FROM_RIGHT, percentForce);
+		wheel.Rumble(0, percentForce, length_ms);
+		wheel.Constant(Direction::FromRight, percentForce);
 	}
 	else if (ff > 0 && ff < 16)
 	{
-		helpers->log("moving wheel right");
+		Log::Write("moving wheel right");
 		double percentForce = (16 - ff) / 9.0;
-		triggers->Rumble(percentForce, 0, length_ms);
-		triggers->Constant(constants->DIRECTION_FROM_LEFT, percentForce);
+		wheel.Rumble(percentForce, 0, length_ms);
+		wheel.Constant(Direction::FromLeft, percentForce);
 	}
 }

@@ -11,19 +11,16 @@ You should have received a copy of the GNU General Public License
 along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
 */
 
-#include <string>
 #include "KODrive.h"
-#include "../Common Files/InitialDFFB.h"
 
-static const InitialDFFBSettings ffbSettings = { 24.0, 128, 128.0, 200, 0xFFFFFFFF };
+using namespace ffb;
 
-void KODrive::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTriggers* triggers) {
+void KODrive::Update()
+{
+	ApplyDamper();
 
-	ApplyDamper(triggers);
+	DWORD command = Memory::Read(DriveBoardCommand);
+	BYTE* bytes = reinterpret_cast<BYTE*>(&command);
 
-	DWORD FFB = helpers->ReadInt32(0x7261F4, true);
-
-	BYTE* ffb = reinterpret_cast<BYTE*>(&FFB);
-
-	PlayInitialDFFB(ffb[0], ffb[1], ffb[2], ffbSettings, constants, triggers);
+	driveBoard.Play(bytes[0], bytes[1], bytes[2]);
 }

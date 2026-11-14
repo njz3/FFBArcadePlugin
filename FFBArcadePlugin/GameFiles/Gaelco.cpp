@@ -12,13 +12,21 @@ along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
 */
 
 #include "Gaelco.h"
+#include "../Core/Hooks.h"
 
-static EffectTriggers* myTriggers;
-static EffectConstants* myConstants;
+using namespace ffb;
+
+GaelcoGame* GaelcoGame::instance = nullptr;
+int(__stdcall* GaelcoGame::floatSetMotorOriginal)(DWORD* motor, float force) = nullptr;
+
+GaelcoGame::GaelcoGame()
+{
+	instance = this;
+}
 
 void GaelcoGame::PlayMotorForce(double force)
 {
-	UINT32 length_ms = 100;
+	GaelcoGame& game = *instance;
 	if (force > 0)
 	{
 		double percentForce = force;
@@ -26,8 +34,7 @@ void GaelcoGame::PlayMotorForce(double force)
 		if (percentForce > 1.0)
 			percentForce = 1.0;
 
-		myTriggers->Rumble(percentForce, 0, length_ms);
-		myTriggers->Constant(myConstants->DIRECTION_FROM_LEFT, percentForce);
+		game.wheel.ConstantWithRumble(Direction::FromLeft, percentForce);
 	}
 	else if (force < 0)
 	{
@@ -36,35 +43,30 @@ void GaelcoGame::PlayMotorForce(double force)
 		if (percentForce > 1.0)
 			percentForce = 1.0;
 
-		myTriggers->Rumble(0, percentForce, length_ms);
-		myTriggers->Constant(myConstants->DIRECTION_FROM_RIGHT, percentForce);
+		game.wheel.ConstantWithRumble(Direction::FromRight, percentForce);
 	}
 }
 
-static int(__stdcall* FloatSetMotorOri)(DWORD* a1, float a2);
-static int __stdcall FloatSetMotorHook(DWORD* a1, float a2)
+int __stdcall GaelcoGame::FloatSetMotorHook(DWORD* motor, float force)
 {
-	GaelcoGame::PlayMotorForce(a2);
-	return FloatSetMotorOri(a1, a2);
+	PlayMotorForce(force);
+	return floatSetMotorOriginal(motor, force);
 }
 
 void GaelcoGame::HookFloatSetMotor(INT_PTR address)
 {
-	MH_CreateHook((void*)address, FloatSetMotorHook, (void**)&FloatSetMotorOri);
+	Hooks::Create(address, FloatSetMotorHook, &floatSetMotorOriginal);
 }
 
-void GaelcoGame::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTriggers* triggers)
+void GaelcoGame::Update()
 {
-	myTriggers = triggers;
-	myConstants = constants;
-
-	if (!init)
+	if (!hooked)
 	{
-		init = true;
-		MH_Initialize();
+		hooked = true;
+		Hooks::Initialize();
 		HookSetMotor();
-		MH_EnableHook(MH_ALL_HOOKS);
+		Hooks::Enable();
 	}
 
-	ApplyDamper(triggers);
+	ApplyDamper();
 }

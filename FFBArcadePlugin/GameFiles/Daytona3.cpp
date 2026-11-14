@@ -11,124 +11,86 @@ You should have received a copy of the GNU General Public License
 along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
 */
 
-#include <string>
+#include <stdlib.h>
 #include "Daytona3.h"
 
-static int EscapeKeyExitViaPlugin = GetSettingInt(TEXT("EscapeKeyExitViaPlugin"), 0);
-static int HideCursor = GetSettingInt(TEXT("HideCursor"), 0);
-static int OriginalFFB = GetSettingInt(TEXT("OriginalFFB"), 0);
+using namespace ffb;
 
-void Daytona3::FFBLoop(EffectConstants *constants, Helpers *helpers, EffectTriggers* triggers) {
+Daytona3Game::Daytona3Game(const Addresses& addresses)
+	: addresses(addresses)
+{
+}
 
-	HWND hWnd = FindWindowA(0, ("Daytona Championship USA"));
+void Daytona3Game::PlayDriveBoard()
+{
+	UINT8 command = Memory::Read(GameValue<UINT8>{ Base::Module, addresses.driveBoardCommand });
+	UINT8 gameState = Memory::Read(GameValue<UINT8>{ Base::Module, addresses.gameState });
+	DWORD trackData = Memory::Read(GameValue<int>{ Base::Module, addresses.trackData });
+	UINT8 track = Memory::Read<UINT8>(trackData + 0x4);
 
-	if (HideCursor)
+	// the rolls are the other way on the tracks 2 and 4, in a race
+	bool reversed = (track == 2 || track == 4) && gameState == 0x16;
+
+	if (command > 0x80 && command <= 0x8F) // spring (meaning unknown)
+		wheel.Spring((144 - command) / 15.0);
+
+	if (command > 0x90 && command <= 0x9F) // Roll Right
+		wheel.ConstantWithRumble(reversed ? Direction::FromRight : Direction::FromLeft, (160 - command) / 15.0);
+
+	if (command > 0xA0 && command <= 0xAF) // Roll Left
+		wheel.ConstantWithRumble(reversed ? Direction::FromLeft : Direction::FromRight, (176 - command) / 15.0);
+
+	if (command > 0xB0 && command <= 0xBF) // Shaking across grass etc
+	{
+		double strength = (192 - command) / 15.0;
+		wheel.Sine(180, 0, strength, 100);
+		wheel.Rumble(strength, strength, 100);
+	}
+
+	if (command > 0xC0 && command <= 0xCF) // Spring + Rumble on wheel while racing
+	{
+		wheel.Spring((207 - command) / 15.0);
+		wheel.Sine(40, 0, (command - 192) / 96.0, 100);
+	}
+
+	// 0xD1-0xDF: wheel loose as tyres spin (no effect)
+
+	if (command > 0xE0 && command <= 0xEF) // Big crash ?
+		wheel.Spring((command - 224) / 15.0);
+
+	if (command > 0xF0 && command <= 0xFF) // Menu only
+		wheel.Spring((command - 240) / 15.0);
+}
+
+void Daytona3::Update()
+{
+	HWND window = FindWindowA(0, ("Daytona Championship USA"));
+
+	if (hideCursor)
 		ShowCursor(false);
 
-	if (GetAsyncKeyState(VK_ESCAPE) && EscapeKeyExitViaPlugin)
+	if (GetAsyncKeyState(VK_ESCAPE) && escapeKeyExitViaPlugin)
 	{
-		if (hWnd > NULL)
+		if (window > NULL)
 		{
 			system("taskkill /f /im InpWrapper.exe");
 			ExitProcess(0);
 		}
 	}
 
-	ApplyDamper(triggers);
+	ApplyDamper();
 
-	UINT32 length_ms = 100;
-	if (OriginalFFB)
+	if (originalFFB)
 	{
-		UINT8 FFB = helpers->ReadByte(0x131FEC9, true);
-		UINT8 GameState = helpers->ReadByte(0x15B5744, true);
-		DWORD TrackSelectedBase = helpers->ReadInt32(0x11B0148, true);
-		UINT8 TrackSelected = helpers->ReadByte(TrackSelectedBase + 0x4, false);
-
-		if (FFB > 0x80 && FFB <= 0x8F) // ????
-		{
-			double percentForce = (144 - FFB) / 15.0;
-			triggers->Spring(percentForce);
-		}
-
-		if (FFB > 0x90 && FFB <= 0x9F) // Roll Right
-		{
-			double percentForce = (160 - FFB) / 15.0;
-
-			if ((TrackSelected == 2 || TrackSelected == 4) && GameState == 0x16)
-			{
-				triggers->Rumble(0, percentForce, length_ms);
-				triggers->Constant(constants->DIRECTION_FROM_RIGHT, percentForce);
-			}
-			else
-			{
-				triggers->Rumble(percentForce, 0, length_ms);
-				triggers->Constant(constants->DIRECTION_FROM_LEFT, percentForce);
-			}
-		}
-		
-		if (FFB > 0xA0 && FFB <= 0xAF) // Roll Left
-		{
-			double percentForce = (176 - FFB) / 15.0;
-
-			if ((TrackSelected == 2 || TrackSelected == 4) && GameState == 0x16)
-			{
-				triggers->Rumble(percentForce, 0, length_ms);
-				triggers->Constant(constants->DIRECTION_FROM_LEFT, percentForce);
-			}
-			else
-			{
-				triggers->Rumble(0, percentForce, length_ms);
-				triggers->Constant(constants->DIRECTION_FROM_RIGHT, percentForce);
-			}
-		}
-
-		if (FFB > 0xB0 && FFB <= 0xBF) // Shaking across grass etc
-		{
-			double percentForce = (192 - FFB) / 15.0;
-			triggers->Sine(180, 0, percentForce, length_ms);
-			triggers->Rumble(percentForce, percentForce, length_ms);
-		}
-
-		if (FFB > 0xC0 && FFB <= 0xCF) // Spring + Rumble on wheel while racing
-		{
-			double percentForce = (207 - FFB) / 15.0;
-			double SinepercentForce = (FFB - 192) / 96.0;
-			triggers->Spring(percentForce);
-			triggers->Sine(40, 0, SinepercentForce, 100);
-		}
-
-		if (FFB > 0xD0 && FFB <= 0xDF) // Wheel loose as tyres spin (no effect)
-		{
-			double percentForce = (224 - FFB) / 15.0;
-		}
-
-		if (FFB > 0xE0 && FFB <= 0xEF) // Big crash ?
-		{
-			double percentForce = (FFB - 224) / 15.0;
-			triggers->Spring(percentForce);
-		}
-
-		if (FFB > 0xF0 && FFB <= 0xFF) // Menu only
-		{
-			double percentForce = (FFB - 240) / 15.0;
-			triggers->Spring(percentForce);
-		}
+		PlayDriveBoard();
 	}
 	else
 	{
-		UINT8 ff = helpers->ReadByte(0x15AFC46, false);
+		UINT8 ff = Memory::Read(WheelForce);
 
 		if (ff > 15)
-		{
-			double percentForce = (31 - ff) / 15.0;
-			triggers->Rumble(percentForce, 0, length_ms);
-			triggers->Constant(constants->DIRECTION_FROM_LEFT, percentForce);
-		}
+			wheel.ConstantWithRumble(Direction::FromLeft, (31 - ff) / 15.0);
 		else if (ff > 0)
-		{
-			double percentForce = (16 - ff) / 15.0;
-			triggers->Rumble(0, percentForce, length_ms);
-			triggers->Constant(constants->DIRECTION_FROM_RIGHT, percentForce);
-		}
+			wheel.ConstantWithRumble(Direction::FromRight, (16 - ff) / 15.0);
 	}
 }

@@ -11,83 +11,57 @@ You should have received a copy of the GNU General Public License
 along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
 */
 
-#include <string>
 #include "LGI.h"
 #include "../Common Files/Devices.h"
-#include "SDL.h"
-#include <Windows.h>
-static bool init = false;
 
-void LGI::FFBLoop(EffectConstants *constants, Helpers *helpers, EffectTriggers* triggers) {	
-	INT_PTR ff = helpers->ReadIntPtr(0x0063BF5C, /* isRelativeOffset */ true);
-	UINT8 ff1 = helpers->ReadByte(ff + 0x44, /* isRelativeOffset */ false);
-	INT_PTR health1p1 = helpers->ReadIntPtr(0x00820024, /* isRelativeOffset*/ true);
-	INT_PTR health1p2 = helpers->ReadIntPtr(health1p1 + 0x4, /* isRelativeOffset */ false);
-	INT_PTR health1p3 = helpers->ReadIntPtr(health1p2 + 0x58, /* isRelativeOffset */ false);
-	INT_PTR health2p3 = helpers->ReadIntPtr(health1p2 + 0x5C, /* isRelativeOffset */ false);
-	float health1p = helpers->ReadFloat32(health1p3 + 0x14, /* isRelativeOffset */ false); //1p health
-	float health2p = helpers->ReadFloat32(health2p3 + 0x14, /* isRelativeOffset */ false); //2p health
-	helpers->log("got value: ");
-	std::string ffs = std::to_string(ff1);
-	helpers->log((char *)ffs.c_str());
-	float static oldFloat1 = 0.0;
-	float static oldFloat2 = 0.0;
-	float newFloat1 = health1p;
-	float newFloat2 = health2p;
+using namespace ffb;
 
-	int configFeedbackLength = GetSettingInt(TEXT("FeedbackLength"), 120);
-	int HowtoRumbleKnockEffect = GetSettingInt(TEXT("HowtoRumbleKnockEffect"), 0);
-	int HowtoRumbleMotorEffect = GetSettingInt(TEXT("HowtoRumbleMotorEffect"), 0);
-	int HowtoRumbleHealthEffect = GetSettingInt(TEXT("HowtoRumbleHealthEffect"), 0);
-	int Knock1pStrength = GetSettingInt(TEXT("Knock1pStrength"), 0);
-	int Motor1pStrength = GetSettingInt(TEXT("Motor1pStrength"), 0);
-	int Health1pStrength = GetSettingInt(TEXT("Health1pStrength"), 0);
-	int Knock2pStrength = GetSettingInt(TEXT("Knock2pStrength"), 0);
-	int Motor2pStrength = GetSettingInt(TEXT("Motor2pStrength"), 0);
-	int Health2pStrength = GetSettingInt(TEXT("Health2pStrength"), 0);
+void LetsGoIslandGame::Update()
+{
+	UINT8 outputs = Memory::Read(PointerChain<UINT8, 1>{ { Base::Module, addresses.outputs }, { 0x44 } });
+	INT_PTR players = Memory::Read(PointerChain<INT_PTR, 1>{ { Base::Module, addresses.players }, { 0x4 } });
+	INT_PTR player1 = Memory::Read<INT_PTR>(players + addresses.player1);
+	INT_PTR player2 = Memory::Read<INT_PTR>(players + addresses.player2);
+	float health1p = Memory::Read<float>(player1 + 0x14);
+	float health2p = Memory::Read<float>(player2 + 0x14);
+	Log::Value("got value:", outputs);
 
-	if (!init)
+	int feedbackLength = Settings::Int(L"FeedbackLength", 120);
+	int howtoRumbleKnockEffect = Settings::Int(L"HowtoRumbleKnockEffect", 0);
+	int howtoRumbleMotorEffect = Settings::Int(L"HowtoRumbleMotorEffect", 0);
+	int howtoRumbleHealthEffect = Settings::Int(L"HowtoRumbleHealthEffect", 0);
+	int knock1pStrength = Settings::Int(L"Knock1pStrength", 0);
+	int motor1pStrength = Settings::Int(L"Motor1pStrength", 0);
+	int health1pStrength = Settings::Int(L"Health1pStrength", 0);
+	int knock2pStrength = Settings::Int(L"Knock2pStrength", 0);
+	int motor2pStrength = Settings::Int(L"Motor2pStrength", 0);
+	int health2pStrength = Settings::Int(L"Health2pStrength", 0);
+
+	if (!devicesOpen)
 	{
 		OpenHapticDevice2();
-		init = true;
+		devicesOpen = true;
 	}
 
-	UINT32 length_ms = configFeedbackLength;
-	if ((oldFloat1 != newFloat1) && (health1p != 0x01))
-	{
-		double percentForce = ((Health1pStrength) / 100.0);
-		RumbleWithMode(triggers->Rumble, HowtoRumbleHealthEffect, percentForce, length_ms);
-	}
-		
-	if ((oldFloat2 != newFloat2) && (health2p != 0x01))
-	{
-		double percentForce = ((Health2pStrength) / 100.0);
-		RumbleWithMode(triggers->RumbleDevice2, HowtoRumbleHealthEffect, percentForce, length_ms);
-	}
-		
-	if (ff1 & 0x20)
-	{
-		double percentForce = ((Knock1pStrength) / 100.0);
-		RumbleWithMode(triggers->Rumble, HowtoRumbleKnockEffect, percentForce, length_ms);
-	}
-		
-	if (ff1 & 0x40)
-	{
-		double percentForce = ((Motor1pStrength) / 100.0);
-		RumbleWithMode(triggers->Rumble, HowtoRumbleMotorEffect, percentForce, length_ms);
-	}
-		
-	if (ff1 & 0x04)
-	{
-		double percentForce = ((Knock2pStrength) / 100.0);
-		RumbleWithMode(triggers->RumbleDevice2, HowtoRumbleKnockEffect, percentForce, length_ms);
-	}
-		
-	if (ff1 & 0x08)
-	{
-		double percentForce = ((Motor2pStrength) / 100.0);
-		RumbleWithMode(triggers->RumbleDevice2, HowtoRumbleMotorEffect, percentForce, length_ms);
-	}
-	oldFloat1 = newFloat1;
-	oldFloat2 = newFloat2;
+	UINT32 length_ms = feedbackLength;
+	if ((lastHealth1p != health1p) && (health1p != 1))
+		RumbleWithMode(wheel, howtoRumbleHealthEffect, health1pStrength / 100.0, length_ms);
+
+	if ((lastHealth2p != health2p) && (health2p != 1))
+		RumbleWithMode(device2, howtoRumbleHealthEffect, health2pStrength / 100.0, length_ms);
+
+	if (outputs & Knock1p)
+		RumbleWithMode(wheel, howtoRumbleKnockEffect, knock1pStrength / 100.0, length_ms);
+
+	if (outputs & Motor1p)
+		RumbleWithMode(wheel, howtoRumbleMotorEffect, motor1pStrength / 100.0, length_ms);
+
+	if (outputs & Knock2p)
+		RumbleWithMode(device2, howtoRumbleKnockEffect, knock2pStrength / 100.0, length_ms);
+
+	if (outputs & Motor2p)
+		RumbleWithMode(device2, howtoRumbleMotorEffect, motor2pStrength / 100.0, length_ms);
+
+	lastHealth1p = health1p;
+	lastHealth2p = health2p;
 }

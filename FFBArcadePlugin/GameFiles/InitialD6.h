@@ -12,10 +12,26 @@ along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
 */
 
 #pragma once
-#include "../Common Files/TeknoParrotGame.h"
+#include "../Core/TeknoParrot.h"
+#include "../Hardware/SegaInitialD.h"
 
-class InitialD6 : public TeknoParrotGame {
+// Initial D Arcade Stage 6 AA, 7 AAX and 8 Infinity (Sega RingWide / RingEdge, TeknoParrot): TeknoParrot
+// publishes the command of the drive board with its bytes in reverse order (byte 2 the command
+// without its 0x80 flag, byte 1 the parameter, byte 0 the strength). Spring and constant force
+// commands with a strength above 0x7F are ignored.
+class InitialDTeknoParrotGame : public ffb::TeknoParrotGame
+{
 public:
-	InitialD6() : TeknoParrotGame() { }
-	void FFBLoop(EffectConstants *constants, Helpers *helpers, EffectTriggers* triggers);
+	void Update() override;
+
+protected:
+	InitialDTeknoParrotGame() = default;
+
+private:
+	ffb::SegaInitialDDriveBoard driveBoard{ wheel, { 127.0, 128, 127.0, 100, 0x7F } };
+};
+
+// Initial D Arcade Stage 6 AA (Sega RingWide, TeknoParrot)
+class InitialD6 : public InitialDTeknoParrotGame
+{
 };

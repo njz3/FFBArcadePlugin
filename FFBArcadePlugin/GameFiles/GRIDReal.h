@@ -12,9 +12,32 @@ along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
 */
 
 #pragma once
-#include "../Common Files/Game.h"
+#include "../Core/Game.h"
+#include <Xinput.h>
 
-class GRIDReal : public Game {
+// GRID (Codemasters, TeknoParrot), with the force feedback of the game: the plugin replaces the game
+// function enabling its FFB (to enable it, and the rumble with FFBOrRumble) and Out32 of inpout32.dll, to
+// which the game writes the force of the wheel (port 0x1020): every 5th write is played, 16 to 31 from the
+// left (strongest at 16), 1 to 15 from the right (strongest at 1). With FFBOrRumble the force is not
+// played, the rumble of the game (XInputSetState) is.
+class GRIDReal : public ffb::Game
+{
 public:
-	void FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTriggers* triggers);
+	GRIDReal();
+	void Update() override;
+
+private:
+	// Function of the game enabling its FFB, relative to the game executable: its object gets the FFB
+	// enabled (BYTE) at +92 and the rumble enabled (BYTE) at +12
+	static const INT_PTR EnableFFB = 0x79CDE0;
+
+	static GRIDReal* instance;
+	static int(__stdcall* out32Original)(DWORD device, DWORD data);
+	static int(__fastcall* enableFFBOriginal)(int object, double unknown);
+	static int __stdcall Out32Hook(DWORD device, DWORD data);
+	static int __fastcall EnableFFBHook(int object, double unknown);
+	static DWORD WINAPI XInputSetStateHook(DWORD userIndex, XINPUT_VIBRATION* vibration);
+
+	bool hooked = false;
+	int ffbCounter = 0; // writes to the port 0x1020 since the last one played
 };

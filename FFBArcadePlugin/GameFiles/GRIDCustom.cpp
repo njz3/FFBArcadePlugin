@@ -11,95 +11,73 @@ You should have received a copy of the GNU General Public License
 along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
 */
 
-#include <string>
 #include "GRIDCustom.h"
-#include "SDL.h"
-static EffectTriggers* myTriggers;
-static EffectConstants* myConstants;
-static Helpers* myHelpers;
-static bool gearshift = false;
 
-static int SpringStrength = GetSettingInt(TEXT("SpringStrength"), 0);
-static int GearChangeStrength = GetSettingInt(TEXT("GearChangeStrength"), 20);
-static int GearChangeLength = GetSettingInt(TEXT("GearChangeLength"), 200);
+using namespace ffb;
 
-void GRIDCustom::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTriggers* triggers) {
+void GRIDCustom::Update()
+{
+	float wallSide = Memory::Read(WallSide);
+	INT_PTR panel = Memory::Read(Panel);
+	UINT8 collision = Memory::Read<UINT8>(panel + Collision);
+	UINT8 wheels = Memory::Read<UINT8>(panel + Wheels);
+	UINT8 skids = Memory::Read<UINT8>(panel + Skids);
+	UINT8 ai = Memory::Read<UINT8>(panel + AI);
+	UINT8 gear = Memory::Read(Gear);
+	float speed = Memory::Read(Speed);
 
-	INT_PTR WallBase = helpers->ReadIntPtr(0xB1B7F0, true);
-	INT_PTR WallBase1 = helpers->ReadIntPtr(WallBase + 0x730, false);
-	INT_PTR WallBase2 = helpers->ReadIntPtr(WallBase1 + 0x4, false);
-	INT_PTR WallBase3 = helpers->ReadIntPtr(WallBase2 + 0x4, false);
-	float WallBase4 = helpers->ReadFloat32(WallBase3 + 0x118, false);
-	INT_PTR PanelBase = helpers->ReadIntPtr(0xA3FA34, true);
-	INT_PTR PanelBase1 = helpers->ReadIntPtr(PanelBase + 0x678, false);
-	INT_PTR PanelBase2 = helpers->ReadIntPtr(PanelBase1 + 0x14, false);
-	INT_PTR PanelBase3 = helpers->ReadIntPtr(PanelBase2 + 0x30, false);
-	UINT8 PanelBase4 = helpers->ReadByte(PanelBase3 + 0x2C, false);
-	UINT8 Wheels = helpers->ReadByte(PanelBase3 + 0xB4, false);
-	UINT8 Skids = helpers->ReadByte(PanelBase3 + 0x100, false);
-	UINT8 AI = helpers->ReadByte(PanelBase3 + 0x3D4, false);
-	UINT8 gear = helpers->ReadByte(0x414F7898, false);
-	INT_PTR speedoBase = helpers->ReadIntPtr(0x28C008, true);
-	INT_PTR speedoBase1 = helpers->ReadIntPtr(speedoBase + 0xD0, false);
-	INT_PTR speedoBase2 = helpers->ReadIntPtr(speedoBase1 + 0x460, false);
-	INT_PTR speedoBase3 = helpers->ReadIntPtr(speedoBase2 + 0x184, false);
-	float speedo = helpers->ReadFloat32(speedoBase3 + 0x4F4, false);
+	UINT8 newGear = gear;
 
-	UINT8 static oldgear = 0;
-	UINT8 newgear = gear;
+	wheel.KeptSpring(springStrength / 100.0);
 
-	triggers->Springi(SpringStrength / 100.0);
+	ApplyDamper();
 
-	ApplyDamper(triggers);
-
-	if ((oldgear != newgear) && (speedo > 0))
+	if ((oldGear != newGear) && (speed > 0))
 	{
-		gearshift = true;
+		gearShift = true;
 	}
 
-	if (gearshift)
+	if (gearShift)
 	{
-		myHelpers->log("gear change");
-		double percentForce = GearChangeStrength / 100.0;
-		myTriggers->Sine(GearChangeLength, 0, percentForce, 150);
-		myTriggers->Rumble(0, percentForce, 150);
-		gearshift = false;
+		Log::Write("gear change");
+		double percentForce = gearChangeStrength / 100.0;
+		gearChangeWheel->Sine(gearChangeLength, 0, percentForce, 150);
+		gearChangeWheel->Rumble(0, percentForce, 150);
+		gearShift = false;
 	}
 
 	UINT32 length_ms = 100;
-	if (Wheels > 0)
+	if (wheels > 0)
 	{
-		double percentForce = Wheels / 37.0;
-		triggers->Rumble(percentForce, percentForce, length_ms);
-		triggers->Sine(80, 80, percentForce, length_ms);
+		double percentForce = wheels / 37.0;
+		wheel.Rumble(percentForce, percentForce, length_ms);
+		wheel.Sine(80, 80, percentForce, length_ms);
 	}
 
-	if ((Skids > 12) && (speedo > 0))
+	if ((skids > 12) && (speed > 0))
 	{
-		double percentForce = ((Skids - 12) / 8.0);
-		triggers->Rumble(percentForce, 0, length_ms);
+		double percentForce = ((skids - 12) / 8.0);
+		wheel.Rumble(percentForce, 0, length_ms);
 	}
 
-	if ((AI > 0) && (PanelBase4 > 0))
+	if ((ai > 0) && (collision > 0))
 	{
-		double percentForce = (PanelBase4) / 8.0;
-		triggers->Rumble(percentForce, percentForce, length_ms);
+		double percentForce = (collision) / 8.0;
+		wheel.Rumble(percentForce, percentForce, length_ms);
 	}
 
-	if ((WallBase4 > 0) && (PanelBase4 > 0))
+	if ((wallSide > 0) && (collision > 0))
 	{
-		double percentForce = (PanelBase4) / 8.0;
-		triggers->Rumble(percentForce, 0, length_ms);
-		triggers->Constant(constants->DIRECTION_FROM_RIGHT, percentForce);
+		double percentForce = (collision) / 8.0;
+		wheel.Rumble(percentForce, 0, length_ms);
+		wheel.Constant(Direction::FromRight, percentForce);
 	}
-	else if ((WallBase4 < 0) && (PanelBase4 > 0))
+	else if ((wallSide < 0) && (collision > 0))
 	{
-		double percentForce = (PanelBase4) / 8.0;
-		triggers->Rumble(0, percentForce, length_ms);
-		triggers->Constant(constants->DIRECTION_FROM_LEFT, percentForce);
+		double percentForce = (collision) / 8.0;
+		wheel.Rumble(0, percentForce, length_ms);
+		wheel.Constant(Direction::FromLeft, percentForce);
 	}
-	oldgear = newgear;
-	myTriggers = triggers;
-	myConstants = constants;
-	myHelpers = helpers;
+	oldGear = newGear;
+	gearChangeWheel = &wheel;
 }

@@ -14,7 +14,15 @@ along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
 #pragma once
 #include "Gaelco.h"
 
-class RingRiders : public GaelcoGame {
+// Ring Riders (Gaelco, TeknoParrot): see GaelcoGame
+class RingRiders : public GaelcoGame
+{
 protected:
-	void HookSetMotor();
+	void HookSetMotor() override
+	{
+		HookFloatSetMotor(SetMotor);
+	}
+
+private:
+	static const INT_PTR SetMotor = 0x8107568; // SetMotor(DWORD*, float force)
 };

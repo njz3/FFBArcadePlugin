@@ -11,47 +11,45 @@ You should have received a copy of the GNU General Public License
 along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
 */
 
-#include <string>
 #include "GRIDReal.h"
-#include "SDL.h"
-#include <Xinput.h>
+#include "../Core/Hooks.h"
 
-static EffectTriggers* myTriggers;
-static EffectConstants* myConstants;
-static Helpers* myHelpers;
+using namespace ffb;
 
 extern int FFBOrRumble;
 
-static bool init;
+GRIDReal* GRIDReal::instance = nullptr;
+int(__stdcall* GRIDReal::out32Original)(DWORD device, DWORD data) = nullptr;
+int(__fastcall* GRIDReal::enableFFBOriginal)(int object, double unknown) = nullptr;
 
-static int FFBCounter;
+GRIDReal::GRIDReal()
+{
+	instance = this;
+}
 
-static int(__stdcall* Out32Ori)(DWORD device, DWORD data);
-static int __stdcall Out32Hook(DWORD device, DWORD data)
+int __stdcall GRIDReal::Out32Hook(DWORD device, DWORD data)
 {
 	if (FFBOrRumble)
 		return 0;
 
+	GRIDReal& game = *instance;
 	if (device == 0x1020)
 	{
-		++FFBCounter;
+		++game.ffbCounter;
 
-		if (FFBCounter == 5)
+		if (game.ffbCounter == 5)
 		{
-			FFBCounter = 0;
+			game.ffbCounter = 0;
 
-			UINT32 length_ms = 100; 
 			if (data > 15)
 			{
 				double percentForce = (31 - data) / 15.0;
-				myTriggers->Rumble(percentForce, 0, length_ms);
-				myTriggers->Constant(myConstants->DIRECTION_FROM_LEFT, percentForce);
+				game.wheel.ConstantWithRumble(Direction::FromLeft, percentForce);
 			}
 			else if (data > 0)
 			{
 				double percentForce = (16 - data) / 15.0;
-				myTriggers->Rumble(0, percentForce, length_ms);
-				myTriggers->Constant(myConstants->DIRECTION_FROM_RIGHT, percentForce);
+				game.wheel.ConstantWithRumble(Direction::FromRight, percentForce);
 			}
 		}
 	}
@@ -59,42 +57,36 @@ static int __stdcall Out32Hook(DWORD device, DWORD data)
 	return 0;
 }
 
-static int(__fastcall* EnableFFBOri)(int a1, double a2);
-static int __fastcall EnableFFBHook(int a1, double a2)
+int __fastcall GRIDReal::EnableFFBHook(int object, double unknown)
 {
-	EnableFFBOri(a1, a2);
-	
-	*(BYTE*)(a1 + 92) = (BYTE)1; // FFB
+	enableFFBOriginal(object, unknown);
+
+	*(BYTE*)(object + 92) = (BYTE)1; // FFB
 
 	if (FFBOrRumble)
-		*(BYTE*)(a1 + 12) = (BYTE)1; // Rumble
+		*(BYTE*)(object + 12) = (BYTE)1; // Rumble
 
 	return 0;
 }
 
-static DWORD WINAPI XInputSetStateGRID(DWORD dwUserIndex, XINPUT_VIBRATION* pVibration)
+DWORD WINAPI GRIDReal::XInputSetStateHook(DWORD userIndex, XINPUT_VIBRATION* vibration)
 {
-	myTriggers->Rumble(pVibration->wLeftMotorSpeed / 65535.0, pVibration->wRightMotorSpeed / 65535.0, 100);
+	instance->wheel.Rumble(vibration->wLeftMotorSpeed / 65535.0, vibration->wRightMotorSpeed / 65535.0, 100);
 
 	return ERROR_SUCCESS;
 }
 
-void GRIDReal::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTriggers* triggers) {
-	if (!init)
+void GRIDReal::Update()
+{
+	if (!hooked)
 	{
-		init = true;
+		hooked = true;
 
-		INT_PTR ImageBase = (INT_PTR)GetModuleHandleA(0);
-
-		MH_Initialize();
-		MH_CreateHook((void*)(ImageBase + 0x79CDE0), EnableFFBHook, (void**)&EnableFFBOri);
-		MH_CreateHookApi(L"inpout32.dll", "Out32", Out32Hook, (void**)&Out32Ori);
+		Hooks::Initialize();
+		Hooks::Create(Memory::Address(Base::Module, EnableFFB), EnableFFBHook, &enableFFBOriginal);
+		Hooks::CreateApi(L"inpout32.dll", "Out32", Out32Hook, &out32Original);
 		if (FFBOrRumble)
-			MH_CreateHookApi(L"xinput1_3.dll", "XInputSetState", &XInputSetStateGRID, NULL);
-		MH_EnableHook(MH_ALL_HOOKS);
+			Hooks::CreateApi(L"xinput1_3.dll", "XInputSetState", &XInputSetStateHook, (LPVOID*)nullptr);
+		Hooks::Enable();
 	}
-
-	myTriggers = triggers;
-	myConstants = constants;
-	myHelpers = helpers;
 }

@@ -11,64 +11,63 @@ You should have received a copy of the GNU General Public License
 along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
 */
 
-#include "WasteLandRacers2071.h"
-#include <string>
-#include <sstream>
-#include "SDL.h"
+#include "WastelandRacers2071.h"
+#include "../Core/Hooks.h"
 
-static EffectTriggers* myTriggers;
-static EffectConstants* myConstants;
-static Helpers* myHelpers;
+using namespace ffb;
 
-static bool init;
-static double springStrength = 1;
+WasteLandRacers2071* WasteLandRacers2071::instance = nullptr;
+int(__cdecl* WasteLandRacers2071::setForceOriginal)(int force, int param_2, int param_3, int param_4) = nullptr;
+int(__cdecl* WasteLandRacers2071::setSteeringPosOriginal)(int position, int param_2, int param_3, int param_4) = nullptr;
+int(__cdecl* WasteLandRacers2071::setDigitalOutOriginal)(int param_1, int param_2, int param_3, int param_4) = nullptr;
 
-static int(__cdecl* SetForceOrig)(int param_1, int param_2, int param_3, int param_4);
-static int __cdecl SetForce(int param_1, int param_2, int param_3, int param_4) {
+WasteLandRacers2071::WasteLandRacers2071()
+{
+	instance = this;
+}
 
-	springStrength = (double)param_1 / 32768.0;
+int __cdecl WasteLandRacers2071::SetForceHook(int force, int param_2, int param_3, int param_4)
+{
+	instance->springStrength = (double)force / 32768.0;
 
 	return 0;
 }
 
-static int(__cdecl* SetSteeringPosOrig)(int param_1, int param_2, int param_3, int param_4);
-static int __cdecl SetSteeringPos(int param_1, int param_2, int param_3, int param_4) {
+int __cdecl WasteLandRacers2071::SetSteeringPosHook(int position, int param_2, int param_3, int param_4)
+{
+	WasteLandRacers2071& game = *instance;
+	double wheelPos = (double)position / 128000.0;
 
-	double wheelPos = (double)param_1 / 128000.0;
-
+	// the rumble gets the position itself, not wheelPos, as it always did
 	if (wheelPos >= 0) {
-		myTriggers->Rumble(0, param_1, 100.0);
-		myTriggers->Constant(myConstants->DIRECTION_FROM_RIGHT, wheelPos);
+		game.wheel.Rumble(0, position, 100);
+		game.wheel.Constant(Direction::FromRight, wheelPos);
 	}
 	else if (wheelPos <= 0) {
-		myTriggers->Rumble(0, param_1 * -1, 100.0);
-		myTriggers->Constant(myConstants->DIRECTION_FROM_LEFT, wheelPos * -1);
+		game.wheel.Rumble(0, position * -1, 100);
+		game.wheel.Constant(Direction::FromLeft, wheelPos * -1);
 	}
 	return 0;
 }
 
-static int(__cdecl* SetDigitalOutOrig)(int param_1, int param_2, int param_3, int param_4);
-static int __cdecl SetDigitalOut(int param_1, int param_2, int param_3, int param_4) {
+int __cdecl WasteLandRacers2071::SetDigitalOutHook(int param_1, int param_2, int param_3, int param_4)
+{
 	return 0;
 }
 
-void WasteLandRacers2071::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTriggers* triggers) {
-
-	//check a DLL has been loaded
-	if (GetModuleHandleA("sdc2.dll") != NULL && !init) {
-		init = true;
-		MH_Initialize();
-		MH_CreateHookApi(L"sdc2.dll", "SetForce", SetForce, (void**)&SetForceOrig);
-		MH_CreateHookApi(L"sdc2.dll", "SetSteeringPos", SetSteeringPos, (void**)&SetSteeringPosOrig);
-		MH_CreateHookApi(L"sdc2.dll", "SetDigitalOut", SetDigitalOut, (void**)&SetDigitalOutOrig);
-		MH_EnableHook(MH_ALL_HOOKS);
+void WasteLandRacers2071::Update()
+{
+	// once the game has loaded sdc2.dll
+	if (GetModuleHandleA("sdc2.dll") != NULL && !hooked) {
+		hooked = true;
+		Hooks::Initialize();
+		Hooks::CreateApi(L"sdc2.dll", "SetForce", SetForceHook, &setForceOriginal);
+		Hooks::CreateApi(L"sdc2.dll", "SetSteeringPos", SetSteeringPosHook, &setSteeringPosOriginal);
+		Hooks::CreateApi(L"sdc2.dll", "SetDigitalOut", SetDigitalOutHook, &setDigitalOutOriginal);
+		Hooks::Enable();
 	}
 
-	ApplyDamper(triggers);
+	ApplyDamper();
 
-	triggers->Spring(springStrength);
-
-	myTriggers = triggers;
-	myConstants = constants;
-	myHelpers = helpers;
+	wheel.Spring(springStrength);
 }

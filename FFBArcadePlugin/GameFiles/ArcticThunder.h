@@ -12,10 +12,13 @@ along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
 */
 
 #pragma once
-#include "../Common Files/TeknoParrotGame.h"
+#include "../Core/TeknoParrot.h"
 
-class ArcticThunder : public TeknoParrotGame {
+// Arctic Thunder (Midway, TeknoParrot): TeknoParrot publishes the vibration of the handlebar
+// (TeknoParrotFFB2: 0x01 to 0xFE, 0xFF ignored) and its force (TeknoParrotFFB3: 0x80 none, above from
+// the left, below from the right). The centering spring is the one of the EnableForceSpringEffect setting.
+class ArcticThunder : public ffb::TeknoParrotGame
+{
 public:
-	ArcticThunder() : TeknoParrotGame() { }
-	void FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTriggers* triggers);
+	void Update() override;
 };

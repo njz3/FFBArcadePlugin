@@ -12,10 +12,13 @@ along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
 */
 
 #pragma once
-#include "../Common Files/TeknoParrotGame.h"
+#include "../Core/TeknoParrot.h"
 
-class FordRacing : public TeknoParrotGame {
+// Ford Racing (TeknoParrot): the force of the wheel is the FFB value published by TeknoParrot:
+// -65514 to -65506 from the right (strongest at -65514), 1 to 15 from the left ((16 - value) / 9, above 1
+// below 7)
+class FordRacing : public ffb::TeknoParrotGame
+{
 public:
-	FordRacing() : TeknoParrotGame() { }
-	void FFBLoop(EffectConstants *constants, Helpers *helpers, EffectTriggers* triggers);
+	void Update() override;
 };

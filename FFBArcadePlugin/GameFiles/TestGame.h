@@ -12,9 +12,15 @@ along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
 */
 
 #pragma once
-#include "../Common Files/Game.h"
-class TestGame : public Game {
-	
-	public:
-	void FFBLoop(EffectConstants *constants, Helpers *helpers, EffectTriggers* triggers);
+#include "../Core/Game.h"
+
+// Test effects of the GUI (GameId -1 to -8, TEST_GAME_... in GameIds.h): the effect of the GameId is
+// played at each loop.
+class TestGame : public ffb::Game
+{
+public:
+	void Update() override;
+
+private:
+	int gameId = ffb::Settings::Int(L"GameId", 1);
 };

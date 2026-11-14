@@ -11,83 +11,81 @@ You should have received a copy of the GNU General Public License
 along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
 */
 
-#include <string>
+#include <string.h>
 #include "FordRacingOther.h"
-static EffectTriggers *myTriggers;
-static EffectConstants *myConstants;
-static Helpers *myHelpers;
 
-static bool init = false;
+using namespace ffb;
 
-static int __stdcall Out32(DWORD device, DWORD data)
+FordRacingOther* FordRacingOther::instance = nullptr;
+
+FordRacingOther::FordRacingOther()
+{
+	instance = this;
+}
+
+int __stdcall FordRacingOther::Out32Hook(DWORD device, DWORD data)
 {
 	if (device == 0x378)
 	{
+		FordRacingOther& game = *instance;
 		if (data > 0xFFFF0013 && data < 0xFFFF001F)
 		{
 			double percentForce = (4294901791 - data) / 10.0;
-			UINT32 length = 100;
-			myTriggers->Rumble(0, percentForce, length);
-			myTriggers->Constant(myConstants->DIRECTION_FROM_RIGHT, percentForce);
+			game.wheel.ConstantWithRumble(Direction::FromRight, percentForce);
 		}
 		else if (data > 5 && data < 16)
 		{
 			double percentForce = (16 - data) / 10.0;
-			UINT32 length = 100;
-			myTriggers->Rumble(percentForce, 0, length);
-			myTriggers->Constant(myConstants->DIRECTION_FROM_LEFT, percentForce);
+			game.wheel.ConstantWithRumble(Direction::FromLeft, percentForce);
 		}
 	}
 	return 0;
 }
 
-static bool Hook(void * toHook, void * ourFunct, int len) {
-	if (len < 5) {
+// Not Memory::WriteJump: the jump is followed by NOPs up to `length` and the page protection is lifted
+// for `length` bytes
+bool FordRacingOther::Hook(void* toHook, void* detour, int length)
+{
+	if (length < 5) {
 		return false;
 	}
 
 	DWORD curProtection;
-	VirtualProtect(toHook, len, PAGE_EXECUTE_READWRITE, &curProtection);
+	VirtualProtect(toHook, length, PAGE_EXECUTE_READWRITE, &curProtection);
 
-	memset(toHook, 0x90, len);
+	memset(toHook, 0x90, length);
 
-	INT_PTR relativeAddress = ((INT_PTR)ourFunct - (INT_PTR)toHook) - 5;
+	INT_PTR relativeAddress = ((INT_PTR)detour - (INT_PTR)toHook) - 5;
 
 	*(BYTE*)toHook = 0xE9;
 	*(DWORD*)((INT_PTR)toHook + 1) = (DWORD)relativeAddress;
 
 	DWORD temp;
-	VirtualProtect(toHook, len, curProtection, &temp);
+	VirtualProtect(toHook, length, curProtection, &temp);
 
 	return true;
 }
 
-static INT_PTR jmpBackAddy;
-
-void FordRacingOther::FFBLoop(EffectConstants *constants, Helpers *helpers, EffectTriggers* triggers) {
-	if (!init)
+void FordRacingOther::Update()
+{
+	if (!hooked)
 	{
 		HMODULE hMod = GetModuleHandleA("inpout32.dll");
 		if (hMod)
 		{
-
 			int hookLength = 6;
 			HMODULE module = GetModuleHandle(L"inpout32.dll");
-			if (module!=NULL) {
+			if (module != NULL) {
 				INT_PTR hookAddress = (INT_PTR)GetProcAddress(module, "Out32");
 				if (hookAddress)
 				{
-					jmpBackAddy = hookAddress + hookLength;
-					Hook((void*)hookAddress, Out32, hookLength);
-					init = true;
+					jumpBack = hookAddress + hookLength;
+					Hook((void*)hookAddress, (void*)Out32Hook, hookLength);
+					hooked = true;
 				}
 			}
 		}
 	}
 
-	ApplyDamper(triggers);
-		
-	myTriggers = triggers;
-	myConstants = constants;
-	myHelpers = helpers;
+	ApplyDamper();
 }

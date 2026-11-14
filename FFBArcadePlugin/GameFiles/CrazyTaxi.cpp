@@ -11,187 +11,159 @@ You should have received a copy of the GNU General Public License
 along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
 */
 
-#include <string>
 #include "CrazyTaxi.h"
-static UINT8 oldGroundEffect;
-static bool Collision;
 
-static int SpringStrength = GetSettingInt(TEXT("SpringStrength"), 0);
-static int DisableConstantEffects = GetSettingInt(TEXT("DisableConstantEffects"), 0);
-static int EngineRumbleEffect = GetSettingInt(TEXT("EngineRumbleEffect"), 0);
-static int OriginalRumbleEffect = GetSettingInt(TEXT("OriginalRumbleEffect"), 0);
-static int EnableGroundEffects = GetSettingInt(TEXT("EnableGroundEffects"), 0);
-static int FFBGrassSinePeriod = GetSettingInt(TEXT("FFBGrassSinePeriod"), 0);
-static int FFBUnderwaterSinePeriod = GetSettingInt(TEXT("FFBUnderwaterSinePeriod"), 0);
-static int FFBShorelineSinePeriod = GetSettingInt(TEXT("FFBShorelineSinePeriod"), 0);
-static int FFBGrassFadeSinePeriod = GetSettingInt(TEXT("FFBGrassFadeSinePeriod"), 0);
-static int FFBUnderwaterFadeSinePeriod = GetSettingInt(TEXT("FFBUnderwaterFadeSinePeriod"), 0);
-static int FFBShorelineFadeSinePeriod = GetSettingInt(TEXT("FFBShorelineFadeSinePeriod"), 0);
-static int FFBFootpathSinePeriod = GetSettingInt(TEXT("FFBFootpathSinePeriod"), 0);
-static int FFBFootpathFadeSinePeriod = GetSettingInt(TEXT("FFBFootpathFadeSinePeriod"), 0);
-static int FFBSandSinePeriod = GetSettingInt(TEXT("FFBSandSinePeriod"), 0);
-static int FFBSandFadeSinePeriod = GetSettingInt(TEXT("FFBSandFadeSinePeriod"), 0);
-static int FFBStairsSinePeriod = GetSettingInt(TEXT("FFBStairsSinePeriod"), 0);
-static int FFBStairsFadeSinePeriod = GetSettingInt(TEXT("FFBStairsFadeSinePeriod"), 0);
-static int FFBSubwaySinePeriod = GetSettingInt(TEXT("FFBSubwaySinePeriod"), 0);
-static int FFBSubwayFadeSinePeriod = GetSettingInt(TEXT("FFBSubwayFadeSinePeriod"), 0);
-static int FFBSandFriction = GetSettingInt(TEXT("FFBSandFriction"), 0);
-static int FFBUnderwaterFriction = GetSettingInt(TEXT("FFBUnderwaterFriction"), 0);
-static int FFBShorelineFriction = GetSettingInt(TEXT("FFBShorelineFriction"), 0);
+using namespace ffb;
 
-void CrazyTaxi::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTriggers* triggers) {
+void CrazyTaxi::Update()
+{
+	UINT8 inGame = Memory::Read(InGame);
+	INT_PTR timer = Memory::Read(Timer);
+	UINT8 ground = Memory::Read(Ground);
+	UINT8 originalRumble = Memory::Read(OriginalRumble);
+	UINT8 crazyMoves1 = Memory::Read(CrazyMoves1);
+	UINT8 crazyMoves2 = Memory::Read(CrazyMoves2);
+	float speed = Memory::Read(Speed);
+	float leftWall = Memory::Read(LeftWall);
+	float rightWall = Memory::Read(RightWall);
+	Log::Value("got value:", ground);
 
-	UINT8 InGame = helpers->ReadByte(0x12AA314, true);
-	INT_PTR Timer = helpers->ReadIntPtr(0x12A41A4, true);
-	UINT8 GroundEffect = helpers->ReadByte(0x1AB0D74, true);
-	UINT8 OriginalRumble = helpers->ReadByte(0x12EF93B, true);
-	UINT8 CrazyMoves1 = helpers->ReadByte(0x12EF892, true);
-	UINT8 CrazyMoves2 = helpers->ReadByte(0x12EF893, true);
-	float Speed = helpers->ReadFloat32(0x106A010, true);
-	float LeftWall = helpers->ReadFloat32(0x126214C, true);
-	float RightWall = helpers->ReadFloat32(0x12621D0, true);
+	ApplyDamper();
 
-	helpers->log("got value: ");
-	std::string ffs = std::to_string(GroundEffect);
-	helpers->log((char*)ffs.c_str());
-
-	ApplyDamper(triggers);
-
-	if (!InGame && Timer)
+	if (!inGame && timer)
 	{
-		double percentForce = Speed / 10.0;
+		double percentForce = speed / 10.0;
 
 		if (percentForce > 1.0)
 			percentForce = 1.0;
 
 		double percentForceGround = percentForce / 2.0;
 
-		helpers->WriteByte(0x1C363A, 0x00, true); //Disable native rumble/ffb
+		Memory::Write<UINT8>(NativeRumble, 0x00); // turns the rumble/FFB of the game off
 
-		triggers->Springi(SpringStrength / 100);
+		// an integer division, as it always was: 0 when SpringStrength is below 100
+		wheel.KeptSpring(springStrength / 100);
 
-		if (EngineRumbleEffect)
+		if (engineRumbleEffect)
 		{
-			if (Speed < 0.001)
-				triggers->Rumble(0, 0.012, 100);
+			if (speed < 0.001)
+				wheel.Rumble(0, 0.012, 100);
 			else
-				triggers->Rumble(0, 0.012 + percentForceGround / 7.0, 100);
+				wheel.Rumble(0, 0.012 + percentForceGround / 7.0, 100);
 		}
 
-		if (OriginalRumbleEffect)
+		if (originalRumbleEffect)
 		{
-			if (OriginalRumble)
-				triggers->Rumble(0, percentForce, 100);
+			if (originalRumble)
+				wheel.Rumble(0, percentForce, 100);
 
-			if (CrazyMoves1 & 0x10)
-				triggers->Rumble(0, 1.0, 100);
+			if (crazyMoves1 & 0x10)
+				wheel.Rumble(0, 1.0, 100);
 
-			if (CrazyMoves2)
-				triggers->Rumble(0, 1.0, 100);
+			if (crazyMoves2)
+				wheel.Rumble(0, 1.0, 100);
 		}
 
-		if (OriginalRumbleEffect && CrazyMoves1 & 0x10 || OriginalRumbleEffect && CrazyMoves2) {}
-		else
+		// the rumble of a crazy move replaces the effects of the ground
+		bool crazyMoveRumble = (originalRumbleEffect && (crazyMoves1 & 0x10)) || (originalRumbleEffect && crazyMoves2);
+		if (!crazyMoveRumble)
 		{
-			switch (GroundEffect)
+			switch (ground)
 			{
-			case 0x00: //Driving on road
+			case 0x00: // road
 				break;
-			case 0x03: //Driving on grass
-				if (EnableGroundEffects && Speed > 0.001)
+			case 0x03: // grass
+				if (enableGroundEffects && speed > 0.001)
 				{
-					triggers->Rumble(percentForceGround, percentForceGround, 100);
-					triggers->Sine(FFBGrassSinePeriod, FFBGrassFadeSinePeriod, percentForceGround, 100);
+					wheel.Rumble(percentForceGround, percentForceGround, 100);
+					wheel.Sine(grassSinePeriod, grassFadeSinePeriod, percentForceGround, 100);
 				}
 				break;
-			case 0x05: //Driving on shoreline
-				if (EnableGroundEffects && Speed > 0.001)
+			case 0x05: // shoreline
+				if (enableGroundEffects && speed > 0.001)
 				{
-					triggers->Rumble(percentForceGround, percentForceGround, 100);
-					triggers->Sine(FFBShorelineSinePeriod, FFBShorelineFadeSinePeriod, percentForceGround, 100);
-					triggers->Friction(FFBShorelineFriction / 100.0);
+					wheel.Rumble(percentForceGround, percentForceGround, 100);
+					wheel.Sine(shorelineSinePeriod, shorelineFadeSinePeriod, percentForceGround, 100);
+					wheel.Friction(shorelineFriction / 100.0);
 				}
 				break;
-			case 0x09: //Driving on sand
-				if (EnableGroundEffects && Speed > 0.001)
+			case 0x09: // sand
+				if (enableGroundEffects && speed > 0.001)
 				{
-					triggers->Rumble(percentForceGround, percentForceGround, 100);
-					triggers->Sine(FFBSandSinePeriod, FFBSandFadeSinePeriod, percentForceGround, 100);
-					triggers->Friction(FFBSandFriction / 100.0);
+					wheel.Rumble(percentForceGround, percentForceGround, 100);
+					wheel.Sine(sandSinePeriod, sandFadeSinePeriod, percentForceGround, 100);
+					wheel.Friction(sandFriction / 100.0);
 				}
 				break;
-			case 0x0A: //Driving on footpath
-				if (EnableGroundEffects && Speed > 0.001)
+			case 0x0A: // footpath
+				if (enableGroundEffects && speed > 0.001)
 				{
-					triggers->Rumble(percentForceGround, percentForceGround, 100);
-					triggers->Sine(FFBFootpathSinePeriod, FFBFootpathFadeSinePeriod, percentForceGround, 100);
+					wheel.Rumble(percentForceGround, percentForceGround, 100);
+					wheel.Sine(footpathSinePeriod, footpathFadeSinePeriod, percentForceGround, 100);
 				}
 				break;
-			case 0x0E: //Driving underwater
-				if (EnableGroundEffects && Speed > 0.001)
+			case 0x0E: // underwater
+				if (enableGroundEffects && speed > 0.001)
 				{
-					triggers->Rumble(percentForceGround, percentForceGround, 100);
-					triggers->Sine(FFBUnderwaterSinePeriod, FFBUnderwaterFadeSinePeriod, percentForceGround, 100);
-					triggers->Friction(FFBUnderwaterFriction / 100.0);
+					wheel.Rumble(percentForceGround, percentForceGround, 100);
+					wheel.Sine(underwaterSinePeriod, underwaterFadeSinePeriod, percentForceGround, 100);
+					wheel.Friction(underwaterFriction / 100.0);
 				}
 				break;
-			case 0x11: //Driving stairs
+			case 0x11: // stairs
 			case 0x13:
-				if (EnableGroundEffects && Speed > 0.001)
+				if (enableGroundEffects && speed > 0.001)
 				{
-					triggers->Rumble(0, percentForceGround, 100);
-					triggers->Sine(FFBStairsSinePeriod, FFBStairsFadeSinePeriod, percentForceGround, 100);
+					wheel.Rumble(0, percentForceGround, 100);
+					wheel.Sine(stairsSinePeriod, stairsFadeSinePeriod, percentForceGround, 100);
 				}
 				break;
-			case 0x12: //Driving stairs
+			case 0x12: // stairs
 			case 0x14:
-				if (EnableGroundEffects && Speed > 0.001)
+				if (enableGroundEffects && speed > 0.001)
 				{
-					triggers->Rumble(percentForceGround, 0, 100);
-					triggers->Sine(FFBStairsSinePeriod, FFBStairsFadeSinePeriod, percentForceGround, 100);
+					wheel.Rumble(percentForceGround, 0, 100);
+					wheel.Sine(stairsSinePeriod, stairsFadeSinePeriod, percentForceGround, 100);
 				}
 				break;
-			case 0x15: //Driving subway indoors
-				if (EnableGroundEffects && Speed > 0.001)
+			case 0x15: // subway, indoors
+				if (enableGroundEffects && speed > 0.001)
 				{
-					triggers->Rumble(percentForceGround, 0, 100);
-					triggers->Sine(FFBSubwaySinePeriod, FFBSubwayFadeSinePeriod, percentForceGround, 100);
+					wheel.Rumble(percentForceGround, 0, 100);
+					wheel.Sine(subwaySinePeriod, subwayFadeSinePeriod, percentForceGround, 100);
 				}
 				break;
-			case 0xFF: //Colliding with cars/walls
-				if (RightWall > 0)
+			case 0xFF: // collision with a car or a wall
+				if (rightWall > 0)
 				{
-					triggers->Rumble(0, percentForce, 100);
+					wheel.Rumble(0, percentForce, 100);
 
-					if (!DisableConstantEffects)
-						triggers->Constant(constants->DIRECTION_FROM_RIGHT, percentForce);
+					if (!disableConstantEffects)
+						wheel.Constant(Direction::FromRight, percentForce);
 				}
-				else if (LeftWall > 0)
+				else if (leftWall > 0)
 				{
-					triggers->Rumble(percentForce, 0, 100);
+					wheel.Rumble(percentForce, 0, 100);
 
-					if (!DisableConstantEffects)
-						triggers->Constant(constants->DIRECTION_FROM_LEFT, percentForce);
+					if (!disableConstantEffects)
+						wheel.Constant(Direction::FromLeft, percentForce);
 				}
-				else
+				else if (ground != lastGround)
 				{
-					if (GroundEffect != oldGroundEffect)
-					{
-						if (!Collision)
-							Collision = true;
-					}
+					// a collision that has just started, on neither side
+					collision = true;
 				}
 				break;
 			}
 		}
 
-		if (Collision)
+		if (collision)
 		{
-			triggers->Sine(150, 0, percentForce, 100);
-			triggers->Rumble(percentForce, percentForce, 100);
-			Collision = false;
+			wheel.Sine(150, 0, percentForce, 100);
+			wheel.Rumble(percentForce, percentForce, 100);
+			collision = false;
 		}
 
-		oldGroundEffect = GroundEffect;
+		lastGround = ground;
 	}
 }

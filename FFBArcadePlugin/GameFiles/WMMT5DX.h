@@ -14,7 +14,17 @@ along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
 #pragma once
 #include "WMMT.h"
 
-class WMMT5DX : public WMMT {
+// Wangan Midnight Maximum Tune 5DX (Bandai Namco, TeknoParrot): see WMMT
+class WMMT5DX : public WMMT
+{
 public:
-	WMMT5DX();
+	WMMT5DX() : WMMT({
+		0x1C02750, // ffbValues
+		0x1C0342C, // speed
+		0x1C0359C, // rpm
+		0x1C2C040, // carState
+		0x398,     // gearOffset
+		0x1C2C058, // raceState
+		0,         // raceTimer
+	}) {}
 };

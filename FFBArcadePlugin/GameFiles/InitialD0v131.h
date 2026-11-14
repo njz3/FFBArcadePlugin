@@ -12,9 +12,37 @@ along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
 */
 
 #pragma once
-#include "../Common Files/Game.h"
+#include "../Core/Game.h"
+#include "../Hardware/SegaInitialD.h"
 
-class InitialD0 : public Game {
+// Initial D Zero (Sega ALLS): the command of the drive board is read in the game's memory (byte 0 the
+// command, byte 1 its parameter, byte 2 the strength, see ffb::SegaInitialDDriveBoard). The plugin
+// also loads OutputBlaster.dll (EnableOutputs setting) and ends the game with the Escape key
+// (EscapeKeyExitViaPlugin setting).
+class InitialDZeroGame : public ffb::Game
+{
 public:
-	void FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTriggers* triggers);
+	void Update() override;
+
+protected:
+	// driveBoardOffset: offset of the drive board command in the game's executable.
+	// loadOutputs: OutputBlaster.dll is loaded at the first update
+	InitialDZeroGame(INT_PTR driveBoardOffset, const ffb::SegaInitialDDriveBoard::Scaling& scaling, bool loadOutputs);
+
+	// The usual scaling with vibrations of 200 ms
+	static constexpr ffb::SegaInitialDDriveBoard::Scaling LongVibrationScaling{ 127.0, 128, 127.0, 200, 0xFFFFFFFF };
+
+private:
+	ffb::GameValue<int> driveBoardCommand;
+	ffb::SegaInitialDDriveBoard driveBoard;
+	bool loadOutputs;
+	bool outputsLoaded = false;
+	int escapeKeyExitViaPlugin = ffb::Settings::Int(L"EscapeKeyExitViaPlugin", 0);
+};
+
+// Initial D Zero v1.31: OutputBlaster.dll is loaded when EnableOutputs is not 0
+class InitialD0 : public InitialDZeroGame
+{
+public:
+	InitialD0() : InitialDZeroGame(0x168317C, LongVibrationScaling, ffb::Settings::Int(L"EnableOutputs", 0) != 0) {}
 };

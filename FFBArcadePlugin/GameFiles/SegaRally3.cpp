@@ -11,31 +11,19 @@ You should have received a copy of the GNU General Public License
 along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
 */
 
-#include <string>
 #include "SegaRally3.h"
 
-void SegaRally3::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTriggers* triggers) {
-	helpers->log("in SR3 Ffbloop");
-	const int ff = GetTeknoParrotFFB();
-	std::string ffs = std::to_string(ff);
-	helpers->log((char*)ffs.c_str());
+using namespace ffb;
 
-	ApplyDamper(triggers);
+void SegaRally3::Update()
+{
+	const int ff = TeknoParrotFFB();
+	Log::Value("got value:", ff);
 
-	UINT32 length_ms = 100;
+	ApplyDamper();
+
 	if (ff > 15)
-	{
-		helpers->log("moving wheel right");
-		double percentForce = (31 - ff) / 15.0;
-		triggers->Rumble(percentForce, 0, length_ms);
-		triggers->Constant(constants->DIRECTION_FROM_LEFT, percentForce);
-
-	}
+		wheel.ConstantWithRumble(Direction::FromLeft, (31 - ff) / 15.0);
 	else if (ff > 0)
-	{
-		helpers->log("moving wheel left");
-		double percentForce = (16 - ff) / 15.0;
-		triggers->Rumble(0, percentForce, length_ms);
-		triggers->Constant(constants->DIRECTION_FROM_RIGHT, percentForce);
-	}
+		wheel.ConstantWithRumble(Direction::FromRight, (16 - ff) / 15.0);
 }

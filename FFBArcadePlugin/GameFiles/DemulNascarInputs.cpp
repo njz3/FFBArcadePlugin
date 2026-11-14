@@ -1,63 +1,29 @@
-#include "../Common Files/Game.h"
+/*This file is part of FFB Arcade Plugin.
+FFB Arcade Plugin is free software : you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+FFB Arcade Plugin is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.See the
+GNU General Public License for more details.
+You should have received a copy of the GNU General Public License
+along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
+*/
+
+#include "DemulNascarInputs.h"
 #include <string>
 #include <windows.h>
 #include "SDL.h"
 #include "../Common Files/Devices.h"
+#include "../Core/Memory.h"
+#include "../Core/Settings.h"
 
 extern int joystick_index1;
 extern int joystick_index2;
-static bool testbuttonA;
-static bool servicebuttonA;
-static bool startbuttonA;
-static bool viewbuttonA;
-static bool shiftupA;
-static bool shiftdownA;
-static bool Inputsinit = false;
 extern SDL_Event e;
 
-extern INT_PTR SteeringAddress;
-extern INT_PTR AcclAddress;
-extern INT_PTR BrakeAddress;
-extern INT_PTR StartViewAddress;
-extern INT_PTR ShiftUpDownAddress;
-extern INT_PTR ServiceTestAddress;
-extern INT_PTR CoinAddress;
-
-static int InputDeviceWheelSteeringAxis = GetSettingInt(TEXT("InputDeviceWheelSteeringAxis"), 0);
-static int InputDeviceWheelAcclAxis = GetSettingInt(TEXT("InputDeviceWheelAcclAxis"), 0);
-static int InputDeviceWheelBrakeAxis = GetSettingInt(TEXT("InputDeviceWheelBrakeAxis"), 0);
-static int InputDeviceWheelReverseAxis = GetSettingInt(TEXT("InputDeviceWheelReverseAxis"), 0);
-static int InputDeviceCombinedPedals = GetSettingInt(TEXT("InputDeviceCombinedPedals"), 0);
-static int SteeringDeadzone = GetSettingInt(TEXT("SteeringDeadzone"), 0);
-static int PedalDeadzone = GetSettingInt(TEXT("PedalDeadzone"), 0);
-static int ShowButtonNumbersForSetup = GetSettingInt(TEXT("ShowButtonNumbersForSetup"), 0);
-static int ShowAxisForSetup = GetSettingInt(TEXT("ShowAxisForSetup"), 0);
-static int ExitButton = GetSettingInt(TEXT("ExitButton"), 0);
-static int TestButton = GetSettingInt(TEXT("TestButton"), 0);
-static int ServiceButton = GetSettingInt(TEXT("ServiceButton"), 0);
-static int CreditButton = GetSettingInt(TEXT("CreditButton"), 0);
-static int ViewButton = GetSettingInt(TEXT("ViewButton"), 0);
-static int StartButton = GetSettingInt(TEXT("StartButton"), 0);
-static int ShiftUp = GetSettingInt(TEXT("ShiftUp"), 0);
-static int ShiftDown = GetSettingInt(TEXT("ShiftDown"), 0);
-static int Gear1 = GetSettingInt(TEXT("Gear1"), 0);
-static int Gear2 = GetSettingInt(TEXT("Gear2"), 0);
-static int Gear3 = GetSettingInt(TEXT("Gear3"), 0);
-static int Gear4 = GetSettingInt(TEXT("Gear4"), 0);
-static int ExitButtonDevice2 = GetSettingInt(TEXT("ExitButtonDevice2"), 0);
-static int TestButtonDevice2 = GetSettingInt(TEXT("TestButtonDevice2"), 0);
-static int ServiceButtonDevice2 = GetSettingInt(TEXT("ServiceButtonDevice2"), 0);
-static int CreditButtonDevice2 = GetSettingInt(TEXT("CreditButtonDevice2"), 0);
-static int ViewButtonDevice2 = GetSettingInt(TEXT("ViewButtonDevice2"), 0);
-static int StartButtonDevice2 = GetSettingInt(TEXT("StartButtonDevice2"), 0);
-static int ShiftUpDevice2 = GetSettingInt(TEXT("ShiftUpDevice2"), 0);
-static int ShiftDownDevice2 = GetSettingInt(TEXT("ShiftDownDevice2"), 0);
-static int Gear1Device2 = GetSettingInt(TEXT("Gear1Device2"), 0);
-static int Gear2Device2 = GetSettingInt(TEXT("Gear2Device2"), 0);
-static int Gear3Device2 = GetSettingInt(TEXT("Gear3Device2"), 0);
-static int Gear4Device2 = GetSettingInt(TEXT("Gear4Device2"), 0);
-
-void NascarInputsEnabled(Helpers* helpers)
+void DemulNascarInputs::Update()
 {
 	if (!Inputsinit)
 	{
@@ -74,14 +40,14 @@ void NascarInputsEnabled(Helpers* helpers)
 	char DpadDownCharDevice2[256];
 	char DpadLeftCharDevice2[256];
 	char DpadRightCharDevice2[256];
-	GetPrivateProfileStringA("Settings", "DpadUp", "", DpadUpChar, 256, ".\\FFBplugin.ini");
-	GetPrivateProfileStringA("Settings", "DpadDown", "", DpadDownChar, 256, ".\\FFBplugin.ini");
-	GetPrivateProfileStringA("Settings", "DpadLeft", "", DpadLeftChar, 256, ".\\FFBplugin.ini");
-	GetPrivateProfileStringA("Settings", "DpadRight", "", DpadRightChar, 256, ".\\FFBplugin.ini");
-	GetPrivateProfileStringA("Settings", "DpadUpDevice2", "", DpadUpCharDevice2, 256, ".\\FFBplugin.ini");
-	GetPrivateProfileStringA("Settings", "DpadDownDevice2", "", DpadDownCharDevice2, 256, ".\\FFBplugin.ini");
-	GetPrivateProfileStringA("Settings", "DpadLeftDevice2", "", DpadLeftCharDevice2, 256, ".\\FFBplugin.ini");
-	GetPrivateProfileStringA("Settings", "DpadRightDevice2", "", DpadRightCharDevice2, 256, ".\\FFBplugin.ini");
+	strcpy_s(DpadUpChar, ffb::Settings::String("DpadUp").c_str());
+	strcpy_s(DpadDownChar, ffb::Settings::String("DpadDown").c_str());
+	strcpy_s(DpadLeftChar, ffb::Settings::String("DpadLeft").c_str());
+	strcpy_s(DpadRightChar, ffb::Settings::String("DpadRight").c_str());
+	strcpy_s(DpadUpCharDevice2, ffb::Settings::String("DpadUpDevice2").c_str());
+	strcpy_s(DpadDownCharDevice2, ffb::Settings::String("DpadDownDevice2").c_str());
+	strcpy_s(DpadLeftCharDevice2, ffb::Settings::String("DpadLeftDevice2").c_str());
+	strcpy_s(DpadRightCharDevice2, ffb::Settings::String("DpadRightDevice2").c_str());
 	std::string exit("ExitButton");
 	std::string test("TestButton");
 	std::string service("ServiceButton");
@@ -112,14 +78,14 @@ void NascarInputsEnabled(Helpers* helpers)
 	const int BRAKE_DEAD_ZONE = (1 + PedalDeadzone * 100);
 	const int SETUP_DEAD_ZONE = 20000;
 
-	UINT8 startviewread = helpers->ReadByte(StartViewAddress, false);
-	UINT8 shiftupdownread = helpers->ReadByte(ShiftUpDownAddress, false);
-	UINT8 coinread = helpers->ReadByte(CoinAddress, false);
-	UINT8 servicetestread = helpers->ReadByte(ServiceTestAddress, false);
+	UINT8 startviewread = ffb::Memory::Read<UINT8>(StartViewAddress);
+	UINT8 shiftupdownread = ffb::Memory::Read<UINT8>(ShiftUpDownAddress);
+	UINT8 coinread = ffb::Memory::Read<UINT8>(CoinAddress);
+	UINT8 servicetestread = ffb::Memory::Read<UINT8>(ServiceTestAddress);
 
 	while (SDL_WaitEvent(&e) != 0)
 	{
-		UINT8 shiftupdownreadA = helpers->ReadByte(ShiftUpDownAddress, false);
+		UINT8 shiftupdownreadA = ffb::Memory::Read<UINT8>(ShiftUpDownAddress);
 		if ((e.type == SDL_JOYAXISMOTION) && (ShowAxisForSetup == 0))
 		{
 			if (e.jaxis.which == joystick_index1)
@@ -130,17 +96,17 @@ void NascarInputsEnabled(Helpers* helpers)
 					if (e.jaxis.value < -WHEEL_DEAD_ZONE)
 					{
 						e.jaxis.value = e.jaxis.value - WHEEL_DEAD_ZONE;
-						helpers->WriteByte(SteeringAddress, (128 + (e.jaxis.value + WHEEL_DEAD_ZONE) / 255), false);
+						ffb::Memory::Write<UINT8>(SteeringAddress, (128 + (e.jaxis.value + WHEEL_DEAD_ZONE) / 255));
 					}
 					//Right of dead zone
 					else if (e.jaxis.value > WHEEL_DEAD_ZONE)
 					{
 						e.jaxis.value = e.jaxis.value + WHEEL_DEAD_ZONE;
-						helpers->WriteByte(SteeringAddress, (127 + (e.jaxis.value - WHEEL_DEAD_ZONE) / 255), false);
+						ffb::Memory::Write<UINT8>(SteeringAddress, (127 + (e.jaxis.value - WHEEL_DEAD_ZONE) / 255));
 					}
 					else if ((e.jaxis.value < WHEEL_DEAD_ZONE) && (e.jaxis.value > -WHEEL_DEAD_ZONE))
 					{
-						helpers->WriteByte(SteeringAddress, 0x7F, false);
+						ffb::Memory::Write<UINT8>(SteeringAddress, 0x7F);
 					}
 				}
 				if (InputDeviceWheelReverseAxis == 1)
@@ -152,17 +118,17 @@ void NascarInputsEnabled(Helpers* helpers)
 							if (e.jaxis.value < -ACCL_DEAD_ZONE)
 							{
 								e.jaxis.value = e.jaxis.value + ACCL_DEAD_ZONE;
-								helpers->WriteByte(AcclAddress, (UINT8)((-e.jaxis.value + ACCL_DEAD_ZONE) / 128.5), false);
+								ffb::Memory::Write<UINT8>(AcclAddress, (UINT8)((-e.jaxis.value + ACCL_DEAD_ZONE) / 128.5));
 							}
 							else if (e.jaxis.value > ACCL_DEAD_ZONE)
 							{
 								e.jaxis.value = e.jaxis.value - ACCL_DEAD_ZONE;
-								helpers->WriteByte(BrakeAddress, (UINT8)((e.jaxis.value + ACCL_DEAD_ZONE) / 128), false);
+								ffb::Memory::Write<UINT8>(BrakeAddress, (UINT8)((e.jaxis.value + ACCL_DEAD_ZONE) / 128));
 							}
 							else if ((e.jaxis.value < ACCL_DEAD_ZONE) && (e.jaxis.value > -ACCL_DEAD_ZONE))
 							{
-								helpers->WriteByte(AcclAddress, 0x00, false);
-								helpers->WriteByte(BrakeAddress, 0x00, false);
+								ffb::Memory::Write<UINT8>(AcclAddress, 0x00);
+								ffb::Memory::Write<UINT8>(BrakeAddress, 0x00);
 							}
 						}
 					}
@@ -173,12 +139,12 @@ void NascarInputsEnabled(Helpers* helpers)
 							if (e.jaxis.value < -ACCL_DEAD_ZONE)
 							{
 								e.jaxis.value = (e.jaxis.value / 255);
-								helpers->WriteByte(AcclAddress, 127 - e.jaxis.value, false);
+								ffb::Memory::Write<UINT8>(AcclAddress, 127 - e.jaxis.value);
 							}
 							else if (e.jaxis.value > ACCL_DEAD_ZONE)
 							{
 								e.jaxis.value = (e.jaxis.value / 255);
-								helpers->WriteByte(AcclAddress, 128 - e.jaxis.value, false);
+								ffb::Memory::Write<UINT8>(AcclAddress, 128 - e.jaxis.value);
 							}
 						}
 						else if (e.jaxis.axis == InputDeviceWheelBrakeAxis)
@@ -186,12 +152,12 @@ void NascarInputsEnabled(Helpers* helpers)
 							if (e.jaxis.value < -BRAKE_DEAD_ZONE)
 							{
 								e.jaxis.value = (e.jaxis.value / 255);
-								helpers->WriteByte(BrakeAddress, 127 - e.jaxis.value, false);
+								ffb::Memory::Write<UINT8>(BrakeAddress, 127 - e.jaxis.value);
 							}
 							else if (e.jaxis.value > BRAKE_DEAD_ZONE)
 							{
 								e.jaxis.value = (e.jaxis.value / 255);
-								helpers->WriteByte(BrakeAddress, 128 - e.jaxis.value, false);
+								ffb::Memory::Write<UINT8>(BrakeAddress, 128 - e.jaxis.value);
 							}
 						}
 					}
@@ -205,17 +171,17 @@ void NascarInputsEnabled(Helpers* helpers)
 							if (e.jaxis.value < -ACCL_DEAD_ZONE)
 							{
 								e.jaxis.value = e.jaxis.value - ACCL_DEAD_ZONE;
-								helpers->WriteByte(AcclAddress, ((e.jaxis.value + ACCL_DEAD_ZONE) / 128), false);
+								ffb::Memory::Write<UINT8>(AcclAddress, ((e.jaxis.value + ACCL_DEAD_ZONE) / 128));
 							}
 							else if (e.jaxis.value > ACCL_DEAD_ZONE)
 							{
 								e.jaxis.value = e.jaxis.value + ACCL_DEAD_ZONE;
-								helpers->WriteByte(BrakeAddress, ((-e.jaxis.value + ACCL_DEAD_ZONE) / 128), false);
+								ffb::Memory::Write<UINT8>(BrakeAddress, ((-e.jaxis.value + ACCL_DEAD_ZONE) / 128));
 							}
 							else if ((e.jaxis.value < ACCL_DEAD_ZONE) && (e.jaxis.value > -ACCL_DEAD_ZONE))
 							{
-								helpers->WriteByte(AcclAddress, 0xFF, false);
-								helpers->WriteByte(BrakeAddress, 0xFF, false);
+								ffb::Memory::Write<UINT8>(AcclAddress, 0xFF);
+								ffb::Memory::Write<UINT8>(BrakeAddress, 0xFF);
 							}
 						}
 					}
@@ -226,12 +192,12 @@ void NascarInputsEnabled(Helpers* helpers)
 							if (e.jaxis.value < -ACCL_DEAD_ZONE)
 							{
 								e.jaxis.value = (e.jaxis.value / 255);
-								helpers->WriteByte(AcclAddress, 128 + e.jaxis.value, false);
+								ffb::Memory::Write<UINT8>(AcclAddress, 128 + e.jaxis.value);
 							}
 							else if (e.jaxis.value > ACCL_DEAD_ZONE)
 							{
 								e.jaxis.value = (e.jaxis.value / 255);
-								helpers->WriteByte(AcclAddress, 127 + e.jaxis.value, false);
+								ffb::Memory::Write<UINT8>(AcclAddress, 127 + e.jaxis.value);
 							}
 						}
 						if (e.jaxis.axis == InputDeviceWheelBrakeAxis)
@@ -239,12 +205,12 @@ void NascarInputsEnabled(Helpers* helpers)
 							if (e.jaxis.value < -BRAKE_DEAD_ZONE)
 							{
 								e.jaxis.value = (e.jaxis.value / 255);
-								helpers->WriteByte(BrakeAddress, 128 + e.jaxis.value, false);
+								ffb::Memory::Write<UINT8>(BrakeAddress, 128 + e.jaxis.value);
 							}
 							else if (e.jaxis.value > BRAKE_DEAD_ZONE)
 							{
 								e.jaxis.value = (e.jaxis.value / 255);
-								helpers->WriteByte(BrakeAddress, 127 + e.jaxis.value, false);
+								ffb::Memory::Write<UINT8>(BrakeAddress, 127 + e.jaxis.value);
 							}
 						}
 					}
@@ -302,22 +268,22 @@ void NascarInputsEnabled(Helpers* helpers)
 				{
 					if (testbuttonA)
 					{
-						helpers->WriteByte(ServiceTestAddress, servicetestread += 0x08, false);
+						ffb::Memory::Write<UINT8>(ServiceTestAddress, servicetestread += 0x08);
 						testbuttonA = false;
 					}
 					if (servicebuttonA)
 					{
-						helpers->WriteByte(ServiceTestAddress, servicetestread += 0x04, false);
+						ffb::Memory::Write<UINT8>(ServiceTestAddress, servicetestread += 0x04);
 						servicebuttonA = false;
 					}
 					if (viewbuttonA)
 					{
-						helpers->WriteByte(StartViewAddress, startviewread -= 0x10, false);
+						ffb::Memory::Write<UINT8>(StartViewAddress, startviewread -= 0x10);
 						viewbuttonA = false;
 					}
 					if (startbuttonA)
 					{
-						helpers->WriteByte(StartViewAddress, startviewread -= 0x80, false);
+						ffb::Memory::Write<UINT8>(StartViewAddress, startviewread -= 0x80);
 						startbuttonA = false;
 					}
 					if (shiftupA)
@@ -333,22 +299,22 @@ void NascarInputsEnabled(Helpers* helpers)
 				{
 					if (testbuttonA)
 					{
-						helpers->WriteByte(ServiceTestAddress, servicetestread += 0x08, false);
+						ffb::Memory::Write<UINT8>(ServiceTestAddress, servicetestread += 0x08);
 						testbuttonA = false;
 					}
 					if (servicebuttonA)
 					{
-						helpers->WriteByte(ServiceTestAddress, servicetestread += 0x04, false);
+						ffb::Memory::Write<UINT8>(ServiceTestAddress, servicetestread += 0x04);
 						servicebuttonA = false;
 					}
 					if (viewbuttonA)
 					{
-						helpers->WriteByte(StartViewAddress, startviewread -= 0x10, false);
+						ffb::Memory::Write<UINT8>(StartViewAddress, startviewread -= 0x10);
 						viewbuttonA = false;
 					}
 					if (startbuttonA)
 					{
-						helpers->WriteByte(StartViewAddress, startviewread -= 0x80, false);
+						ffb::Memory::Write<UINT8>(StartViewAddress, startviewread -= 0x80);
 						startbuttonA = false;
 					}
 					if (shiftupA)
@@ -371,41 +337,41 @@ void NascarInputsEnabled(Helpers* helpers)
 					}
 					if (dpdup.compare(test) == 0)
 					{
-						helpers->WriteByte(ServiceTestAddress, servicetestread -= 0x08, false);
+						ffb::Memory::Write<UINT8>(ServiceTestAddress, servicetestread -= 0x08);
 						testbuttonA = true;
 					}
 					if (dpdup.compare(service) == 0)
 					{
-						helpers->WriteByte(ServiceTestAddress, servicetestread -= 0x04, false);
+						ffb::Memory::Write<UINT8>(ServiceTestAddress, servicetestread -= 0x04);
 						servicebuttonA = true;
 					}
 					if (dpdup.compare(coin) == 0)
 					{
-						helpers->WriteByte(CoinAddress, coinread += 0x01, false);
+						ffb::Memory::Write<UINT8>(CoinAddress, coinread += 0x01);
 					}
 					if (dpdup.compare(view) == 0)
 					{
-						helpers->WriteByte(StartViewAddress, startviewread += 0x10, false);
+						ffb::Memory::Write<UINT8>(StartViewAddress, startviewread += 0x10);
 						viewbuttonA = true;
 					}
 					if (dpdup.compare(start) == 0)
 					{
-						helpers->WriteByte(StartViewAddress, startviewread += 0x80, false);
+						ffb::Memory::Write<UINT8>(StartViewAddress, startviewread += 0x80);
 						startbuttonA = true;
 					}
 					if (dpdup.compare(sftup) == 0)
 					{
 						if (shiftupdownreadA == 0x28)
 						{
-							helpers->WriteByte(ShiftUpDownAddress, 0x18, false);
+							ffb::Memory::Write<UINT8>(ShiftUpDownAddress, 0x18);
 						}
 						if (shiftupdownreadA == 0x18)
 						{
-							helpers->WriteByte(ShiftUpDownAddress, 0x20, false);
+							ffb::Memory::Write<UINT8>(ShiftUpDownAddress, 0x20);
 						}
 						if (shiftupdownreadA == 0x20)
 						{
-							helpers->WriteByte(ShiftUpDownAddress, 0x10, false);
+							ffb::Memory::Write<UINT8>(ShiftUpDownAddress, 0x10);
 						}
 						shiftupA = true;
 					}
@@ -413,15 +379,15 @@ void NascarInputsEnabled(Helpers* helpers)
 					{
 						if (shiftupdownreadA == 0x18)
 						{
-							helpers->WriteByte(ShiftUpDownAddress, 0x28, false);
+							ffb::Memory::Write<UINT8>(ShiftUpDownAddress, 0x28);
 						}
 						if (shiftupdownreadA == 0x20)
 						{
-							helpers->WriteByte(ShiftUpDownAddress, 0x18, false);
+							ffb::Memory::Write<UINT8>(ShiftUpDownAddress, 0x18);
 						}
 						if (shiftupdownreadA == 0x10)
 						{
-							helpers->WriteByte(ShiftUpDownAddress, 0x20, false);
+							ffb::Memory::Write<UINT8>(ShiftUpDownAddress, 0x20);
 						}
 						shiftdownA = true;
 					}
@@ -434,41 +400,41 @@ void NascarInputsEnabled(Helpers* helpers)
 					}
 					if (dpdup2.compare(test2) == 0)
 					{
-						helpers->WriteByte(ServiceTestAddress, servicetestread -= 0x08, false);
+						ffb::Memory::Write<UINT8>(ServiceTestAddress, servicetestread -= 0x08);
 						testbuttonA = true;
 					}
 					if (dpdup2.compare(service2) == 0)
 					{
-						helpers->WriteByte(ServiceTestAddress, servicetestread -= 0x04, false);
+						ffb::Memory::Write<UINT8>(ServiceTestAddress, servicetestread -= 0x04);
 						servicebuttonA = true;
 					}
 					if (dpdup2.compare(coin2) == 0)
 					{
-						helpers->WriteByte(CoinAddress, coinread += 0x01, false);
+						ffb::Memory::Write<UINT8>(CoinAddress, coinread += 0x01);
 					}
 					if (dpdup2.compare(view2) == 0)
 					{
-						helpers->WriteByte(StartViewAddress, startviewread += 0x10, false);
+						ffb::Memory::Write<UINT8>(StartViewAddress, startviewread += 0x10);
 						viewbuttonA = true;
 					}
 					if (dpdup2.compare(start2) == 0)
 					{
-						helpers->WriteByte(StartViewAddress, startviewread += 0x80, false);
+						ffb::Memory::Write<UINT8>(StartViewAddress, startviewread += 0x80);
 						startbuttonA = true;
 					}
 					if (dpdup2.compare(sftup2) == 0)
 					{
 						if (shiftupdownreadA == 0x28)
 						{
-							helpers->WriteByte(ShiftUpDownAddress, 0x18, false);
+							ffb::Memory::Write<UINT8>(ShiftUpDownAddress, 0x18);
 						}
 						if (shiftupdownreadA == 0x18)
 						{
-							helpers->WriteByte(ShiftUpDownAddress, 0x20, false);
+							ffb::Memory::Write<UINT8>(ShiftUpDownAddress, 0x20);
 						}
 						if (shiftupdownreadA == 0x20)
 						{
-							helpers->WriteByte(ShiftUpDownAddress, 0x10, false);
+							ffb::Memory::Write<UINT8>(ShiftUpDownAddress, 0x10);
 						}
 						shiftupA = true;
 					}
@@ -476,15 +442,15 @@ void NascarInputsEnabled(Helpers* helpers)
 					{
 						if (shiftupdownreadA == 0x18)
 						{
-							helpers->WriteByte(ShiftUpDownAddress, 0x28, false);
+							ffb::Memory::Write<UINT8>(ShiftUpDownAddress, 0x28);
 						}
 						if (shiftupdownreadA == 0x20)
 						{
-							helpers->WriteByte(ShiftUpDownAddress, 0x18, false);
+							ffb::Memory::Write<UINT8>(ShiftUpDownAddress, 0x18);
 						}
 						if (shiftupdownreadA == 0x10)
 						{
-							helpers->WriteByte(ShiftUpDownAddress, 0x20, false);
+							ffb::Memory::Write<UINT8>(ShiftUpDownAddress, 0x20);
 						}
 						shiftdownA = true;
 					}
@@ -500,41 +466,41 @@ void NascarInputsEnabled(Helpers* helpers)
 					}
 					if (dpddown.compare(test) == 0)
 					{
-						helpers->WriteByte(ServiceTestAddress, servicetestread -= 0x08, false);
+						ffb::Memory::Write<UINT8>(ServiceTestAddress, servicetestread -= 0x08);
 						testbuttonA = true;
 					}
 					if (dpddown.compare(service) == 0)
 					{
-						helpers->WriteByte(ServiceTestAddress, servicetestread -= 0x04, false);
+						ffb::Memory::Write<UINT8>(ServiceTestAddress, servicetestread -= 0x04);
 						servicebuttonA = true;
 					}
 					if (dpddown.compare(coin) == 0)
 					{
-						helpers->WriteByte(CoinAddress, coinread += 0x01, false);
+						ffb::Memory::Write<UINT8>(CoinAddress, coinread += 0x01);
 					}
 					if (dpddown.compare(view) == 0)
 					{
-						helpers->WriteByte(StartViewAddress, startviewread += 0x10, false);
+						ffb::Memory::Write<UINT8>(StartViewAddress, startviewread += 0x10);
 						viewbuttonA = true;
 					}
 					if (dpddown.compare(start) == 0)
 					{
-						helpers->WriteByte(StartViewAddress, startviewread += 0x80, false);
+						ffb::Memory::Write<UINT8>(StartViewAddress, startviewread += 0x80);
 						startbuttonA = true;
 					}
 					if (dpddown.compare(sftup) == 0)
 					{
 						if (shiftupdownreadA == 0x28)
 						{
-							helpers->WriteByte(ShiftUpDownAddress, 0x18, false);
+							ffb::Memory::Write<UINT8>(ShiftUpDownAddress, 0x18);
 						}
 						if (shiftupdownreadA == 0x18)
 						{
-							helpers->WriteByte(ShiftUpDownAddress, 0x20, false);
+							ffb::Memory::Write<UINT8>(ShiftUpDownAddress, 0x20);
 						}
 						if (shiftupdownreadA == 0x20)
 						{
-							helpers->WriteByte(ShiftUpDownAddress, 0x10, false);
+							ffb::Memory::Write<UINT8>(ShiftUpDownAddress, 0x10);
 						}
 						shiftupA = true;
 					}
@@ -542,15 +508,15 @@ void NascarInputsEnabled(Helpers* helpers)
 					{
 						if (shiftupdownreadA == 0x18)
 						{
-							helpers->WriteByte(ShiftUpDownAddress, 0x28, false);
+							ffb::Memory::Write<UINT8>(ShiftUpDownAddress, 0x28);
 						}
 						if (shiftupdownreadA == 0x20)
 						{
-							helpers->WriteByte(ShiftUpDownAddress, 0x18, false);
+							ffb::Memory::Write<UINT8>(ShiftUpDownAddress, 0x18);
 						}
 						if (shiftupdownreadA == 0x10)
 						{
-							helpers->WriteByte(ShiftUpDownAddress, 0x20, false);
+							ffb::Memory::Write<UINT8>(ShiftUpDownAddress, 0x20);
 						}
 						shiftdownA = true;
 					}
@@ -563,41 +529,41 @@ void NascarInputsEnabled(Helpers* helpers)
 					}
 					if (dpddown2.compare(test2) == 0)
 					{
-						helpers->WriteByte(ServiceTestAddress, servicetestread -= 0x08, false);
+						ffb::Memory::Write<UINT8>(ServiceTestAddress, servicetestread -= 0x08);
 						testbuttonA = true;
 					}
 					if (dpddown2.compare(service2) == 0)
 					{
-						helpers->WriteByte(ServiceTestAddress, servicetestread -= 0x04, false);
+						ffb::Memory::Write<UINT8>(ServiceTestAddress, servicetestread -= 0x04);
 						servicebuttonA = true;
 					}
 					if (dpddown2.compare(coin2) == 0)
 					{
-						helpers->WriteByte(CoinAddress, coinread += 0x01, false);
+						ffb::Memory::Write<UINT8>(CoinAddress, coinread += 0x01);
 					}
 					if (dpddown2.compare(view2) == 0)
 					{
-						helpers->WriteByte(StartViewAddress, startviewread += 0x10, false);
+						ffb::Memory::Write<UINT8>(StartViewAddress, startviewread += 0x10);
 						viewbuttonA = true;
 					}
 					if (dpddown2.compare(start2) == 0)
 					{
-						helpers->WriteByte(StartViewAddress, startviewread += 0x80, false);
+						ffb::Memory::Write<UINT8>(StartViewAddress, startviewread += 0x80);
 						startbuttonA = true;
 					}
 					if (dpddown2.compare(sftup2) == 0)
 					{
 						if (shiftupdownreadA == 0x28)
 						{
-							helpers->WriteByte(ShiftUpDownAddress, 0x18, false);
+							ffb::Memory::Write<UINT8>(ShiftUpDownAddress, 0x18);
 						}
 						if (shiftupdownreadA == 0x18)
 						{
-							helpers->WriteByte(ShiftUpDownAddress, 0x20, false);
+							ffb::Memory::Write<UINT8>(ShiftUpDownAddress, 0x20);
 						}
 						if (shiftupdownreadA == 0x20)
 						{
-							helpers->WriteByte(ShiftUpDownAddress, 0x10, false);
+							ffb::Memory::Write<UINT8>(ShiftUpDownAddress, 0x10);
 						}
 						shiftupA = true;
 					}
@@ -605,15 +571,15 @@ void NascarInputsEnabled(Helpers* helpers)
 					{
 						if (shiftupdownreadA == 0x18)
 						{
-							helpers->WriteByte(ShiftUpDownAddress, 0x28, false);
+							ffb::Memory::Write<UINT8>(ShiftUpDownAddress, 0x28);
 						}
 						if (shiftupdownreadA == 0x20)
 						{
-							helpers->WriteByte(ShiftUpDownAddress, 0x18, false);
+							ffb::Memory::Write<UINT8>(ShiftUpDownAddress, 0x18);
 						}
 						if (shiftupdownreadA == 0x10)
 						{
-							helpers->WriteByte(ShiftUpDownAddress, 0x20, false);
+							ffb::Memory::Write<UINT8>(ShiftUpDownAddress, 0x20);
 						}
 						shiftdownA = true;
 					}
@@ -629,41 +595,41 @@ void NascarInputsEnabled(Helpers* helpers)
 					}
 					if (dpdleft.compare(test) == 0)
 					{
-						helpers->WriteByte(ServiceTestAddress, servicetestread -= 0x08, false);
+						ffb::Memory::Write<UINT8>(ServiceTestAddress, servicetestread -= 0x08);
 						testbuttonA = true;
 					}
 					if (dpdleft.compare(service) == 0)
 					{
-						helpers->WriteByte(ServiceTestAddress, servicetestread -= 0x04, false);
+						ffb::Memory::Write<UINT8>(ServiceTestAddress, servicetestread -= 0x04);
 						servicebuttonA = true;
 					}
 					if (dpdleft.compare(coin) == 0)
 					{
-						helpers->WriteByte(CoinAddress, coinread += 0x01, false);
+						ffb::Memory::Write<UINT8>(CoinAddress, coinread += 0x01);
 					}
 					if (dpdleft.compare(view) == 0)
 					{
-						helpers->WriteByte(StartViewAddress, startviewread += 0x10, false);
+						ffb::Memory::Write<UINT8>(StartViewAddress, startviewread += 0x10);
 						viewbuttonA = true;
 					}
 					if (dpdleft.compare(start) == 0)
 					{
-						helpers->WriteByte(StartViewAddress, startviewread += 0x80, false);
+						ffb::Memory::Write<UINT8>(StartViewAddress, startviewread += 0x80);
 						startbuttonA = true;
 					}
 					if (dpdleft.compare(sftup) == 0)
 					{
 						if (shiftupdownreadA == 0x28)
 						{
-							helpers->WriteByte(ShiftUpDownAddress, 0x18, false);
+							ffb::Memory::Write<UINT8>(ShiftUpDownAddress, 0x18);
 						}
 						if (shiftupdownreadA == 0x18)
 						{
-							helpers->WriteByte(ShiftUpDownAddress, 0x20, false);
+							ffb::Memory::Write<UINT8>(ShiftUpDownAddress, 0x20);
 						}
 						if (shiftupdownreadA == 0x20)
 						{
-							helpers->WriteByte(ShiftUpDownAddress, 0x10, false);
+							ffb::Memory::Write<UINT8>(ShiftUpDownAddress, 0x10);
 						}
 						shiftupA = true;
 					}
@@ -671,15 +637,15 @@ void NascarInputsEnabled(Helpers* helpers)
 					{
 						if (shiftupdownreadA == 0x18)
 						{
-							helpers->WriteByte(ShiftUpDownAddress, 0x28, false);
+							ffb::Memory::Write<UINT8>(ShiftUpDownAddress, 0x28);
 						}
 						if (shiftupdownreadA == 0x20)
 						{
-							helpers->WriteByte(ShiftUpDownAddress, 0x18, false);
+							ffb::Memory::Write<UINT8>(ShiftUpDownAddress, 0x18);
 						}
 						if (shiftupdownreadA == 0x10)
 						{
-							helpers->WriteByte(ShiftUpDownAddress, 0x20, false);
+							ffb::Memory::Write<UINT8>(ShiftUpDownAddress, 0x20);
 						}
 						shiftdownA = true;
 					}
@@ -692,41 +658,41 @@ void NascarInputsEnabled(Helpers* helpers)
 					}
 					if (dpdleft2.compare(test2) == 0)
 					{
-						helpers->WriteByte(ServiceTestAddress, servicetestread -= 0x08, false);
+						ffb::Memory::Write<UINT8>(ServiceTestAddress, servicetestread -= 0x08);
 						testbuttonA = true;
 					}
 					if (dpdleft2.compare(service2) == 0)
 					{
-						helpers->WriteByte(ServiceTestAddress, servicetestread -= 0x04, false);
+						ffb::Memory::Write<UINT8>(ServiceTestAddress, servicetestread -= 0x04);
 						servicebuttonA = true;
 					}
 					if (dpdleft2.compare(coin2) == 0)
 					{
-						helpers->WriteByte(CoinAddress, coinread += 0x01, false);
+						ffb::Memory::Write<UINT8>(CoinAddress, coinread += 0x01);
 					}
 					if (dpdleft2.compare(view2) == 0)
 					{
-						helpers->WriteByte(StartViewAddress, startviewread += 0x10, false);
+						ffb::Memory::Write<UINT8>(StartViewAddress, startviewread += 0x10);
 						viewbuttonA = true;
 					}
 					if (dpdleft2.compare(start2) == 0)
 					{
-						helpers->WriteByte(StartViewAddress, startviewread += 0x80, false);
+						ffb::Memory::Write<UINT8>(StartViewAddress, startviewread += 0x80);
 						startbuttonA = true;
 					}
 					if (dpdleft2.compare(sftup2) == 0)
 					{
 						if (shiftupdownreadA == 0x28)
 						{
-							helpers->WriteByte(ShiftUpDownAddress, 0x18, false);
+							ffb::Memory::Write<UINT8>(ShiftUpDownAddress, 0x18);
 						}
 						if (shiftupdownreadA == 0x18)
 						{
-							helpers->WriteByte(ShiftUpDownAddress, 0x20, false);
+							ffb::Memory::Write<UINT8>(ShiftUpDownAddress, 0x20);
 						}
 						if (shiftupdownreadA == 0x20)
 						{
-							helpers->WriteByte(ShiftUpDownAddress, 0x10, false);
+							ffb::Memory::Write<UINT8>(ShiftUpDownAddress, 0x10);
 						}
 						shiftupA = true;
 					}
@@ -734,15 +700,15 @@ void NascarInputsEnabled(Helpers* helpers)
 					{
 						if (shiftupdownreadA == 0x18)
 						{
-							helpers->WriteByte(ShiftUpDownAddress, 0x28, false);
+							ffb::Memory::Write<UINT8>(ShiftUpDownAddress, 0x28);
 						}
 						if (shiftupdownreadA == 0x20)
 						{
-							helpers->WriteByte(ShiftUpDownAddress, 0x18, false);
+							ffb::Memory::Write<UINT8>(ShiftUpDownAddress, 0x18);
 						}
 						if (shiftupdownreadA == 0x10)
 						{
-							helpers->WriteByte(ShiftUpDownAddress, 0x20, false);
+							ffb::Memory::Write<UINT8>(ShiftUpDownAddress, 0x20);
 						}
 						shiftdownA = true;
 					}
@@ -758,41 +724,41 @@ void NascarInputsEnabled(Helpers* helpers)
 					}
 					if (dpdright.compare(test) == 0)
 					{
-						helpers->WriteByte(ServiceTestAddress, servicetestread -= 0x08, false);
+						ffb::Memory::Write<UINT8>(ServiceTestAddress, servicetestread -= 0x08);
 						testbuttonA = true;
 					}
 					if (dpdright.compare(service) == 0)
 					{
-						helpers->WriteByte(ServiceTestAddress, servicetestread -= 0x04, false);
+						ffb::Memory::Write<UINT8>(ServiceTestAddress, servicetestread -= 0x04);
 						servicebuttonA = true;
 					}
 					if (dpdright.compare(coin) == 0)
 					{
-						helpers->WriteByte(CoinAddress, coinread += 0x01, false);
+						ffb::Memory::Write<UINT8>(CoinAddress, coinread += 0x01);
 					}
 					if (dpdright.compare(view) == 0)
 					{
-						helpers->WriteByte(StartViewAddress, startviewread += 0x10, false);
+						ffb::Memory::Write<UINT8>(StartViewAddress, startviewread += 0x10);
 						viewbuttonA = true;
 					}
 					if (dpdright.compare(start) == 0)
 					{
-						helpers->WriteByte(StartViewAddress, startviewread += 0x80, false);
+						ffb::Memory::Write<UINT8>(StartViewAddress, startviewread += 0x80);
 						startbuttonA = true;
 					}
 					if (dpdright.compare(sftup) == 0)
 					{
 						if (shiftupdownreadA == 0x28)
 						{
-							helpers->WriteByte(ShiftUpDownAddress, 0x18, false);
+							ffb::Memory::Write<UINT8>(ShiftUpDownAddress, 0x18);
 						}
 						if (shiftupdownreadA == 0x18)
 						{
-							helpers->WriteByte(ShiftUpDownAddress, 0x20, false);
+							ffb::Memory::Write<UINT8>(ShiftUpDownAddress, 0x20);
 						}
 						if (shiftupdownreadA == 0x20)
 						{
-							helpers->WriteByte(ShiftUpDownAddress, 0x10, false);
+							ffb::Memory::Write<UINT8>(ShiftUpDownAddress, 0x10);
 						}
 						shiftupA = true;
 					}
@@ -800,15 +766,15 @@ void NascarInputsEnabled(Helpers* helpers)
 					{
 						if (shiftupdownreadA == 0x18)
 						{
-							helpers->WriteByte(ShiftUpDownAddress, 0x28, false);
+							ffb::Memory::Write<UINT8>(ShiftUpDownAddress, 0x28);
 						}
 						if (shiftupdownreadA == 0x20)
 						{
-							helpers->WriteByte(ShiftUpDownAddress, 0x18, false);
+							ffb::Memory::Write<UINT8>(ShiftUpDownAddress, 0x18);
 						}
 						if (shiftupdownreadA == 0x10)
 						{
-							helpers->WriteByte(ShiftUpDownAddress, 0x20, false);
+							ffb::Memory::Write<UINT8>(ShiftUpDownAddress, 0x20);
 						}
 						shiftdownA = true;
 					}
@@ -821,41 +787,41 @@ void NascarInputsEnabled(Helpers* helpers)
 					}
 					if (dpdright2.compare(test2) == 0)
 					{
-						helpers->WriteByte(ServiceTestAddress, servicetestread -= 0x08, false);
+						ffb::Memory::Write<UINT8>(ServiceTestAddress, servicetestread -= 0x08);
 						testbuttonA = true;
 					}
 					if (dpdright2.compare(service2) == 0)
 					{
-						helpers->WriteByte(ServiceTestAddress, servicetestread -= 0x04, false);
+						ffb::Memory::Write<UINT8>(ServiceTestAddress, servicetestread -= 0x04);
 						servicebuttonA = true;
 					}
 					if (dpdright2.compare(coin2) == 0)
 					{
-						helpers->WriteByte(CoinAddress, coinread += 0x01, false);
+						ffb::Memory::Write<UINT8>(CoinAddress, coinread += 0x01);
 					}
 					if (dpdright2.compare(view2) == 0)
 					{
-						helpers->WriteByte(StartViewAddress, startviewread += 0x10, false);
+						ffb::Memory::Write<UINT8>(StartViewAddress, startviewread += 0x10);
 						viewbuttonA = true;
 					}
 					if (dpdright2.compare(start2) == 0)
 					{
-						helpers->WriteByte(StartViewAddress, startviewread += 0x80, false);
+						ffb::Memory::Write<UINT8>(StartViewAddress, startviewread += 0x80);
 						startbuttonA = true;
 					}
 					if (dpdright2.compare(sftup2) == 0)
 					{
 						if (shiftupdownreadA == 0x28)
 						{
-							helpers->WriteByte(ShiftUpDownAddress, 0x18, false);
+							ffb::Memory::Write<UINT8>(ShiftUpDownAddress, 0x18);
 						}
 						if (shiftupdownreadA == 0x18)
 						{
-							helpers->WriteByte(ShiftUpDownAddress, 0x20, false);
+							ffb::Memory::Write<UINT8>(ShiftUpDownAddress, 0x20);
 						}
 						if (shiftupdownreadA == 0x20)
 						{
-							helpers->WriteByte(ShiftUpDownAddress, 0x10, false);
+							ffb::Memory::Write<UINT8>(ShiftUpDownAddress, 0x10);
 						}
 						shiftupA = true;
 					}
@@ -863,15 +829,15 @@ void NascarInputsEnabled(Helpers* helpers)
 					{
 						if (shiftupdownreadA == 0x18)
 						{
-							helpers->WriteByte(ShiftUpDownAddress, 0x28, false);
+							ffb::Memory::Write<UINT8>(ShiftUpDownAddress, 0x28);
 						}
 						if (shiftupdownreadA == 0x20)
 						{
-							helpers->WriteByte(ShiftUpDownAddress, 0x18, false);
+							ffb::Memory::Write<UINT8>(ShiftUpDownAddress, 0x18);
 						}
 						if (shiftupdownreadA == 0x10)
 						{
-							helpers->WriteByte(ShiftUpDownAddress, 0x20, false);
+							ffb::Memory::Write<UINT8>(ShiftUpDownAddress, 0x20);
 						}
 						shiftdownA = true;
 					}
@@ -885,7 +851,7 @@ void NascarInputsEnabled(Helpers* helpers)
 			{
 				if (e.jbutton.button == TestButton)
 				{
-					helpers->WriteByte(ServiceTestAddress, servicetestread -= 0x08, false);
+					ffb::Memory::Write<UINT8>(ServiceTestAddress, servicetestread -= 0x08);
 				}
 				if (e.jbutton.button == ExitButton)
 				{
@@ -893,64 +859,64 @@ void NascarInputsEnabled(Helpers* helpers)
 				}
 				if (e.jbutton.button == ServiceButton)
 				{
-					helpers->WriteByte(ServiceTestAddress, servicetestread -= 0x04, false);
+					ffb::Memory::Write<UINT8>(ServiceTestAddress, servicetestread -= 0x04);
 				}
 				if (e.jbutton.button == CreditButton)
 				{
-					helpers->WriteByte(CoinAddress, ++coinread, false);
+					ffb::Memory::Write<UINT8>(CoinAddress, ++coinread);
 				}
 				if (e.jbutton.button == ViewButton)
 				{
-					helpers->WriteByte(StartViewAddress, startviewread += 0x10, false);
+					ffb::Memory::Write<UINT8>(StartViewAddress, startviewread += 0x10);
 				}
 				if (e.jbutton.button == StartButton)
 				{
-					helpers->WriteByte(StartViewAddress, startviewread += 0x80, false);
+					ffb::Memory::Write<UINT8>(StartViewAddress, startviewread += 0x80);
 				}
 				if (e.jbutton.button == Gear1)
 				{
-					helpers->WriteByte(ShiftUpDownAddress, 0x28, false);
+					ffb::Memory::Write<UINT8>(ShiftUpDownAddress, 0x28);
 				}
 				if (e.jbutton.button == Gear2)
 				{
-					helpers->WriteByte(ShiftUpDownAddress, 0x18, false);
+					ffb::Memory::Write<UINT8>(ShiftUpDownAddress, 0x18);
 				}
 				if (e.jbutton.button == Gear3)
 				{
-					helpers->WriteByte(ShiftUpDownAddress, 0x20, false);
+					ffb::Memory::Write<UINT8>(ShiftUpDownAddress, 0x20);
 				}
 				if (e.jbutton.button == Gear4)
 				{
-					helpers->WriteByte(ShiftUpDownAddress, 0x10, false);
+					ffb::Memory::Write<UINT8>(ShiftUpDownAddress, 0x10);
 				}
 				if (e.jbutton.button == ShiftUp)
 				{
 					if (shiftupdownreadA == 0x28)
 					{
-						helpers->WriteByte(ShiftUpDownAddress, 0x18, false);
+						ffb::Memory::Write<UINT8>(ShiftUpDownAddress, 0x18);
 					}
 					if (shiftupdownreadA == 0x18)
 					{
-						helpers->WriteByte(ShiftUpDownAddress, 0x20, false);
+						ffb::Memory::Write<UINT8>(ShiftUpDownAddress, 0x20);
 					}
 					if (shiftupdownreadA == 0x20)
 					{
-						helpers->WriteByte(ShiftUpDownAddress, 0x10, false);
+						ffb::Memory::Write<UINT8>(ShiftUpDownAddress, 0x10);
 					}
 				}
 				if (e.jbutton.button == ShiftDown)
 				{
 					if (shiftupdownreadA == 0x18)
 					{
-						helpers->WriteByte(ShiftUpDownAddress, 0x28, false);
+						ffb::Memory::Write<UINT8>(ShiftUpDownAddress, 0x28);
 					}
 					if (shiftupdownreadA == 0x20)
 					{
-						helpers->WriteByte(ShiftUpDownAddress, 0x18, false);
+						ffb::Memory::Write<UINT8>(ShiftUpDownAddress, 0x18);
 					}
 					if (shiftupdownreadA == 0x10)
 					{
-						helpers->WriteByte(ShiftUpDownAddress, 0x20, false);
+						ffb::Memory::Write<UINT8>(ShiftUpDownAddress, 0x20);
 					}
 				}
 			}
@@ -958,7 +924,7 @@ void NascarInputsEnabled(Helpers* helpers)
 			{
 				if (e.jbutton.button == TestButtonDevice2)
 				{
-					helpers->WriteByte(ServiceTestAddress, servicetestread -= 0x08, false);
+					ffb::Memory::Write<UINT8>(ServiceTestAddress, servicetestread -= 0x08);
 				}
 				if (e.jbutton.button == ExitButtonDevice2)
 				{
@@ -966,64 +932,64 @@ void NascarInputsEnabled(Helpers* helpers)
 				}
 				if (e.jbutton.button == ServiceButtonDevice2)
 				{
-					helpers->WriteByte(ServiceTestAddress, servicetestread -= 0x04, false);
+					ffb::Memory::Write<UINT8>(ServiceTestAddress, servicetestread -= 0x04);
 				}
 				if (e.jbutton.button == CreditButtonDevice2)
 				{
-					helpers->WriteByte(CoinAddress, ++coinread, false);
+					ffb::Memory::Write<UINT8>(CoinAddress, ++coinread);
 				}
 				if (e.jbutton.button == ViewButtonDevice2)
 				{
-					helpers->WriteByte(StartViewAddress, startviewread += 0x10, false);
+					ffb::Memory::Write<UINT8>(StartViewAddress, startviewread += 0x10);
 				}
 				if (e.jbutton.button == StartButtonDevice2)
 				{
-					helpers->WriteByte(StartViewAddress, startviewread += 0x80, false);
+					ffb::Memory::Write<UINT8>(StartViewAddress, startviewread += 0x80);
 				}
 				if (e.jbutton.button == Gear1Device2)
 				{
-					helpers->WriteByte(ShiftUpDownAddress, 0x28, false);
+					ffb::Memory::Write<UINT8>(ShiftUpDownAddress, 0x28);
 				}
 				if (e.jbutton.button == Gear2Device2)
 				{
-					helpers->WriteByte(ShiftUpDownAddress, 0x18, false);
+					ffb::Memory::Write<UINT8>(ShiftUpDownAddress, 0x18);
 				}
 				if (e.jbutton.button == Gear3Device2)
 				{
-					helpers->WriteByte(ShiftUpDownAddress, 0x20, false);
+					ffb::Memory::Write<UINT8>(ShiftUpDownAddress, 0x20);
 				}
 				if (e.jbutton.button == Gear4Device2)
 				{
-					helpers->WriteByte(ShiftUpDownAddress, 0x10, false);
+					ffb::Memory::Write<UINT8>(ShiftUpDownAddress, 0x10);
 				}
 				if (e.jbutton.button == ShiftUpDevice2)
 				{
 					if (shiftupdownreadA == 0x28)
 					{
-						helpers->WriteByte(ShiftUpDownAddress, 0x18, false);
+						ffb::Memory::Write<UINT8>(ShiftUpDownAddress, 0x18);
 					}
 					if (shiftupdownreadA == 0x18)
 					{
-						helpers->WriteByte(ShiftUpDownAddress, 0x20, false);
+						ffb::Memory::Write<UINT8>(ShiftUpDownAddress, 0x20);
 					}
 					if (shiftupdownreadA == 0x20)
 					{
-						helpers->WriteByte(ShiftUpDownAddress, 0x10, false);
+						ffb::Memory::Write<UINT8>(ShiftUpDownAddress, 0x10);
 					}
 				}
 				if (e.jbutton.button == ShiftDownDevice2)
 				{
 					if (shiftupdownreadA == 0x18)
 					{
-						helpers->WriteByte(ShiftUpDownAddress, 0x28, false);
+						ffb::Memory::Write<UINT8>(ShiftUpDownAddress, 0x28);
 					}
 					if (shiftupdownreadA == 0x20)
 					{
-						helpers->WriteByte(ShiftUpDownAddress, 0x18, false);
+						ffb::Memory::Write<UINT8>(ShiftUpDownAddress, 0x18);
 					}
 					if (shiftupdownreadA == 0x10)
 					{
-						helpers->WriteByte(ShiftUpDownAddress, 0x20, false);
+						ffb::Memory::Write<UINT8>(ShiftUpDownAddress, 0x20);
 					}
 				}
 			}
@@ -1034,38 +1000,38 @@ void NascarInputsEnabled(Helpers* helpers)
 			{
 				if (e.jbutton.button == TestButton)
 				{
-					helpers->WriteByte(ServiceTestAddress, servicetestread += 0x08, false);
+					ffb::Memory::Write<UINT8>(ServiceTestAddress, servicetestread += 0x08);
 				}
 				if (e.jbutton.button == ServiceButton)
 				{
-					helpers->WriteByte(ServiceTestAddress, servicetestread += 0x04, false);
+					ffb::Memory::Write<UINT8>(ServiceTestAddress, servicetestread += 0x04);
 				}
 				if (e.jbutton.button == ViewButton)
 				{
-					helpers->WriteByte(StartViewAddress, startviewread -= 0x10, false);
+					ffb::Memory::Write<UINT8>(StartViewAddress, startviewread -= 0x10);
 				}
 				if (e.jbutton.button == StartButton)
 				{
-					helpers->WriteByte(StartViewAddress, startviewread -= 0x80, false);
+					ffb::Memory::Write<UINT8>(StartViewAddress, startviewread -= 0x80);
 				}
 			}
 			else if (e.jbutton.which == joystick_index2)
 			{
 				if (e.jbutton.button == TestButtonDevice2)
 				{
-					helpers->WriteByte(ServiceTestAddress, servicetestread += 0x08, false);
+					ffb::Memory::Write<UINT8>(ServiceTestAddress, servicetestread += 0x08);
 				}
 				if (e.jbutton.button == ServiceButtonDevice2)
 				{
-					helpers->WriteByte(ServiceTestAddress, servicetestread += 0x04, false);
+					ffb::Memory::Write<UINT8>(ServiceTestAddress, servicetestread += 0x04);
 				}
 				if (e.jbutton.button == ViewButtonDevice2)
 				{
-					helpers->WriteByte(StartViewAddress, startviewread -= 0x10, false);
+					ffb::Memory::Write<UINT8>(StartViewAddress, startviewread -= 0x10);
 				}
 				if (e.jbutton.button == StartButtonDevice2)
 				{
-					helpers->WriteByte(StartViewAddress, startviewread -= 0x80, false);
+					ffb::Memory::Write<UINT8>(StartViewAddress, startviewread -= 0x80);
 				}
 			}
 		}

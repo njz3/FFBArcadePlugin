@@ -12,9 +12,17 @@ along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
 */
 
 #pragma once
-#include "../Common Files/Game.h"
-class SegaRacingClassic : public Game {
+#include "../Core/Game.h"
 
+// Sega Racing Classic (Sega): the command of the drive board is read in the game's memory
+class SegaRacingClassic : public ffb::Game
+{
 public:
-	void FFBLoop(EffectConstants *constants, Helpers *helpers, EffectTriggers* triggers);
+	void Update() override;
+
+private:
+	// Drive board command, its strength in the low 3 bits (0 the strongest):
+	// 0x98-0x9F roll right (force from the left), 0xA8-0xAF roll left (force from the right),
+	// 0xB8-0xBF uncentering (vibration), 0xC0-0xC7 centering (spring), 0xD8-0xDF clutch (friction)
+	static constexpr ffb::GameValue<UINT8> DriveBoardCommand{ ffb::Base::Absolute, 0x834C19 };
 };

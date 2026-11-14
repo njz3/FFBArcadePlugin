@@ -11,20 +11,17 @@ You should have received a copy of the GNU General Public License
 along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
 */
 
-#include <string>
 #include "InitialD6.h"
-#include "../Common Files/InitialDFFB.h"
 
-static const InitialDFFBSettings ffbSettings = { 127.0, 128, 127.0, 100, 0x7F };
+using namespace ffb;
 
-void InitialD6::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTriggers* triggers)
+void InitialDTeknoParrotGame::Update()
 {
-	DWORD FFB = GetTeknoParrotFFB();
+	DWORD command = TeknoParrotFFB();
+	const BYTE* bytes = reinterpret_cast<const BYTE*>(&command);
 
-	BYTE* ffb = reinterpret_cast<BYTE*>(&FFB);
-
-	ApplyDamper(triggers);
+	ApplyDamper();
 
 	// TeknoParrot gives the bytes in reverse order, the command without its 0x80 flag
-	PlayInitialDFFB(ffb[2] ^ 0x80, ffb[1], ffb[0], ffbSettings, constants, triggers);
+	driveBoard.Play(bytes[2] ^ 0x80, bytes[1], bytes[0]);
 }

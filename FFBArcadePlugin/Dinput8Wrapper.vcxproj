@@ -19,6 +19,17 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="GameFiles\M2EmulatorSegaRallyInputs.h" />
+    <ClInclude Include="GameFiles\M2EmulatorInputs.h" />
+    <ClInclude Include="GameFiles\M2EmulatorIndy500Inputs.h" />
+    <ClInclude Include="GameFiles\M2EmulatorDaytonaInputs.h" />
+    <ClInclude Include="GameFiles\DemulSmashingDriveInputs.h" />
+    <ClInclude Include="GameFiles\DemulNascarInputs.h" />
+    <ClInclude Include="GameFiles\DemulMaximumSpeedInputs.h" />
+    <ClInclude Include="GameFiles\DemulInputs.h" />
+    <ClInclude Include="GameFiles\DemulInitialDInputs.h" />
+    <ClInclude Include="GameFiles\DemulFasterThanSpeedInputs.h" />
+    <ClInclude Include="GameFiles\DemulATVTrackInputs.h" />
     <ClInclude Include="GameFiles\EmulatorGames.h" />
     <ClInclude Include="Hardware\Vibration.h" />
     <ClInclude Include="Hardware\WheelMotors.h" />
@@ -144,7 +155,6 @@
     <ClCompile Include="GameFiles\CrazyTaxi.cpp" />
     <ClCompile Include="GameFiles\CruisnBlast.cpp" />
     <ClCompile Include="GameFiles\D1GP.cpp" />
-    <ClCompile Include="GameFiles\Daytona3NSE.cpp" />
     <ClCompile Include="GameFiles\DeadHeat.cpp" />
     <ClCompile Include="GameFiles\DeadHeatRiders.cpp" />
     <ClCompile Include="GameFiles\DemulATVTrackInputs.cpp" />
@@ -163,12 +173,9 @@
     <ClCompile Include="GameFiles\H2Overdrive.cpp" />
     <ClCompile Include="GameFiles\HOTD4.cpp" />
     <ClCompile Include="GameFiles\Hummer.cpp" />
-    <ClCompile Include="GameFiles\HummerExtreme.cpp" />
     <ClCompile Include="GameFiles\IDTAv231.cpp" />
     <ClCompile Include="GameFiles\InitialD0v131.cpp" />
     <ClCompile Include="GameFiles\DemulInitialDInputs.cpp" />
-    <ClCompile Include="GameFiles\InitialD0v211.cpp" />
-    <ClCompile Include="GameFiles\InitialD0v230.cpp" />
     <ClCompile Include="GameFiles\KODrive.cpp" />
     <ClCompile Include="GameFiles\M2EmulatorDaytonaInputs.cpp" />
     <ClCompile Include="GameFiles\M2EmulatorIndy500Inputs.cpp" />
@@ -192,14 +199,11 @@
     <ClCompile Include="GameFiles\ChaseHQ2.cpp" />
     <ClCompile Include="GameFiles\InitialD4.cpp" />
     <ClCompile Include="GameFiles\InitialD6.cpp" />
-    <ClCompile Include="GameFiles\InitialD7.cpp" />
-    <ClCompile Include="GameFiles\InitialD8.cpp" />
     <ClCompile Include="GameFiles\Machstorm.cpp" />
     <ClCompile Include="GameFiles\OutRun2Fake.cpp" />
     <ClCompile Include="GameFiles\PokkenTournament.cpp" />
     <ClCompile Include="GameFiles\R-Tuned.cpp" />
     <ClCompile Include="GameFiles\Rambo.cpp" />
-    <ClCompile Include="GameFiles\RingRiders.cpp" />
     <ClCompile Include="GameFiles\SegaRaceTV.cpp" />
     <ClCompile Include="GameFiles\SegaRally3.cpp" />
     <ClCompile Include="GameFiles\SegaRacingClassic.cpp" />
@@ -213,26 +217,18 @@
     <ClCompile Include="GameFiles\StormRacerG.cpp" />
     <ClCompile Include="GameFiles\SWDC2018.cpp" />
     <ClCompile Include="GameFiles\TestGame.cpp" />
-    <ClCompile Include="GameFiles\TokyoCop.cpp" />
     <ClCompile Include="GameFiles\Transformers.cpp" />
     <ClCompile Include="GameFiles\WackyRaces.cpp" />
     <ClCompile Include="GameFiles\WastelandRacers2071.cpp" />
     <ClCompile Include="GameFiles\WMMT3.cpp" />
     <ClCompile Include="GameFiles\WMMT5.cpp" />
-    <ClCompile Include="GameFiles\InitialD4Japan.cpp" />
     <ClCompile Include="GameFiles\GTIClub3.cpp" />
-    <ClCompile Include="GameFiles\WMMT5DX+.cpp" />
-    <ClCompile Include="GameFiles\WMMT5DX.cpp" />
-    <ClCompile Include="GameFiles\WMMT6.cpp" />
-    <ClCompile Include="GameFiles\WMMT6R.cpp" />
     <ClCompile Include="GameFiles\WMMT6RR.cpp" />
     <ClCompile Include="IDirectInputDevice.cpp" />
     <ClCompile Include="GameFiles\MarioKartGPDX1.10Custom.cpp" />
-    <ClCompile Include="GameFiles\InitialD5.cpp" />
     <ClCompile Include="GameFiles\M2Emulator.cpp" />
     <ClCompile Include="GameFiles\RoadFighters3D.cpp" />
     <ClCompile Include="GameFiles\LGI.cpp" />
-    <ClCompile Include="GameFiles\LGI3D.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Common Files\TeknoParrotGame.h" />

@@ -11,49 +11,41 @@ You should have received a copy of the GNU General Public License
 along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
 */
 
-#include <string>
 #include "AfterburnerClimax.h"
-static bool Version;
-static bool NewVersion;
-static bool OldVersion;
-UINT8 Vibration;
 
-static int RumbleStrength = GetSettingInt(TEXT("RumbleStrength"), 0);
+using namespace ffb;
 
-void AfterburnerClimax::FFBLoop(EffectConstants *constants, Helpers *helpers, EffectTriggers* triggers) {
-
-	if (!Version)
+void AfterburnerClimax::Update()
+{
+	if (!versionFound)
 	{
-		DWORD VersionOrig = helpers->ReadInt32(0x8347A5A, false);
-		DWORD VersionNew = helpers->ReadInt32(0x834A51A, false);
+		DWORD oldMark = Memory::Read(OldVersionMark);
+		DWORD newMark = Memory::Read(NewVersionMark);
 
-		if (VersionOrig == 0x1320221)
+		if (oldMark == VersionMark)
 		{
-			OldVersion = true;
-			Version = true;
+			oldVersion = true;
+			versionFound = true;
 		}
 
-		if (VersionNew == 0x1320221)
+		if (newMark == VersionMark)
 		{
-			NewVersion = true;
-			Version = true;
-		}		
+			newVersion = true;
+			versionFound = true;
+		}
 	}
 
-	if (NewVersion)
-		Vibration = helpers->ReadByte(0x834A51E, false);
+	if (newVersion)
+		outputs = Memory::Read(NewVersionOutputs);
 
-	if (OldVersion)
-		Vibration = helpers->ReadByte(0x8347A5E, false);
-		
-	helpers->log("got value: ");
-	std::string ffs = std::to_string(Vibration);
-	helpers->log((char *)ffs.c_str());
+	if (oldVersion)
+		outputs = Memory::Read(OldVersionOutputs);
 
-	if (Vibration & 0x40)
+	Log::Value("got value:", outputs);
+
+	if (outputs & 0x40)
 	{
-		double percentForce = RumbleStrength / 100.0;
-		UINT32 length_ms = 100;
-		triggers->Rumble(percentForce, percentForce, length_ms);
+		double strength = rumbleStrength / 100.0;
+		wheel.Rumble(strength, strength, 100);
 	}
 }

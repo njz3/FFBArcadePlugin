@@ -11,43 +11,44 @@ You should have received a copy of the GNU General Public License
 along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
 */
 
-#include <string>
 #include "ArcticThunder.h"
 
 extern int EnableForceSpringEffect;
 extern int ForceSpringStrength;
 
-void ArcticThunder::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTriggers* triggers) {
+using namespace ffb;
 
-	ApplyDamper(triggers);
+void ArcticThunder::Update()
+{
+	ApplyDamper();
 
 	if (EnableForceSpringEffect)
-		triggers->Springi(ForceSpringStrength / 100.0);
+		wheel.KeptSpring(ForceSpringStrength / 100.0);
 
-	if (GetTeknoParrotFFB2() != 0xFF && GetTeknoParrotFFB2())
+	if (TeknoParrotFFB2() != 0xFF && TeknoParrotFFB2())
 	{
-		float FFBSine = ((float)GetTeknoParrotFFB2() / 255.0f);
-		triggers->Sine(50, 0, FFBSine, 100);
-		triggers->Rumble(0, FFBSine, 100);
+		float vibration = ((float)TeknoParrotFFB2() / 255.0f);
+		wheel.Sine(50, 0, vibration, 100);
+		wheel.Rumble(0, vibration, 100);
 	}
 
-	int FFB = GetTeknoParrotFFB3();
+	int force = TeknoParrotFFB3();
 
-	if (FFB)
+	if (force)
 	{
-		if (FFB > 0x80)
+		if (force > 0x80)
 		{
-			double percentForce = ((FFB - 128.0) / 127.0);
+			double percentForce = ((force - 128.0) / 127.0);
 
-			triggers->Rumble(0, percentForce, 100);
-			triggers->Constant(constants->DIRECTION_FROM_LEFT, percentForce);
+			wheel.Rumble(0, percentForce, 100);
+			wheel.Constant(Direction::FromLeft, percentForce);
 		}
-		else if (FFB < 0x80)
+		else if (force < 0x80)
 		{
-			double percentForce = ((128.0 - FFB) / 127.0);
+			double percentForce = ((128.0 - force) / 127.0);
 
-			triggers->Rumble(percentForce, 0, 100);
-			triggers->Constant(constants->DIRECTION_FROM_RIGHT, percentForce);
+			wheel.Rumble(percentForce, 0, 100);
+			wheel.Constant(Direction::FromRight, percentForce);
 		}
 	}
 }

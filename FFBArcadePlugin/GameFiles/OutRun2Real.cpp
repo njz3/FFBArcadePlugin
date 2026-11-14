@@ -11,222 +11,84 @@ You should have received a copy of the GNU General Public License
 along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
 */
 
-#include <string>
-#include "Outrun2Real.h"
-#include "SDL.h"
-#include <Windows.h>
-static EffectTriggers *myTriggers;
-static EffectConstants *myConstants;
-static Helpers *myHelpers;
+#include "OutRun2Real.h"
+
+using namespace ffb;
+
 extern SDL_Event e;
-static bool init = false;
-static int SpeedStrength;
-static int ShowButtonNumbersForSetup = GetSettingInt(TEXT("ShowButtonNumbersForSetup"), 0);
-static int ChangeGearsViaPlugin = GetSettingInt(TEXT("ChangeGearsViaPlugin"), 0);
-static int Gear1 = GetSettingInt(TEXT("Gear1"), 0);
-static int Gear2 = GetSettingInt(TEXT("Gear2"), 0);
-static int Gear3 = GetSettingInt(TEXT("Gear3"), 0);
-static int Gear4 = GetSettingInt(TEXT("Gear4"), 0);
-static int Gear5 = GetSettingInt(TEXT("Gear5"), 0);
-static int Gear6 = GetSettingInt(TEXT("Gear6"), 0);
 
-//B hitting right wall hard constant
-//1B hitting left wall hard constant
-//2 driving on grass sine
-//10 scraping car against side rail left side
-//4 driving from grass, sand to road if from right side
-//14 driving from grass, sand to road if from left side
-//00 when over grass, sand etc
+OutRun2Real* OutRun2Real::instance = nullptr;
 
-void SendForceFeedback(__int8 force)
+OutRun2Real::OutRun2Real()
 {
-	float ffspeed = myHelpers->ReadFloat32(0x08273DF0, /* isRelativeOffset */ false); //speedo
+	instance = this;
+}
 
-	double percentForce = SpeedStrength / 100.0;
-	UINT32 length_ms = 100;
+void OutRun2Real::PlayForce(__int8 force)
+{
+	Memory::Read(Speed); // read, not used
+
+	double percentForce = speedStrength / 100.0;
 
 	if ((force == 0x10) || (force == 0x0B) || (force == 0x04))
-	{
-		myTriggers->Rumble(0, percentForce, length_ms);
-		myTriggers->Constant(myConstants->DIRECTION_FROM_RIGHT, percentForce);
-	}
+		wheel.ConstantWithRumble(Direction::FromRight, percentForce);
 	if ((force == 0x00) || (force == 0x1B) || (force == 0x14))
-	{
-		myTriggers->Rumble(percentForce, 0, length_ms);
-		myTriggers->Constant(myConstants->DIRECTION_FROM_LEFT, percentForce);
-	}
+		wheel.ConstantWithRumble(Direction::FromLeft, percentForce);
 	if (force == 0x02)
 	{
-		myTriggers->Rumble(percentForce, percentForce, length_ms);
-		myTriggers->Sine(70, 80, percentForce, 200);
+		wheel.Rumble(percentForce, percentForce, 100);
+		wheel.Sine(70, 80, percentForce, 200);
 	}
 }
 
-signed int cdecl or2FfbFunction(unsigned __int8 unk1, unsigned __int8 unk2, unsigned __int8 force, char unk3)
+signed int __cdecl OutRun2Real::FfbFunction(unsigned __int8 command, unsigned __int8 unknown1, unsigned __int8 force, char unknown2)
 {
-	int SpringStrength = GetSettingInt(TEXT("SpringStrength"), 0);
-	if (unk1 == 0x7D)
-	{
-		//not used
-	}
-	if (unk1 == 0x7B)
-	{
-		SendForceFeedback(force);
-	}
-	else if (unk1 != 0x7B)
-	{
-		double percentForce = SpringStrength / 100.0;
-		myTriggers->Springi(percentForce);
-	}
-	return 0;
-}
-
-static int ThreadLoop()
-{
-	UINT8 gear = myHelpers->ReadByte(0x0827A160, /* isRelativeOffset */ false); // gear address
-	UINT8 ff8 = myHelpers->ReadByte(0x08304ADC, /* isRelativeOffset */ false); // 1 when race
-	float ffspeed = myHelpers->ReadFloat32(0x08273DF0, /* isRelativeOffset */ false); //speedo
-	UINT8 static oldgear = 0;
-	UINT8 newgear = gear;
-
-	if ((ffspeed >= 0.1) && (ffspeed <= 80))
-	{
-		SpeedStrength = 10;
-	}
-	else if ((ffspeed >= 80.1) && (ffspeed <= 130))
-	{
-		SpeedStrength = 20;
-	}
-	else if ((ffspeed >= 130.1) && (ffspeed <= 180))
-	{
-		SpeedStrength = 30;
-	}
-	else if ((ffspeed >= 180.1) && (ffspeed <= 220))
-	{
-		SpeedStrength = 40;
-	}
-	else if ((ffspeed >= 220.1) && (ffspeed <= 270))
-	{
-		SpeedStrength = 50;
-	}
-	else if ((ffspeed >= 270.1) && (ffspeed <= 320))
-	{
-		SpeedStrength = 60;
-	}
-	else if ((ffspeed >= 320.1) && (ffspeed <= 380))
-	{
-		SpeedStrength = 70;
-	}
-	else if ((ffspeed >= 380.1) && (ffspeed <= 430))
-	{
-		SpeedStrength = 80;
-	}
-	else if ((ffspeed >= 430.1) && (ffspeed <= 500))
-	{
-		SpeedStrength = 90;
-	}
-	else if ((ffspeed >= 500.1) && (ffspeed <= 1000))
-	{
-		SpeedStrength = 100;
-	}
+	int springStrength = Settings::Int(L"SpringStrength", 0);
+	if (command == 0x7B)
+		instance->PlayForce(force);
 	else
-	{
-		SpeedStrength = 0;
-	}
-
-	ApplyDamper(myTriggers);
-
-	if ((oldgear != newgear) && (ff8 == 1) && (ffspeed >= 0.1))
-	{
-		double percentForce = 0.1;
-		UINT32 length_ms = 100;
-		myTriggers->Sine(240, 320, percentForce, 250);
-		myTriggers->Rumble(percentForce, percentForce, length_ms);
-	}
-
-	oldgear = newgear;
+		instance->wheel.KeptSpring(springStrength / 100.0);
 	return 0;
 }
 
-static DWORD WINAPI RunningLoop(LPVOID lpParam)
+// Written by hand, without changing the protection of the code
+void OutRun2Real::WriteJump()
 {
-	while (true)
+	DWORD from = DriveBoardFunction;
+	DWORD to = (DWORD)(void*)FfbFunction;
+	DWORD relative = to - from - 5;
+	*(BYTE*)from = 0xE9;
+	*(DWORD*)(from + 1) = relative;
+}
+
+void OutRun2Real::Update()
+{
+	StartThread();
+
+	// SDL_WaitEvent returns when there is an event: the loop does not end
+	while (SDL_WaitEvent(&e) != 0)
 	{
-		ThreadLoop();
-		Sleep(16);
+		// at each event
+		WriteJump();
+		HandleEvent(e);
 	}
 }
 
-void OutRun2Real::FFBLoop(EffectConstants *constants, Helpers *helpers, EffectTriggers* triggers) {	
+void OutRun2Real::ThreadLoop()
+{
+	UINT8 gear = Memory::Read(Gear);
+	UINT8 inRace = Memory::Read(InRace);
+	float speed = Memory::Read(Speed);
 
-	if (!init)
+	speedStrength = SpeedStrength(speed);
+
+	ApplyDamper();
+
+	if ((lastGear != gear) && (inRace == 1) && (speed >= 0.1))
 	{
-		myTriggers = triggers;
-		myConstants = constants;
-		myHelpers = helpers;
-		CreateThread(NULL, 0, RunningLoop, NULL, 0, NULL);
-		init = true;
+		wheel.Sine(240, 320, 0.1, 250);
+		wheel.Rumble(0.1, 0.1, 100);
 	}
-		
-	while (SDL_WaitEvent(&e) != 0)
-	{	
-		bool init = true;
-		if (init)
-		{
-			DWORD tempdw = 0x08105A48;
-			DWORD loadffb = (DWORD)(void *)or2FfbFunction;
-			DWORD tempdw2 = loadffb - tempdw - 5;
-			*(BYTE *)tempdw = 0xE9;
-			*(DWORD *)(tempdw + 1) = tempdw2;
-			init = false;
-		}
-		UINT8 transmission = helpers->ReadByte(0x082932C2, /* isRelativeOffset */ false); // Auto or Manual
-		myTriggers = triggers;
-		myConstants = constants;
-		myHelpers = helpers;
 
-		if (ShowButtonNumbersForSetup == 1)
-		{
-			if (e.type == SDL_JOYBUTTONDOWN)
-			{
-				if (e.jbutton.button >= 0)
-				{
-					char buff[100];
-					sprintf_s(buff, "Button %d Pressed", e.jbutton.button);
-					MessageBoxA(NULL, buff, "", NULL);
-				}
-			}
-		}
-
-		if (e.type == SDL_JOYBUTTONDOWN)
-		{
-			if ((ChangeGearsViaPlugin == 1) && (transmission == 1))
-			{
-				if (e.jbutton.button == Gear1)
-				{
-					helpers->WriteByte(0x0827A160, 0x01, false);
-				}
-				else if (e.jbutton.button == Gear2)
-				{
-					helpers->WriteByte(0x0827A160, 0x02, false);
-				}
-				else if (e.jbutton.button == Gear3)
-				{
-					helpers->WriteByte(0x0827A160, 0x03, false);
-				}
-				else if (e.jbutton.button == Gear4)
-				{
-					helpers->WriteByte(0x0827A160, 0x04, false);
-				}
-				else if (e.jbutton.button == Gear5)
-				{
-					helpers->WriteByte(0x0827A160, 0x05, false);
-				}
-				else if (e.jbutton.button == Gear6)
-				{
-					helpers->WriteByte(0x0827A160, 0x06, false);
-				}
-			}
-		}
-	}
+	lastGear = gear;
 }

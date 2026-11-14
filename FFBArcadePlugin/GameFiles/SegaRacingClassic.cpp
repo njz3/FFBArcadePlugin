@@ -11,53 +11,52 @@ You should have received a copy of the GNU General Public License
 along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
 */
 
-#include <string>
+#include <math.h>
 #include "SegaRacingClassic.h"
 
-void SegaRacingClassic::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTriggers* triggers) {
-	UINT8 ff = helpers->ReadByte(0x834C19, /* isRelativeOffset */ false);
-	helpers->log("got value: ");
-	std::string ffs = std::to_string(ff);
-	helpers->log((char*)ffs.c_str());
+using namespace ffb;
 
-	ApplyDamper(triggers);
+void SegaRacingClassic::Update()
+{
+	UINT8 ff = Memory::Read(DriveBoardCommand);
+	Log::Value("got value:", ff);
 
-	UINT32 length_ms = 100;
+	ApplyDamper();
+
+	const UINT32 length_ms = 100;
 	if ((ff > 0xD7) && (ff < 0xE0))
 	{
-		//Clutch
-		double percentForce = (224 - ff) / 8.0;
-		triggers->Friction(percentForce);
+		// Clutch
+		double strength = (224 - ff) / 8.0;
+		wheel.Friction(strength);
 	}
 
 	if ((ff > 0xBF) && (ff < 0xC8))
 	{
-		//Centering
-		double percentForce = (200 - ff) / 8.0;
-		triggers->Spring(pow(percentForce, 0.1));
+		// Centering
+		double strength = (200 - ff) / 8.0;
+		wheel.Spring(pow(strength, 0.1));
 	}
 
 	if ((ff > 0xB7) && (ff < 0xC0))
 	{
-		//Uncentering
-		double percentForce = (192 - ff) / 8.0;
-		triggers->Rumble(percentForce, percentForce, length_ms);
-		triggers->Sine(70, 80, percentForce, length_ms);
+		// Uncentering
+		double strength = (192 - ff) / 8.0;
+		wheel.Rumble(strength, strength, length_ms);
+		wheel.Sine(70, 80, strength, length_ms);
 	}
 
 	if ((ff > 0xA7) && (ff < 0xB0))
 	{
-		//Roll Left
-		double percentForce = (176 - ff) / 8.0;
-		triggers->Rumble(0, percentForce, length_ms);
-		triggers->Constant(constants->DIRECTION_FROM_RIGHT, percentForce);
+		// Roll left
+		double strength = (176 - ff) / 8.0;
+		wheel.ConstantWithRumble(Direction::FromRight, strength);
 	}
 
 	if ((ff > 0x97) && (ff < 0xA0))
 	{
-		//Roll Right
-		double percentForce = (160 - ff) / 8.0;
-		triggers->Rumble(percentForce, 0, length_ms);
-		triggers->Constant(constants->DIRECTION_FROM_LEFT, percentForce);
+		// Roll right
+		double strength = (160 - ff) / 8.0;
+		wheel.ConstantWithRumble(Direction::FromLeft, strength);
 	}
 }

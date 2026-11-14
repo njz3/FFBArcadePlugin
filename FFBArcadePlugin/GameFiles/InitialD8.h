@@ -12,10 +12,9 @@ along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
 */
 
 #pragma once
-#include "../Common Files/TeknoParrotGame.h"
+#include "InitialD6.h"
 
-class InitialD8 : public TeknoParrotGame {
-public:
-	InitialD8() : TeknoParrotGame() { }
-	void FFBLoop(EffectConstants *constants, Helpers *helpers, EffectTriggers* triggers);
+// Initial D Arcade Stage 8 Infinity (Sega RingEdge, TeknoParrot): see InitialDTeknoParrotGame
+class InitialD8 : public InitialDTeknoParrotGame
+{
 };

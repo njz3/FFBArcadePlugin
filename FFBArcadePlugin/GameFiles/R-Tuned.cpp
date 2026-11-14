@@ -11,47 +11,36 @@ You should have received a copy of the GNU General Public License
 along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
 */
 
-#include <string>
 #include "R-Tuned.h"
 
-static int SpringStrength = GetSettingInt(TEXT("SpringStrength"), 0);
+using namespace ffb;
 
-void RTuned::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTriggers* triggers) {
+void RTuned::Update()
+{
+	UINT8 springCrash = Memory::Read(SpringCrash);
+	UINT8 boostStrength = Memory::Read(BoostStrength);
+	UINT8 boost = Memory::Read(Boost);
+	Log::Value("got value:", boostStrength);
 
-	UINT8 SpringCrash = helpers->ReadByte(0x8519D18, /* isRelativeOffset */ false);
-	UINT8 BoostEffect = helpers->ReadByte(0x8519D10, /* isRelativeOffset */ false);
-	UINT8 WhenBoost = helpers->ReadByte(0x8519D20, /* isRelativeOffset */ false);
+	ApplyDamper();
 
-	helpers->log("got value: ");
-	std::string ffs = std::to_string(BoostEffect);
-	helpers->log((char*)ffs.c_str());
+	if (Memory::Read(FFBState) == 0x01)
+		Memory::Write<UINT8>(FFBState, 0x09);
 
-	ApplyDamper(triggers);
-
-	UINT8 LetsEnableFFB = helpers->ReadByte(0x8519C58, /* isRelativeOffset */ false);
-
-	if (LetsEnableFFB == 0x01)
+	if (springCrash == 0xFF)
 	{
-		helpers->WriteByte(0x8519C58, 0x09, false);	
+		wheel.Sine(300, 300, 1.0, 100);
+		wheel.Rumble(1.0, 1.0, 100);
+	}
+	else if (springCrash == 0x04)
+	{
+		wheel.Spring(springStrength / 100.0);
 	}
 
-	if (SpringCrash == 0xFF)
+	if (boost == 0x7F)
 	{
-		double percentForce = 1.0;
-		triggers->Sine(300, 300, percentForce, 100);
-		triggers->Rumble(percentForce, percentForce, 100);
-	}
-	else if (SpringCrash == 0x04)
-	{
-		double percentForce = SpringStrength / 100.0;
-		triggers->Spring(percentForce);
-	}
-
-	if (WhenBoost == 0x7F)
-	{
-		double percentForce = (BoostEffect / 400.0);
-		UINT32 length_ms = 100;
-		triggers->Rumble(percentForce, percentForce, length_ms);
-		triggers->Sine(60, 60, percentForce, length_ms);
+		double percentForce = (boostStrength / 400.0);
+		wheel.Rumble(percentForce, percentForce, 100);
+		wheel.Sine(60, 60, percentForce, 100);
 	}
 }

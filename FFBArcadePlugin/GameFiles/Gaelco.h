@@ -12,21 +12,30 @@ along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
 */
 
 #pragma once
-#include "../Common Files/Game.h"
+#include "../Core/Game.h"
 
-// Gaelco games set the wheel motor with a force between -1 and 1:
-// the function doing it is hooked to play this force.
-class GaelcoGame : public Game {
+// Tokyo Cop, Ring Riders and Gaelco Tuning Race (Gaelco, TeknoParrot): the games set the wheel motor with a
+// force between -1 and 1 (> 0 from the left, < 0 from the right); the plugin replaces the game function
+// doing it to play this force. The games differ by that function.
+class GaelcoGame : public ffb::Game
+{
 public:
-	void FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTriggers* triggers);
-	static void PlayMotorForce(double force);
+	void Update() override;
 
 protected:
+	GaelcoGame();
+
 	// Hooks the game function setting the motor force, the hook calling PlayMotorForce
 	virtual void HookSetMotor() = 0;
-	// Hook of SetMotor(DWORD*, float force), called by the game at the given address
+	// Hooks SetMotor(DWORD*, float force) of the game, at the given address
 	static void HookFloatSetMotor(INT_PTR address);
+	// Force of the motor: > 0 from the left, < 0 from the right, limited to 1
+	static void PlayMotorForce(double force);
 
 private:
-	bool init = false;
+	static GaelcoGame* instance;
+	static int(__stdcall* floatSetMotorOriginal)(DWORD* motor, float force);
+	static int __stdcall FloatSetMotorHook(DWORD* motor, float force);
+
+	bool hooked = false;
 };

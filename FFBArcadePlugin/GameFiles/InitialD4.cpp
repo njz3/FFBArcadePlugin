@@ -11,15 +11,22 @@ You should have received a copy of the GNU General Public License
 along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
 */
 
-#include <string>
 #include "InitialD4.h"
-#include "../Common Files/InitialDFFB.h"
-#include "math.h"
 
-void InitialD4::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTriggers* triggers) {
-	DWORD FFB = helpers->ReadInt32(0x089AE898, false);
+using namespace ffb;
 
-	BYTE* ffb = reinterpret_cast<BYTE*>(&FFB);
+InitialDLindberghGame::InitialDLindberghGame(INT_PTR driveBoardAddress, bool applyDamper)
+	: driveBoardCommand{ Base::Absolute, driveBoardAddress }, applyDamper(applyDamper)
+{
+}
 
-	PlayInitialDFFB(ffb[0], ffb[1], ffb[2], InitialDFFBDefaultSettings, constants, triggers);
+void InitialDLindberghGame::Update()
+{
+	if (applyDamper)
+		ApplyDamper();
+
+	DWORD command = Memory::Read(driveBoardCommand);
+	const BYTE* bytes = reinterpret_cast<const BYTE*>(&command);
+
+	driveBoard.Play(bytes[0], bytes[1], bytes[2]);
 }

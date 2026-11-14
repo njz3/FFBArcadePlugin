@@ -14,10 +14,28 @@ along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
 #pragma once
 #include "WMMT.h"
 
-class WMMT5DXPlus : public WMMT {
+// Wangan Midnight Maximum Tune 5DX+ (Bandai Namco, TeknoParrot): see WMMT. Its power tune is read for the
+// wheel spin.
+class WMMT5DXPlus : public WMMT
+{
 public:
-	WMMT5DXPlus();
+	WMMT5DXPlus() : WMMT({
+		0x1FA6F40, // ffbValues
+		0x1FA7C7C, // speed
+		0x1FA7DEC, // rpm
+		0x1FD11B0, // carState
+		0x398,     // gearOffset
+		0x1FD11C8, // raceState
+		0,         // raceTimer
+	}) {}
 
 protected:
-	UINT8 ReadPower(Helpers* helpers);
+	UINT8 ReadPower() override
+	{
+		return ffb::Memory::Read(Power);
+	}
+
+private:
+	// Power tune of the player car, 0x10 full
+	static constexpr ffb::PointerChain<UINT8, 2> Power{ { ffb::Base::Module, 0x1F7D578 }, { 0x268, 0xAC } };
 };

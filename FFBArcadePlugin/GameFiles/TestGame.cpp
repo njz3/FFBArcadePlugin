@@ -11,40 +11,41 @@ You should have received a copy of the GNU General Public License
 along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
 */
 
-#include <string>
 #include "TestGame.h"
 #include "SDL.h"
+#include "../Common Files/GameIds.h"
 
-int configGameIdEffect = GetSettingInt(TEXT("GameId"), 1);
+using namespace ffb;
 
-void TestGame::FFBLoop(EffectConstants *constants, Helpers *helpers, EffectTriggers* triggers) {
-	switch (configGameIdEffect) {
-	case -1:
+void TestGame::Update()
+{
+	switch (gameId) {
+	case TEST_GAME_CONST:
 		// turn left
-		triggers->Constant(constants->DIRECTION_FROM_RIGHT, 1);
+		wheel.Constant(Direction::FromRight, 1);
 		break;
-	case -2:
-		triggers->Sine(125, 100, 0.25, 100);
+	case TEST_GAME_SINE:
+		wheel.Sine(125, 100, 0.25, 100);
 		break;
-	case -3:
-		triggers->Friction(1);
+	case TEST_GAME_FRICTION:
+		wheel.Friction(1);
 		break;
-	case -4:
-		triggers->Spring(1);
+	case TEST_GAME_SPRING:
+		wheel.Spring(1);
 		break;
-	case -5:
-		triggers->Friction(1);
-		triggers->Spring(1);
+	case TEST_GAME_HEAVY:
+		wheel.Friction(1);
+		wheel.Spring(1);
 		break;
-	case -6:
-		triggers->Friction(0);
-		triggers->Spring(0);
+	case TEST_GAME_LOOSE:
+		wheel.Friction(0);
+		wheel.Spring(0);
 		break;
-	case -7:
-		triggers->Rumble(1.0, 1.0, SDL_HAPTIC_INFINITY);
+	case TEST_GAME_RUMBLE:
+		wheel.Rumble(1.0, 1.0, SDL_HAPTIC_INFINITY);
 		break;
-	case -8:
-		triggers->RumbleTriggers(1.0, 1.0, SDL_HAPTIC_INFINITY);
+	case TEST_GAME_RUMBLE_TRIGGER:
+		wheel.RumbleTriggers(1.0, 1.0, SDL_HAPTIC_INFINITY);
 		break;
 	}
 }

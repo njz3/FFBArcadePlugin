@@ -12,9 +12,54 @@ along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
 */
 
 #pragma once
-#include "../Common Files/Game.h"
+#include "../Core/Game.h"
 
-class Hummer : public Game {
+// Hummer and Hummer Extreme (Sega, Lindbergh, TeknoParrot): the plugin hooks the functions of
+// clSteerDualDevice, the wheel driver of the game, and plays the vibration, the viscosity (as a friction)
+// and the centering spring the game gives them. The wait of the driver for the wheel is skipped.
+class HummerGame : public ffb::Game
+{
 public:
-	void FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTriggers* triggers);
+	void Update() override;
+
+protected:
+	// A version of the game
+	struct Version
+	{
+		// Functions of clSteerDualDevice
+		INT_PTR wait;                 // waits for the wheel to be ready for an update: returns 0 at once
+		INT_PTR setTrqCurveHalfPoint; // hooked, left as it is
+		INT_PTR setVibrate;           // vibration: strength and duration
+		INT_PTR setViscosity;         // viscosity, played as a friction
+		INT_PTR initCenter;           // centering spring
+		double viscosityScale;        // multiplies the viscosity
+		double springScale;           // multiplies the centering spring
+		const char* hookedMessage;    // debug output (OutputDebugString) before the hooks are made, or null
+		bool traceVibrations;         // debug output of each vibration
+	};
+
+	explicit HummerGame(const Version& version);
+
+private:
+	static HummerGame* instance;
+	static void(__cdecl* setTrqCurveHalfPointOriginal)(void* device, int param_1, float param_2, float param_3);
+	static void(__cdecl* setVibrateOriginal)(void* device, int param_1, float strength, float duration);
+	static void(__cdecl* setViscosityOriginal)(void* device, int param_1, float viscosity, float param_3);
+	static void(__cdecl* initCenterOriginal)(void* device, int param_1, unsigned char strength);
+	static int(__cdecl* waitOriginal)(int param_1);
+	static void __cdecl SetTrqCurveHalfPointHook(void* device, int param_1, float param_2, float param_3);
+	static void __cdecl SetVibrateHook(void* device, int param_1, float strength, float duration);
+	static void __cdecl SetViscosityHook(void* device, int param_1, float viscosity, float param_3);
+	static void __cdecl InitCenterHook(void* device, int param_1, unsigned char strength);
+	static int __cdecl WaitHook(int param_1);
+
+	Version version;
+	bool hooked = false;
+};
+
+// Hummer: see HummerGame. The viscosity and the spring of the game are played as they are.
+class Hummer : public HummerGame
+{
+public:
+	Hummer() : HummerGame({ 0x82cdd1a, 0x82cd9ba, 0x82cdbfa, 0x82cdada, 0x82cd786, 1.0, 1.0, "Hummer FFB Plugin Loaded\n", false }) {}
 };

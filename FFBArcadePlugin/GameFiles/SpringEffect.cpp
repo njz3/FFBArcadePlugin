@@ -13,13 +13,12 @@ along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
 
 #include "SpringEffect.h"
 
-static int SpringEnable = GetSettingInt(TEXT("SpringEnable"), 0);
-static int SpringStrength = GetSettingInt(TEXT("SpringStrength"), 0);
+using namespace ffb;
 
-void SpringEffect::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTriggers* triggers) {
+void SpringEffect::Update()
+{
+	ApplyDamper();
 
-	ApplyDamper(triggers);
-
-	if (SpringEnable)
-		triggers->Springi(SpringStrength / 100.0);
+	if (springEnable)
+		wheel.KeptSpring(springStrength / 100.0);
 }

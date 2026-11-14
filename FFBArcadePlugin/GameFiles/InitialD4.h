@@ -12,9 +12,31 @@ along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
 */
 
 #pragma once
-#include "../Common Files/Game.h"
+#include "../Core/Game.h"
+#include "../Hardware/SegaInitialD.h"
 
-class InitialD4 : public Game {
+// Initial D Arcade Stage 4, 4 Japan and 5 (Sega Lindbergh): the command of the drive board is read
+// in the game's memory, at an absolute address, and played with the usual drive board scaling
+class InitialDLindberghGame : public ffb::Game
+{
 public:
-	void FFBLoop(EffectConstants *constants, Helpers *helpers, EffectTriggers* triggers);
+	void Update() override;
+
+protected:
+	// driveBoardAddress: absolute address of the drive board command: byte 0 the command, byte 1 its
+	// parameter, byte 2 the strength (see ffb::SegaInitialDDriveBoard).
+	// applyDamper: the damper of the EnableDamper setting is played at each update
+	InitialDLindberghGame(INT_PTR driveBoardAddress, bool applyDamper);
+
+private:
+	ffb::GameValue<int> driveBoardCommand;
+	bool applyDamper;
+	ffb::SegaInitialDDriveBoard driveBoard{ wheel };
+};
+
+// Initial D Arcade Stage 4 (export version), which plays no damper
+class InitialD4 : public InitialDLindberghGame
+{
+public:
+	InitialD4() : InitialDLindberghGame(0x089AE898, false) {}
 };

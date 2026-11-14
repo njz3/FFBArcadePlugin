@@ -12,9 +12,24 @@ along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
 */
 
 #pragma once
-#include "../Common Files/Game.h"
-class SonicSegaAllStarsRacing : public Game {
+#include "../Core/Game.h"
 
+// Sonic & Sega All-Stars Racing Arcade (Sega): the force of the wheel is read in the game's memory,
+// played when it changes
+class SonicSegaAllStarsRacing : public ffb::Game
+{
 public:
-	void FFBLoop(EffectConstants *constants, Helpers *helpers, EffectTriggers* triggers);
+	void Update() override;
+
+private:
+	// Force of the wheel: 1 to 18 from the right (18 a full force), 238 to 255 from the left (238 a
+	// full force), other values no force
+	static constexpr ffb::GameValue<UINT8> WheelForce{ ffb::Base::Module, 0x5CD864 };
+	// Set to 3 at each update (meaning unknown)
+	static constexpr ffb::GameValue<UINT8> ForceMode{ ffb::Base::Module, 0x5CD858 };
+
+	int springEnable = ffb::Settings::Int(L"SpringEnable", 0);
+	int springStrength = ffb::Settings::Int(L"SpringStrength", 0);
+
+	UINT8 lastForce = 0;
 };

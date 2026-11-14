@@ -1,74 +1,61 @@
-#include <string>
+/*This file is part of FFB Arcade Plugin.
+FFB Arcade Plugin is free software : you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+FFB Arcade Plugin is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.See the
+GNU General Public License for more details.
+You should have received a copy of the GNU General Public License
+along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
+*/
+
+#include <string.h>
 #include "SegaRally3Other.h"
 
-static EffectTriggers* myTriggers;
-static EffectConstants* myConstants;
-static Helpers* myHelpers;
+using namespace ffb;
 
-static bool init = false;
+SegaRally3Other* SegaRally3Other::instance = nullptr;
 
-static int __stdcall Out32(DWORD device, DWORD data)
+SegaRally3Other::SegaRally3Other()
 {
-	ApplyDamper(myTriggers);
+	instance = this;
+}
 
-	UINT32 length_ms = 100;
+int __stdcall SegaRally3Other::Out32Hook(DWORD port, DWORD data)
+{
+	SegaRally3Other& game = *instance;
+	game.ApplyDamper();
+
+	// data is unsigned: a value above 31 gives a huge force from the left
 	if (data > 15)
-	{
-		double percentForce = (31 - data) / 15.0;
-		myTriggers->Rumble(percentForce, 0, length_ms);
-		myTriggers->Constant(myConstants->DIRECTION_FROM_LEFT, percentForce);
-	}
+		game.wheel.ConstantWithRumble(Direction::FromLeft, (31 - data) / 15.0);
 	else if (data > 0)
-	{
-		double percentForce = (16 - data) / 15.0;
-		myTriggers->Rumble(0, percentForce, length_ms);
-		myTriggers->Constant(myConstants->DIRECTION_FROM_RIGHT, percentForce);
-	}
+		game.wheel.ConstantWithRumble(Direction::FromRight, (16 - data) / 15.0);
 	return 0;
 }
 
-static bool Hook(void* toHook, void* ourFunct, int len) {
-	if (len < 5) {
-		return false;
-	}
+void SegaRally3Other::Update()
+{
+	if (hooked)
+		return;
 
-	DWORD curProtection;
-	VirtualProtect(toHook, len, PAGE_EXECUTE_READWRITE, &curProtection);
+	HMODULE inpout = GetModuleHandleA("inpout32.dll");
+	if (!inpout)
+		return;
 
-	memset(toHook, 0x90, len);
+	INT_PTR out32 = (INT_PTR)GetProcAddress(GetModuleHandle(L"inpout32.dll"), "Out32");
+	if (!out32)
+		return;
 
-	INT_PTR relativeAddress = ((INT_PTR)ourFunct - (INT_PTR)toHook) - 5;
+	// jmp Out32Hook, then NOPs
+	BYTE patch[HookLength];
+	memset(patch, 0x90, HookLength);
+	patch[0] = 0xE9;
+	DWORD relative = (DWORD)(((INT_PTR)Out32Hook - out32) - 5);
+	memcpy(patch + 1, &relative, sizeof(relative));
+	Memory::Patch(out32, patch, HookLength);
 
-	*(BYTE*)toHook = 0xE9;
-	*(DWORD*)((INT_PTR)toHook + 1) = (DWORD)relativeAddress;
-
-	DWORD temp;
-	VirtualProtect(toHook, len, curProtection, &temp);
-
-	return true;
-}
-
-static INT_PTR jmpBackAddy;
-
-void SegaRally3Other::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTriggers* triggers) {
-	if (!init)
-	{
-		HMODULE hMod = GetModuleHandleA("inpout32.dll");
-		if (hMod)
-		{
-
-			int hookLength = 6;
-			INT_PTR hookAddress = (INT_PTR)GetProcAddress(GetModuleHandle(L"inpout32.dll"), "Out32");
-			if (hookAddress)
-			{
-				jmpBackAddy = hookAddress + hookLength;
-				Hook((void*)hookAddress, Out32, hookLength);
-				init = true;
-			}
-		}
-	}
-
-	myTriggers = triggers;
-	myConstants = constants;
-	myHelpers = helpers;
+	hooked = true;
 }

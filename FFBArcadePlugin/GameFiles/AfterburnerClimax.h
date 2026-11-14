@@ -12,9 +12,30 @@ along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
 */
 
 #pragma once
-#include "../Common Files/Game.h"
+#include "../Core/Game.h"
 
-class AfterburnerClimax : public Game {
+// After Burner Climax (Sega Lindbergh): the stick rumbles, with the strength of the RumbleStrength
+// setting, while a bit of an output byte of the game is set. The two versions of the game are told
+// apart by a value (0x1320221) found at one address or the other.
+class AfterburnerClimax : public ffb::Game
+{
 public:
-	void FFBLoop(EffectConstants *constants, Helpers *helpers, EffectTriggers* triggers);
+	void Update() override;
+
+private:
+	static const DWORD VersionMark = 0x1320221;
+	// 32 bits: VersionMark in the original version
+	static constexpr ffb::GameValue<int> OldVersionMark{ ffb::Base::Absolute, 0x8347A5A };
+	// 32 bits: VersionMark in the new version
+	static constexpr ffb::GameValue<int> NewVersionMark{ ffb::Base::Absolute, 0x834A51A };
+	// Outputs of the game, bit 0x40: the stick rumbles
+	static constexpr ffb::GameValue<UINT8> OldVersionOutputs{ ffb::Base::Absolute, 0x8347A5E };
+	static constexpr ffb::GameValue<UINT8> NewVersionOutputs{ ffb::Base::Absolute, 0x834A51E };
+
+	int rumbleStrength = ffb::Settings::Int(L"RumbleStrength", 0);
+
+	bool versionFound = false;
+	bool newVersion = false;
+	bool oldVersion = false;
+	UINT8 outputs = 0; // kept when no version is found
 };

@@ -12,9 +12,11 @@ along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
 */
 
 #pragma once
-#include "../Common Files/Game.h"
+#include "LGI.h"
 
-class LGI3D : public Game {
+// Let's Go Island 3D (Sega Lindbergh, TeknoParrot): see LetsGoIslandGame
+class LGI3D : public LetsGoIslandGame
+{
 public:
-	void FFBLoop(EffectConstants *constants, Helpers *helpers, EffectTriggers* triggers);
+	LGI3D() : LetsGoIslandGame({ 0x0065DA20, 0x008429F4, 0x74, 0x78 }) {}
 };

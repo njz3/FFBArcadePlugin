@@ -122,12 +122,6 @@
     <ClCompile Include="GameFiles\InitialD4.cpp">
       <Filter>GameFiles</Filter>
     </ClCompile>
-    <ClCompile Include="GameFiles\InitialD7.cpp">
-      <Filter>GameFiles</Filter>
-    </ClCompile>
-    <ClCompile Include="GameFiles\InitialD8.cpp">
-      <Filter>GameFiles</Filter>
-    </ClCompile>
     <ClCompile Include="GameFiles\Machstorm.cpp">
       <Filter>GameFiles</Filter>
     </ClCompile>
@@ -138,12 +132,6 @@
       <Filter>GameFiles</Filter>
     </ClCompile>
     <ClCompile Include="GameFiles\SonicSegaAllStarsRacing.cpp">
-      <Filter>GameFiles</Filter>
-    </ClCompile>
-    <ClCompile Include="GameFiles\InitialD5.cpp">
-      <Filter>GameFiles</Filter>
-    </ClCompile>
-    <ClCompile Include="GameFiles\InitialD4Japan.cpp">
       <Filter>GameFiles</Filter>
     </ClCompile>
     <ClCompile Include="GameFiles\M2Emulator.cpp">
@@ -159,9 +147,6 @@
       <Filter>GameFiles</Filter>
     </ClCompile>
     <ClCompile Include="GameFiles\LGI.cpp">
-      <Filter>GameFiles</Filter>
-    </ClCompile>
-    <ClCompile Include="GameFiles\LGI3D.cpp">
       <Filter>GameFiles</Filter>
     </ClCompile>
     <ClCompile Include="GameFiles\OutRun2Real.cpp" />
@@ -192,28 +177,19 @@
     <ClCompile Include="GameFiles\DemulFasterThanSpeedInputs.cpp" />
     <ClCompile Include="GameFiles\DemulMaximumSpeedInputs.cpp" />
     <ClCompile Include="GameFiles\DemulNascarInputs.cpp" />
-    <ClCompile Include="GameFiles\InitialD0v211.cpp" />
     <ClCompile Include="GameFiles\SWDC2018.cpp" />
     <ClCompile Include="GameFiles\MarioKartGPDXUSACustom.cpp" />
-    <ClCompile Include="GameFiles\WMMT6.cpp" />
-    <ClCompile Include="GameFiles\WMMT6R.cpp" />
     <ClCompile Include="GameFiles\InitialD0v131.cpp" />
     <ClCompile Include="GameFiles\StormRacerG.cpp" />
     <ClCompile Include="GameFiles\D1GP.cpp" />
     <ClCompile Include="GameFiles\M2EmulatorDaytonaInputs.cpp" />
     <ClCompile Include="GameFiles\M2EmulatorSegaRallyInputs.cpp" />
     <ClCompile Include="GameFiles\M2EmulatorIndy500Inputs.cpp" />
-    <ClCompile Include="GameFiles\WMMT5DX+.cpp" />
-    <ClCompile Include="GameFiles\WMMT5DX.cpp" />
     <ClCompile Include="GameFiles\CrazyTaxi.cpp" />
-    <ClCompile Include="GameFiles\Daytona3NSE.cpp" />
     <ClCompile Include="GameFiles\WMMT3.cpp" />
     <ClCompile Include="GameFiles\DeadHeat.cpp" />
     <ClCompile Include="GameFiles\DeadHeatRiders.cpp" />
     <ClCompile Include="GameFiles\GaelcoTuningRace.cpp" />
-    <ClCompile Include="GameFiles\TokyoCop.cpp" />
-    <ClCompile Include="GameFiles\RingRiders.cpp" />
-    <ClCompile Include="GameFiles\InitialD0v230.cpp" />
     <ClCompile Include="GameFiles\GRIDReal.cpp" />
     <ClCompile Include="GameFiles\MarioKartGPDX1.18Real.cpp" />
     <ClCompile Include="GameFiles\MarioKartGPDX1.10Real.cpp" />
@@ -228,13 +204,45 @@
     <ClCompile Include="GameFiles\FnFSuperCars.cpp" />
     <ClCompile Include="GameFiles\SegaRaceTV.cpp" />
     <ClCompile Include="GameFiles\IDTAv231.cpp" />
-    <ClCompile Include="GameFiles\HummerExtreme.cpp" />
     <ClCompile Include="GameFiles\WastelandRacers2071.cpp" />
     <ClCompile Include="GameFiles\Hummer.cpp" />
     <ClCompile Include="GameFiles\WMMT6RR.cpp" />
     <ClCompile Include="GameFiles\Cars.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="GameFiles\M2EmulatorSegaRallyInputs.h">
+      <Filter>GameFiles</Filter>
+    </ClInclude>
+    <ClInclude Include="GameFiles\M2EmulatorInputs.h">
+      <Filter>GameFiles</Filter>
+    </ClInclude>
+    <ClInclude Include="GameFiles\M2EmulatorIndy500Inputs.h">
+      <Filter>GameFiles</Filter>
+    </ClInclude>
+    <ClInclude Include="GameFiles\M2EmulatorDaytonaInputs.h">
+      <Filter>GameFiles</Filter>
+    </ClInclude>
+    <ClInclude Include="GameFiles\DemulSmashingDriveInputs.h">
+      <Filter>GameFiles</Filter>
+    </ClInclude>
+    <ClInclude Include="GameFiles\DemulNascarInputs.h">
+      <Filter>GameFiles</Filter>
+    </ClInclude>
+    <ClInclude Include="GameFiles\DemulMaximumSpeedInputs.h">
+      <Filter>GameFiles</Filter>
+    </ClInclude>
+    <ClInclude Include="GameFiles\DemulInputs.h">
+      <Filter>GameFiles</Filter>
+    </ClInclude>
+    <ClInclude Include="GameFiles\DemulInitialDInputs.h">
+      <Filter>GameFiles</Filter>
+    </ClInclude>
+    <ClInclude Include="GameFiles\DemulFasterThanSpeedInputs.h">
+      <Filter>GameFiles</Filter>
+    </ClInclude>
+    <ClInclude Include="GameFiles\DemulATVTrackInputs.h">
+      <Filter>GameFiles</Filter>
+    </ClInclude>
     <ClInclude Include="GameFiles\EmulatorGames.h">
       <Filter>GameFiles</Filter>
     </ClInclude>

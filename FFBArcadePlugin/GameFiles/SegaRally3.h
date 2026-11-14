@@ -12,10 +12,13 @@ along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
 */
 
 #pragma once
-#include "../Common Files/TeknoParrotGame.h"
+#include "../Core/TeknoParrot.h"
 
-class SegaRally3 : public TeknoParrotGame {
+// Sega Rally 3 (Sega Europa-R, TeknoParrot): TeknoParrot publishes the force of the wheel as a value
+// of the drive board: 16 to 31 from the left (16 the strongest), 1 to 15 from the right (1 the
+// strongest), 0 no force
+class SegaRally3 : public ffb::TeknoParrotGame
+{
 public:
-	SegaRally3() : TeknoParrotGame() { }
-	void FFBLoop(EffectConstants *constants, Helpers *helpers, EffectTriggers* triggers);
+	void Update() override;
 };

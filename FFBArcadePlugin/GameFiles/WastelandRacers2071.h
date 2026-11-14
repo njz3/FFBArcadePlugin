@@ -12,10 +12,28 @@ along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
 */
 
 #pragma once
-#include "../Common Files/Game.h"
+#include "../Core/Game.h"
 
-class WasteLandRacers2071 : public Game {
-
+// Wasteland Racers 2071 (TeknoParrot): once the game has loaded sdc2.dll, the library of its wheel, the
+// plugin replaces its functions: SetForce gives the strength of the centering spring (played at each
+// loop), SetSteeringPos a force played at once; SetDigitalOut is emptied.
+class WasteLandRacers2071 : public ffb::Game
+{
 public:
-	void FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTriggers* triggers);
+	WasteLandRacers2071();
+	void Update() override;
+
+private:
+	static WasteLandRacers2071* instance;
+	static int(__cdecl* setForceOriginal)(int force, int param_2, int param_3, int param_4);
+	static int(__cdecl* setSteeringPosOriginal)(int position, int param_2, int param_3, int param_4);
+	static int(__cdecl* setDigitalOutOriginal)(int param_1, int param_2, int param_3, int param_4);
+	// force: the spring is force / 32768
+	static int __cdecl SetForceHook(int force, int param_2, int param_3, int param_4);
+	// position: >= 0 a force from the right of position / 128000, < 0 from the left
+	static int __cdecl SetSteeringPosHook(int position, int param_2, int param_3, int param_4);
+	static int __cdecl SetDigitalOutHook(int param_1, int param_2, int param_3, int param_4);
+
+	bool hooked = false;
+	double springStrength = 1; // set by SetForce
 };

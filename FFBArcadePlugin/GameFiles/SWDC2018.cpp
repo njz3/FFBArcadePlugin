@@ -11,73 +11,55 @@ You should have received a copy of the GNU General Public License
 along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
 */
 
-#include <string>
+#include <string.h>
 #include "SWDC2018.h"
-#include "../Common Files/InitialDFFB.h"
 
-static bool VersionFound;
-static bool Version103;
-static bool Version230;
+using namespace ffb;
 
-static DWORD FFB;
-
-static int EscapeKeyExitViaPlugin = GetSettingInt(TEXT("EscapeKeyExitViaPlugin"), 0);
-
-static const char* SDDS = "SDDS";
-
-static void getSDDS103(char* Name)
+bool SWDC::IsGameName(DWORD value)
 {
-	if (strcmp(Name, SDDS) == 0)
-	{
-		Version103 = true;
-		VersionFound = true;
-	}
+	char name[5] = { 0 };
+	memcpy(name, &value, 4);
+	return strcmp(name, "SDDS") == 0;
 }
 
-static void getSDDS230(char* Name)
+void SWDC::Update()
 {
-	if (strcmp(Name, SDDS) == 0)
-	{
-		Version230 = true;
-		VersionFound = true;
-	}
-}
-
-void SWDC::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTriggers* triggers) {
-
-	if (GetAsyncKeyState((VK_ESCAPE)) && (EscapeKeyExitViaPlugin == 1))
+	if (GetAsyncKeyState((VK_ESCAPE)) && (escapeKeyExitViaPlugin == 1))
 		ExitProcess(0);
 
-	if (!VersionFound)
+	if (!versionFound)
 	{
-		DWORD SDDS103 = helpers->ReadInt32(0x8E5CBD0, true);
-		DWORD SDDS230 = helpers->ReadInt32(0x9BC7B20, true);
+		DWORD name103 = Memory::Read(Name103);
+		DWORD name230 = Memory::Read(Name230);
 
-		char Version103[256] = { 0 };
-		std::memcpy(Version103, &SDDS103, 4);
-		std::string myString103(Version103);
+		if (IsGameName(name103))
+		{
+			version103 = true;
+			versionFound = true;
+		}
 
-		char Version230[256] = { 0 };
-		std::memcpy(Version230, &SDDS230, 4);
-		std::string myString230(Version230);
-
-		getSDDS103((char*)myString103.c_str());
-		getSDDS230((char*)myString230.c_str());
+		if (IsGameName(name230))
+		{
+			version230 = true;
+			versionFound = true;
+		}
 	}
 	else
 	{
-		if (Version103)
-			FFB = helpers->ReadInt32(0x8E5CCF4, true);
+		if (version103)
+			command = Memory::Read(DriveBoardCommand103);
 
-		if (Version230)
-			FFB = helpers->ReadInt32(0x9BC7B18, true);
+		if (version230)
+			command = Memory::Read(DriveBoardCommand230);
 
-		ApplyDamper(triggers);
+		ApplyDamper();
 
-		BYTE* ffb = reinterpret_cast<BYTE*>(&FFB);
+		BYTE* bytes = reinterpret_cast<BYTE*>(&command);
 
-		ApplyDamper(triggers);
+		// the damper is played twice, as it always was
+		ApplyDamper();
 
-		PlayInitialDFFB(ffb[0], ffb[1], ffb[2], InitialDFFBDefaultSettings, constants, triggers);
+		driveBoard.Play(bytes[0], bytes[1], bytes[2]);
 	}
 }

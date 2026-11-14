@@ -1,57 +1,29 @@
-#include "../Common Files/Game.h"
+/*This file is part of FFB Arcade Plugin.
+FFB Arcade Plugin is free software : you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+FFB Arcade Plugin is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.See the
+GNU General Public License for more details.
+You should have received a copy of the GNU General Public License
+along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
+*/
+
+#include "DemulATVTrackInputs.h"
 #include <string>
 #include <windows.h>
 #include "SDL.h"
 #include "../Common Files/Devices.h"
+#include "../Core/Memory.h"
+#include "../Core/Settings.h"
 
 extern int joystick_index1;
 extern int joystick_index2;
-static bool testbuttonA;
-static bool servicebuttonA;
-static bool startbuttonA;
-static bool volumeupA;
-static bool volumedownA;
-static bool coinA;
-static bool brakepressed;
-static bool emergencystopA;
-static bool Inputsinit = false;
 extern SDL_Event e;
 
-static int SteeringValue;
-static int BrakeValue;
-
-extern INT_PTR SteeringAddress;
-extern INT_PTR AcclAddress;
-extern INT_PTR BrakeAddress;
-extern INT_PTR ServiceTestAddress;
-
-static int InputDeviceWheelSteeringAxis = GetSettingInt(TEXT("InputDeviceWheelSteeringAxis"), 0);
-static int InputDeviceWheelAcclAxis = GetSettingInt(TEXT("InputDeviceWheelAcclAxis"), 0);
-static int InputDeviceWheelBrakeAxis = GetSettingInt(TEXT("InputDeviceWheelBrakeAxis"), 0);
-static int InputDeviceWheelReverseAxis = GetSettingInt(TEXT("InputDeviceWheelReverseAxis"), 0);
-static int InputDeviceCombinedPedals = GetSettingInt(TEXT("InputDeviceCombinedPedals"), 0);
-static int SteeringDeadzone = GetSettingInt(TEXT("SteeringDeadzone"), 0);
-static int PedalDeadzone = GetSettingInt(TEXT("PedalDeadzone"), 0);
-static int ShowButtonNumbersForSetup = GetSettingInt(TEXT("ShowButtonNumbersForSetup"), 0);
-static int ShowAxisForSetup = GetSettingInt(TEXT("ShowAxisForSetup"), 0);
-static int ExitButton = GetSettingInt(TEXT("ExitButton"), 0);
-static int TestButton = GetSettingInt(TEXT("TestButton"), 0);
-static int ServiceButton = GetSettingInt(TEXT("ServiceButton"), 0);
-static int CreditButton = GetSettingInt(TEXT("CreditButton"), 0);
-static int StartButton = GetSettingInt(TEXT("StartButton"), 0);
-static int VolumeUp = GetSettingInt(TEXT("VolumeUp"), 0);
-static int VolumeDown = GetSettingInt(TEXT("VolumeDown"), 0);
-static int EmergencyStop = GetSettingInt(TEXT("EmergencyStop"), 0);
-static int ExitButtonDevice2 = GetSettingInt(TEXT("ExitButtonDevice2"), 0);
-static int TestButtonDevice2 = GetSettingInt(TEXT("TestButtonDevice2"), 0);
-static int ServiceButtonDevice2 = GetSettingInt(TEXT("ServiceButtonDevice2"), 0);
-static int CreditButtonDevice2 = GetSettingInt(TEXT("CreditButtonDevice2"), 0);
-static int StartButtonDevice2 = GetSettingInt(TEXT("StartButtonDevice2"), 0);
-static int VolumeUpDevice2 = GetSettingInt(TEXT("VolumeUpDevice2"), 0);
-static int VolumeDownDevice2 = GetSettingInt(TEXT("VolumeDownDevice2"), 0);
-static int EmergencyStopDevice2 = GetSettingInt(TEXT("EmergencyStopDevice2"), 0);
-
-void ATVTrackInputsEnabled(Helpers* helpers)
+void DemulATVTrackInputs::Update()
 {
 	if (!Inputsinit)
 	{
@@ -68,14 +40,14 @@ void ATVTrackInputsEnabled(Helpers* helpers)
 	char DpadDownCharDevice2[256];
 	char DpadLeftCharDevice2[256];
 	char DpadRightCharDevice2[256];
-	GetPrivateProfileStringA("Settings", "DpadUp", "", DpadUpChar, 256, ".\\FFBplugin.ini");
-	GetPrivateProfileStringA("Settings", "DpadDown", "", DpadDownChar, 256, ".\\FFBplugin.ini");
-	GetPrivateProfileStringA("Settings", "DpadLeft", "", DpadLeftChar, 256, ".\\FFBplugin.ini");
-	GetPrivateProfileStringA("Settings", "DpadRight", "", DpadRightChar, 256, ".\\FFBplugin.ini");
-	GetPrivateProfileStringA("Settings", "DpadUpDevice2", "", DpadUpCharDevice2, 256, ".\\FFBplugin.ini");
-	GetPrivateProfileStringA("Settings", "DpadDownDevice2", "", DpadDownCharDevice2, 256, ".\\FFBplugin.ini");
-	GetPrivateProfileStringA("Settings", "DpadLeftDevice2", "", DpadLeftCharDevice2, 256, ".\\FFBplugin.ini");
-	GetPrivateProfileStringA("Settings", "DpadRightDevice2", "", DpadRightCharDevice2, 256, ".\\FFBplugin.ini");
+	strcpy_s(DpadUpChar, ffb::Settings::String("DpadUp").c_str());
+	strcpy_s(DpadDownChar, ffb::Settings::String("DpadDown").c_str());
+	strcpy_s(DpadLeftChar, ffb::Settings::String("DpadLeft").c_str());
+	strcpy_s(DpadRightChar, ffb::Settings::String("DpadRight").c_str());
+	strcpy_s(DpadUpCharDevice2, ffb::Settings::String("DpadUpDevice2").c_str());
+	strcpy_s(DpadDownCharDevice2, ffb::Settings::String("DpadDownDevice2").c_str());
+	strcpy_s(DpadLeftCharDevice2, ffb::Settings::String("DpadLeftDevice2").c_str());
+	strcpy_s(DpadRightCharDevice2, ffb::Settings::String("DpadRightDevice2").c_str());
 	std::string exit("ExitButton");
 	std::string test("TestButton");
 	std::string service("ServiceButton");
@@ -108,8 +80,8 @@ void ATVTrackInputsEnabled(Helpers* helpers)
 	const int BRAKE_DEAD_ZONE = (1 + PedalDeadzone * 100);
 	const int SETUP_DEAD_ZONE = 20000;
 
-	UINT8 brakeread = helpers->ReadByte(BrakeAddress, false);
-	UINT8 servicetestread = helpers->ReadByte(ServiceTestAddress, false);
+	UINT8 brakeread = ffb::Memory::Read<UINT8>(BrakeAddress);
+	UINT8 servicetestread = ffb::Memory::Read<UINT8>(ServiceTestAddress);
 
 	while (SDL_WaitEvent(&e) != 0)
 	{
@@ -136,7 +108,7 @@ void ATVTrackInputsEnabled(Helpers* helpers)
 						SteeringValue = 0x7F;
 					}
 
-					helpers->WriteByte(SteeringAddress, -SteeringValue - 1, false);
+					ffb::Memory::Write<UINT8>(SteeringAddress, -SteeringValue - 1);
 				}
 				if (InputDeviceWheelReverseAxis == 1)
 				{
@@ -147,7 +119,7 @@ void ATVTrackInputsEnabled(Helpers* helpers)
 							if (e.jaxis.value < -ACCL_DEAD_ZONE)
 							{
 								e.jaxis.value = e.jaxis.value + ACCL_DEAD_ZONE;
-								helpers->WriteByte(AcclAddress, (UINT8)((-e.jaxis.value + ACCL_DEAD_ZONE) / 128.5), false);
+								ffb::Memory::Write<UINT8>(AcclAddress, (UINT8)((-e.jaxis.value + ACCL_DEAD_ZONE) / 128.5));
 							}
 							else if (e.jaxis.value > ACCL_DEAD_ZONE)
 							{
@@ -156,7 +128,7 @@ void ATVTrackInputsEnabled(Helpers* helpers)
 							}
 							else if ((e.jaxis.value < ACCL_DEAD_ZONE) && (e.jaxis.value > -ACCL_DEAD_ZONE))
 							{
-								helpers->WriteByte(AcclAddress, 0x00, false);
+								ffb::Memory::Write<UINT8>(AcclAddress, 0x00);
 								BrakeValue = 0x00;
 							}
 
@@ -164,7 +136,7 @@ void ATVTrackInputsEnabled(Helpers* helpers)
 							{
 								if (!brakepressed)
 								{
-									helpers->WriteByte(BrakeAddress, brakeread -= 0x10, false);
+									ffb::Memory::Write<UINT8>(BrakeAddress, brakeread -= 0x10);
 									brakepressed = true;
 								}
 							}
@@ -172,7 +144,7 @@ void ATVTrackInputsEnabled(Helpers* helpers)
 							{
 								if (brakepressed)
 								{
-									helpers->WriteByte(BrakeAddress, brakeread += 0x10, false);
+									ffb::Memory::Write<UINT8>(BrakeAddress, brakeread += 0x10);
 									brakepressed = false;
 								}
 							}
@@ -185,12 +157,12 @@ void ATVTrackInputsEnabled(Helpers* helpers)
 							if (e.jaxis.value < -ACCL_DEAD_ZONE)
 							{
 								e.jaxis.value = (e.jaxis.value / 255);
-								helpers->WriteByte(AcclAddress, 127 - e.jaxis.value, false);
+								ffb::Memory::Write<UINT8>(AcclAddress, 127 - e.jaxis.value);
 							}
 							else if (e.jaxis.value > ACCL_DEAD_ZONE)
 							{
 								e.jaxis.value = (e.jaxis.value / 255);
-								helpers->WriteByte(AcclAddress, 128 - e.jaxis.value, false);
+								ffb::Memory::Write<UINT8>(AcclAddress, 128 - e.jaxis.value);
 							}
 						}
 						else if (e.jaxis.axis == InputDeviceWheelBrakeAxis)
@@ -210,7 +182,7 @@ void ATVTrackInputsEnabled(Helpers* helpers)
 							{
 								if (!brakepressed)
 								{
-									helpers->WriteByte(BrakeAddress, brakeread -= 0x10, false);
+									ffb::Memory::Write<UINT8>(BrakeAddress, brakeread -= 0x10);
 									brakepressed = true;
 								}
 							}
@@ -218,7 +190,7 @@ void ATVTrackInputsEnabled(Helpers* helpers)
 							{
 								if (brakepressed)
 								{
-									helpers->WriteByte(BrakeAddress, brakeread += 0x10, false);
+									ffb::Memory::Write<UINT8>(BrakeAddress, brakeread += 0x10);
 									brakepressed = false;
 								}
 							}
@@ -234,7 +206,7 @@ void ATVTrackInputsEnabled(Helpers* helpers)
 							if (e.jaxis.value < -ACCL_DEAD_ZONE)
 							{
 								e.jaxis.value = e.jaxis.value - ACCL_DEAD_ZONE;
-								helpers->WriteByte(AcclAddress, ((e.jaxis.value + ACCL_DEAD_ZONE) / 128), false);
+								ffb::Memory::Write<UINT8>(AcclAddress, ((e.jaxis.value + ACCL_DEAD_ZONE) / 128));
 							}
 							else if (e.jaxis.value > ACCL_DEAD_ZONE)
 							{
@@ -243,7 +215,7 @@ void ATVTrackInputsEnabled(Helpers* helpers)
 							}
 							else if ((e.jaxis.value < ACCL_DEAD_ZONE) && (e.jaxis.value > -ACCL_DEAD_ZONE))
 							{
-								helpers->WriteByte(AcclAddress, 0xFF, false);
+								ffb::Memory::Write<UINT8>(AcclAddress, 0xFF);
 								BrakeValue = 0x00;
 							}
 
@@ -251,7 +223,7 @@ void ATVTrackInputsEnabled(Helpers* helpers)
 							{
 								if (!brakepressed)
 								{
-									helpers->WriteByte(BrakeAddress, brakeread -= 0x10, false);
+									ffb::Memory::Write<UINT8>(BrakeAddress, brakeread -= 0x10);
 									brakepressed = true;
 								}
 							}
@@ -259,7 +231,7 @@ void ATVTrackInputsEnabled(Helpers* helpers)
 							{
 								if (brakepressed)
 								{
-									helpers->WriteByte(BrakeAddress, brakeread += 0x10, false);
+									ffb::Memory::Write<UINT8>(BrakeAddress, brakeread += 0x10);
 									brakepressed = false;
 								}
 							}
@@ -272,12 +244,12 @@ void ATVTrackInputsEnabled(Helpers* helpers)
 							if (e.jaxis.value < -ACCL_DEAD_ZONE)
 							{
 								e.jaxis.value = (e.jaxis.value / 255);
-								helpers->WriteByte(AcclAddress, 128 + e.jaxis.value, false);
+								ffb::Memory::Write<UINT8>(AcclAddress, 128 + e.jaxis.value);
 							}
 							else if (e.jaxis.value > ACCL_DEAD_ZONE)
 							{
 								e.jaxis.value = (e.jaxis.value / 255);
-								helpers->WriteByte(AcclAddress, 127 + e.jaxis.value, false);
+								ffb::Memory::Write<UINT8>(AcclAddress, 127 + e.jaxis.value);
 							}
 						}
 						if (e.jaxis.axis == InputDeviceWheelBrakeAxis)
@@ -297,7 +269,7 @@ void ATVTrackInputsEnabled(Helpers* helpers)
 							{
 								if (!brakepressed)
 								{
-									helpers->WriteByte(BrakeAddress, brakeread -= 0x10, false);
+									ffb::Memory::Write<UINT8>(BrakeAddress, brakeread -= 0x10);
 									brakepressed = true;
 								}
 							}
@@ -305,7 +277,7 @@ void ATVTrackInputsEnabled(Helpers* helpers)
 							{
 								if (brakepressed)
 								{
-									helpers->WriteByte(BrakeAddress, brakeread += 0x10, false);
+									ffb::Memory::Write<UINT8>(BrakeAddress, brakeread += 0x10);
 									brakepressed = false;
 								}
 							}
@@ -365,37 +337,37 @@ void ATVTrackInputsEnabled(Helpers* helpers)
 				{
 					if (testbuttonA)
 					{
-						helpers->WriteByte(ServiceTestAddress, servicetestread += 0x08, false);
+						ffb::Memory::Write<UINT8>(ServiceTestAddress, servicetestread += 0x08);
 						testbuttonA = false;
 					}
 					if (servicebuttonA)
 					{
-						helpers->WriteByte(ServiceTestAddress, servicetestread += 0x02, false);
+						ffb::Memory::Write<UINT8>(ServiceTestAddress, servicetestread += 0x02);
 						servicebuttonA = false;
 					}
 					if (startbuttonA)
 					{
-						helpers->WriteByte(BrakeAddress, brakeread += 0x80, false);
+						ffb::Memory::Write<UINT8>(BrakeAddress, brakeread += 0x80);
 						startbuttonA = false;
 					}
 					if (volumeupA)
 					{
-						helpers->WriteByte(ServiceTestAddress, servicetestread += 0x01, false);
+						ffb::Memory::Write<UINT8>(ServiceTestAddress, servicetestread += 0x01);
 						volumeupA = false;
 					}
 					if (volumedownA)
 					{
-						helpers->WriteByte(ServiceTestAddress, servicetestread += 0x04, false);
+						ffb::Memory::Write<UINT8>(ServiceTestAddress, servicetestread += 0x04);
 						volumedownA = false;
 					}
 					if (emergencystopA)
 					{
-						helpers->WriteByte(BrakeAddress, brakeread -= 0x40, false);
+						ffb::Memory::Write<UINT8>(BrakeAddress, brakeread -= 0x40);
 						emergencystopA = false;
 					}
 					if (coinA)
 					{
-						helpers->WriteByte(ServiceTestAddress, servicetestread += 0x20, false);
+						ffb::Memory::Write<UINT8>(ServiceTestAddress, servicetestread += 0x20);
 						coinA = false;
 					}
 				}
@@ -403,37 +375,37 @@ void ATVTrackInputsEnabled(Helpers* helpers)
 				{
 					if (testbuttonA)
 					{
-						helpers->WriteByte(ServiceTestAddress, servicetestread += 0x08, false);
+						ffb::Memory::Write<UINT8>(ServiceTestAddress, servicetestread += 0x08);
 						testbuttonA = false;
 					}
 					if (servicebuttonA)
 					{
-						helpers->WriteByte(ServiceTestAddress, servicetestread += 0x02, false);
+						ffb::Memory::Write<UINT8>(ServiceTestAddress, servicetestread += 0x02);
 						servicebuttonA = false;
 					}
 					if (startbuttonA)
 					{
-						helpers->WriteByte(BrakeAddress, brakeread += 0x80, false);
+						ffb::Memory::Write<UINT8>(BrakeAddress, brakeread += 0x80);
 						startbuttonA = false;
 					}
 					if (volumeupA)
 					{
-						helpers->WriteByte(ServiceTestAddress, servicetestread += 0x01, false);
+						ffb::Memory::Write<UINT8>(ServiceTestAddress, servicetestread += 0x01);
 						volumeupA = false;
 					}
 					if (volumedownA)
 					{
-						helpers->WriteByte(ServiceTestAddress, servicetestread += 0x04, false);
+						ffb::Memory::Write<UINT8>(ServiceTestAddress, servicetestread += 0x04);
 						volumedownA = false;
 					}
 					if (emergencystopA)
 					{
-						helpers->WriteByte(BrakeAddress, brakeread -= 0x40, false);
+						ffb::Memory::Write<UINT8>(BrakeAddress, brakeread -= 0x40);
 						emergencystopA = false;
 					}
 					if (coinA)
 					{
-						helpers->WriteByte(ServiceTestAddress, servicetestread += 0x20, false);
+						ffb::Memory::Write<UINT8>(ServiceTestAddress, servicetestread += 0x20);
 						coinA = false;
 					}
 				}
@@ -448,37 +420,37 @@ void ATVTrackInputsEnabled(Helpers* helpers)
 					}
 					if (dpdup.compare(test) == 0)
 					{
-						helpers->WriteByte(ServiceTestAddress, servicetestread -= 0x08, false);
+						ffb::Memory::Write<UINT8>(ServiceTestAddress, servicetestread -= 0x08);
 						testbuttonA = true;
 					}
 					if (dpdup.compare(service) == 0)
 					{
-						helpers->WriteByte(ServiceTestAddress, servicetestread -= 0x02, false);
+						ffb::Memory::Write<UINT8>(ServiceTestAddress, servicetestread -= 0x02);
 						servicebuttonA = true;
 					}
 					if (dpdup.compare(coin) == 0)
 					{
-						helpers->WriteByte(ServiceTestAddress, servicetestread -= 0x20, false);
+						ffb::Memory::Write<UINT8>(ServiceTestAddress, servicetestread -= 0x20);
 						coinA = true;
 					}
 					if (dpdup.compare(emergency) == 0)
 					{
-						helpers->WriteByte(BrakeAddress, brakeread += 0x40, false);
+						ffb::Memory::Write<UINT8>(BrakeAddress, brakeread += 0x40);
 						emergencystopA = true;
 					}
 					if (dpdup.compare(start) == 0)
 					{
-						helpers->WriteByte(BrakeAddress, brakeread -= 0x80, false);
+						ffb::Memory::Write<UINT8>(BrakeAddress, brakeread -= 0x80);
 						startbuttonA = true;
 					}
 					if (dpdup.compare(volup) == 0)
 					{
-						helpers->WriteByte(ServiceTestAddress, servicetestread -= 0x01, false);
+						ffb::Memory::Write<UINT8>(ServiceTestAddress, servicetestread -= 0x01);
 						volumeupA = true;
 					}
 					if (dpdup.compare(voldown) == 0)
 					{
-						helpers->WriteByte(ServiceTestAddress, servicetestread -= 0x04, false);
+						ffb::Memory::Write<UINT8>(ServiceTestAddress, servicetestread -= 0x04);
 						volumedownA = true;
 					}
 				}
@@ -490,37 +462,37 @@ void ATVTrackInputsEnabled(Helpers* helpers)
 					}
 					if (dpdup2.compare(test2) == 0)
 					{
-						helpers->WriteByte(ServiceTestAddress, servicetestread -= 0x08, false);
+						ffb::Memory::Write<UINT8>(ServiceTestAddress, servicetestread -= 0x08);
 						testbuttonA = true;
 					}
 					if (dpdup2.compare(service2) == 0)
 					{
-						helpers->WriteByte(ServiceTestAddress, servicetestread -= 0x02, false);
+						ffb::Memory::Write<UINT8>(ServiceTestAddress, servicetestread -= 0x02);
 						servicebuttonA = true;
 					}
 					if (dpdup2.compare(coin2) == 0)
 					{
-						helpers->WriteByte(ServiceTestAddress, servicetestread -= 0x20, false);
+						ffb::Memory::Write<UINT8>(ServiceTestAddress, servicetestread -= 0x20);
 						coinA = true;
 					}
 					if (dpdup2.compare(emergency2) == 0)
 					{
-						helpers->WriteByte(BrakeAddress, brakeread += 0x40, false);
+						ffb::Memory::Write<UINT8>(BrakeAddress, brakeread += 0x40);
 						emergencystopA = true;
 					}
 					if (dpdup2.compare(start2) == 0)
 					{
-						helpers->WriteByte(BrakeAddress, brakeread -= 0x80, false);
+						ffb::Memory::Write<UINT8>(BrakeAddress, brakeread -= 0x80);
 						startbuttonA = true;
 					}
 					if (dpdup2.compare(volup2) == 0)
 					{
-						helpers->WriteByte(ServiceTestAddress, servicetestread -= 0x01, false);
+						ffb::Memory::Write<UINT8>(ServiceTestAddress, servicetestread -= 0x01);
 						volumeupA = true;
 					}
 					if (dpdup2.compare(voldown2) == 0)
 					{
-						helpers->WriteByte(ServiceTestAddress, servicetestread -= 0x04, false);
+						ffb::Memory::Write<UINT8>(ServiceTestAddress, servicetestread -= 0x04);
 						volumedownA = true;
 					}
 				}
@@ -535,37 +507,37 @@ void ATVTrackInputsEnabled(Helpers* helpers)
 					}
 					if (dpddown.compare(test) == 0)
 					{
-						helpers->WriteByte(ServiceTestAddress, servicetestread -= 0x08, false);
+						ffb::Memory::Write<UINT8>(ServiceTestAddress, servicetestread -= 0x08);
 						testbuttonA = true;
 					}
 					if (dpddown.compare(service) == 0)
 					{
-						helpers->WriteByte(ServiceTestAddress, servicetestread -= 0x02, false);
+						ffb::Memory::Write<UINT8>(ServiceTestAddress, servicetestread -= 0x02);
 						servicebuttonA = true;
 					}
 					if (dpddown.compare(coin) == 0)
 					{
-						helpers->WriteByte(ServiceTestAddress, servicetestread -= 0x20, false);
+						ffb::Memory::Write<UINT8>(ServiceTestAddress, servicetestread -= 0x20);
 						coinA = true;
 					}
 					if (dpddown.compare(emergency) == 0)
 					{
-						helpers->WriteByte(BrakeAddress, brakeread += 0x40, false);
+						ffb::Memory::Write<UINT8>(BrakeAddress, brakeread += 0x40);
 						emergencystopA = true;
 					}
 					if (dpddown.compare(start) == 0)
 					{
-						helpers->WriteByte(BrakeAddress, brakeread -= 0x80, false);
+						ffb::Memory::Write<UINT8>(BrakeAddress, brakeread -= 0x80);
 						startbuttonA = true;
 					}
 					if (dpddown.compare(volup) == 0)
 					{
-						helpers->WriteByte(ServiceTestAddress, servicetestread -= 0x01, false);
+						ffb::Memory::Write<UINT8>(ServiceTestAddress, servicetestread -= 0x01);
 						volumeupA = true;
 					}
 					if (dpddown.compare(voldown) == 0)
 					{
-						helpers->WriteByte(ServiceTestAddress, servicetestread -= 0x04, false);
+						ffb::Memory::Write<UINT8>(ServiceTestAddress, servicetestread -= 0x04);
 						volumedownA = true;
 					}
 				}
@@ -577,37 +549,37 @@ void ATVTrackInputsEnabled(Helpers* helpers)
 					}
 					if (dpddown2.compare(test2) == 0)
 					{
-						helpers->WriteByte(ServiceTestAddress, servicetestread -= 0x08, false);
+						ffb::Memory::Write<UINT8>(ServiceTestAddress, servicetestread -= 0x08);
 						testbuttonA = true;
 					}
 					if (dpddown2.compare(service2) == 0)
 					{
-						helpers->WriteByte(ServiceTestAddress, servicetestread -= 0x02, false);
+						ffb::Memory::Write<UINT8>(ServiceTestAddress, servicetestread -= 0x02);
 						servicebuttonA = true;
 					}
 					if (dpddown2.compare(coin2) == 0)
 					{
-						helpers->WriteByte(ServiceTestAddress, servicetestread -= 0x20, false);
+						ffb::Memory::Write<UINT8>(ServiceTestAddress, servicetestread -= 0x20);
 						coinA = true;
 					}
 					if (dpddown2.compare(emergency2) == 0)
 					{
-						helpers->WriteByte(BrakeAddress, brakeread += 0x40, false);
+						ffb::Memory::Write<UINT8>(BrakeAddress, brakeread += 0x40);
 						emergencystopA = true;
 					}
 					if (dpddown2.compare(start2) == 0)
 					{
-						helpers->WriteByte(BrakeAddress, brakeread -= 0x80, false);
+						ffb::Memory::Write<UINT8>(BrakeAddress, brakeread -= 0x80);
 						startbuttonA = true;
 					}
 					if (dpddown2.compare(volup2) == 0)
 					{
-						helpers->WriteByte(ServiceTestAddress, servicetestread -= 0x01, false);
+						ffb::Memory::Write<UINT8>(ServiceTestAddress, servicetestread -= 0x01);
 						volumeupA = true;
 					}
 					if (dpddown2.compare(voldown2) == 0)
 					{
-						helpers->WriteByte(ServiceTestAddress, servicetestread -= 0x04, false);
+						ffb::Memory::Write<UINT8>(ServiceTestAddress, servicetestread -= 0x04);
 						volumedownA = true;
 					}
 				}
@@ -622,37 +594,37 @@ void ATVTrackInputsEnabled(Helpers* helpers)
 					}
 					if (dpdleft.compare(test) == 0)
 					{
-						helpers->WriteByte(ServiceTestAddress, servicetestread -= 0x08, false);
+						ffb::Memory::Write<UINT8>(ServiceTestAddress, servicetestread -= 0x08);
 						testbuttonA = true;
 					}
 					if (dpdleft.compare(service) == 0)
 					{
-						helpers->WriteByte(ServiceTestAddress, servicetestread -= 0x02, false);
+						ffb::Memory::Write<UINT8>(ServiceTestAddress, servicetestread -= 0x02);
 						servicebuttonA = true;
 					}
 					if (dpdleft.compare(coin) == 0)
 					{
-						helpers->WriteByte(ServiceTestAddress, servicetestread -= 0x20, false);
+						ffb::Memory::Write<UINT8>(ServiceTestAddress, servicetestread -= 0x20);
 						coinA = true;
 					}
 					if (dpdleft.compare(emergency) == 0)
 					{
-						helpers->WriteByte(BrakeAddress, brakeread += 0x40, false);
+						ffb::Memory::Write<UINT8>(BrakeAddress, brakeread += 0x40);
 						emergencystopA = true;
 					}
 					if (dpdleft.compare(start) == 0)
 					{
-						helpers->WriteByte(BrakeAddress, brakeread -= 0x80, false);
+						ffb::Memory::Write<UINT8>(BrakeAddress, brakeread -= 0x80);
 						startbuttonA = true;
 					}
 					if (dpdleft.compare(volup) == 0)
 					{
-						helpers->WriteByte(ServiceTestAddress, servicetestread -= 0x01, false);
+						ffb::Memory::Write<UINT8>(ServiceTestAddress, servicetestread -= 0x01);
 						volumeupA = true;
 					}
 					if (dpdleft.compare(voldown) == 0)
 					{
-						helpers->WriteByte(ServiceTestAddress, servicetestread -= 0x04, false);
+						ffb::Memory::Write<UINT8>(ServiceTestAddress, servicetestread -= 0x04);
 						volumedownA = true;
 					}
 				}
@@ -664,37 +636,37 @@ void ATVTrackInputsEnabled(Helpers* helpers)
 					}
 					if (dpdleft2.compare(test2) == 0)
 					{
-						helpers->WriteByte(ServiceTestAddress, servicetestread -= 0x08, false);
+						ffb::Memory::Write<UINT8>(ServiceTestAddress, servicetestread -= 0x08);
 						testbuttonA = true;
 					}
 					if (dpdleft2.compare(service2) == 0)
 					{
-						helpers->WriteByte(ServiceTestAddress, servicetestread -= 0x02, false);
+						ffb::Memory::Write<UINT8>(ServiceTestAddress, servicetestread -= 0x02);
 						servicebuttonA = true;
 					}
 					if (dpdleft2.compare(coin2) == 0)
 					{
-						helpers->WriteByte(ServiceTestAddress, servicetestread -= 0x20, false);
+						ffb::Memory::Write<UINT8>(ServiceTestAddress, servicetestread -= 0x20);
 						coinA = true;
 					}
 					if (dpdleft2.compare(emergency2) == 0)
 					{
-						helpers->WriteByte(BrakeAddress, brakeread += 0x40, false);
+						ffb::Memory::Write<UINT8>(BrakeAddress, brakeread += 0x40);
 						emergencystopA = true;
 					}
 					if (dpdleft2.compare(start2) == 0)
 					{
-						helpers->WriteByte(BrakeAddress, brakeread -= 0x80, false);
+						ffb::Memory::Write<UINT8>(BrakeAddress, brakeread -= 0x80);
 						startbuttonA = true;
 					}
 					if (dpdleft2.compare(volup2) == 0)
 					{
-						helpers->WriteByte(ServiceTestAddress, servicetestread -= 0x01, false);
+						ffb::Memory::Write<UINT8>(ServiceTestAddress, servicetestread -= 0x01);
 						volumeupA = true;
 					}
 					if (dpdleft2.compare(voldown2) == 0)
 					{
-						helpers->WriteByte(ServiceTestAddress, servicetestread -= 0x04, false);
+						ffb::Memory::Write<UINT8>(ServiceTestAddress, servicetestread -= 0x04);
 						volumedownA = true;
 					}
 				}
@@ -709,37 +681,37 @@ void ATVTrackInputsEnabled(Helpers* helpers)
 					}
 					if (dpdright.compare(test) == 0)
 					{
-						helpers->WriteByte(ServiceTestAddress, servicetestread -= 0x08, false);
+						ffb::Memory::Write<UINT8>(ServiceTestAddress, servicetestread -= 0x08);
 						testbuttonA = true;
 					}
 					if (dpdright.compare(service) == 0)
 					{
-						helpers->WriteByte(ServiceTestAddress, servicetestread -= 0x02, false);
+						ffb::Memory::Write<UINT8>(ServiceTestAddress, servicetestread -= 0x02);
 						servicebuttonA = true;
 					}
 					if (dpdright.compare(coin) == 0)
 					{
-						helpers->WriteByte(ServiceTestAddress, servicetestread -= 0x20, false);
+						ffb::Memory::Write<UINT8>(ServiceTestAddress, servicetestread -= 0x20);
 						coinA = true;
 					}
 					if (dpdright.compare(emergency) == 0)
 					{
-						helpers->WriteByte(BrakeAddress, brakeread += 0x40, false);
+						ffb::Memory::Write<UINT8>(BrakeAddress, brakeread += 0x40);
 						emergencystopA = true;
 					}
 					if (dpdright.compare(start) == 0)
 					{
-						helpers->WriteByte(BrakeAddress, brakeread -= 0x80, false);
+						ffb::Memory::Write<UINT8>(BrakeAddress, brakeread -= 0x80);
 						startbuttonA = true;
 					}
 					if (dpdright.compare(volup) == 0)
 					{
-						helpers->WriteByte(ServiceTestAddress, servicetestread -= 0x01, false);
+						ffb::Memory::Write<UINT8>(ServiceTestAddress, servicetestread -= 0x01);
 						volumeupA = true;
 					}
 					if (dpdright.compare(voldown) == 0)
 					{
-						helpers->WriteByte(ServiceTestAddress, servicetestread -= 0x04, false);
+						ffb::Memory::Write<UINT8>(ServiceTestAddress, servicetestread -= 0x04);
 						volumedownA = true;
 					}
 				}
@@ -751,37 +723,37 @@ void ATVTrackInputsEnabled(Helpers* helpers)
 					}
 					if (dpdright2.compare(test2) == 0)
 					{
-						helpers->WriteByte(ServiceTestAddress, servicetestread -= 0x08, false);
+						ffb::Memory::Write<UINT8>(ServiceTestAddress, servicetestread -= 0x08);
 						testbuttonA = true;
 					}
 					if (dpdright2.compare(service2) == 0)
 					{
-						helpers->WriteByte(ServiceTestAddress, servicetestread -= 0x02, false);
+						ffb::Memory::Write<UINT8>(ServiceTestAddress, servicetestread -= 0x02);
 						servicebuttonA = true;
 					}
 					if (dpdright2.compare(coin2) == 0)
 					{
-						helpers->WriteByte(ServiceTestAddress, servicetestread -= 0x20, false);
+						ffb::Memory::Write<UINT8>(ServiceTestAddress, servicetestread -= 0x20);
 						coinA = true;
 					}
 					if (dpdright2.compare(emergency2) == 0)
 					{
-						helpers->WriteByte(BrakeAddress, brakeread += 0x40, false);
+						ffb::Memory::Write<UINT8>(BrakeAddress, brakeread += 0x40);
 						emergencystopA = true;
 					}
 					if (dpdright2.compare(start2) == 0)
 					{
-						helpers->WriteByte(BrakeAddress, brakeread -= 0x80, false);
+						ffb::Memory::Write<UINT8>(BrakeAddress, brakeread -= 0x80);
 						startbuttonA = true;
 					}
 					if (dpdright2.compare(volup2) == 0)
 					{
-						helpers->WriteByte(ServiceTestAddress, servicetestread -= 0x01, false);
+						ffb::Memory::Write<UINT8>(ServiceTestAddress, servicetestread -= 0x01);
 						volumeupA = true;
 					}
 					if (dpdright2.compare(voldown2) == 0)
 					{
-						helpers->WriteByte(ServiceTestAddress, servicetestread -= 0x04, false);
+						ffb::Memory::Write<UINT8>(ServiceTestAddress, servicetestread -= 0x04);
 						volumedownA = true;
 					}
 				}
@@ -794,7 +766,7 @@ void ATVTrackInputsEnabled(Helpers* helpers)
 			{
 				if (e.jbutton.button == TestButton)
 				{
-					helpers->WriteByte(ServiceTestAddress, servicetestread -= 0x08, false);
+					ffb::Memory::Write<UINT8>(ServiceTestAddress, servicetestread -= 0x08);
 				}
 				if (e.jbutton.button == ExitButton)
 				{
@@ -802,34 +774,34 @@ void ATVTrackInputsEnabled(Helpers* helpers)
 				}
 				if (e.jbutton.button == ServiceButton)
 				{
-					helpers->WriteByte(ServiceTestAddress, servicetestread -= 0x02, false);
+					ffb::Memory::Write<UINT8>(ServiceTestAddress, servicetestread -= 0x02);
 				}
 				if (e.jbutton.button == CreditButton)
 				{
-					helpers->WriteByte(ServiceTestAddress, servicetestread -= 0x20, false);
+					ffb::Memory::Write<UINT8>(ServiceTestAddress, servicetestread -= 0x20);
 				}
 				if (e.jbutton.button == EmergencyStop)
 				{
-					helpers->WriteByte(BrakeAddress, brakeread += 0x40, false);
+					ffb::Memory::Write<UINT8>(BrakeAddress, brakeread += 0x40);
 				}
 				if (e.jbutton.button == StartButton)
 				{
-					helpers->WriteByte(BrakeAddress, brakeread -= 0x80, false);
+					ffb::Memory::Write<UINT8>(BrakeAddress, brakeread -= 0x80);
 				}
 				if (e.jbutton.button == VolumeUp)
 				{
-					helpers->WriteByte(ServiceTestAddress, servicetestread -= 0x01, false);
+					ffb::Memory::Write<UINT8>(ServiceTestAddress, servicetestread -= 0x01);
 				}
 				if (e.jbutton.button == VolumeDown)
 				{
-					helpers->WriteByte(ServiceTestAddress, servicetestread -= 0x04, false);
+					ffb::Memory::Write<UINT8>(ServiceTestAddress, servicetestread -= 0x04);
 				}
 			}
 			else if (e.jbutton.which == joystick_index2)
 			{
 				if (e.jbutton.button == TestButtonDevice2)
 				{
-					helpers->WriteByte(ServiceTestAddress, servicetestread -= 0x08, false);
+					ffb::Memory::Write<UINT8>(ServiceTestAddress, servicetestread -= 0x08);
 				}
 				if (e.jbutton.button == ExitButtonDevice2)
 				{
@@ -837,27 +809,27 @@ void ATVTrackInputsEnabled(Helpers* helpers)
 				}
 				if (e.jbutton.button == ServiceButtonDevice2)
 				{
-					helpers->WriteByte(ServiceTestAddress, servicetestread -= 0x02, false);
+					ffb::Memory::Write<UINT8>(ServiceTestAddress, servicetestread -= 0x02);
 				}
 				if (e.jbutton.button == CreditButtonDevice2)
 				{
-					helpers->WriteByte(ServiceTestAddress, servicetestread -= 0x20, false);
+					ffb::Memory::Write<UINT8>(ServiceTestAddress, servicetestread -= 0x20);
 				}
 				if (e.jbutton.button == EmergencyStopDevice2)
 				{
-					helpers->WriteByte(BrakeAddress, brakeread += 0x40, false);
+					ffb::Memory::Write<UINT8>(BrakeAddress, brakeread += 0x40);
 				}
 				if (e.jbutton.button == StartButtonDevice2)
 				{
-					helpers->WriteByte(BrakeAddress, brakeread -= 0x80, false);
+					ffb::Memory::Write<UINT8>(BrakeAddress, brakeread -= 0x80);
 				}
 				if (e.jbutton.button == VolumeUpDevice2)
 				{
-					helpers->WriteByte(ServiceTestAddress, servicetestread -= 0x01, false);
+					ffb::Memory::Write<UINT8>(ServiceTestAddress, servicetestread -= 0x01);
 				}
 				if (e.jbutton.button == VolumeDownDevice2)
 				{
-					helpers->WriteByte(ServiceTestAddress, servicetestread -= 0x04, false);
+					ffb::Memory::Write<UINT8>(ServiceTestAddress, servicetestread -= 0x04);
 				}
 			}
 		}
@@ -867,62 +839,62 @@ void ATVTrackInputsEnabled(Helpers* helpers)
 			{
 				if (e.jbutton.button == TestButton)
 				{
-					helpers->WriteByte(ServiceTestAddress, servicetestread += 0x08, false);
+					ffb::Memory::Write<UINT8>(ServiceTestAddress, servicetestread += 0x08);
 				}
 				if (e.jbutton.button == ServiceButton)
 				{
-					helpers->WriteByte(ServiceTestAddress, servicetestread += 0x02, false);
+					ffb::Memory::Write<UINT8>(ServiceTestAddress, servicetestread += 0x02);
 				}
 				if (e.jbutton.button == CreditButton)
 				{
-					helpers->WriteByte(ServiceTestAddress, servicetestread += 0x20, false);
+					ffb::Memory::Write<UINT8>(ServiceTestAddress, servicetestread += 0x20);
 				}
 				if (e.jbutton.button == EmergencyStop)
 				{
-					helpers->WriteByte(BrakeAddress, brakeread -= 0x40, false);
+					ffb::Memory::Write<UINT8>(BrakeAddress, brakeread -= 0x40);
 				}
 				if (e.jbutton.button == StartButton)
 				{
-					helpers->WriteByte(BrakeAddress, brakeread += 0x80, false);
+					ffb::Memory::Write<UINT8>(BrakeAddress, brakeread += 0x80);
 				}
 				if (e.jbutton.button == VolumeUp)
 				{
-					helpers->WriteByte(ServiceTestAddress, servicetestread += 0x01, false);
+					ffb::Memory::Write<UINT8>(ServiceTestAddress, servicetestread += 0x01);
 				}
 				if (e.jbutton.button == VolumeDown)
 				{
-					helpers->WriteByte(ServiceTestAddress, servicetestread += 0x04, false);
+					ffb::Memory::Write<UINT8>(ServiceTestAddress, servicetestread += 0x04);
 				}
 			}
 			else if (e.jbutton.which == joystick_index2)
 			{
 				if (e.jbutton.button == TestButtonDevice2)
 				{
-					helpers->WriteByte(ServiceTestAddress, servicetestread += 0x08, false);
+					ffb::Memory::Write<UINT8>(ServiceTestAddress, servicetestread += 0x08);
 				}
 				if (e.jbutton.button == ServiceButtonDevice2)
 				{
-					helpers->WriteByte(ServiceTestAddress, servicetestread += 0x02, false);
+					ffb::Memory::Write<UINT8>(ServiceTestAddress, servicetestread += 0x02);
 				}
 				if (e.jbutton.button == CreditButtonDevice2)
 				{
-					helpers->WriteByte(ServiceTestAddress, servicetestread += 0x20, false);
+					ffb::Memory::Write<UINT8>(ServiceTestAddress, servicetestread += 0x20);
 				}
 				if (e.jbutton.button == EmergencyStopDevice2)
 				{
-					helpers->WriteByte(BrakeAddress, brakeread -= 0x40, false);
+					ffb::Memory::Write<UINT8>(BrakeAddress, brakeread -= 0x40);
 				}
 				if (e.jbutton.button == StartButtonDevice2)
 				{
-					helpers->WriteByte(BrakeAddress, brakeread += 0x80, false);
+					ffb::Memory::Write<UINT8>(BrakeAddress, brakeread += 0x80);
 				}
 				if (e.jbutton.button == VolumeUpDevice2)
 				{
-					helpers->WriteByte(ServiceTestAddress, servicetestread += 0x01, false);
+					ffb::Memory::Write<UINT8>(ServiceTestAddress, servicetestread += 0x01);
 				}
 				if (e.jbutton.button == VolumeDownDevice2)
 				{
-					helpers->WriteByte(ServiceTestAddress, servicetestread += 0x04, false);
+					ffb::Memory::Write<UINT8>(ServiceTestAddress, servicetestread += 0x04);
 				}
 			}
 		}

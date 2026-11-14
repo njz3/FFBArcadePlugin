@@ -14,7 +14,16 @@ along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
 #pragma once
 #include "Gaelco.h"
 
-class GaelcoTuningRace : public GaelcoGame {
+// Gaelco Tuning Race (Gaelco, TeknoParrot): see GaelcoGame. Its SetMotor function gets the motor force
+// (a float) in the place of its first argument.
+class GaelcoTuningRace : public GaelcoGame
+{
 protected:
-	void HookSetMotor();
+	void HookSetMotor() override;
+
+private:
+	static const INT_PTR SetMotor = 0x8188ABC;
+
+	static int(__stdcall* setMotorOriginal)(DWORD* force);
+	static int __stdcall SetMotorHook(DWORD* force);
 };

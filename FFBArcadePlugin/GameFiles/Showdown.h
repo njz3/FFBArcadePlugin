@@ -12,9 +12,22 @@ along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
 */
 
 #pragma once
-#include "../Common Files/Game.h"
-class Showdown : public Game {
+#include "../Core/Game.h"
 
+// Showdown (Sega, TeknoParrot): the plugin replaces Out32 of inpout32.dll, to which the game writes the
+// force of the wheel (port 0x378): 16 to 31 from the left (strongest at 16), 1 to 15 from the right
+// (strongest at 1). Looked at, not used: a function of the game getting the XINPUT_VIBRATION of the
+// rumble (game executable + 0x92E000).
+class Showdown : public ffb::Game
+{
 public:
-	void FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTriggers* triggers);
+	Showdown();
+	void Update() override;
+
+private:
+	static Showdown* instance;
+	static int(__stdcall* out32Original)(DWORD device, DWORD data);
+	static int __stdcall Out32Hook(DWORD device, DWORD data);
+
+	bool hooked = false;
 };

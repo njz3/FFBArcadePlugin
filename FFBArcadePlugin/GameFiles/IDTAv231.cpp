@@ -11,25 +11,22 @@ You should have received a copy of the GNU General Public License
 along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
 */
 
-#include <string>
 #include "IDTAv231.h"
-#include "../Common Files/InitialDFFB.h"
-#include "math.h"
 
-static const InitialDFFBSettings ffbSettings = { 32767.0, 32767, 127.0, 100, 0xFFFFFFFF };
+using namespace ffb;
 
-void InitialDTA231::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTriggers* triggers) {
+void InitialDTA231::Update()
+{
+	ApplyDamper();
 
-	ApplyDamper(triggers);
+	DWORD command = Memory::Read(DriveBoardCommand);
+	WORD strength = Memory::Read(Strength);
 
-	DWORD FFB = helpers->ReadInt32(0x3D35838, true);
-	WORD FFBStr = helpers->ReadWord(0x3D3583A, true);
-
-	BYTE* ffb = reinterpret_cast<BYTE*>(&FFB);
+	const BYTE* bytes = reinterpret_cast<const BYTE*>(&command);
 
 	// The centering command checks the strength low byte only
-	if (ffb[0] == 0x80 && ffb[2] == 0x01)
-		triggers->Spring(1.0);
+	if (bytes[0] == 0x80 && bytes[2] == 0x01)
+		wheel.Spring(1.0);
 	else
-		PlayInitialDFFB(ffb[0], ffb[1], FFBStr, ffbSettings, constants, triggers);
+		driveBoard.Play(bytes[0], bytes[1], strength);
 }

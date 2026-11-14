@@ -1,4 +1,3 @@
-
 /*This file is part of FFB Arcade Plugin.
 FFB Arcade Plugin is free software : you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -12,49 +11,51 @@ You should have received a copy of the GNU General Public License
 along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
 */
 
-#include <string>
-#include "SegaRaceTV.h"
 #include <sstream>
+#include "SegaRaceTV.h"
 
-static bool init;
+using namespace ffb;
+
 extern int EnableForceSpringEffect;
 extern int ForceSpringStrength;
 
-void SegaRaceTV::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTriggers* triggers) {
-	if (!init)
+void SegaRaceTV::Update()
+{
+	if (!ioEnabled)
 	{
 		OutputDebugStringA("SegaRaceTV::FFBLoop");
-		//enable IO calls
-		helpers->WriteIntPtr(0x8b3fe90, 0x1, true);
-		init = true;
+		Memory::Write<INT_PTR>(IoCallsEnabled, 0x1);
+		ioEnabled = true;
 	}
 
-	int ff = helpers->ReadInt32(0x8b44210, false);
-	
-	ApplyDamper(triggers);
+	int ff = Memory::Read(WheelForce);
+
+	ApplyDamper();
 	if (EnableForceSpringEffect)
-		triggers->Springi(ForceSpringStrength / 100.0);
+		wheel.KeptSpring(ForceSpringStrength / 100.0);
 
 	if (ff > 0 && ff < 128)
 	{
-		double percentForce = ((128.0 - ff) / 127.0);
+		double strength = ((128.0 - ff) / 127.0);
 
 		std::ostringstream ss;
-		ss << "LEFT: " << percentForce << " FF: " << ff;
+		ss << "LEFT: " << strength << " FF: " << ff;
 		OutputDebugStringA(ss.str().c_str());
 
-
-		
-		triggers->Rumble(0, percentForce, 100);
-		triggers->Constant(constants->DIRECTION_FROM_LEFT, percentForce);
+		// the second rumble motor for a force from the left
+		wheel.Rumble(0, strength, 100);
+		wheel.Constant(Direction::FromLeft, strength);
 	}
 	else if (ff > 128)
 	{
-		double percentForce = ((ff - 128.0) / 127.0);
+		double strength = ((ff - 128.0) / 127.0);
+
 		std::ostringstream ss;
-		ss << "RIGHT: " << percentForce << " FF: " << ff;
+		ss << "RIGHT: " << strength << " FF: " << ff;
 		OutputDebugStringA(ss.str().c_str());
-		triggers->Rumble(percentForce, 0, 100);
-		triggers->Constant(constants->DIRECTION_FROM_RIGHT, percentForce);
+
+		// the first rumble motor for a force from the right
+		wheel.Rumble(strength, 0, 100);
+		wheel.Constant(Direction::FromRight, strength);
 	}
 }

@@ -12,9 +12,11 @@ along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
 */
 
 #pragma once
-#include "../Common Files/Game.h"
+#include "InitialD4.h"
 
-class InitialD4Japan : public Game {
+// Initial D Arcade Stage 4 Japan (Sega Lindbergh): see InitialDLindberghGame
+class InitialD4Japan : public InitialDLindberghGame
+{
 public:
-	void FFBLoop(EffectConstants *constants, Helpers *helpers, EffectTriggers* triggers);
+	InitialD4Japan() : InitialDLindberghGame(0x08989858, true) {}
 };

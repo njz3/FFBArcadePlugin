@@ -12,9 +12,24 @@ along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
 */
 
 #pragma once
-#include "../Common Files/Game.h"
-class FordRacingOther : public Game {
+#include "../Core/Game.h"
 
+// Ford Racing, other version (TeknoParrot): the plugin replaces Out32 of inpout32.dll, to which the game
+// writes the force of the wheel (port 0x378), by a jump written over its first bytes once inpout32.dll is
+// loaded: 0xFFFF0014 to 0xFFFF001E from the right (strongest at 0xFFFF0014), 6 to 15 from the left
+// (strongest at 6).
+class FordRacingOther : public ffb::Game
+{
 public:
-	void FFBLoop(EffectConstants *constants, Helpers *helpers, EffectTriggers* triggers);
+	FordRacingOther();
+	void Update() override;
+
+private:
+	static FordRacingOther* instance;
+	static int __stdcall Out32Hook(DWORD device, DWORD data);
+	// Writes a jump to `detour` over the first `length` bytes (at least 5) of `toHook`, the others NOPs
+	static bool Hook(void* toHook, void* detour, int length);
+
+	bool hooked = false;
+	INT_PTR jumpBack = 0; // the address after the replaced bytes (unused)
 };

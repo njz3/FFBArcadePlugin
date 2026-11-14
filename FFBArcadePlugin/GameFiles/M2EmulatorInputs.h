@@ -11,18 +11,25 @@ You should have received a copy of the GNU General Public License
 along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
 */
 
-#include "WMMT5DX.h"
+#pragma once
+#include <Windows.h>
+#include "../Core/Settings.h"
 
-static const WMMTAddresses wmmt5DXAddresses = {
-	0x1C02750, // ffbValues
-	0x1C0342C, // speed
-	0x1C0359C, // rpm
-	0x1C2C040, // carState
-	0x398,     // gearOffset
-	0x1C2C058, // raceState
-	0,         // raceTimer
-};
-
-WMMT5DX::WMMT5DX() : WMMT(wmmt5DXAddresses)
+// The inputs of the wheel (InputDeviceWheelEnable) and of a second device of a game in M2Emulator:
+// the joystick events (SDL) are written to the memory of the emulated game, or sent as keys to the
+// window of the emulator
+class M2EmulatorInputs
 {
-}
+public:
+	explicit M2EmulatorInputs(const HWND& window)
+		: hWndM2(window)
+	{
+	}
+	virtual ~M2EmulatorInputs() = default;
+
+	// Called by the inputs thread every 16 ms
+	virtual void Update() = 0;
+
+protected:
+	const HWND& hWndM2; // the window of the game
+};

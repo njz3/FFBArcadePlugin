@@ -12,10 +12,15 @@ along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
 */
 
 #pragma once
-#include "../Common Files/TeknoParrotGame.h"
+#include "../Core/TeknoParrot.h"
 
-class PokkenTournament : public TeknoParrotGame {
+// Pokken Tournament (Bandai Namco, TeknoParrot): the rumble of the two motors of the controller, 0 to 255
+// each, published by TeknoParrot (TeknoParrotFFB: left motor, TeknoParrotFFB2: right motor)
+class PokkenTournament : public ffb::TeknoParrotGame
+{
 public:
-	PokkenTournament() : TeknoParrotGame() { }
-	void FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTriggers* triggers);
+	void Update() override;
+
+private:
+	int feedbackLength = ffb::Settings::Int(L"FeedbackLength", 120);
 };

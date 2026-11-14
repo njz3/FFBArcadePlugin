@@ -13,59 +13,78 @@ along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
 
 #include <string>
 #include "Hummer.h"
+#include "../Core/Hooks.h"
 
-static EffectTriggers* myTriggers;
-static EffectConstants* myConstants;
-static Helpers* myHelpers;
+using namespace ffb;
 
-static bool init = false;
+HummerGame* HummerGame::instance = nullptr;
+void(__cdecl* HummerGame::setTrqCurveHalfPointOriginal)(void* device, int param_1, float param_2, float param_3) = nullptr;
+void(__cdecl* HummerGame::setVibrateOriginal)(void* device, int param_1, float strength, float duration) = nullptr;
+void(__cdecl* HummerGame::setViscosityOriginal)(void* device, int param_1, float viscosity, float param_3) = nullptr;
+void(__cdecl* HummerGame::initCenterOriginal)(void* device, int param_1, unsigned char strength) = nullptr;
+int(__cdecl* HummerGame::waitOriginal)(int param_1) = nullptr;
 
-static void(__cdecl* clSteerDualDeviceSetTRQCurveHalfPointOrig)(void* thisParam, int param_1, float param_2, float param_3);
-static void __cdecl clSteerDualDeviceSetTRQCurveHalfPoint(void* thisParam, int param_1, float param_2, float param_3) {
-	return clSteerDualDeviceSetTRQCurveHalfPointOrig(thisParam, param_1, param_2, param_3);
+HummerGame::HummerGame(const Version& version)
+	: version(version)
+{
+	instance = this;
 }
 
-static void(__cdecl* clSteerDualDeviceSetVibrateOrig)(void* thisParam, int param_1, float param_2, float param_3);
-static void __cdecl clSteerDualDeviceSetVibrate(void* thisParam, int param_1, float param_2, float param_3) {
+void __cdecl HummerGame::SetTrqCurveHalfPointHook(void* device, int param_1, float param_2, float param_3)
+{
+	return setTrqCurveHalfPointOriginal(device, param_1, param_2, param_3);
+}
+
+void __cdecl HummerGame::SetVibrateHook(void* device, int param_1, float strength, float duration)
+{
+	HummerGame& game = *instance;
+	if (game.version.traceVibrations)
+	{
+		std::string out = "Vibrate: " + std::to_string(strength) + " " + std::to_string(duration);
+		OutputDebugStringA(out.c_str());
+	}
 	UINT32 length_ms = 100;
-	myTriggers->Sine((UINT16)(param_3 * 100), 1, param_2 * 60.0, length_ms);
-	myTriggers->Rumble(param_2 * 60.0, 0.0, (UINT32)(param_3 * 100));
-	return clSteerDualDeviceSetVibrateOrig(thisParam, param_1, param_2, param_3);
+	game.wheel.Sine((UINT16)(duration * 100), 1, strength * 60.0, length_ms);
+	game.wheel.Rumble(strength * 60.0, 0.0, (UINT32)(duration * 100));
+	return setVibrateOriginal(device, param_1, strength, duration);
 }
 
-static void(__cdecl* clSteerDualDeviceSetViscosityOrig)(void* thisParam, int param_1, float param_2, float param_3);
-static void __cdecl clSteerDualDeviceSetViscosity(void* thisParam, int param_1, float param_2, float param_3) {
-	myTriggers->Friction((double)param_2);
-	return clSteerDualDeviceSetViscosityOrig(thisParam, param_1, param_2, param_3);
+void __cdecl HummerGame::SetViscosityHook(void* device, int param_1, float viscosity, float param_3)
+{
+	HummerGame& game = *instance;
+	double percentForce = (double)viscosity * game.version.viscosityScale;
+	game.wheel.Friction(percentForce);
+	return setViscosityOriginal(device, param_1, viscosity, param_3);
 }
 
-static void(__cdecl* clSteerDualDeviceInitCenterOrig)(void* thisParam, int param_1, unsigned char param_2);
-static void __cdecl clSteerDualDeviceInitCenter(void* thisParam, int param_1, unsigned char param_2) {
-	myTriggers->Springi(param_2);
-	return clSteerDualDeviceInitCenterOrig(thisParam, param_1, param_2);
+void __cdecl HummerGame::InitCenterHook(void* device, int param_1, unsigned char strength)
+{
+	HummerGame& game = *instance;
+	double percentForce = (double)strength * game.version.springScale;
+	game.wheel.KeptSpring(percentForce);
+	return initCenterOriginal(device, param_1, strength);
 }
 
-static int(__cdecl* clSteerDualDeviceWaitOrig)(int param_1);
-static int __cdecl clSteerDualDeviceWait(int param_1) {
+int __cdecl HummerGame::WaitHook(int param_1)
+{
 	return 0;
 }
-void Hummer::FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTriggers* triggers) {
 
-	if (!init)
+void HummerGame::Update()
+{
+	if (!hooked)
 	{
-		OutputDebugStringA("Hummer FFB Plugin Loaded\n");
-		init = true;
-		myTriggers = triggers;
-		myConstants = constants;
-		myHelpers = helpers;
-		MH_Initialize();
-		//checking wheel is cool for an update
-		MH_CreateHook((LPVOID)0x82cdd1a, clSteerDualDeviceWait, (LPVOID*)&clSteerDualDeviceWaitOrig);
-		//Ingame effects
-		MH_CreateHook((LPVOID)0x82cd9ba, clSteerDualDeviceSetTRQCurveHalfPoint, (LPVOID*)&clSteerDualDeviceSetTRQCurveHalfPointOrig);
-		MH_CreateHook((LPVOID)0x82cdbfa, clSteerDualDeviceSetVibrate, (LPVOID*)&clSteerDualDeviceSetVibrateOrig);
-		MH_CreateHook((LPVOID)0x82cdada, clSteerDualDeviceSetViscosity, (LPVOID*)&clSteerDualDeviceSetViscosityOrig);
-		MH_CreateHook((LPVOID)0x82cd786, clSteerDualDeviceInitCenter, (LPVOID*)&clSteerDualDeviceInitCenterOrig);
-		MH_EnableHook(MH_ALL_HOOKS);
+		if (version.hookedMessage)
+			OutputDebugStringA(version.hookedMessage);
+		hooked = true;
+		Hooks::Initialize();
+		// the wait for the wheel to be ready for an update
+		Hooks::Create(version.wait, WaitHook, &waitOriginal);
+		// the effects of the game
+		Hooks::Create(version.setTrqCurveHalfPoint, SetTrqCurveHalfPointHook, &setTrqCurveHalfPointOriginal);
+		Hooks::Create(version.setVibrate, SetVibrateHook, &setVibrateOriginal);
+		Hooks::Create(version.setViscosity, SetViscosityHook, &setViscosityOriginal);
+		Hooks::Create(version.initCenter, InitCenterHook, &initCenterOriginal);
+		Hooks::Enable();
 	}
 }

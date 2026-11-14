@@ -12,9 +12,13 @@ along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
 */
 
 #pragma once
-#include "../Common Files/Game.h"
-class Daytona3NSE : public Game {
+#include "Daytona3.h"
 
+// Daytona Championship USA New Season Edition (Sega): the drive board command is always played, with
+// no damper (see Daytona3Game)
+class Daytona3NSE : public Daytona3Game
+{
 public:
-	void FFBLoop(EffectConstants* constants, Helpers* helpers, EffectTriggers* triggers);
+	Daytona3NSE() : Daytona3Game({ 0x1334061, 0x15C98C4, 0x11C22A0 }) {}
+	void Update() override { PlayDriveBoard(); }
 };

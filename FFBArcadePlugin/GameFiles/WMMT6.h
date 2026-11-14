@@ -14,11 +14,30 @@ along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
 #pragma once
 #include "WMMT.h"
 
-class WMMT6 : public WMMT {
+// Wangan Midnight Maximum Tune 6 (Bandai Namco, TeknoParrot): see WMMT. The input thread handles
+// ForceFinishButton and ForceTimeUpButton.
+class WMMT6 : public WMMT
+{
 public:
-	WMMT6();
+	WMMT6() : WMMT({
+		0x1E3C610, // ffbValues
+		0x1E3D4DC, // speed
+		0x1E3D64C, // rpm
+		0x1E5B5B0, // carState
+		0x3A8,     // gearOffset
+		0x1E5B5C8, // raceState
+		0x1E5B894, // raceTimer
+	}) {}
 
 protected:
-	void Init();
-	UINT8 FinishCheckpoint(Helpers* helpers, INT_PTR raceState);
+	void StartThreads() override
+	{
+		StartInputThread();
+	}
+
+	// The race state starts with the total number of checkpoints
+	UINT8 FinishCheckpoint(INT_PTR raceState) override
+	{
+		return ffb::Memory::Read<UINT8>(raceState + 0x00);
+	}
 };

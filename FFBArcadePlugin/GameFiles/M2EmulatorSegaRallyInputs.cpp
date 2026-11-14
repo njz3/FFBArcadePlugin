@@ -1,81 +1,29 @@
-#include "../Common Files/Game.h"
+/*This file is part of FFB Arcade Plugin.
+FFB Arcade Plugin is free software : you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+FFB Arcade Plugin is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.See the
+GNU General Public License for more details.
+You should have received a copy of the GNU General Public License
+along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
+*/
+
+#include "M2EmulatorSegaRallyInputs.h"
 #include <string>
 #include <windows.h>
 #include "SDL.h"
 #include "../Common Files/Devices.h"
-static INT_PTR imageBase;
+#include "../Core/Memory.h"
+#include "../Core/Settings.h"
+
 extern int joystick_index1;
 extern int joystick_index2;
-static bool testA;
-static bool serviceA;
-static bool startA;
-static bool vr1A;
-static bool shift1A;
-static bool shift2A;
-static bool shift3A;
-static bool shift4A;
-static bool shiftupA;
-static bool shiftdwnA;
-static bool coin1A;
-static bool coin2A;
-static bool ShiftUpPressed;
-static bool ShiftDownPressed;
-static bool Inputsinit = false;
 extern SDL_Event e;
-extern HWND hWndM2;
 
-static INT_PTR SteeringAddress;
-static INT_PTR AcclAddress;
-static INT_PTR BrakeAddress;
-static INT_PTR Button1Address;
-static INT_PTR Button2Address;
-
-static int SteeringValue;
-static int AcclValue;
-static int BrakeValue;
-static int GearValue;
-
-static int InputDeviceWheelSteeringAxis = GetSettingInt(TEXT("InputDeviceWheelSteeringAxis"), 0);
-static int InputDeviceWheelAcclAxis = GetSettingInt(TEXT("InputDeviceWheelAcclAxis"), 0);
-static int InputDeviceWheelBrakeAxis = GetSettingInt(TEXT("InputDeviceWheelBrakeAxis"), 0);
-static int InputDeviceWheelSteeringAxisDevice2 = GetSettingInt(TEXT("InputDeviceWheelSteeringAxisDevice2"), 0);
-static int InputDeviceWheelAcclAxisDevice2 = GetSettingInt(TEXT("InputDeviceWheelAcclAxisDevice2"), 0);
-static int InputDeviceWheelBrakeAxisDevice2 = GetSettingInt(TEXT("InputDeviceWheelBrakeAxisDevice2"), 0);
-static int InputDeviceWheelReverseAxis = GetSettingInt(TEXT("InputDeviceWheelReverseAxis"), 0);
-static int InputDeviceCombinedPedals = GetSettingInt(TEXT("InputDeviceCombinedPedals"), 0);
-static int SteeringDeadzone = GetSettingInt(TEXT("SteeringDeadzone"), 0);
-static int PedalDeadzone = GetSettingInt(TEXT("PedalDeadzone"), 0);
-static int ShowButtonNumbersForSetup = GetSettingInt(TEXT("ShowButtonNumbersForSetup"), 0);
-static int ShowKeyBoardNameForSetup = GetSettingInt(TEXT("ShowKeyBoardNameForSetup"), 0);
-static int ShowAxisForSetup = GetSettingInt(TEXT("ShowAxisForSetup"), 0);
-static int ExitButton = GetSettingInt(TEXT("ExitButton"), 0);
-static int TestButton = GetSettingInt(TEXT("TestButton"), 0);
-static int ServiceButton = GetSettingInt(TEXT("ServiceButton"), 0);
-static int Coin1Button = GetSettingInt(TEXT("Coin1Button"), 0);
-static int Coin2Button = GetSettingInt(TEXT("Coin2Button"), 0);
-static int VR1Button = GetSettingInt(TEXT("VR1Button"), 0);
-static int StartButton = GetSettingInt(TEXT("StartButton"), 0);
-static int Shift1Button = GetSettingInt(TEXT("Shift1Button"), 0);
-static int Shift2Button = GetSettingInt(TEXT("Shift2Button"), 0);
-static int Shift3Button = GetSettingInt(TEXT("Shift3Button"), 0);
-static int Shift4Button = GetSettingInt(TEXT("Shift4Button"), 0);
-static int ShiftUpButton = GetSettingInt(TEXT("ShiftUpButton"), 0);
-static int ShiftDownButton = GetSettingInt(TEXT("ShiftDownButton"), 0);
-static int ExitButtonDevice2 = GetSettingInt(TEXT("ExitButtonDevice2"), 0);
-static int TestButtonDevice2 = GetSettingInt(TEXT("TestButtonDevice2"), 0);
-static int ServiceButtonDevice2 = GetSettingInt(TEXT("ServiceButtonDevice2"), 0);
-static int Coin1ButtonDevice2 = GetSettingInt(TEXT("Coin1ButtonDevice2"), 0);
-static int Coin2ButtonDevice2 = GetSettingInt(TEXT("Coin2ButtonDevice2"), 0);
-static int VR1ButtonDevice2 = GetSettingInt(TEXT("VR1ButtonDevice2"), 0);
-static int StartButtonDevice2 = GetSettingInt(TEXT("StartButtonDevice2"), 0);
-static int Shift1ButtonDevice2 = GetSettingInt(TEXT("Shift1ButtonDevice2"), 0);
-static int Shift2ButtonDevice2 = GetSettingInt(TEXT("Shift2ButtonDevice2"), 0);
-static int Shift3ButtonDevice2 = GetSettingInt(TEXT("Shift3ButtonDevice2"), 0);
-static int Shift4ButtonDevice2 = GetSettingInt(TEXT("Shift4ButtonDevice2"), 0);
-static int ShiftUpButtonDevice2 = GetSettingInt(TEXT("ShiftUpButtonDevice2"), 0);
-static int ShiftDownButtonDevice2 = GetSettingInt(TEXT("ShiftDownButtonDevice2"), 0);
-
-void M2EmulatorSegaRallyInputsEnabled(Helpers* helpers)
+void M2EmulatorSegaRallyInputs::Update()
 {
 	if (!Inputsinit)
 	{
@@ -88,11 +36,11 @@ void M2EmulatorSegaRallyInputsEnabled(Helpers* helpers)
 		Button1Address = imageBase + 0x1AA875;
 		Button2Address = imageBase + 0x1AA874;
 
-		helpers->WriteByte(Button1Address, 0x2E, false);
-		helpers->WriteByte(Button2Address, 0x6F, false);
-		helpers->WriteByte(SteeringAddress, 0x80, false);
-		helpers->WriteByte(AcclAddress, 0x00, false);
-		helpers->WriteByte(BrakeAddress, 0x00, false);
+		ffb::Memory::Write<UINT8>(Button1Address, 0x2E);
+		ffb::Memory::Write<UINT8>(Button2Address, 0x6F);
+		ffb::Memory::Write<UINT8>(SteeringAddress, 0x80);
+		ffb::Memory::Write<UINT8>(AcclAddress, 0x00);
+		ffb::Memory::Write<UINT8>(BrakeAddress, 0x00);
 		Inputsinit = true;
 	}
 
@@ -121,30 +69,30 @@ void M2EmulatorSegaRallyInputsEnabled(Helpers* helpers)
 	char KeyBrdShift4Char[256];
 	char KeyBrdShiftUpChar[256];
 	char KeyBrdShiftDownChar[256];
-	GetPrivateProfileStringA("Settings", "DpadUp", "", DpadUpChar, 256, ".\\FFBplugin.ini");
-	GetPrivateProfileStringA("Settings", "DpadDown", "", DpadDownChar, 256, ".\\FFBplugin.ini");
-	GetPrivateProfileStringA("Settings", "DpadLeft", "", DpadLeftChar, 256, ".\\FFBplugin.ini");
-	GetPrivateProfileStringA("Settings", "DpadRight", "", DpadRightChar, 256, ".\\FFBplugin.ini");
-	GetPrivateProfileStringA("Settings", "DpadUpDevice2", "", DpadUpCharDevice2, 256, ".\\FFBplugin.ini");
-	GetPrivateProfileStringA("Settings", "DpadDownDevice2", "", DpadDownCharDevice2, 256, ".\\FFBplugin.ini");
-	GetPrivateProfileStringA("Settings", "DpadLeftDevice2", "", DpadLeftCharDevice2, 256, ".\\FFBplugin.ini");
-	GetPrivateProfileStringA("Settings", "DpadRightDevice2", "", DpadRightCharDevice2, 256, ".\\FFBplugin.ini");
-	GetPrivateProfileStringA("Settings", "ExitButtonKeyBrd", "", KeyBrdExitChar, 256, ".\\FFBplugin.ini");
-	GetPrivateProfileStringA("Settings", "TestButtonKeyBrd", "", KeyBrdTestChar, 256, ".\\FFBplugin.ini");
-	GetPrivateProfileStringA("Settings", "ServiceButtonKeyBrd", "", KeyBrdServiceChar, 256, ".\\FFBplugin.ini");
-	GetPrivateProfileStringA("Settings", "Coin1ButtonKeyBrd", "", KeyBrdCoin1Char, 256, ".\\FFBplugin.ini");
-	GetPrivateProfileStringA("Settings", "Coin2ButtonKeyBrd", "", KeyBrdCoin2Char, 256, ".\\FFBplugin.ini");
-	GetPrivateProfileStringA("Settings", "VR1ButtonKeyBrd", "", KeyBrdVR1Char, 256, ".\\FFBplugin.ini");
-	GetPrivateProfileStringA("Settings", "VR2ButtonKeyBrd", "", KeyBrdVR2Char, 256, ".\\FFBplugin.ini");
-	GetPrivateProfileStringA("Settings", "VR3ButtonKeyBrd", "", KeyBrdVR3Char, 256, ".\\FFBplugin.ini");
-	GetPrivateProfileStringA("Settings", "VR4ButtonKeyBrd", "", KeyBrdVR4Char, 256, ".\\FFBplugin.ini");
-	GetPrivateProfileStringA("Settings", "StartButtonKeyBrd", "", KeyBrdStartChar, 256, ".\\FFBplugin.ini");
-	GetPrivateProfileStringA("Settings", "Shift1ButtonKeyBrd", "", KeyBrdShift1Char, 256, ".\\FFBplugin.ini");
-	GetPrivateProfileStringA("Settings", "Shift2ButtonKeyBrd", "", KeyBrdShift2Char, 256, ".\\FFBplugin.ini");
-	GetPrivateProfileStringA("Settings", "Shift3ButtonKeyBrd", "", KeyBrdShift3Char, 256, ".\\FFBplugin.ini");
-	GetPrivateProfileStringA("Settings", "Shift4ButtonKeyBrd", "", KeyBrdShift4Char, 256, ".\\FFBplugin.ini");
-	GetPrivateProfileStringA("Settings", "ShiftUpButtonKeyBrd", "", KeyBrdShiftUpChar, 256, ".\\FFBplugin.ini");
-	GetPrivateProfileStringA("Settings", "ShiftDownButtonKeyBrd", "", KeyBrdShiftDownChar, 256, ".\\FFBplugin.ini");
+	strcpy_s(DpadUpChar, ffb::Settings::String("DpadUp").c_str());
+	strcpy_s(DpadDownChar, ffb::Settings::String("DpadDown").c_str());
+	strcpy_s(DpadLeftChar, ffb::Settings::String("DpadLeft").c_str());
+	strcpy_s(DpadRightChar, ffb::Settings::String("DpadRight").c_str());
+	strcpy_s(DpadUpCharDevice2, ffb::Settings::String("DpadUpDevice2").c_str());
+	strcpy_s(DpadDownCharDevice2, ffb::Settings::String("DpadDownDevice2").c_str());
+	strcpy_s(DpadLeftCharDevice2, ffb::Settings::String("DpadLeftDevice2").c_str());
+	strcpy_s(DpadRightCharDevice2, ffb::Settings::String("DpadRightDevice2").c_str());
+	strcpy_s(KeyBrdExitChar, ffb::Settings::String("ExitButtonKeyBrd").c_str());
+	strcpy_s(KeyBrdTestChar, ffb::Settings::String("TestButtonKeyBrd").c_str());
+	strcpy_s(KeyBrdServiceChar, ffb::Settings::String("ServiceButtonKeyBrd").c_str());
+	strcpy_s(KeyBrdCoin1Char, ffb::Settings::String("Coin1ButtonKeyBrd").c_str());
+	strcpy_s(KeyBrdCoin2Char, ffb::Settings::String("Coin2ButtonKeyBrd").c_str());
+	strcpy_s(KeyBrdVR1Char, ffb::Settings::String("VR1ButtonKeyBrd").c_str());
+	strcpy_s(KeyBrdVR2Char, ffb::Settings::String("VR2ButtonKeyBrd").c_str());
+	strcpy_s(KeyBrdVR3Char, ffb::Settings::String("VR3ButtonKeyBrd").c_str());
+	strcpy_s(KeyBrdVR4Char, ffb::Settings::String("VR4ButtonKeyBrd").c_str());
+	strcpy_s(KeyBrdStartChar, ffb::Settings::String("StartButtonKeyBrd").c_str());
+	strcpy_s(KeyBrdShift1Char, ffb::Settings::String("Shift1ButtonKeyBrd").c_str());
+	strcpy_s(KeyBrdShift2Char, ffb::Settings::String("Shift2ButtonKeyBrd").c_str());
+	strcpy_s(KeyBrdShift3Char, ffb::Settings::String("Shift3ButtonKeyBrd").c_str());
+	strcpy_s(KeyBrdShift4Char, ffb::Settings::String("Shift4ButtonKeyBrd").c_str());
+	strcpy_s(KeyBrdShiftUpChar, ffb::Settings::String("ShiftUpButtonKeyBrd").c_str());
+	strcpy_s(KeyBrdShiftDownChar, ffb::Settings::String("ShiftDownButtonKeyBrd").c_str());
 	std::string exit("ExitButton");
 	std::string test("TestButton");
 	std::string service("ServiceButton");
@@ -207,8 +155,8 @@ void M2EmulatorSegaRallyInputsEnabled(Helpers* helpers)
 
 	while (SDL_WaitEvent(&e) != 0)
 	{
-		UINT8 button1read = helpers->ReadByte(Button1Address, false);
-		UINT8 button2read = helpers->ReadByte(Button2Address, false);
+		UINT8 button1read = ffb::Memory::Read<UINT8>(Button1Address);
+		UINT8 button2read = ffb::Memory::Read<UINT8>(Button2Address);
 
 		if ((e.type == SDL_JOYAXISMOTION) && (ShowAxisForSetup == 0))
 		{
@@ -337,10 +285,10 @@ void M2EmulatorSegaRallyInputsEnabled(Helpers* helpers)
 						}
 					}
 				}
-				helpers->WriteByte(SteeringAddress, SteeringValue, false);
-				helpers->WriteByte(0x1AA876, SteeringValue, true);
-				helpers->WriteByte(AcclAddress, AcclValue, false);
-				helpers->WriteByte(BrakeAddress, BrakeValue, false);
+				ffb::Memory::Write<UINT8>(SteeringAddress, SteeringValue);
+				ffb::Memory::Write<UINT8>(ffb::Memory::Address(ffb::Base::Module, 0x1AA876), SteeringValue);
+				ffb::Memory::Write<UINT8>(AcclAddress, AcclValue);
+				ffb::Memory::Write<UINT8>(BrakeAddress, BrakeValue);
 			}
 			if (e.jaxis.which == joystick_index2)
 			{
@@ -467,10 +415,10 @@ void M2EmulatorSegaRallyInputsEnabled(Helpers* helpers)
 						}
 					}
 				}
-				helpers->WriteByte(SteeringAddress, SteeringValue, false);
-				helpers->WriteByte(0x1AA876, SteeringValue, true);
-				helpers->WriteByte(AcclAddress, AcclValue, false);
-				helpers->WriteByte(BrakeAddress, BrakeValue, false);
+				ffb::Memory::Write<UINT8>(SteeringAddress, SteeringValue);
+				ffb::Memory::Write<UINT8>(ffb::Memory::Address(ffb::Base::Module, 0x1AA876), SteeringValue);
+				ffb::Memory::Write<UINT8>(AcclAddress, AcclValue);
+				ffb::Memory::Write<UINT8>(BrakeAddress, BrakeValue);
 			}
 		}
 
@@ -536,32 +484,32 @@ void M2EmulatorSegaRallyInputsEnabled(Helpers* helpers)
 				{
 					if (testA)
 					{
-						helpers->WriteByte(Button2Address, button2read += 0x04, false);
+						ffb::Memory::Write<UINT8>(Button2Address, button2read += 0x04);
 						testA = false;
 					}
 					if (serviceA)
 					{
-						helpers->WriteByte(Button2Address, button2read += 0x08, false);
+						ffb::Memory::Write<UINT8>(Button2Address, button2read += 0x08);
 						serviceA = false;
 					}
 					if (startA)
 					{
-						helpers->WriteByte(Button2Address, button2read += 0x40, false);
+						ffb::Memory::Write<UINT8>(Button2Address, button2read += 0x40);
 						startA = false;
 					}
 					if (vr1A)
 					{
-						helpers->WriteByte(Button2Address, button2read += 0x10, false);
+						ffb::Memory::Write<UINT8>(Button2Address, button2read += 0x10);
 						vr1A = false;
 					}
 					if (coin1A)
 					{
-						helpers->WriteByte(Button2Address, button2read += 0x01, false);
+						ffb::Memory::Write<UINT8>(Button2Address, button2read += 0x01);
 						coin1A = false;
 					}
 					if (coin2A)
 					{
-						helpers->WriteByte(Button2Address, button2read += 0x02, false);
+						ffb::Memory::Write<UINT8>(Button2Address, button2read += 0x02);
 						coin2A = false;
 					}
 				}
@@ -576,56 +524,56 @@ void M2EmulatorSegaRallyInputsEnabled(Helpers* helpers)
 					}
 					if (dpdup.compare(test) == 0)
 					{
-						helpers->WriteByte(Button2Address, button2read -= 0x04, false);
+						ffb::Memory::Write<UINT8>(Button2Address, button2read -= 0x04);
 						testA = true;
 					}
 					if (dpdup.compare(service) == 0)
 					{
-						helpers->WriteByte(Button2Address, button2read -= 0x08, false);
+						ffb::Memory::Write<UINT8>(Button2Address, button2read -= 0x08);
 						serviceA = true;
 					}
 					if (dpdup.compare(coin1) == 0)
 					{
-						helpers->WriteByte(Button2Address, button2read -= 0x01, false);
+						ffb::Memory::Write<UINT8>(Button2Address, button2read -= 0x01);
 						coin1A = true;
 					}
 					if (dpdup.compare(coin2) == 0)
 					{
-						helpers->WriteByte(Button2Address, button2read -= 0x02, false);
+						ffb::Memory::Write<UINT8>(Button2Address, button2read -= 0x02);
 						coin2A = true;
 					}
 					if (dpdup.compare(start) == 0)
 					{
-						helpers->WriteByte(Button2Address, button2read -= 0x40, false);
+						ffb::Memory::Write<UINT8>(Button2Address, button2read -= 0x40);
 						startA = true;
 					}
 					if (dpdup.compare(shift1) == 0)
 					{
-						helpers->WriteByte(Button1Address, 0x2E, false);
+						ffb::Memory::Write<UINT8>(Button1Address, 0x2E);
 						GearValue = 0x00;
 						shift1A = true;
 					}
 					if (dpdup.compare(shift2) == 0)
 					{
-						helpers->WriteByte(Button1Address, 0x1D, false);
+						ffb::Memory::Write<UINT8>(Button1Address, 0x1D);
 						GearValue = 0x01;
 						shift2A = true;
 					}
 					if (dpdup.compare(shift3) == 0)
 					{
-						helpers->WriteByte(Button1Address, 0x6B, false);
+						ffb::Memory::Write<UINT8>(Button1Address, 0x6B);
 						GearValue = 0x02;
 						shift3A = true;
 					}
 					if (dpdup.compare(shift4) == 0)
 					{
-						helpers->WriteByte(Button1Address, 0x57, false);
+						ffb::Memory::Write<UINT8>(Button1Address, 0x57);
 						GearValue = 0x03;
 						shift4A = true;
 					}
 					if (dpdup.compare(vr1) == 0)
 					{
-						helpers->WriteByte(Button2Address, button2read -= 0x10, false);
+						ffb::Memory::Write<UINT8>(Button2Address, button2read -= 0x10);
 						vr1A = true;
 					}
 				}
@@ -637,56 +585,56 @@ void M2EmulatorSegaRallyInputsEnabled(Helpers* helpers)
 					}
 					if (dpdup2.compare(test2) == 0)
 					{
-						helpers->WriteByte(Button2Address, button2read -= 0x04, false);
+						ffb::Memory::Write<UINT8>(Button2Address, button2read -= 0x04);
 						testA = true;
 					}
 					if (dpdup2.compare(service2) == 0)
 					{
-						helpers->WriteByte(Button2Address, button2read -= 0x08, false);
+						ffb::Memory::Write<UINT8>(Button2Address, button2read -= 0x08);
 						serviceA = true;
 					}
 					if (dpdup2.compare(coin12) == 0)
 					{
-						helpers->WriteByte(Button2Address, button2read -= 0x01, false);
+						ffb::Memory::Write<UINT8>(Button2Address, button2read -= 0x01);
 						coin1A = true;
 					}
 					if (dpdup2.compare(coin22) == 0)
 					{
-						helpers->WriteByte(Button2Address, button2read -= 0x02, false);
+						ffb::Memory::Write<UINT8>(Button2Address, button2read -= 0x02);
 						coin2A = true;
 					}
 					if (dpdup2.compare(start2) == 0)
 					{
-						helpers->WriteByte(Button2Address, button2read -= 0x40, false);
+						ffb::Memory::Write<UINT8>(Button2Address, button2read -= 0x40);
 						startA = true;
 					}
 					if (dpdup2.compare(shift12) == 0)
 					{
-						helpers->WriteByte(Button1Address, 0x2E, false);
+						ffb::Memory::Write<UINT8>(Button1Address, 0x2E);
 						GearValue = 0x00;
 						shift1A = true;
 					}
 					if (dpdup2.compare(shift22) == 0)
 					{
-						helpers->WriteByte(Button1Address, 0x1D, false);
+						ffb::Memory::Write<UINT8>(Button1Address, 0x1D);
 						GearValue = 0x01;
 						shift2A = true;
 					}
 					if (dpdup2.compare(shift32) == 0)
 					{
-						helpers->WriteByte(Button1Address, 0x6B, false);
+						ffb::Memory::Write<UINT8>(Button1Address, 0x6B);
 						GearValue = 0x02;
 						shift3A = true;
 					}
 					if (dpdup2.compare(shift42) == 0)
 					{
-						helpers->WriteByte(Button1Address, 0x57, false);
+						ffb::Memory::Write<UINT8>(Button1Address, 0x57);
 						GearValue = 0x03;
 						shift4A = true;
 					}
 					if (dpdup2.compare(vr12) == 0)
 					{
-						helpers->WriteByte(Button2Address, button2read -= 0x10, false);
+						ffb::Memory::Write<UINT8>(Button2Address, button2read -= 0x10);
 						vr1A = true;
 					}
 				}
@@ -701,56 +649,56 @@ void M2EmulatorSegaRallyInputsEnabled(Helpers* helpers)
 					}
 					if (dpddown.compare(test) == 0)
 					{
-						helpers->WriteByte(Button2Address, button2read -= 0x04, false);
+						ffb::Memory::Write<UINT8>(Button2Address, button2read -= 0x04);
 						testA = true;
 					}
 					if (dpddown.compare(service) == 0)
 					{
-						helpers->WriteByte(Button2Address, button2read -= 0x08, false);
+						ffb::Memory::Write<UINT8>(Button2Address, button2read -= 0x08);
 						serviceA = true;
 					}
 					if (dpddown.compare(coin1) == 0)
 					{
-						helpers->WriteByte(Button2Address, button2read -= 0x01, false);
+						ffb::Memory::Write<UINT8>(Button2Address, button2read -= 0x01);
 						coin1A = true;
 					}
 					if (dpddown.compare(coin2) == 0)
 					{
-						helpers->WriteByte(Button2Address, button2read -= 0x02, false);
+						ffb::Memory::Write<UINT8>(Button2Address, button2read -= 0x02);
 						coin2A = true;
 					}
 					if (dpddown.compare(start) == 0)
 					{
-						helpers->WriteByte(Button2Address, button2read -= 0x40, false);
+						ffb::Memory::Write<UINT8>(Button2Address, button2read -= 0x40);
 						startA = true;
 					}
 					if (dpddown.compare(shift1) == 0)
 					{
-						helpers->WriteByte(Button1Address, 0x2E, false);
+						ffb::Memory::Write<UINT8>(Button1Address, 0x2E);
 						GearValue = 0x00;
 						shift1A = true;
 					}
 					if (dpddown.compare(shift2) == 0)
 					{
-						helpers->WriteByte(Button1Address, 0x1D, false);
+						ffb::Memory::Write<UINT8>(Button1Address, 0x1D);
 						GearValue = 0x01;
 						shift2A = true;
 					}
 					if (dpddown.compare(shift3) == 0)
 					{
-						helpers->WriteByte(Button1Address, 0x6B, false);
+						ffb::Memory::Write<UINT8>(Button1Address, 0x6B);
 						GearValue = 0x02;
 						shift3A = true;
 					}
 					if (dpddown.compare(shift4) == 0)
 					{
-						helpers->WriteByte(Button1Address, 0x57, false);
+						ffb::Memory::Write<UINT8>(Button1Address, 0x57);
 						GearValue = 0x03;
 						shift4A = true;
 					}
 					if (dpddown.compare(vr1) == 0)
 					{
-						helpers->WriteByte(Button2Address, button2read -= 0x10, false);
+						ffb::Memory::Write<UINT8>(Button2Address, button2read -= 0x10);
 						vr1A = true;
 					}
 				}
@@ -762,56 +710,56 @@ void M2EmulatorSegaRallyInputsEnabled(Helpers* helpers)
 					}
 					if (dpddown2.compare(test2) == 0)
 					{
-						helpers->WriteByte(Button2Address, button2read -= 0x04, false);
+						ffb::Memory::Write<UINT8>(Button2Address, button2read -= 0x04);
 						testA = true;
 					}
 					if (dpddown2.compare(service2) == 0)
 					{
-						helpers->WriteByte(Button2Address, button2read -= 0x08, false);
+						ffb::Memory::Write<UINT8>(Button2Address, button2read -= 0x08);
 						serviceA = true;
 					}
 					if (dpddown2.compare(coin12) == 0)
 					{
-						helpers->WriteByte(Button2Address, button2read -= 0x01, false);
+						ffb::Memory::Write<UINT8>(Button2Address, button2read -= 0x01);
 						coin1A = true;
 					}
 					if (dpddown2.compare(coin22) == 0)
 					{
-						helpers->WriteByte(Button2Address, button2read -= 0x02, false);
+						ffb::Memory::Write<UINT8>(Button2Address, button2read -= 0x02);
 						coin2A = true;
 					}
 					if (dpddown2.compare(start2) == 0)
 					{
-						helpers->WriteByte(Button2Address, button2read -= 0x40, false);
+						ffb::Memory::Write<UINT8>(Button2Address, button2read -= 0x40);
 						startA = true;
 					}
 					if (dpddown2.compare(shift12) == 0)
 					{
-						helpers->WriteByte(Button1Address, 0x2E, false);
+						ffb::Memory::Write<UINT8>(Button1Address, 0x2E);
 						GearValue = 0x00;
 						shift1A = true;
 					}
 					if (dpddown2.compare(shift22) == 0)
 					{
-						helpers->WriteByte(Button1Address, 0x1D, false);
+						ffb::Memory::Write<UINT8>(Button1Address, 0x1D);
 						GearValue = 0x01;
 						shift2A = true;
 					}
 					if (dpddown2.compare(shift32) == 0)
 					{
-						helpers->WriteByte(Button1Address, 0x6B, false);
+						ffb::Memory::Write<UINT8>(Button1Address, 0x6B);
 						GearValue = 0x02;
 						shift3A = true;
 					}
 					if (dpddown2.compare(shift42) == 0)
 					{
-						helpers->WriteByte(Button1Address, 0x57, false);
+						ffb::Memory::Write<UINT8>(Button1Address, 0x57);
 						GearValue = 0x03;
 						shift4A = true;
 					}
 					if (dpddown2.compare(vr12) == 0)
 					{
-						helpers->WriteByte(Button2Address, button2read -= 0x10, false);
+						ffb::Memory::Write<UINT8>(Button2Address, button2read -= 0x10);
 						vr1A = true;
 					}
 				}
@@ -826,56 +774,56 @@ void M2EmulatorSegaRallyInputsEnabled(Helpers* helpers)
 					}
 					if (dpdleft.compare(test) == 0)
 					{
-						helpers->WriteByte(Button2Address, button2read -= 0x04, false);
+						ffb::Memory::Write<UINT8>(Button2Address, button2read -= 0x04);
 						testA = true;
 					}
 					if (dpdleft.compare(service) == 0)
 					{
-						helpers->WriteByte(Button2Address, button2read -= 0x08, false);
+						ffb::Memory::Write<UINT8>(Button2Address, button2read -= 0x08);
 						serviceA = true;
 					}
 					if (dpdleft.compare(coin1) == 0)
 					{
-						helpers->WriteByte(Button2Address, button2read -= 0x01, false);
+						ffb::Memory::Write<UINT8>(Button2Address, button2read -= 0x01);
 						coin1A = true;
 					}
 					if (dpdleft.compare(coin2) == 0)
 					{
-						helpers->WriteByte(Button2Address, button2read -= 0x02, false);
+						ffb::Memory::Write<UINT8>(Button2Address, button2read -= 0x02);
 						coin2A = true;
 					}
 					if (dpdleft.compare(start) == 0)
 					{
-						helpers->WriteByte(Button2Address, button2read -= 0x40, false);
+						ffb::Memory::Write<UINT8>(Button2Address, button2read -= 0x40);
 						startA = true;
 					}
 					if (dpdleft.compare(shift1) == 0)
 					{
-						helpers->WriteByte(Button1Address, 0x2E, false);
+						ffb::Memory::Write<UINT8>(Button1Address, 0x2E);
 						GearValue = 0x00;
 						shift1A = true;
 					}
 					if (dpdleft.compare(shift2) == 0)
 					{
-						helpers->WriteByte(Button1Address, 0x1D, false);
+						ffb::Memory::Write<UINT8>(Button1Address, 0x1D);
 						GearValue = 0x01;
 						shift2A = true;
 					}
 					if (dpdleft.compare(shift3) == 0)
 					{
-						helpers->WriteByte(Button1Address, 0x6B, false);
+						ffb::Memory::Write<UINT8>(Button1Address, 0x6B);
 						GearValue = 0x02;
 						shift3A = true;
 					}
 					if (dpdleft.compare(shift4) == 0)
 					{
-						helpers->WriteByte(Button1Address, 0x57, false);
+						ffb::Memory::Write<UINT8>(Button1Address, 0x57);
 						GearValue = 0x03;
 						shift4A = true;
 					}
 					if (dpdleft.compare(vr1) == 0)
 					{
-						helpers->WriteByte(Button2Address, button2read -= 0x10, false);
+						ffb::Memory::Write<UINT8>(Button2Address, button2read -= 0x10);
 						vr1A = true;
 					}
 				}
@@ -887,56 +835,56 @@ void M2EmulatorSegaRallyInputsEnabled(Helpers* helpers)
 					}
 					if (dpdleft2.compare(test2) == 0)
 					{
-						helpers->WriteByte(Button2Address, button2read -= 0x04, false);
+						ffb::Memory::Write<UINT8>(Button2Address, button2read -= 0x04);
 						testA = true;
 					}
 					if (dpdleft2.compare(service2) == 0)
 					{
-						helpers->WriteByte(Button2Address, button2read -= 0x08, false);
+						ffb::Memory::Write<UINT8>(Button2Address, button2read -= 0x08);
 						serviceA = true;
 					}
 					if (dpdleft2.compare(coin12) == 0)
 					{
-						helpers->WriteByte(Button2Address, button2read -= 0x01, false);
+						ffb::Memory::Write<UINT8>(Button2Address, button2read -= 0x01);
 						coin1A = true;
 					}
 					if (dpdleft2.compare(coin22) == 0)
 					{
-						helpers->WriteByte(Button2Address, button2read -= 0x02, false);
+						ffb::Memory::Write<UINT8>(Button2Address, button2read -= 0x02);
 						coin2A = true;
 					}
 					if (dpdleft2.compare(start2) == 0)
 					{
-						helpers->WriteByte(Button2Address, button2read -= 0x40, false);
+						ffb::Memory::Write<UINT8>(Button2Address, button2read -= 0x40);
 						startA = true;
 					}
 					if (dpdleft2.compare(shift12) == 0)
 					{
-						helpers->WriteByte(Button1Address, 0x2E, false);
+						ffb::Memory::Write<UINT8>(Button1Address, 0x2E);
 						GearValue = 0x00;
 						shift1A = true;
 					}
 					if (dpdleft2.compare(shift22) == 0)
 					{
-						helpers->WriteByte(Button1Address, 0x1D, false);
+						ffb::Memory::Write<UINT8>(Button1Address, 0x1D);
 						GearValue = 0x01;
 						shift2A = true;
 					}
 					if (dpdleft2.compare(shift32) == 0)
 					{
-						helpers->WriteByte(Button1Address, 0x6B, false);
+						ffb::Memory::Write<UINT8>(Button1Address, 0x6B);
 						GearValue = 0x02;
 						shift3A = true;
 					}
 					if (dpdleft2.compare(shift42) == 0)
 					{
-						helpers->WriteByte(Button1Address, 0x57, false);
+						ffb::Memory::Write<UINT8>(Button1Address, 0x57);
 						GearValue = 0x03;
 						shift4A = true;
 					}
 					if (dpdleft2.compare(vr12) == 0)
 					{
-						helpers->WriteByte(Button2Address, button2read -= 0x10, false);
+						ffb::Memory::Write<UINT8>(Button2Address, button2read -= 0x10);
 						vr1A = true;
 					}
 				}
@@ -951,56 +899,56 @@ void M2EmulatorSegaRallyInputsEnabled(Helpers* helpers)
 					}
 					if (dpdright.compare(test) == 0)
 					{
-						helpers->WriteByte(Button2Address, button2read -= 0x04, false);
+						ffb::Memory::Write<UINT8>(Button2Address, button2read -= 0x04);
 						testA = true;
 					}
 					if (dpdright.compare(service) == 0)
 					{
-						helpers->WriteByte(Button2Address, button2read -= 0x08, false);
+						ffb::Memory::Write<UINT8>(Button2Address, button2read -= 0x08);
 						serviceA = true;
 					}
 					if (dpdright.compare(coin1) == 0)
 					{
-						helpers->WriteByte(Button2Address, button2read -= 0x01, false);
+						ffb::Memory::Write<UINT8>(Button2Address, button2read -= 0x01);
 						coin1A = true;
 					}
 					if (dpdright.compare(coin2) == 0)
 					{
-						helpers->WriteByte(Button2Address, button2read -= 0x02, false);
+						ffb::Memory::Write<UINT8>(Button2Address, button2read -= 0x02);
 						coin2A = true;
 					}
 					if (dpdright.compare(start) == 0)
 					{
-						helpers->WriteByte(Button2Address, button2read -= 0x40, false);
+						ffb::Memory::Write<UINT8>(Button2Address, button2read -= 0x40);
 						startA = true;
 					}
 					if (dpdright.compare(shift1) == 0)
 					{
-						helpers->WriteByte(Button1Address, 0x2E, false);
+						ffb::Memory::Write<UINT8>(Button1Address, 0x2E);
 						GearValue = 0x00;
 						shift1A = true;
 					}
 					if (dpdright.compare(shift2) == 0)
 					{
-						helpers->WriteByte(Button1Address, 0x1D, false);
+						ffb::Memory::Write<UINT8>(Button1Address, 0x1D);
 						GearValue = 0x01;
 						shift2A = true;
 					}
 					if (dpdright.compare(shift3) == 0)
 					{
-						helpers->WriteByte(Button1Address, 0x6B, false);
+						ffb::Memory::Write<UINT8>(Button1Address, 0x6B);
 						GearValue = 0x02;
 						shift3A = true;
 					}
 					if (dpdright.compare(shift4) == 0)
 					{
-						helpers->WriteByte(Button1Address, 0x57, false);
+						ffb::Memory::Write<UINT8>(Button1Address, 0x57);
 						GearValue = 0x03;
 						shift4A = true;
 					}
 					if (dpdright.compare(vr1) == 0)
 					{
-						helpers->WriteByte(Button2Address, button2read -= 0x10, false);
+						ffb::Memory::Write<UINT8>(Button2Address, button2read -= 0x10);
 						vr1A = true;
 					}
 				}
@@ -1012,56 +960,56 @@ void M2EmulatorSegaRallyInputsEnabled(Helpers* helpers)
 					}
 					if (dpdright2.compare(test2) == 0)
 					{
-						helpers->WriteByte(Button2Address, button2read -= 0x04, false);
+						ffb::Memory::Write<UINT8>(Button2Address, button2read -= 0x04);
 						testA = true;
 					}
 					if (dpdright2.compare(service2) == 0)
 					{
-						helpers->WriteByte(Button2Address, button2read -= 0x08, false);
+						ffb::Memory::Write<UINT8>(Button2Address, button2read -= 0x08);
 						serviceA = true;
 					}
 					if (dpdright2.compare(coin12) == 0)
 					{
-						helpers->WriteByte(Button2Address, button2read -= 0x01, false);
+						ffb::Memory::Write<UINT8>(Button2Address, button2read -= 0x01);
 						coin1A = true;
 					}
 					if (dpdright2.compare(coin22) == 0)
 					{
-						helpers->WriteByte(Button2Address, button2read -= 0x02, false);
+						ffb::Memory::Write<UINT8>(Button2Address, button2read -= 0x02);
 						coin2A = true;
 					}
 					if (dpdright2.compare(start2) == 0)
 					{
-						helpers->WriteByte(Button2Address, button2read -= 0x40, false);
+						ffb::Memory::Write<UINT8>(Button2Address, button2read -= 0x40);
 						startA = true;
 					}
 					if (dpdright2.compare(shift12) == 0)
 					{
-						helpers->WriteByte(Button1Address, 0x2E, false);
+						ffb::Memory::Write<UINT8>(Button1Address, 0x2E);
 						GearValue = 0x00;
 						shift1A = true;
 					}
 					if (dpdright2.compare(shift22) == 0)
 					{
-						helpers->WriteByte(Button1Address, 0x1D, false);
+						ffb::Memory::Write<UINT8>(Button1Address, 0x1D);
 						GearValue = 0x01;
 						shift2A = true;
 					}
 					if (dpdright2.compare(shift32) == 0)
 					{
-						helpers->WriteByte(Button1Address, 0x6B, false);
+						ffb::Memory::Write<UINT8>(Button1Address, 0x6B);
 						GearValue = 0x02;
 						shift3A = true;
 					}
 					if (dpdright2.compare(shift42) == 0)
 					{
-						helpers->WriteByte(Button1Address, 0x57, false);
+						ffb::Memory::Write<UINT8>(Button1Address, 0x57);
 						GearValue = 0x03;
 						shift4A = true;
 					}
 					if (dpdright2.compare(vr12) == 0)
 					{
-						helpers->WriteByte(Button2Address, button2read -= 0x10, false);
+						ffb::Memory::Write<UINT8>(Button2Address, button2read -= 0x10);
 						vr1A = true;
 					}
 				}
@@ -1074,7 +1022,7 @@ void M2EmulatorSegaRallyInputsEnabled(Helpers* helpers)
 			{
 				if (e.jbutton.button == TestButton)
 				{
-					helpers->WriteByte(Button2Address, button2read -= 0x04, false);
+					ffb::Memory::Write<UINT8>(Button2Address, button2read -= 0x04);
 				}
 				if (e.jbutton.button == ExitButton)
 				{
@@ -1082,42 +1030,42 @@ void M2EmulatorSegaRallyInputsEnabled(Helpers* helpers)
 				}
 				if (e.jbutton.button == ServiceButton)
 				{
-					helpers->WriteByte(Button2Address, button2read -= 0x08, false);
+					ffb::Memory::Write<UINT8>(Button2Address, button2read -= 0x08);
 				}
 				if (e.jbutton.button == Coin1Button)
 				{
-					helpers->WriteByte(Button2Address, button2read -= 0x01, false);
+					ffb::Memory::Write<UINT8>(Button2Address, button2read -= 0x01);
 				}
 				if (e.jbutton.button == Coin2Button)
 				{
-					helpers->WriteByte(Button2Address, button2read -= 0x02, false);
+					ffb::Memory::Write<UINT8>(Button2Address, button2read -= 0x02);
 				}
 				if (e.jbutton.button == StartButton)
 				{
-					helpers->WriteByte(Button2Address, button2read -= 0x40, false);
+					ffb::Memory::Write<UINT8>(Button2Address, button2read -= 0x40);
 				}
 				if (e.jbutton.button == VR1Button)
 				{
-					helpers->WriteByte(Button2Address, button2read -= 0x10, false);
+					ffb::Memory::Write<UINT8>(Button2Address, button2read -= 0x10);
 				}
 				if (e.jbutton.button == Shift1Button)
 				{
-					helpers->WriteByte(Button1Address, 0x2E, false);
+					ffb::Memory::Write<UINT8>(Button1Address, 0x2E);
 					GearValue = 0x00;
 				}
 				if (e.jbutton.button == Shift2Button)
 				{
-					helpers->WriteByte(Button1Address, 0x1D, false);
+					ffb::Memory::Write<UINT8>(Button1Address, 0x1D);
 					GearValue = 0x01;
 				}
 				if (e.jbutton.button == Shift3Button)
 				{
-					helpers->WriteByte(Button1Address, 0x6B, false);
+					ffb::Memory::Write<UINT8>(Button1Address, 0x6B);
 					GearValue = 0x02;
 				}
 				if (e.jbutton.button == Shift4Button)
 				{
-					helpers->WriteByte(Button1Address, 0x57, false);
+					ffb::Memory::Write<UINT8>(Button1Address, 0x57);
 					GearValue = 0x03;
 				}
 				if (e.jbutton.button == ShiftUpButton)
@@ -1129,13 +1077,13 @@ void M2EmulatorSegaRallyInputsEnabled(Helpers* helpers)
 						switch (GearValue)
 						{
 						case 0x01:
-							helpers->WriteByte(Button1Address, 0x1D, false);
+							ffb::Memory::Write<UINT8>(Button1Address, 0x1D);
 							break;
 						case 0x02:
-							helpers->WriteByte(Button1Address, 0x6B, false);
+							ffb::Memory::Write<UINT8>(Button1Address, 0x6B);
 							break;
 						case 0x03:
-							helpers->WriteByte(Button1Address, 0x57, false);
+							ffb::Memory::Write<UINT8>(Button1Address, 0x57);
 							break;
 						}
 					}
@@ -1149,13 +1097,13 @@ void M2EmulatorSegaRallyInputsEnabled(Helpers* helpers)
 						switch (GearValue)
 						{
 						case 0x00:
-							helpers->WriteByte(Button1Address, 0x2E, false);
+							ffb::Memory::Write<UINT8>(Button1Address, 0x2E);
 							break;
 						case 0x01:
-							helpers->WriteByte(Button1Address, 0x1D, false);
+							ffb::Memory::Write<UINT8>(Button1Address, 0x1D);
 							break;
 						case 0x02:
-							helpers->WriteByte(Button1Address, 0x6B, false);
+							ffb::Memory::Write<UINT8>(Button1Address, 0x6B);
 							break;
 						}
 					}
@@ -1165,7 +1113,7 @@ void M2EmulatorSegaRallyInputsEnabled(Helpers* helpers)
 			{
 				if (e.jbutton.button == TestButtonDevice2)
 				{
-					helpers->WriteByte(Button2Address, button2read -= 0x04, false);
+					ffb::Memory::Write<UINT8>(Button2Address, button2read -= 0x04);
 				}
 				if (e.jbutton.button == ExitButtonDevice2)
 				{
@@ -1173,42 +1121,42 @@ void M2EmulatorSegaRallyInputsEnabled(Helpers* helpers)
 				}
 				if (e.jbutton.button == ServiceButtonDevice2)
 				{
-					helpers->WriteByte(Button2Address, button2read -= 0x08, false);
+					ffb::Memory::Write<UINT8>(Button2Address, button2read -= 0x08);
 				}
 				if (e.jbutton.button == Coin1ButtonDevice2)
 				{
-					helpers->WriteByte(Button2Address, button2read -= 0x01, false);
+					ffb::Memory::Write<UINT8>(Button2Address, button2read -= 0x01);
 				}
 				if (e.jbutton.button == Coin2ButtonDevice2)
 				{
-					helpers->WriteByte(Button2Address, button2read -= 0x02, false);
+					ffb::Memory::Write<UINT8>(Button2Address, button2read -= 0x02);
 				}
 				if (e.jbutton.button == StartButtonDevice2)
 				{
-					helpers->WriteByte(Button2Address, button2read -= 0x40, false);
+					ffb::Memory::Write<UINT8>(Button2Address, button2read -= 0x40);
 				}
 				if (e.jbutton.button == VR1ButtonDevice2)
 				{
-					helpers->WriteByte(Button2Address, button2read -= 0x10, false);
+					ffb::Memory::Write<UINT8>(Button2Address, button2read -= 0x10);
 				}
 				if (e.jbutton.button == Shift1ButtonDevice2)
 				{
-					helpers->WriteByte(Button1Address, 0x2E, false);
+					ffb::Memory::Write<UINT8>(Button1Address, 0x2E);
 					GearValue = 0x00;
 				}
 				if (e.jbutton.button == Shift2ButtonDevice2)
 				{
-					helpers->WriteByte(Button1Address, 0x1D, false);
+					ffb::Memory::Write<UINT8>(Button1Address, 0x1D);
 					GearValue = 0x01;
 				}
 				if (e.jbutton.button == Shift3ButtonDevice2)
 				{
-					helpers->WriteByte(Button1Address, 0x6B, false);
+					ffb::Memory::Write<UINT8>(Button1Address, 0x6B);
 					GearValue = 0x02;
 				}
 				if (e.jbutton.button == Shift4ButtonDevice2)
 				{
-					helpers->WriteByte(Button1Address, 0x57, false);
+					ffb::Memory::Write<UINT8>(Button1Address, 0x57);
 					GearValue = 0x03;
 				}
 				if (e.jbutton.button == ShiftUpButtonDevice2)
@@ -1220,13 +1168,13 @@ void M2EmulatorSegaRallyInputsEnabled(Helpers* helpers)
 						switch (GearValue)
 						{
 						case 0x01:
-							helpers->WriteByte(Button1Address, 0x1D, false);
+							ffb::Memory::Write<UINT8>(Button1Address, 0x1D);
 							break;
 						case 0x02:
-							helpers->WriteByte(Button1Address, 0x6B, false);
+							ffb::Memory::Write<UINT8>(Button1Address, 0x6B);
 							break;
 						case 0x03:
-							helpers->WriteByte(Button1Address, 0x57, false);
+							ffb::Memory::Write<UINT8>(Button1Address, 0x57);
 							break;
 						}
 					}
@@ -1240,13 +1188,13 @@ void M2EmulatorSegaRallyInputsEnabled(Helpers* helpers)
 						switch (GearValue)
 						{
 						case 0x00:
-							helpers->WriteByte(Button1Address, 0x2E, false);
+							ffb::Memory::Write<UINT8>(Button1Address, 0x2E);
 							break;
 						case 0x01:
-							helpers->WriteByte(Button1Address, 0x1D, false);
+							ffb::Memory::Write<UINT8>(Button1Address, 0x1D);
 							break;
 						case 0x02:
-							helpers->WriteByte(Button1Address, 0x6B, false);
+							ffb::Memory::Write<UINT8>(Button1Address, 0x6B);
 							break;
 						}
 					}
@@ -1259,27 +1207,27 @@ void M2EmulatorSegaRallyInputsEnabled(Helpers* helpers)
 			{
 				if (e.jbutton.button == TestButton)
 				{
-					helpers->WriteByte(Button2Address, button2read += 0x04, false);
+					ffb::Memory::Write<UINT8>(Button2Address, button2read += 0x04);
 				}
 				if (e.jbutton.button == ServiceButton)
 				{
-					helpers->WriteByte(Button2Address, button2read += 0x08, false);
+					ffb::Memory::Write<UINT8>(Button2Address, button2read += 0x08);
 				}
 				if (e.jbutton.button == Coin1Button)
 				{
-					helpers->WriteByte(Button2Address, button2read += 0x01, false);
+					ffb::Memory::Write<UINT8>(Button2Address, button2read += 0x01);
 				}
 				if (e.jbutton.button == Coin2Button)
 				{
-					helpers->WriteByte(Button2Address, button2read += 0x02, false);
+					ffb::Memory::Write<UINT8>(Button2Address, button2read += 0x02);
 				}
 				if (e.jbutton.button == VR1Button)
 				{
-					helpers->WriteByte(Button2Address, button2read += 0x10, false);
+					ffb::Memory::Write<UINT8>(Button2Address, button2read += 0x10);
 				}
 				if (e.jbutton.button == StartButton)
 				{
-					helpers->WriteByte(Button2Address, button2read += 0x40, false);
+					ffb::Memory::Write<UINT8>(Button2Address, button2read += 0x40);
 				}
 				if (e.jbutton.button == ShiftUpButton)
 				{
@@ -1296,27 +1244,27 @@ void M2EmulatorSegaRallyInputsEnabled(Helpers* helpers)
 			{
 				if (e.jbutton.button == TestButtonDevice2)
 				{
-					helpers->WriteByte(Button2Address, button2read += 0x04, false);
+					ffb::Memory::Write<UINT8>(Button2Address, button2read += 0x04);
 				}
 				if (e.jbutton.button == ServiceButtonDevice2)
 				{
-					helpers->WriteByte(Button2Address, button2read += 0x08, false);
+					ffb::Memory::Write<UINT8>(Button2Address, button2read += 0x08);
 				}
 				if (e.jbutton.button == Coin1ButtonDevice2)
 				{
-					helpers->WriteByte(Button2Address, button2read += 0x01, false);
+					ffb::Memory::Write<UINT8>(Button2Address, button2read += 0x01);
 				}
 				if (e.jbutton.button == Coin2ButtonDevice2)
 				{
-					helpers->WriteByte(Button2Address, button2read += 0x02, false);
+					ffb::Memory::Write<UINT8>(Button2Address, button2read += 0x02);
 				}
 				if (e.jbutton.button == VR1ButtonDevice2)
 				{
-					helpers->WriteByte(Button2Address, button2read += 0x10, false);
+					ffb::Memory::Write<UINT8>(Button2Address, button2read += 0x10);
 				}
 				if (e.jbutton.button == StartButtonDevice2)
 				{
-					helpers->WriteByte(Button2Address, button2read += 0x40, false);
+					ffb::Memory::Write<UINT8>(Button2Address, button2read += 0x40);
 				}
 				if (e.jbutton.button == ShiftUpButtonDevice2)
 				{
@@ -1342,7 +1290,7 @@ void M2EmulatorSegaRallyInputsEnabled(Helpers* helpers)
 			{
 				if (!testA)
 				{
-					helpers->WriteByte(Button2Address, button2read -= 0x04, false);
+					ffb::Memory::Write<UINT8>(Button2Address, button2read -= 0x04);
 					testA = true;
 				}
 			}
@@ -1350,7 +1298,7 @@ void M2EmulatorSegaRallyInputsEnabled(Helpers* helpers)
 			{
 				if (!serviceA)
 				{
-					helpers->WriteByte(Button2Address, button2read -= 0x08, false);
+					ffb::Memory::Write<UINT8>(Button2Address, button2read -= 0x08);
 					serviceA = true;
 				}
 			}
@@ -1358,7 +1306,7 @@ void M2EmulatorSegaRallyInputsEnabled(Helpers* helpers)
 			{
 				if (!coin1A)
 				{
-					helpers->WriteByte(Button2Address, button2read -= 0x01, false);
+					ffb::Memory::Write<UINT8>(Button2Address, button2read -= 0x01);
 					coin1A = true;
 				}
 			}
@@ -1366,7 +1314,7 @@ void M2EmulatorSegaRallyInputsEnabled(Helpers* helpers)
 			{
 				if (!coin2A)
 				{
-					helpers->WriteByte(Button2Address, button2read -= 0x02, false);
+					ffb::Memory::Write<UINT8>(Button2Address, button2read -= 0x02);
 					coin2A = true;
 				}
 			}
@@ -1374,7 +1322,7 @@ void M2EmulatorSegaRallyInputsEnabled(Helpers* helpers)
 			{
 				if (!vr1A)
 				{
-					helpers->WriteByte(Button2Address, button2read -= 0x10, false);
+					ffb::Memory::Write<UINT8>(Button2Address, button2read -= 0x10);
 					vr1A = true;
 				}
 			}
@@ -1382,7 +1330,7 @@ void M2EmulatorSegaRallyInputsEnabled(Helpers* helpers)
 			{
 				if (!startA)
 				{
-					helpers->WriteByte(Button2Address, button2read -= 0x40, false);
+					ffb::Memory::Write<UINT8>(Button2Address, button2read -= 0x40);
 					startA = true;
 				}
 			}
@@ -1390,7 +1338,7 @@ void M2EmulatorSegaRallyInputsEnabled(Helpers* helpers)
 			{
 				if (!shift1A)
 				{
-					helpers->WriteByte(Button1Address, 0x2E, false);
+					ffb::Memory::Write<UINT8>(Button1Address, 0x2E);
 					GearValue = 0x00;
 					shift1A = true;
 				}
@@ -1399,7 +1347,7 @@ void M2EmulatorSegaRallyInputsEnabled(Helpers* helpers)
 			{
 				if (!shift2A)
 				{
-					helpers->WriteByte(Button1Address, 0x1D, false);
+					ffb::Memory::Write<UINT8>(Button1Address, 0x1D);
 					GearValue = 0x01;
 					shift2A = true;
 				}
@@ -1408,7 +1356,7 @@ void M2EmulatorSegaRallyInputsEnabled(Helpers* helpers)
 			{
 				if (!shift3A)
 				{
-					helpers->WriteByte(Button1Address, 0x6B, false);
+					ffb::Memory::Write<UINT8>(Button1Address, 0x6B);
 					GearValue = 0x02;
 					shift3A = true;
 				}
@@ -1417,7 +1365,7 @@ void M2EmulatorSegaRallyInputsEnabled(Helpers* helpers)
 			{
 				if (!shift4A)
 				{
-					helpers->WriteByte(Button1Address, 0x57, false);
+					ffb::Memory::Write<UINT8>(Button1Address, 0x57);
 					GearValue = 0x03;
 					shift4A = true;
 				}
@@ -1432,13 +1380,13 @@ void M2EmulatorSegaRallyInputsEnabled(Helpers* helpers)
 						switch (GearValue)
 						{
 						case 0x01:
-							helpers->WriteByte(Button1Address, 0x1D, false);
+							ffb::Memory::Write<UINT8>(Button1Address, 0x1D);
 							break;
 						case 0x02:
-							helpers->WriteByte(Button1Address, 0x6B, false);
+							ffb::Memory::Write<UINT8>(Button1Address, 0x6B);
 							break;
 						case 0x03:
-							helpers->WriteByte(Button1Address, 0x57, false);
+							ffb::Memory::Write<UINT8>(Button1Address, 0x57);
 							break;
 						}
 						shiftupA = true;
@@ -1455,13 +1403,13 @@ void M2EmulatorSegaRallyInputsEnabled(Helpers* helpers)
 						switch (GearValue)
 						{
 						case 0x00:
-							helpers->WriteByte(Button1Address, 0x2E, false);
+							ffb::Memory::Write<UINT8>(Button1Address, 0x2E);
 							break;
 						case 0x01:
-							helpers->WriteByte(Button1Address, 0x1D, false);
+							ffb::Memory::Write<UINT8>(Button1Address, 0x1D);
 							break;
 						case 0x02:
-							helpers->WriteByte(Button1Address, 0x6B, false);
+							ffb::Memory::Write<UINT8>(Button1Address, 0x6B);
 							break;
 						}
 						shiftdwnA = true;
@@ -1478,7 +1426,7 @@ void M2EmulatorSegaRallyInputsEnabled(Helpers* helpers)
 			{
 				if (testA)
 				{
-					helpers->WriteByte(Button2Address, button2read += 0x04, false);
+					ffb::Memory::Write<UINT8>(Button2Address, button2read += 0x04);
 					testA = false;
 				}
 			}
@@ -1486,7 +1434,7 @@ void M2EmulatorSegaRallyInputsEnabled(Helpers* helpers)
 			{
 				if (serviceA)
 				{
-					helpers->WriteByte(Button2Address, button2read += 0x08, false);
+					ffb::Memory::Write<UINT8>(Button2Address, button2read += 0x08);
 					serviceA = false;
 				}
 			}
@@ -1494,7 +1442,7 @@ void M2EmulatorSegaRallyInputsEnabled(Helpers* helpers)
 			{
 				if (coin1A)
 				{
-					helpers->WriteByte(Button2Address, button2read += 0x01, false);
+					ffb::Memory::Write<UINT8>(Button2Address, button2read += 0x01);
 					coin1A = false;
 				}
 			}
@@ -1502,7 +1450,7 @@ void M2EmulatorSegaRallyInputsEnabled(Helpers* helpers)
 			{
 				if (coin2A)
 				{
-					helpers->WriteByte(Button2Address, button2read += 0x02, false);
+					ffb::Memory::Write<UINT8>(Button2Address, button2read += 0x02);
 					coin2A = false;
 				}
 			}
@@ -1510,7 +1458,7 @@ void M2EmulatorSegaRallyInputsEnabled(Helpers* helpers)
 			{
 				if (vr1A)
 				{
-					helpers->WriteByte(Button2Address, button2read += 0x10, false);
+					ffb::Memory::Write<UINT8>(Button2Address, button2read += 0x10);
 					vr1A = false;
 				}
 			}
@@ -1518,7 +1466,7 @@ void M2EmulatorSegaRallyInputsEnabled(Helpers* helpers)
 			{
 				if (startA)
 				{
-					helpers->WriteByte(Button2Address, button2read += 0x40, false);
+					ffb::Memory::Write<UINT8>(Button2Address, button2read += 0x40);
 					startA = false;
 				}
 			}
