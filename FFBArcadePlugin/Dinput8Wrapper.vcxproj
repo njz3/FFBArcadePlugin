@@ -19,6 +19,8 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Core\PluginState.h" />
+    <ClInclude Include="Core\Config.h" />
     <ClInclude Include="GameFiles\M2EmulatorSegaRallyInputs.h" />
     <ClInclude Include="GameFiles\M2EmulatorInputs.h" />
     <ClInclude Include="GameFiles\M2EmulatorIndy500Inputs.h" />
@@ -125,6 +127,7 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Core\Config.cpp" />
     <ClCompile Include="GameFiles\MAMEOutputs.cpp" />
     <ClCompile Include="GameFiles\EmulatorGames.cpp" />
     <ClCompile Include="Hardware\Vibration.cpp" />

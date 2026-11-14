@@ -12,9 +12,10 @@ along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
 */
 
 #include "ArcticThunder.h"
+#include "../Core/Config.h"
 
-extern int EnableForceSpringEffect;
-extern int ForceSpringStrength;
+static ffb::Config& config = ffb::Config::Get();
+
 
 using namespace ffb;
 
@@ -22,8 +23,8 @@ void ArcticThunder::Update()
 {
 	ApplyDamper();
 
-	if (EnableForceSpringEffect)
-		wheel.KeptSpring(ForceSpringStrength / 100.0);
+	if (config.enableForceSpringEffect)
+		wheel.KeptSpring(config.forceSpringStrength / 100.0);
 
 	if (TeknoParrotFFB2() != 0xFF && TeknoParrotFFB2())
 	{

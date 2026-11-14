@@ -13,10 +13,12 @@ along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
 
 #include "GRIDReal.h"
 #include "../Core/Hooks.h"
+#include "../Core/Config.h"
+
+static ffb::Config& config = ffb::Config::Get();
 
 using namespace ffb;
 
-extern int FFBOrRumble;
 
 GRIDReal* GRIDReal::instance = nullptr;
 int(__stdcall* GRIDReal::out32Original)(DWORD device, DWORD data) = nullptr;
@@ -29,7 +31,7 @@ GRIDReal::GRIDReal()
 
 int __stdcall GRIDReal::Out32Hook(DWORD device, DWORD data)
 {
-	if (FFBOrRumble)
+	if (config.ffbOrRumble)
 		return 0;
 
 	GRIDReal& game = *instance;
@@ -63,7 +65,7 @@ int __fastcall GRIDReal::EnableFFBHook(int object, double unknown)
 
 	*(BYTE*)(object + 92) = (BYTE)1; // FFB
 
-	if (FFBOrRumble)
+	if (config.ffbOrRumble)
 		*(BYTE*)(object + 12) = (BYTE)1; // Rumble
 
 	return 0;
@@ -85,7 +87,7 @@ void GRIDReal::Update()
 		Hooks::Initialize();
 		Hooks::Create(Memory::Address(Base::Module, EnableFFB), EnableFFBHook, &enableFFBOriginal);
 		Hooks::CreateApi(L"inpout32.dll", "Out32", Out32Hook, &out32Original);
-		if (FFBOrRumble)
+		if (config.ffbOrRumble)
 			Hooks::CreateApi(L"xinput1_3.dll", "XInputSetState", &XInputSetStateHook, (LPVOID*)nullptr);
 		Hooks::Enable();
 	}

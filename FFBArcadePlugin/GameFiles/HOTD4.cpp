@@ -13,10 +13,10 @@ along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
 
 #include "HOTD4.h"
 #include "../Core/Devices.h"
+#include "../Core/PluginState.h"
 
 using namespace ffb;
 
-extern HINSTANCE gl_cgGLDll;
 
 DWORD WINAPI HOTD4::RunningLoop(LPVOID game)
 {

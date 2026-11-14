@@ -14,8 +14,10 @@ along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
 #include <initializer_list>
 #include "TeknoParrot.h"
 #include "GameIds.h"
+#include "Config.h"
 
-extern int configGameId;
+static ffb::Config& config = ffb::Config::Get();
+
 
 namespace ffb
 {
@@ -26,7 +28,7 @@ namespace ffb
 	// Games publishing their main FFB value in the extended slot instead of the standard one
 	static bool UsesExtendedFFBSlot()
 	{
-		return configGameId == POKKEN_TOURNAMENT || configGameId == SRG || configGameId == D1_GP || configGameId == WMMT_3 || configGameId == DEAD_HEAT;
+		return config.gameId == POKKEN_TOURNAMENT || config.gameId == SRG || config.gameId == D1_GP || config.gameId == WMMT_3 || config.gameId == DEAD_HEAT;
 	}
 
 	TeknoParrotGame::TeknoParrotGame()

@@ -12,9 +12,10 @@ along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
 */
 
 #include "Game.h"
+#include "Config.h"
 
-extern int EnableDamper;
-extern int DamperStrength;
+static ffb::Config& config = ffb::Config::Get();
+
 
 namespace ffb
 {
@@ -40,8 +41,8 @@ namespace ffb
 
 	void Game::ApplyDamper()
 	{
-		if (EnableDamper)
-			wheel.Damper(DamperStrength / 100.0);
+		if (config.enableDamper)
+			wheel.Damper(config.damperStrength / 100.0);
 	}
 
 	void Game::RumbleWithMode(Device& device, int mode, double strength, UINT32 length_ms)

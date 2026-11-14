@@ -13,11 +13,12 @@ along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
 
 #include <sstream>
 #include "SegaRaceTV.h"
+#include "../Core/Config.h"
+
+static ffb::Config& config = ffb::Config::Get();
 
 using namespace ffb;
 
-extern int EnableForceSpringEffect;
-extern int ForceSpringStrength;
 
 void SegaRaceTV::Update()
 {
@@ -31,8 +32,8 @@ void SegaRaceTV::Update()
 	int ff = Memory::Read(WheelForce);
 
 	ApplyDamper();
-	if (EnableForceSpringEffect)
-		wheel.KeptSpring(ForceSpringStrength / 100.0);
+	if (config.enableForceSpringEffect)
+		wheel.KeptSpring(config.forceSpringStrength / 100.0);
 
 	if (ff > 0 && ff < 128)
 	{

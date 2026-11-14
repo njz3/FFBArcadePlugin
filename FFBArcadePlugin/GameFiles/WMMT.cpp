@@ -13,10 +13,10 @@ along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
 
 #include "WMMT.h"
 #include "SDL.h"
+#include "../Core/PluginState.h"
 
 using namespace ffb;
 
-extern SDL_Event e;
 
 void WMMT::StartInputThread()
 {

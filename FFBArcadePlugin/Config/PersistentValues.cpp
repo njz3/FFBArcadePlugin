@@ -3,21 +3,11 @@
 #include <vector>
 #include "PersistentValues.h"
 #include "../Core/GameIds.h"
+#include "../Core/Config.h"
+#include "../Core/PluginState.h"
 
-extern int configGameId;
-extern int configMinForce;
-extern int configMaxForce;
-extern int configAlternativeMinForceLeft;
-extern int configAlternativeMaxForceLeft;
-extern int configAlternativeMinForceRight;
-extern int configAlternativeMaxForceRight;
-extern char* romname;
-extern char* romnameM2;
-extern char* romnameDemul;
-extern LPCSTR CustomAlternativeMaxForceLeft;
-extern LPCSTR CustomAlternativeMaxForceRight;
-extern LPCSTR CustomMaxForce;
-extern int EnableFFBStrengthPersistence;
+static ffb::Config& config = ffb::Config::Get();
+
 
 static int defaultMaxForce;
 static int defaultAlternativeMaxForceLeft;
@@ -95,12 +85,12 @@ static const PersistentMaxForceKeys persistentMaxForceKeys[] = {
 // Emulators have a max force setting per game
 static bool HasPersistentKeysPerRom()
 {
-	return configGameId == SUPERMODEL_ || configGameId == MAME_ || configGameId == M2_Emulator || configGameId == Demul_Emulator;
+	return config.gameId == SUPERMODEL_ || config.gameId == MAME_ || config.gameId == M2_Emulator || config.gameId == Demul_Emulator;
 }
 
 static const char* CurrentRomName()
 {
-	switch (configGameId)
+	switch (config.gameId)
 	{
 	case MAME_:
 	case SUPERMODEL_:
@@ -122,7 +112,7 @@ static const PersistentMaxForceKeys* FindPersistentMaxForceKeys()
 
 	for (const PersistentMaxForceKeys& keys : persistentMaxForceKeys)
 	{
-		if (keys.gameId != configGameId)
+		if (keys.gameId != config.gameId)
 			continue;
 
 		for (const char* romName : keys.romNames)
@@ -136,13 +126,13 @@ static const PersistentMaxForceKeys* FindPersistentMaxForceKeys()
 
 static int PersistentDefaultMaxForce()
 {
-	if (configGameId == DAYTONA_3)
+	if (config.gameId == DAYTONA_3)
 		return 90;
 
-	if (configGameId == WACKY_RACES || configGameId == CHASE_HQ_2 || configGameId == Road_Fighters_3D)
+	if (config.gameId == WACKY_RACES || config.gameId == CHASE_HQ_2 || config.gameId == Road_Fighters_3D)
 		return 75;
 
-	if (configGameId == MAME_)
+	if (config.gameId == MAME_)
 	{
 		const PersistentMaxForceKeys* keys = FindPersistentMaxForceKeys();
 		if (keys != nullptr)
@@ -153,29 +143,29 @@ static int PersistentDefaultMaxForce()
 
 void DefaultConfigValues()
 {
-	if (EnableFFBStrengthPersistence == 1)
+	if (config.enableFFBStrengthPersistence == 1)
 	{
 		int maxForce = PersistentDefaultMaxForce();
-		configMinForce = 0;
-		configMaxForce = maxForce;
-		configAlternativeMinForceLeft = 0;
-		configAlternativeMaxForceLeft = -maxForce;
-		configAlternativeMinForceRight = 0;
-		configAlternativeMaxForceRight = maxForce;
+		config.device1.force.min = 0;
+		config.device1.force.max = maxForce;
+		config.device1.alternativeLeft.min = 0;
+		config.device1.alternativeLeft.max = -maxForce;
+		config.device1.alternativeRight.min = 0;
+		config.device1.alternativeRight.max = maxForce;
 	}
 	else
 	{
-		configMaxForce = defaultMaxForce;
-		configAlternativeMaxForceLeft = defaultAlternativeMaxForceLeft;
-		configAlternativeMaxForceRight = defaultAlternativeMaxForceRight;
+		config.device1.force.max = defaultMaxForce;
+		config.device1.alternativeLeft.max = defaultAlternativeMaxForceLeft;
+		config.device1.alternativeRight.max = defaultAlternativeMaxForceRight;
 	}
 }
 
 void CustomFFBStrengthSetup()
 {
-	defaultMaxForce = configMaxForce;
-	defaultAlternativeMaxForceLeft = configAlternativeMaxForceLeft;
-	defaultAlternativeMaxForceRight = configAlternativeMaxForceRight;
+	defaultMaxForce = config.device1.force.max;
+	defaultAlternativeMaxForceLeft = config.device1.alternativeLeft.max;
+	defaultAlternativeMaxForceRight = config.device1.alternativeRight.max;
 
 	if (!HasPersistentKeysPerRom())
 	{

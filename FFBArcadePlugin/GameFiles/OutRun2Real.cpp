@@ -12,10 +12,10 @@ along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
 */
 
 #include "OutRun2Real.h"
+#include "../Core/PluginState.h"
 
 using namespace ffb;
 
-extern SDL_Event e;
 
 OutRun2Real* OutRun2Real::instance = nullptr;
 

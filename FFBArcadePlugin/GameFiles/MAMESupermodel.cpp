@@ -19,13 +19,11 @@ along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
 #include "EmulatorGames.h"
 #include "../Core/Devices.h"
 #include "../Core/ForceProfile.h"
+#include "../Core/Config.h"
+#include "../Core/PluginState.h"
 
-extern SDL_Haptic* haptic2;
-extern SDL_Haptic* haptic3;
-extern int EnableForceSpringEffect;
-extern int ForceSpringStrength;
-extern int EnableDamper;
-extern int DamperStrength;
+static ffb::Config& config = ffb::Config::Get();
+
 
 // Rom name of the game, for the keys of the persistent max force (Config/PersistentValues.cpp)
 char* romname;
@@ -83,8 +81,8 @@ void MAMESupermodel::Update()
 		devicesOpen = true;
 	}
 
-	if (EnableForceSpringEffect)
-		wheel.KeptSpring(ForceSpringStrength / 100.0);
+	if (config.enableForceSpringEffect)
+		wheel.KeptSpring(config.forceSpringStrength / 100.0);
 
 	sprintf_s(romBuffer, "%.255s", gameName);
 	romname = romBuffer;

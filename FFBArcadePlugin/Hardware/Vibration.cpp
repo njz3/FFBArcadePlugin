@@ -13,13 +13,11 @@ along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
 
 #include "Vibration.h"
 #include "../Core/Log.h"
+#include "../Core/Config.h"
+
+static ffb::Config& config = ffb::Config::Get();
 
 // settings of the game, applied by its profile
-extern int SinePeriod;
-extern int SineFadePeriod;
-extern int SineStrength;
-extern int RumbleStrengthLeftMotor;
-extern int RumbleStrengthRightMotor;
 
 namespace ffb
 {
@@ -85,8 +83,8 @@ namespace ffb
 			if (state[player] == 0x01)
 			{
 				if (sine)
-					device.Sine(SinePeriod, SineFadePeriod, SineStrength / 100.0, 100);
-				device.Rumble(RumbleStrengthLeftMotor / 100.0, RumbleStrengthRightMotor / 100.0, 100);
+					device.Sine(config.sinePeriod, config.sineFadePeriod, config.sineStrength / 100.0, 100);
+				device.Rumble(config.rumbleStrengthLeftMotor / 100.0, config.rumbleStrengthRightMotor / 100.0, 100);
 			}
 			else
 			{

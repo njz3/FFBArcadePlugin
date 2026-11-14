@@ -15,15 +15,10 @@ along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
 #include "SDL.h"
 #include "../Core/Devices.h"
 #include "RoadFighters3D.h"
+#include "../Core/PluginState.h"
 
 using namespace ffb;
 
-extern HINSTANCE gl_hjgtDll;
-extern HINSTANCE gl_hlibavs;
-extern int joystick_index1;
-extern int joystick_index2;
-extern SDL_Joystick* GameController2;
-extern SDL_Event e;
 
 int RoadFighters3D::ThreadLoop()
 {

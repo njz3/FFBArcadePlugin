@@ -18,10 +18,8 @@ along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
 #include "../Core/Devices.h"
 #include "../Core/Memory.h"
 #include "../Core/Settings.h"
+#include "../Core/PluginState.h"
 
-extern int joystick_index1;
-extern int joystick_index2;
-extern SDL_Event e;
 
 void DemulFasterThanSpeedInputs::Update()
 {

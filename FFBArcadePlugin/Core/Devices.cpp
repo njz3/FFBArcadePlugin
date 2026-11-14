@@ -1,16 +1,8 @@
 #include <stdio.h>
 #include <string.h>
 #include "Devices.h"
+#include "PluginState.h"
 
-extern int joystick1Index;
-extern int joystick_index2;
-extern int joystick_index3;
-extern SDL_Joystick* GameController2;
-extern SDL_Joystick* GameController3;
-extern SDL_Haptic* ControllerHaptic2;
-extern SDL_Haptic* ControllerHaptic3;
-extern SDL_Haptic* haptic2;
-extern SDL_Haptic* haptic3;
 
 bool SameJoystickGUID(const SDL_JoystickGUID& a, const SDL_JoystickGUID& b)
 {

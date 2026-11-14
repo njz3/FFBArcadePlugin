@@ -15,11 +15,12 @@ along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
 #include <string.h>
 #include "M2Emulator.h"
 #include "../Core/ForceProfile.h"
+#include "../Core/Config.h"
+
+static ffb::Config& config = ffb::Config::Get();
 
 using namespace ffb;
 
-extern int EnableForceSpringEffect;
-extern int ForceSpringStrength;
 
 // Rom name of the game, for the keys of the persistent max force (Config/PersistentValues.cpp)
 char* romnameM2;
@@ -154,9 +155,9 @@ void M2Emulator::Update()
 		}
 	}
 
-	if (EnableForceSpringEffect == 1)
+	if (config.enableForceSpringEffect == 1)
 	{
-		wheel.KeptSpring(ForceSpringStrength / 100.0);
+		wheel.KeptSpring(config.forceSpringStrength / 100.0);
 	}
 
 	ApplyDamper();

@@ -13,10 +13,10 @@ along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
 
 #include "Rambo.h"
 #include "../Core/Devices.h"
+#include "../Core/PluginState.h"
 
 using namespace ffb;
 
-extern HINSTANCE gl_cgGLDll;
 
 void Rambo::Update()
 {

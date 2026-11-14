@@ -14,13 +14,11 @@ along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
 #include <stdlib.h>
 #include "Sega.h"
 #include "../Core/Log.h"
+#include "../Core/Config.h"
+
+static ffb::Config& config = ffb::Config::Get();
 
 // settings of the game, applied by its profile
-extern int SinePeriod;
-extern int SineFadePeriod;
-extern int SineStrength;
-extern int RumbleStrengthLeftMotor;
-extern int RumbleStrengthRightMotor;
 
 namespace ffb
 {
@@ -444,12 +442,12 @@ namespace ffb
 			// shortened as the motor stage rises.
 			static const double periodScale[8] = { 0.0, 1.00, 0.80, 0.65, 0.52, 0.42, 0.34, 0.28 };
 
-			int period = static_cast<int>((SinePeriod * periodScale[level]) + 0.5);
+			int period = static_cast<int>((config.sinePeriod * periodScale[level]) + 0.5);
 			if (period < 1)
 				period = 1;
 
-			const double strength = (SineStrength / 100.0) * (level / 7.0);
-			wheel.Sine(static_cast<UINT16>(period), SineFadePeriod, strength, period);
+			const double strength = (config.sineStrength / 100.0) * (level / 7.0);
+			wheel.Sine(static_cast<UINT16>(period), config.sineFadePeriod, strength, period);
 		}
 		else
 		{
@@ -462,8 +460,8 @@ namespace ffb
 	{
 		if (on)
 		{
-			wheel.Sine(SinePeriod, SineFadePeriod, SineStrength / 100.0, 100);
-			wheel.Rumble(RumbleStrengthLeftMotor / 100.0, RumbleStrengthRightMotor / 100.0, 100);
+			wheel.Sine(config.sinePeriod, config.sineFadePeriod, config.sineStrength / 100.0, 100);
+			wheel.Rumble(config.rumbleStrengthLeftMotor / 100.0, config.rumbleStrengthRightMotor / 100.0, 100);
 		}
 		else
 		{

@@ -13,10 +13,10 @@ along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
 
 #include <stdio.h>
 #include "OutRun2Fake.h"
+#include "../Core/PluginState.h"
 
 using namespace ffb;
 
-extern SDL_Event e;
 
 int OutRun2Game::SpeedStrength(float speed)
 {

@@ -16,13 +16,13 @@ along with FFB Arcade Plugin.If not, see < https://www.gnu.org/licenses/>.
 #include "Demul.h"
 #include "../Core/CRCCheck.h"
 #include "../Core/ForceProfile.h"
+#include "../Core/Config.h"
+#include "../Core/PluginState.h"
+
+static ffb::Config& config = ffb::Config::Get();
 
 using namespace ffb;
 
-extern bool WaitForGame;
-extern int AutoCloseWindowError;
-extern int EnableForceSpringEffect;
-extern int ForceSpringStrength;
 
 // Name of the game, for the keys of the persistent max force (Config/PersistentValues.cpp)
 char* romnameDemul;
@@ -346,7 +346,7 @@ void Demul::Update()
 {
 
 
-	if (AutoCloseWindowError == 1)
+	if (config.autoCloseWindowError == 1)
 	{
 		if (!VolumeMute)
 		{
@@ -478,9 +478,9 @@ void Demul::Update()
 		}
 	}
 		
-	if (EnableForceSpringEffect == 1)
+	if (config.enableForceSpringEffect == 1)
 	{
-		wheel.KeptSpring(ForceSpringStrength / 100.0);
+		wheel.KeptSpring(config.forceSpringStrength / 100.0);
 	}
 
 	if (!WindowSearch)

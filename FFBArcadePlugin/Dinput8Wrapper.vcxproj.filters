@@ -22,6 +22,9 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Core\Config.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
     <ClCompile Include="GameFiles\MAMEOutputs.cpp">
       <Filter>GameFiles</Filter>
     </ClCompile>
@@ -205,6 +208,12 @@
     <ClCompile Include="GameFiles\Cars.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Core\PluginState.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\Config.h">
+      <Filter>Core</Filter>
+    </ClInclude>
     <ClInclude Include="GameFiles\M2EmulatorSegaRallyInputs.h">
       <Filter>GameFiles</Filter>
     </ClInclude>
